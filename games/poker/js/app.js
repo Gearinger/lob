@@ -209,7 +209,7 @@ export class App {
         }
         this.ui.updateLobby(this.room, this.myId, true);
       } else {
-        this.net.send({ type: 'JOIN', data: { name: this.myName, ready: myP.isReady } });
+        this.net.send({ type: 'JOIN', data: { name: this.myName, ready: myP.isReady, uuid: this.myUuid } });
       }
     }
   }
