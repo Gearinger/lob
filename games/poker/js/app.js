@@ -141,6 +141,12 @@ export class App {
         }
         break;
       }
+
+      case 'PLAYER_ACTION': {
+        if (!this.isHost) break;
+        this.playerAction(data.action, data.amount, sender);
+        break;
+      }
     }
   }
 
@@ -208,22 +214,33 @@ export class App {
     });
   }
 
-  playerAction(action, amount) {
+  playerAction(action, amount, playerId = this.myId) {
     if (!this.room) return;
-    const myIdx = this.room.players.findIndex(p => p.id === this.myId);
-    if (myIdx !== this.room.currentTurn) return;
     
-    this.ui.playSFX('click');
+    // 如果是客机自身操作，只负责发送指令给主机
+    if (!this.isHost && playerId === this.myId) {
+      this.ui.playSFX('click');
+      this.net.send({ type: 'PLAYER_ACTION', data: { action, amount } });
+      return;
+    }
+
+    // ----- 以下逻辑仅在主机（Host）端执行 -----
+    const pIdx = this.room.players.findIndex(p => p.id === playerId);
+    if (pIdx !== this.room.currentTurn) return;
+    
+    if (playerId === this.myId) this.ui.playSFX('click');
     this.clearBotTimeout();
-    const me = this.room.players[myIdx];
-    const actualToCall = this.room.currentBet - (me.currentBet || 0);
+    
+    const actor = this.room.players[pIdx];
+    const actualToCall = this.room.currentBet - (actor.currentBet || 0);
     const desc = this._getActionDesc(action, action === 'call' ? actualToCall : amount);
     
-    this.ui.addChatMessage(me.name, desc, true);
-    const ok = this.room.playerAction(this.myId, action, amount);
+    const ok = this.room.playerAction(playerId, action, amount);
     if (!ok) return;
 
-    this.net.send({ type: 'ACTION_LOG', data: { name: me.name, desc } });
+    this.ui.addChatMessage(actor.name, desc, true);
+    this.net.send({ type: 'ACTION_LOG', data: { name: actor.name, desc } });
+    
     this._checkPhaseChange();
     this._broadcastState();
     this.ui.updateGame(this.room, this.myId, true);

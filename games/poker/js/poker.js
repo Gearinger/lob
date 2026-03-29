@@ -13,11 +13,11 @@ export const COUNTDOWN_SECONDS = 3;
 
 export const SUITS = ['♠', '♥', '♦', '♣'];
 export const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-export const RANK_VALUES = { '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14 };
+export const RANK_VALUES = { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
 
 export const PHASES = ['preflop', 'flop', 'turn', 'river', 'showdown', 'gameover'];
-export const PHASE_LABELS = { lobby:'大厅', preflop:'翻牌前', flop:'翻牌', turn:'转牌', river:'河牌', showdown:'摊牌', gameover:'结束' };
-export const PHASE_BET_LIMITS = { preflop:{min:SMALL_BLIND,max:BIG_BLIND}, flop:{min:BIG_BLIND,max:BIG_BLIND}, turn:{min:BIG_BLIND,max:BIG_BLIND}, river:{min:BIG_BLIND,max:BIG_BLIND} };
+export const PHASE_LABELS = { lobby: '大厅', preflop: '翻牌前', flop: '翻牌', turn: '转牌', river: '河牌', showdown: '摊牌', gameover: '结束' };
+export const PHASE_BET_LIMITS = { preflop: { min: SMALL_BLIND, max: BIG_BLIND }, flop: { min: BIG_BLIND, max: BIG_BLIND }, turn: { min: BIG_BLIND, max: BIG_BLIND }, river: { min: BIG_BLIND, max: BIG_BLIND } };
 
 // ==================== POKER UTILS ====================
 export function makeDeck() {
@@ -32,7 +32,7 @@ export function makeDeck() {
 }
 
 export function handRank(hand) {
-  const sorted = [...hand].sort((a,b) => RANK_VALUES[b.rank] - RANK_VALUES[a.rank]);
+  const sorted = [...hand].sort((a, b) => RANK_VALUES[b.rank] - RANK_VALUES[a.rank]);
   const values = sorted.map(c => RANK_VALUES[c.rank]);
   const suits = sorted.map(c => c.suit);
   const isFlush = suits.every(s => s === suits[0]);
@@ -42,33 +42,33 @@ export function handRank(hand) {
   const isLowStraightFlush = isFlush && isLowStraight;
 
   const rankCounts = {};
-  for (const c of hand) rankCounts[c.rank] = (rankCounts[c.rank]||0) + 1;
-  const counts = Object.values(rankCounts).sort((a,b)=>b-a);
+  for (const c of hand) rankCounts[c.rank] = (rankCounts[c.rank] || 0) + 1;
+  const counts = Object.values(rankCounts).sort((a, b) => b - a);
   const uniqueRanks = Object.keys(rankCounts);
 
   if (isStraightFlush || isLowStraightFlush) return [8, ...(isLowStraightFlush ? [5] : [values[0]]), ...values];
-  if (counts[0] === 4) return [7, ...values.slice(0,1), ...values]; // Four of a kind
-  if (counts[0] === 3 && counts[1] === 2) return [6, ...values.slice(0,1), ...values]; // Full house
+  if (counts[0] === 4) return [7, ...values.slice(0, 1), ...values]; // Four of a kind
+  if (counts[0] === 3 && counts[1] === 2) return [6, ...values.slice(0, 1), ...values]; // Full house
   if (isFlush) return [5, ...values]; // Flush
   if (isStraight || isLowStraight) return [4, isLowStraight ? 5 : values[0]]; // Straight
   if (counts[0] === 3) return [3, ...values, ...values]; // Three of a kind
   if (counts[0] === 2 && counts[1] === 2) {
-    const pairs = uniqueRanks.filter(r => rankCounts[r] === 2).sort((a,b)=>RANK_VALUES[b]-RANK_VALUES[a]);
-    const kickers = values.filter(v => !pairs.map(r=>RANK_VALUES[r]).includes(v));
-    return [2, ...pairs.map(r=>RANK_VALUES[r]), ...kickers];
+    const pairs = uniqueRanks.filter(r => rankCounts[r] === 2).sort((a, b) => RANK_VALUES[b] - RANK_VALUES[a]);
+    const kickers = values.filter(v => !pairs.map(r => RANK_VALUES[r]).includes(v));
+    return [2, ...pairs.map(r => RANK_VALUES[r]), ...kickers];
   }
-  if (counts[0] === 2) return [1, ...Object.keys(rankCounts).sort((a,b)=>RANK_VALUES[b]-RANK_VALUES[a]).map(r=>RANK_VALUES[r]), ...values]; // One pair
+  if (counts[0] === 2) return [1, ...Object.keys(rankCounts).sort((a, b) => RANK_VALUES[b] - RANK_VALUES[a]).map(r => RANK_VALUES[r]), ...values]; // One pair
   return [0, ...values]; // High card
 }
 
 export function bestHandFrom7(cards7) {
   let best = null;
   for (let i = 0; i < cards7.length - 4; i++) {
-    for (let j = i+1; j < cards7.length - 3; j++) {
-      for (let k = j+1; k < cards7.length - 2; k++) {
-        for (let l = k+1; l < cards7.length - 1; l++) {
-          for (let m = l+1; m < cards7.length; m++) {
-            const combo = [cards7[i],cards7[j],cards7[k],cards7[l],cards7[m]];
+    for (let j = i + 1; j < cards7.length - 3; j++) {
+      for (let k = j + 1; k < cards7.length - 2; k++) {
+        for (let l = k + 1; l < cards7.length - 1; l++) {
+          for (let m = l + 1; m < cards7.length; m++) {
+            const combo = [cards7[i], cards7[j], cards7[k], cards7[l], cards7[m]];
             const r = handRank(combo);
             if (!best || compareRanks(r, handRank(best)) > 0) best = combo;
           }
@@ -89,7 +89,7 @@ export function compareRanks(a, b) {
 
 export function describeHand(hand) {
   const r = handRank(hand);
-  const names = ['高牌','一对','两对','三条','顺子','同花','葫芦','四条','同花顺'];
+  const names = ['高牌', '一对', '两对', '三条', '顺子', '同花', '葫芦', '四条', '同花顺'];
   return names[r[0]] || '未知';
 }
 
@@ -158,7 +158,7 @@ export class GameRoom {
   addBot(name) {
     if (this.players.length >= 2) return null;
     const botId = 'bot_' + Date.now();
-    const p = { id: botId, name: name || 'Bot-' + (this.players.length+1), isBot: true, isReady: true, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
+    const p = { id: botId, name: name || 'Bot-' + (this.players.length + 1), isBot: true, isReady: true, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
     this.players.push(p);
     return p;
   }
@@ -177,7 +177,7 @@ export class GameRoom {
   _bettingRoundComplete() {
     const active = this.players.filter(p => !p.folded);
     const canAct = active.filter(p => p.chips > 0);
-    
+
     // If everyone is all-in or folded, round is complete
     if (canAct.length <= 1 && active.every(p => p.chips === 0 || p.folded || (p.currentBet === this.currentBet))) {
       return true;
@@ -186,7 +186,7 @@ export class GameRoom {
     // Must have everyone matched the current bet AND everyone must have had a chance to act
     const matched = active.every(p => p.folded || p.chips === 0 || p.currentBet === this.currentBet);
     const allActed = active.every(p => p.folded || p.chips === 0 || p.actedThisRound);
-    
+
     return matched && allActed;
   }
 
@@ -201,32 +201,41 @@ export class GameRoom {
     this.showdownResults = [];
     this.deck = makeDeck();
 
-    this.players.forEach(p => { 
-      p.currentBet = 0; 
+    this.players.forEach(p => {
+      p.currentBet = 0;
       p.handTotal = 0;
-      p.folded = false; 
+      p.folded = false;
       p.actedThisRound = false;
-      p.hand = [this.deck.pop(), this.deck.pop()]; 
+      p.hand = [this.deck.pop(), this.deck.pop()];
     });
 
     this.dealerIdx = (this.dealerIdx + 1) % this.players.length;
-    const sbIdx = this.dealerIdx;
-    const bbIdx = (this.dealerIdx + 1) % this.players.length;
+    const n = this.players.length;
+    
+    let sbIdx, bbIdx, firstActorIdx;
+    if (n === 2) {
+      sbIdx = this.dealerIdx;
+      bbIdx = (this.dealerIdx + 1) % n;
+      firstActorIdx = sbIdx;
+    } else {
+      sbIdx = (this.dealerIdx + 1) % n;
+      bbIdx = (this.dealerIdx + 2) % n;
+      firstActorIdx = (this.dealerIdx + 3) % n;
+    }
 
     const sb = this.players[sbIdx];
     const bb = this.players[bbIdx];
-    
+
     const sbAmt = Math.min(SMALL_BLIND, sb.chips);
     const bbAmt = Math.min(BIG_BLIND, bb.chips);
-    
+
     sb.chips -= sbAmt; sb.currentBet = sbAmt;
     bb.chips -= bbAmt; bb.currentBet = bbAmt;
-    this.currentBet = bbAmt;
+    this.currentBet = Math.max(sbAmt, bbAmt);
     this.pot = sbAmt + bbAmt;
 
-    // Small blind is dealer in heads-up, but big blind acts last preflop
-    this.currentTurn = sbIdx;
-    console.info('[GAME] Seating done. S-Blind:', sb.name, 'B-Blind:', bb.name, 'First actor:', this.players[this.currentTurn].name);
+    this.currentTurn = firstActorIdx;
+    console.info('[GAME] Round start. Turn:', this.players[this.currentTurn].name, 'SB:', sb.name, 'BB:', bb.name);
   }
 
   playerAction(playerId, action, amount) {
@@ -238,47 +247,64 @@ export class GameRoom {
     const p = this.players[pIdx];
     if (p.folded) return false;
 
-    console.info('[GAME] Action:', p.name, '->', action, amount || '');
-    p.actedThisRound = true;
     const toCall = this.currentBet - (p.currentBet || 0);
+    let success = false;
 
-    switch(action) {
-      case 'fold': p.folded = true; break;
-      case 'check': if (toCall > 0) break; break;
+    switch (action) {
+      case 'fold': 
+        p.folded = true; 
+        success = true; 
+        break;
+      case 'check': 
+        if (toCall === 0) success = true; 
+        break;
       case 'call': {
         const callAmt = Math.min(toCall, p.chips);
         p.chips -= callAmt;
         p.currentBet = (p.currentBet || 0) + callAmt;
         this.pot += callAmt;
+        success = true;
         break;
       }
       case 'raise': {
-        const totalBet = Math.min(amount || this.currentBet + MIN_RAISE, p.chips + (p.currentBet || 0));
+        const targetAmount = Math.max(amount || (this.currentBet + MIN_RAISE), this.currentBet + MIN_RAISE);
+        const totalBet = Math.min(targetAmount, p.chips + (p.currentBet || 0));
         const raiseAmt = totalBet - (p.currentBet || 0);
-        if (raiseAmt <= 0) break;
-        p.chips -= raiseAmt;
-        p.currentBet = (p.currentBet || 0) + raiseAmt;
-        this.pot += raiseAmt;
-        if (p.currentBet > this.currentBet) {
-          this.currentBet = p.currentBet;
-          // Everyone else must act again
-          this.players.forEach(p => { if (p.id !== playerId) p.actedThisRound = false; });
+        if (raiseAmt > 0 && raiseAmt >= toCall) {
+          p.chips -= raiseAmt;
+          p.currentBet = (p.currentBet || 0) + raiseAmt;
+          this.pot += raiseAmt;
+          if (p.currentBet > this.currentBet) {
+            this.currentBet = p.currentBet;
+            this.players.forEach(p2 => { if (p2.id !== playerId) p2.actedThisRound = false; });
+          }
+          success = true;
         }
         break;
       }
       case 'allin': {
         const allInAmt = p.chips;
-        p.chips = 0;
-        p.currentBet = (p.currentBet || 0) + allInAmt;
-        this.pot += allInAmt;
-        if (p.currentBet > this.currentBet) {
-          this.currentBet = p.currentBet;
-          this.players.forEach(p => { if (p.id !== playerId) p.actedThisRound = false; });
+        if (allInAmt >= 0) {
+          p.chips = 0;
+          p.currentBet = (p.currentBet || 0) + allInAmt;
+          this.pot += allInAmt;
+          if (p.currentBet > this.currentBet) {
+            this.currentBet = p.currentBet;
+            this.players.forEach(p2 => { if (p2.id !== playerId) p2.actedThisRound = false; });
+          }
+          success = true;
         }
         break;
       }
     }
 
+    if (!success) {
+      console.warn(`[GAME] Action failed validation: ${action} for ${p.name}`);
+      return false;
+    }
+
+    console.info('[GAME] Action:', p.name, '->', action, amount || '');
+    p.actedThisRound = true;
     this._advanceTurn(pIdx);
     this._checkPhaseEnd();
     return true;
@@ -326,16 +352,24 @@ export class GameRoom {
     if (this.phase === 'gameover') return;
 
     this.currentBet = 0;
-    this.players.forEach(p => { 
+    this.players.forEach(p => {
       p.handTotal = (p.handTotal || 0) + (p.currentBet || 0);
-      p.currentBet = 0; 
-      p.actedThisRound = false; 
+      p.currentBet = 0;
+      p.actedThisRound = false;
     });
 
     if (this.phase === 'flop') {
       this.publicCards.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
     } else if (this.phase === 'turn' || this.phase === 'river') {
       this.publicCards.push(this.deck.pop());
+    }
+
+    const active = this.activePlayers;
+    const canAct = active.filter(p => p.chips > 0);
+    if (canAct.length <= 1) {
+      // Auto complete the round if no multiple players can act
+      this._checkPhaseEnd();
+      return;
     }
 
     const n = this.players.length;
@@ -350,15 +384,15 @@ export class GameRoom {
       start = (start + 1) % n;
       tries++;
     }
-    this.phase = 'showdown';
-    this._resolveShowdown();
-    this.phase = 'gameover';
+    
+    // Fallback if all players somehow skipped
+    this._checkPhaseEnd();
   }
 
   _resolveShowdown() {
     const active = this.activePlayers;
     this.showdownResults = [];
-    
+
     if (active.length === 1) {
       active[0].chips += this.pot;
       this.winner = active[0].name;
@@ -374,10 +408,10 @@ export class GameRoom {
       const hand = bestHandFrom7(allCards);
       const rank = handRank(hand);
       const desc = describeHand(hand);
-      
-      this.showdownResults.push({ 
-        name: player.name, 
-        desc: desc, 
+
+      this.showdownResults.push({
+        name: player.name,
+        desc: desc,
         cards: hand.map(c => cardDisplay(c)).join(' ')
       });
 

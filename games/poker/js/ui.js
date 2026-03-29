@@ -37,7 +37,7 @@ export class UI {
     if (!fromEl) return;
     const rect = fromEl.getBoundingClientRect();
     const potEl = document.getElementById('cur-phase-pot');
-    const potRect = potEl ? potEl.getBoundingClientRect() : { left: window.innerWidth/2, top: window.innerHeight/2 };
+    const potRect = potEl ? potEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2 };
     const chip = document.createElement('div');
     chip.className = 'chip-particle' + (isDown ? ' fly-down' : '');
     chip.textContent = '¢';
@@ -65,7 +65,7 @@ export class UI {
     toast.className = 'toast-message';
     toast.innerHTML = `<span class="icon">${icon}</span>${msg}`;
     container.appendChild(toast);
-    
+
     // Auto remove after 2.8s total animation
     setTimeout(() => { toast.remove(); }, 2800);
   }
@@ -157,7 +157,7 @@ export class UI {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
-    
+
     if (id === 'lobby-screen') this.playBGM('lobby');
     else if (id === 'game-screen') this.playBGM('game');
   }
@@ -231,7 +231,7 @@ export class UI {
   updateGame(room, myId, isHost) {
     this.room = room; // cache for raise panel callbacks
     document.getElementById('game-room-code').textContent = room.roomCode;
-    
+
     const phaseChanged = this.lastPhase !== room.phase;
     if (phaseChanged) {
       if (room.phase !== 'lobby' && room.phase !== 'gameover') this.playSFX('deal');
@@ -250,7 +250,7 @@ export class UI {
 
     const curLabel = document.getElementById('cur-phase-pot');
     if (curLabel) curLabel.textContent = currentPhaseTotal;
-    
+
     const totalLabel = document.getElementById('total-game-pot');
     if (totalLabel) totalLabel.textContent = totalGamePot;
 
@@ -290,30 +290,30 @@ export class UI {
       const div = document.createElement('div');
       const relIdx = (i - myIdx + n) % n;
       const posClass = relIdx === 0 ? 'pos-self' : 'pos-opp';
-      
+
       div.className = 'player-seat ' + posClass;
       const isMe = p.id === myId;
       const isTurn = (i === room.currentTurn && room.phase !== 'lobby' && room.phase !== 'gameover' && !p.folded);
       const isWinner = (room.phase === 'gameover' && room.winner === p.name);
-      
+
       // We show cards if it's me, or if it's showdown/gameover UNLESS they folded
       const showCards = (isMe && !p.folded) || ((room.phase === 'showdown' || room.phase === 'gameover') && !p.folded);
 
       let cardsHtml = '';
       if (p.hand && p.hand.length === 2) {
         const isOpp = posClass === 'pos-opp';
-        const aniClass = phaseChanged && room.phase === 'preflop' 
+        const aniClass = phaseChanged && room.phase === 'preflop'
           ? (isOpp ? 'deal-anim deal-anim-opp' : 'deal-anim') : '';
         if (showCards) {
           const isShowdown = (room.phase === 'showdown' || room.phase === 'gameover');
           const cardAni = isShowdown && !isMe ? 'deal-anim flip-anim' : aniClass;
           cardsHtml = p.hand.map((c, ci) =>
-            `<div class="card ${c.suit==='♥'||c.suit==='♦'?'red':'black'} ${cardAni} deal-d${ci}" style="margin:0 2px; width:60px; height:84px;">${renderRank(c.rank)}<span class="suit">${c.suit}</span></div>`
+            `<div class="card ${c.suit === '♥' || c.suit === '♦' ? 'red' : 'black'} ${cardAni} deal-d${ci}" style="margin:0 2px; width:60px; height:84px;">${renderRank(c.rank)}<span class="suit">${c.suit}</span></div>`
           ).join('');
         } else if (!p.folded) {
           const oppAni = isOpp ? (aniClass ? 'deal-anim-opp' : '') : aniClass;
-          cardsHtml = `<div class="card-back ${oppAni} deal-d0" style="width:60px;height:84px;border-radius:8px; margin: 0 2px;"></div>` + 
-                      `<div class="card-back ${oppAni} deal-d1" style="width:60px;height:84px;border-radius:8px; margin: 0 2px;"></div>`;
+          cardsHtml = `<div class="card-back ${oppAni} deal-d0" style="width:60px;height:84px;border-radius:8px; margin: 0 2px;"></div>` +
+            `<div class="card-back ${oppAni} deal-d1" style="width:60px;height:84px;border-radius:8px; margin: 0 2px;"></div>`;
         }
       }
 
@@ -321,7 +321,7 @@ export class UI {
         ? `<div class="bet-indicator anim-pop">
             <div class="bet-part">本轮 ${p.currentBet || 0}</div>
             <div class="bet-sep"></div>
-            <div class="bet-part">总计 ${ (p.handTotal || 0) + (p.currentBet || 0) }</div>
+            <div class="bet-part">总计 ${(p.handTotal || 0) + (p.currentBet || 0)}</div>
            </div>` : '';
 
       let labels = '';
@@ -336,8 +336,8 @@ export class UI {
       div.innerHTML = `
         <div class="side-layout">
           <div class="seat-card-row ${!showCards ? 'seat-cards-hidden' : ''} ${p.folded ? 'seat-folded' : ''}">${cardsHtml}</div>
-          <div class="seat-info ${isTurn?'is-turn':''} ${isWinner?'is-winner':''}">
-            <div class="seat-name">${p.name}${p.isBot?' 🤖':''}</div>
+          <div class="seat-info ${isTurn ? 'is-turn' : ''} ${isWinner ? 'is-winner' : ''}">
+            <div class="seat-name">${p.name}${p.isBot ? ' 🤖' : ''}</div>
             <div class="seat-chips">💰 ${p.chips}</div>
             <div class="seat-roles">${labels}</div>
             ${p.folded ? '<div class="action-status folded">已弃牌</div>' : ''}
