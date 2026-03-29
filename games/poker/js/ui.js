@@ -165,6 +165,44 @@ export class UI {
   showLobby() { this.showScreen('lobby-screen'); }
   showGame() { this.showScreen('game-screen'); }
 
+  showCountdown(seconds, callback) {
+    this.hideCountdown();
+    let sec = seconds || 3;
+    const overlay = document.createElement('div');
+    overlay.id = 'countdown-overlay';
+    overlay.className = 'loading-overlay active'; // 借用背景的毛玻璃黑色遮罩
+    overlay.style.zIndex = '10000';
+    overlay.innerHTML = `<div id="countdown-num" style="font-size: 6rem; font-weight: 800; color: #E88A3D; text-shadow: 0 0 20px rgba(232,138,61,0.6); animation: popIn 0.8s ease-out;">${sec}</div>`;
+    document.body.appendChild(overlay);
+    this.playSFX('click');
+
+    this._countdownInterval = setInterval(() => {
+      sec--;
+      if (sec <= 0) {
+        this.hideCountdown();
+        if (callback) callback();
+      } else {
+        const num = document.getElementById('countdown-num');
+        if (num) {
+          num.textContent = sec;
+          num.style.animation = 'none';
+          void num.offsetWidth;
+          num.style.animation = 'popIn 0.8s ease-out';
+          this.playSFX('click');
+        }
+      }
+    }, 1000);
+  }
+
+  hideCountdown() {
+    if (this._countdownInterval) {
+      clearInterval(this._countdownInterval);
+      this._countdownInterval = null;
+    }
+    const overlay = document.getElementById('countdown-overlay');
+    if (overlay) overlay.remove();
+  }
+
   updateLobby(room, myId, isHost) {
     document.getElementById('setup-section').style.display = 'none';
     document.getElementById('room-section').style.display = 'block';

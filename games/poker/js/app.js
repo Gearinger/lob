@@ -109,14 +109,29 @@ export class App {
         if (this.isHost) break;
         console.debug('[APP] ROOM_STATE sync received. Phase:', data.phase);
         const wasInGame = this.room && this.room.phase !== 'lobby' && this.room.phase !== 'gameover';
+        const wasGameOver = this.room && this.room.phase === 'gameover';
         this._deserializeRoom(data);
         this._checkPhaseChange();
+        
         if (this.room.phase === 'lobby') {
           this.ui.showLobby();
           this.ui.updateLobby(this.room, this.myId, false);
+          
+          // 若全员就绪，客机同步触发视觉倒计时
+          if (this.room.allReady()) {
+            this._startCountdown();
+          } else if (this._countingDown) {
+            this._countingDown = false;
+            this.ui.hideCountdown();
+          }
         } else {
           if (!wasInGame) this.ui.showGame();
           this.ui.updateGame(this.room, this.myId, false);
+          
+          // 客机同步弹出游戏结束结算面板
+          if (this.room.phase === 'gameover' && !wasGameOver) {
+            this._handleGameOver();
+          }
         }
         break;
       }
@@ -205,12 +220,17 @@ export class App {
     this._countingDown = true;
     this.ui.showCountdown(COUNTDOWN_SECONDS, () => {
       this._countingDown = false;
-      this.room.startGame();
-      this._lastPhase = 'preflop';
       this.ui.showGame();
-      this.ui.updateGame(this.room, this.myId, true);
-      this._broadcastState();
-      this._scheduleBotTurn();
+      if (this.room) this.ui.updateGame(this.room, this.myId, this.isHost);
+      
+      // 只有主机具有游戏进程推进的职权
+      if (this.isHost) {
+        this.room.startGame();
+        this._lastPhase = 'preflop';
+        this.ui.updateGame(this.room, this.myId, true);
+        this._broadcastState();
+        this._scheduleBotTurn();
+      }
     });
   }
 
@@ -305,7 +325,10 @@ export class App {
     
     this.ui.showResult(winner, hand, this.room.showdownResults);
     this.ui.addChatMessage('', `🏆 ${winner} 获胜！${hand}`, true);
-    this._broadcastState();
+    
+    if (this.isHost) {
+      this._broadcastState();
+    }
     
     const alive = this.room.players.filter(p => p.chips > 0);
     const nextBtn = document.getElementById('btn-next-round');
@@ -320,7 +343,7 @@ export class App {
         if (timeLeft <= 0) {
           clearInterval(this._autoNextRoundTimeout);
           this._autoNextRoundTimeout = null;
-          if (this.isHost) this._nextRound();
+          this._nextRound();
         } else {
           nextBtn.textContent = `下一局 (${timeLeft}s)`;
         }
@@ -374,6 +397,17 @@ export class App {
 
   _deserializeRoom(data) {
     this.room = Object.assign(new GameRoom(data.roomCode, data.hostId, ''), data);
+  }
+
+  _sendChat() {
+    const input = document.getElementById('chat-input');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    this.ui.addChatMessage(this.myName, text);
+    this.net.send({ type: 'CHAT', data: { name: this.myName, text } });
+    input.value = '';
   }
 
   _leave() {
