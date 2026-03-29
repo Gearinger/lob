@@ -988,7 +988,6 @@ class UI {
     waitMsg.style.display = (room.players.length < 2) ? 'block' : 'none';
 
     // Delegate remove-bot button clicks (app = window.app)
-    const list = document.getElementById('lobby-player-list');
     if (list) {
       list.onclick = e => {
         const btn = e.target.closest('.remove-bot-btn');
