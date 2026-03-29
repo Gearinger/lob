@@ -8,6 +8,7 @@ export class Network {
   constructor() {
     this.peer = null;
     this.conn = null;
+    this.conns = new Map(); // 用于主机存放多路连接
     this.onMessage = null;
     this.onConnect = null;
     this.onDisconnect = null;
@@ -45,7 +46,7 @@ export class Network {
       });
       this.peer.on('connection', conn => {
         console.info('[NET] Incoming connection from joiner:', conn.peer);
-        this.conn = conn;
+        this.conns.set(conn.peer, conn);
         this._setupConnection(conn);
         this._updateStatus('玩家已连接!');
         if (this.onConnect) this.onConnect();
@@ -62,7 +63,7 @@ export class Network {
     });
   }
 
-  async joinRoom(playerName, roomCode) {
+  async joinRoom(playerName, roomCode, uuid) {
     const peerId = 'lobpoker_' + this._hashCode(roomCode) + '_' + Date.now().toString(36) + '_j';
     console.info('[NET] Attempting to join room:', roomCode, 'as', peerId);
     return new Promise((resolve, reject) => {
@@ -87,7 +88,7 @@ export class Network {
         this.conn.on('open', () => {
           console.info('[NET] Connection to host established!');
           this._updateStatus('已连接房主!');
-          this.send({ type: 'JOIN', data: { name: playerName } });
+          this.send({ type: 'JOIN', data: { name: playerName, uuid } });
           resolve(id);
         });
         this.conn.on('error', err => {
@@ -117,25 +118,39 @@ export class Network {
       if (this.onMessage) this.onMessage(data);
     });
     conn.on('close', () => {
-      console.warn('[NET] Connection closed by remote peer.');
-      this._updateStatus('对方已断开连接');
-      if (this.onDisconnect) this.onDisconnect();
+      console.warn('[NET] Connection closed by remote peer:', conn.peer);
+      if (this.isHost) this.conns.delete(conn.peer);
+      this._updateStatus('有玩家断开连接');
+      if (this.onDisconnect) this.onDisconnect(conn.peer);
     });
   }
 
   send(msg) {
-    if (this.conn && this.conn.open) {
-      const payload = { ...msg, sender: this.myId, timestamp: Date.now() };
-      console.debug('[NET] SENDING >>', msg.type, msg);
-      this.conn.send(payload);
+    const payload = { ...msg, sender: this.myId, timestamp: Date.now() };
+    if (this.isHost) {
+      let sentCount = 0;
+      this.conns.forEach((conn) => {
+        if (conn && conn.open) {
+          conn.send(payload);
+          sentCount++;
+        }
+      });
+      console.debug('[NET] BROADCASTING >>', msg.type, 'to', sentCount, 'peers.');
     } else {
-      console.warn('[NET] Cannot send message, connection is not open:', msg.type);
+      if (this.conn && this.conn.open) {
+        console.debug('[NET] SENDING >>', msg.type, msg);
+        this.conn.send(payload);
+      } else {
+        console.warn('[NET] Cannot send message, connection is not open:', msg.type);
+      }
     }
   }
 
   destroy() {
     console.info('[NET] Destroying network instance...');
     if (this.conn) this.conn.close();
+    this.conns.forEach((c) => c.close());
+    this.conns.clear();
     if (this.peer) this.peer.destroy();
   }
 

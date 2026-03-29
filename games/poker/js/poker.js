@@ -132,10 +132,10 @@ export function estimateHandStrength(state, playerIdx) {
 
 // ==================== GAME STATE ====================
 export class GameRoom {
-  constructor(roomCode, hostId, hostName) {
+  constructor(roomCode, hostId, hostName, hostUuid = '') {
     this.roomCode = roomCode;
     this.hostId = hostId;
-    this.players = [{ id: hostId, name: hostName, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, folded: false, actedThisRound: false, connected: true, hand: [] }];
+    this.players = [{ id: hostId, uuid: hostUuid, name: hostName, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, folded: false, actedThisRound: false, connected: true, hand: [] }];
     this.phase = 'lobby';
     this.publicCards = [];
     this.pot = 0;
@@ -148,17 +148,17 @@ export class GameRoom {
     this.showdownResults = [];
   }
 
-  addPlayer(id, name) {
-    if (this.players.length >= 2) return null;
-    const p = { id, name, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
+  addPlayer(id, name, uuid = '') {
+    if (this.players.length >= 6) return null;
+    const p = { id, uuid, name, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
     this.players.push(p);
     return p;
   }
 
   addBot(name) {
-    if (this.players.length >= 2) return null;
+    if (this.players.length >= 6) return null;
     const botId = 'bot_' + Date.now();
-    const p = { id: botId, name: name || 'Bot-' + (this.players.length + 1), isBot: true, isReady: true, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
+    const p = { id: botId, uuid: botId, name: name || 'Bot-' + (this.players.length + 1), isBot: true, isReady: true, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
     this.players.push(p);
     return p;
   }

@@ -20,9 +20,15 @@ export class App {
     this._lastPhase = 'lobby';
     this.botTimeouts = {};
     
+    this.myUuid = localStorage.getItem('lob_poker_uuid');
+    if (!this.myUuid) {
+      this.myUuid = Math.random().toString(36).substring(2, 10);
+      localStorage.setItem('lob_poker_uuid', this.myUuid);
+    }
+    
     this.net.onMessage = (msg) => this._handleMessage(msg);
     this.net.onConnect = () => {};
-    this.net.onDisconnect = () => this._leave();
+    this.net.onDisconnect = (peerId) => this._handleDisconnect(peerId);
   }
 
   init() {
@@ -40,7 +46,7 @@ export class App {
       await this.net.createRoom(name, code);
       this.isHost = true;
       this.myId = this.net.myId;
-      this.room = new GameRoom(code, this.myId, name);
+      this.room = new GameRoom(code, this.myId, name, this.myUuid);
       this._lastPhase = 'lobby';
       this.ui.showLobby();
       this.ui.addChatMessage('', `🏠 房间 ${code} 已创建，等待玩家加入...`, true);
@@ -58,13 +64,13 @@ export class App {
     console.info('[APP] Joining room:', code, 'as guest:', name);
     try {
       this.myName = name;
-      await this.net.joinRoom(name, code);
+      await this.net.joinRoom(name, code, this.myUuid);
       this.isHost = false;
       this.myId = this.net.myId;
       this._lastPhase = 'lobby';
       this.ui.showLobby();
       this.ui.addChatMessage('', `✅ 已加入房间 ${code}，等待同步...`, true);
-      this.ui.updateLobby({ players: [{ id: this.myId, name, isBot: false, isReady: false }], roomCode: code, hostId: '' }, this.myId, false);
+      this.ui.updateLobby({ players: [{ id: this.myId, uuid: this.myUuid, name, isBot: false, isReady: false }], roomCode: code, hostId: '' }, this.myId, false);
     } catch (e) {
       console.error('[APP] Room join fail:', e);
       this.ui.showError('加入房间失败: ' + (e.message || e.type || ''));
@@ -80,12 +86,20 @@ export class App {
     switch (type) {
       case 'JOIN': {
         if (!this.isHost || !this.room) break;
-        console.info('[APP] JOIN/Update from:', data.name, 'Ready:', data.ready);
-        let p = this.room.players.find(p => p.id === sender);
+        console.info('[APP] JOIN/Update from:', data.name, 'Ready:', data.ready, 'UUID:', data.uuid);
+        
+        let p = this.room.players.find(p => p.uuid === data.uuid);
         if (p) {
-          p.isReady = !!data.ready;
+          // 断线重连或状态更新：更新通信通道 id
+          if (p.id !== sender) {
+            console.info(`[APP] 玩家 ${data.name} 断线重连成功！更新网线 ${p.id} -> ${sender}`);
+            this.ui.addChatMessage('', `🔄 ${data.name} 重新连接回了房间！`, true);
+            p.id = sender;
+          }
+          p.connected = true;
+          if (data.ready !== undefined) p.isReady = !!data.ready;
         } else {
-          p = this.room.addPlayer(sender, data.name);
+          p = this.room.addPlayer(sender, data.name, data.uuid);
           if (p) {
             p.isReady = !!data.ready;
             this.ui.addChatMessage('', `👤 ${data.name} 加入了房间`, true);
@@ -148,9 +162,17 @@ export class App {
       }
 
       case 'LEAVE': {
-        this.ui.addChatMessage('', `🚪 ${data.name} 离开了房间`, true);
         if (this.isHost && this.room) {
-          this.room.removePlayer(sender);
+          const p = this.room.players.find(p => p.id === sender);
+          if (p && !p.isReady && this.room.phase === 'lobby') {
+            // 在大厅时允许彻底移除
+            this.ui.addChatMessage('', `🚪 ${data.name} 退出了房间`, true);
+            this.room.removePlayer(sender);
+          } else if (p) {
+            // 对战中不可踢出，挂机状态
+            this.ui.addChatMessage('', `⚠ ${data.name} 临时离开了房间 (可重连)`, true);
+            p.connected = false;
+          }
           this._broadcastState();
           this.ui.updateLobby(this.room, this.myId, true);
         }
@@ -335,9 +357,15 @@ export class App {
     
     if (alive.length < 2) {
       nextBtn.textContent = '游戏宣告结束';
+      nextBtn.style.pointerEvents = 'none';
+      nextBtn.style.opacity = '0.7';
     } else {
-      let timeLeft = 3;
-      nextBtn.textContent = `下一局 (${timeLeft}s)`;
+      let timeLeft = 7;
+      const getBtnText = (t) => this.isHost ? `下一局 (${t}s)` : `等待房主 (${t}s)`;
+      nextBtn.textContent = getBtnText(timeLeft);
+      nextBtn.style.pointerEvents = this.isHost ? 'auto' : 'none';
+      nextBtn.style.opacity = this.isHost ? '1' : '0.6';
+
       this._autoNextRoundTimeout = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
@@ -345,7 +373,7 @@ export class App {
           this._autoNextRoundTimeout = null;
           this._nextRound();
         } else {
-          nextBtn.textContent = `下一局 (${timeLeft}s)`;
+          nextBtn.textContent = getBtnText(timeLeft);
         }
       }, 1000);
     }
@@ -408,6 +436,29 @@ export class App {
     this.ui.addChatMessage(this.myName, text);
     this.net.send({ type: 'CHAT', data: { name: this.myName, text } });
     input.value = '';
+  }
+
+  _handleDisconnect(peerId) {
+    // 只有非房主完全断网时，才调用硬退出。如果是主机管理旗下玩家掉线则走房主逻辑。
+    if (!this.isHost && !peerId) {
+      return this._leave();
+    }
+    
+    // 主机收到某 peerID 断开的消息
+    if (this.isHost && this.room && peerId) {
+      const p = this.room.players.find(p => p.id === peerId);
+      if (p) {
+        if (this.room.phase === 'lobby') {
+          this.ui.addChatMessage('', `🔌 ${p.name} 连接意外断开`, true);
+          p.connected = false;
+        } else {
+          this.ui.addChatMessage('', `⚠ ${p.name} 掉线了 (将进入托管/等待重连)`, true);
+          p.connected = false;
+        }
+        this._broadcastState();
+        this.ui.updateLobby(this.room, this.myId, true);
+      }
+    }
   }
 
   _leave() {
