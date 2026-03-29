@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 造车模拟器 - Car Factory Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 标题栏 -->
+        <header class="game-header">
+            <h1>🚗 造车模拟器</h1>
+            <div class="game-stats">
+                <span class="stat">💰 资金: <span id="money">0</span></span>
+                <span class="stat">📅 第 <span id="year">1</span> 年 Q<span id="quarter">1</span></span>
+                <span class="stat">🎯 难度: <span id="difficulty">-</span></span>
+            </div>
+        </header>
+
+        <!-- 难度选择界面 -->
+        <div id="difficulty-screen" class="screen active">
+            <div class="modal">
+                <h2>选择游戏难度</h2>
+                <div class="difficulty-options">
+                    <button class="diff-btn easy" data-diff="easy">
+                        <span class="diff-name">🌱 简单</span>
+                        <span class="diff-desc">初始资金 1亿，风险概率 15%</span>
+                    </button>
+                    <button class="diff-btn medium" data-diff="medium">
+                        <span class="diff-name">⚙️ 中等</span>
+                        <span class="diff-desc">初始资金 5000万，风险概率 30%</span>
+                    </button>
+                    <button class="diff-btn hard" data-diff="hard">
+                        <span class="diff-name">🔥 困难</span>
+                        <span class="diff-desc">初始资金 2000万，风险概率 50%</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div id="game-screen" class="screen">
+            <!-- 流程图 -->
+            <div class="flow-chart">
+                <div class="flow-row">
+                    <div class="flow-node" data-phase="research">
+                        <div class="node-icon">🔧</div>
+                        <div class="node-name">研发设计</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node" data-phase="procurement">
+                        <div class="node-icon">📦</div>
+                        <div class="node-name">采购供应</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node" data-phase="production">
+                        <div class="node-icon">🏭</div>
+                        <div class="node-name">生产制造</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node" data-phase="quality">
+                        <div class="node-icon">✅</div>
+                        <div class="node-name">质检出厂</div>
+                    </div>
+                </div>
+                <div class="flow-row reverse">
+                    <div class="flow-node" data-phase="after-sales">
+                        <div class="node-icon">🛠️</div>
+                        <div class="node-name">售后服务</div>
+                    </div>
+                    <div class="flow-arrow">←</div>
+                    <div class="flow-node" data-phase="marketing">
+                        <div class="node-icon">📢</div>
+                        <div class="node-name">宣发销售</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 决策面板 -->
+            <div class="decision-panel">
+                <h3 id="phase-title">📋 研发设计阶段</h3>
+                <p id="phase-desc">请决定您的车型研发方向</p>
+
+                <div id="decision-options" class="decision-options">
+                    <!-- 动态生成选项 -->
+                </div>
+
+                <button id="confirm-btn" class="confirm-btn">确认投入</button>
+            </div>
+
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-icon">⭐</span>
+                    <span class="status-label">口碑</span>
+                    <div class="status-bar-fill">
+                        <div id="reputation-bar" class="bar-fill" style="width: 50%"></div>
+                    </div>
+                    <span id="reputation-val">50</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">📈</span>
+                    <span class="status-label">销量</span>
+                    <span id="sales-val">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🏭</span>
+                    <span class="status-label">库存</span>
+                    <span id="inventory-val">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🎖️</span>
+                    <span class="status-label">声望</span>
+                    <span id="fame-val">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 事件弹窗 -->
+        <div id="event-modal" class="modal hidden">
+            <div class="event-content">
+                <h3 id="event-title">⚠️ 随机事件</h3>
+                <p id="event-desc">事件描述</p>
+                <div id="event-impact"></div>
+                <button id="event-close" class="confirm-btn">知道了</button>
+            </div>
+        </div>
+
+        <!-- 游戏结束 -->
+        <div id="game-over-screen" class="screen hidden">
+            <div class="modal">
+                <h2 id="game-over-title">游戏结束</h2>
+                <div id="game-over-stats"></div>
+                <button id="restart-btn" class="confirm-btn">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

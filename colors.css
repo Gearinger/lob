@@ -1,0 +1,40 @@
+/* Lob — 橙色暖调配色 | Warm Orange Palette */
+:root {
+  /* Primary */
+  --accent: #FFB07A;
+  --accent-deep: #E88A3D;
+  --accent-peach: #FFCCA0;
+  --accent-yellow: #FFD580;
+  --accent-blue: #A8D8FF;
+  --accent-green: #B8F0E0;
+
+  /* Background */
+  --bg-deep: #FFF5EE;
+  --bg-surface: #FFFAF8;
+  --bg-elevated: #FFFFFF;
+
+  /* Text */
+  --text-primary: #3D2A35;
+  --text-secondary: #8A7065;
+  --text-muted: #9A8070;
+
+  /* Borders */
+  --border: rgba(200,140,80,0.18);
+  --border-hover: rgba(255,143,80,0.3);
+  --border-glow: rgba(255,143,80,0.4);
+
+  /* Orbs */
+  --orb-orange: rgba(255,143,80,0.15);
+  --orb-blue: rgba(168,216,255,0.15);
+  --orb-peach: rgba(255,179,128,0.12);
+
+  /* Tag */
+  --tag-hot-bg: rgba(255,215,128,0.3);
+  --tag-hot-color: #C49A00;
+  --tag-new-bg: rgba(255,179,128,0.2);
+  --tag-new-color: #C46A2A;
+  --tag-tech-bg: rgba(168,216,255,0.25);
+  --tag-tech-color: #0070B0;
+  --tag-story-bg: rgba(255,179,128,0.2);
+  --tag-story-color: #C46A2A;
+}

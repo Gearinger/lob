@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>贪吃蛇 - 游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body {
+            min-height: 100vh;
+            background: #FFF5EE;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        h1 { color: #3D2A35; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(200,120,140,0.2); font-size: 1.5rem; }
+        .controls { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active { transform: scale(0.95); }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #E88A3D; color: white; }
+        .info { color: #3D2A35; font-size: 18px; margin-bottom: 15px; }
+        #game-board {
+            background: rgba(200,140,80,0.15);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(200,120,140,0.2);
+            max-width: 100%;
+            height: auto;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .message {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 80%;
+        }
+        .message h2 { color: #4CAF50; font-size: 24px; margin-bottom: 15px; }
+        .message p { color: #666; margin-bottom: 20px; }
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: rgba(200,120,140,0.2);
+            color: #3D2A35;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            z-index: 50;
+        }
+        .back-btn:active { background: rgba(200,140,80,0.35); }
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+            gap: 8px;
+        }
+        .mobile-controls button {
+            width: 55px;
+            height: 55px;
+            font-size: 22px;
+            background: rgba(200,120,140,0.25);
+            color: #3D2A35;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 500px) {
+            .mobile-controls { display: grid; grid-template-areas: ". up ." "left . right" ". down ."; }
+            .mobile-controls button:nth-child(1) { grid-area: up; }
+            .mobile-controls button:nth-child(2) { grid-area: left; }
+            .mobile-controls button:nth-child(3) { grid-area: down; }
+            .mobile-controls button:nth-child(4) { grid-area: right; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 返回游戏大厅</a>
+    <h1>🐍 贪吃蛇</h1>
+    <div class="controls">
+        <button class="btn-primary" onclick="initGame()">🎮 新游戏</button>
+        <button class="btn-secondary" onclick="toggleSpeed()">🚀 速度: <span id="speed-label">中</span></button>
+    </div>
+    <div class="info">
+        <span>分数: <span id="score">0</span></span>
+        <span style="margin-left: 20px;">最高: <span id="best">0</span></span>
+    </div>
+    <canvas id="game-board" width="400" height="400"></canvas>
+    <div class="mobile-controls">
+        <button onclick="changeDirection('UP')">⬆️</button>
+        <button onclick="changeDirection('LEFT')">⬅️</button>
+        <button onclick="changeDirection('DOWN')">⬇️</button>
+        <button onclick="changeDirection('RIGHT')">➡️</button>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="message">
+            <h2 id="msg-title">🎉 恭喜!</h2>
+            <p id="msg-text">游戏结束</p>
+            <button class="btn-primary" onclick="closeOverlay(); initGame();">再玩一次</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('game-board');
+        const ctx = canvas.getContext('2d');
+        const GRID_SIZE = 20;
+        const GRID_COUNT = canvas.width / GRID_SIZE;
+        
+        let snake = [];
+        let direction = 'RIGHT';
+        let nextDirection = 'RIGHT';
+        let food = null;
+        let score = 0;
+        let best = localStorage.getItem('snake-best') || 0;
+        let gameLoop = null;
+        let speeds = {慢: 200, 中: 120, 快: 80};
+        let currentSpeed = '中';
+
+        document.getElementById('best').textContent = best;
+
+        function initGame() {
+            snake = [
+                {x: 5, y: 10},
+                {x: 4, y: 10},
+                {x: 3, y: 10}
+            ];
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            placeFood();
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(update, speeds[currentSpeed]);
+            closeOverlay();
+            render();
+        }
+
+        function placeFood() {
+            do {
+                food = {
+                    x: Math.floor(Math.random() * GRID_COUNT),
+                    y: Math.floor(Math.random() * GRID_COUNT)
+                };
+            } while (snake.some(s => s.x === food.x && s.y === food.y));
+        }
+
+        function update() {
+            direction = nextDirection;
+            
+            const head = { ...snake[0] };
+            switch (direction) {
+                case 'UP': head.y--; break;
+                case 'DOWN': head.y++; break;
+                case 'LEFT': head.x--; break;
+                case 'RIGHT': head.x++; break;
+            }
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= GRID_COUNT || head.y < 0 || head.y >= GRID_COUNT) {
+                gameOver();
+                return;
+            }
+            
+            // Check self collision
+            if (snake.some(s => s.x === head.x && s.y === head.y)) {
+                gameOver();
+                return;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+                if (score > best) {
+                    best = score;
+                    localStorage.setItem('snake-best', best);
+                    document.getElementById('best').textContent = best;
+                }
+                placeFood();
+            } else {
+                snake.pop();
+            }
+            
+            render();
+        }
+
+        function render() {
+            // Clear
+            ctx.fillStyle = '#FFF5EE';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(200,140,80,0.15)';
+            for (let i = 0; i <= GRID_COUNT; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * GRID_SIZE, 0);
+                ctx.lineTo(i * GRID_SIZE, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * GRID_SIZE);
+                ctx.lineTo(canvas.width, i * GRID_SIZE);
+                ctx.stroke();
+            }
+            
+            // Food
+            ctx.fillStyle = '#E88A3D';
+            ctx.beginPath();
+            ctx.arc(
+                food.x * GRID_SIZE + GRID_SIZE / 2,
+                food.y * GRID_SIZE + GRID_SIZE / 2,
+                GRID_SIZE / 2 - 2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+            
+            // Snake
+            snake.forEach((segment, index) => {
+                const gradient = ctx.createRadialGradient(
+                    segment.x * GRID_SIZE + GRID_SIZE / 2,
+                    segment.y * GRID_SIZE + GRID_SIZE / 2,
+                    0,
+                    segment.x * GRID_SIZE + GRID_SIZE / 2,
+                    segment.y * GRID_SIZE + GRID_SIZE / 2,
+                    GRID_SIZE / 2
+                );
+                if (index === 0) {
+                    gradient.addColorStop(0, '#E88A3D');
+                    gradient.addColorStop(1, '#D64A6A');
+                } else {
+                    gradient.addColorStop(0, '#FFB3C6');
+                    gradient.addColorStop(1, '#E89AAD');
+                }
+                ctx.fillStyle = gradient;
+                ctx.fillRect(
+                    segment.x * GRID_SIZE + 1,
+                    segment.y * GRID_SIZE + 1,
+                    GRID_SIZE - 2,
+                    GRID_SIZE - 2
+                );
+                
+                // Eyes for head
+                if (index === 0) {
+                    ctx.fillStyle = '#3D2A35';
+                    const eyeSize = 4;
+                    const eyeOffset = 5;
+                    ctx.fillRect(
+                        segment.x * GRID_SIZE + eyeOffset,
+                        segment.y * GRID_SIZE + eyeOffset,
+                        eyeSize, eyeSize
+                    );
+                    ctx.fillRect(
+                        segment.x * GRID_SIZE + GRID_SIZE - eyeOffset - eyeSize,
+                        segment.y * GRID_SIZE + eyeOffset,
+                        eyeSize, eyeSize
+                    );
+                }
+            });
+        }
+
+        function changeDirection(dir) {
+            const opposites = {UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT'};
+            if (dir !== opposites[direction]) {
+                nextDirection = dir;
+            }
+        }
+
+        function toggleSpeed() {
+            const speedKeys = ['慢', '中', '快'];
+            const currentIndex = speedKeys.indexOf(currentSpeed);
+            currentSpeed = speedKeys[(currentIndex + 1) % speedKeys.length];
+            document.getElementById('speed-label').textContent = currentSpeed;
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = setInterval(update, speeds[currentSpeed]);
+            }
+        }
+
+        function gameOver() {
+            clearInterval(gameLoop);
+            showMessage('💀 游戏结束', `得分: ${score}`);
+        }
+
+        function showMessage(title, text) {
+            document.getElementById('msg-title').textContent = title;
+            document.getElementById('msg-text').textContent = text;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': changeDirection('UP'); break;
+                case 'ArrowDown': case 's': case 'S': changeDirection('DOWN'); break;
+                case 'ArrowLeft': case 'a': case 'A': changeDirection('LEFT'); break;
+                case 'ArrowRight': case 'd': case 'D': changeDirection('RIGHT'); break;
+            }
+        });
+
+        // Touch swipe support
+        let touchStartX, touchStartY;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: false });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            const minSwipe = 30;
+            if (Math.max(Math.abs(dx), Math.abs(dy)) > minSwipe) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    changeDirection(dx > 0 ? 'RIGHT' : 'LEFT');
+                } else {
+                    changeDirection(dy > 0 ? 'DOWN' : 'UP');
+                }
+                e.preventDefault();
+            }
+        }, { passive: false });
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+        initGame();
+    </script>
+</body>
+</html>

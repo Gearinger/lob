@@ -1,0 +1,70 @@
+// Lob — 橙色暖调配色
+// Warm Orange Palette
+
+// Primary Colors
+@accent-orange:      #FFB07A;   // 暖橙（柔和）
+@accent-orange-deep: #E88A3D;   // 深橙
+@accent-blue:        #A8D8FF;   // 天蓝（柔和）
+@accent-blue-deep:   #00C2FF;   // 深蓝
+@accent-peach:       #FFCCA0;   // 蜜桃橙
+@accent-yellow:      #FFD580;   // 暖黄
+@accent-green:       #B8F0E0;   // 薄荷绿
+@accent-cream:       #FFF8F0;   // 奶油白
+
+// Semantic Aliases
+@accent:             @accent-orange;
+@primary:            @accent-orange;
+@secondary:          @accent-blue;
+@tertiary:           @accent-peach;
+
+// Background Colors — 浅色系
+@bg-deep:           #FFF5EE;   // 暖白底（偏橙）
+@bg-surface:        #FFFAF8;   // 暖白偏橙
+@bg-elevated:       #FFFFFF;   // 纯白卡片
+@bg-card:           rgba(255, 255, 255, 0.9);
+@bg-card-hover:     rgba(255, 143, 80, 0.06);
+
+// 柔和光球（浅色用低透明度）
+@bg-orb-orange:     rgba(255, 143, 80, 0.15);
+@bg-orb-blue:       rgba(168, 216, 255, 0.15);
+@bg-orb-peach:     rgba(255, 179, 128, 0.12);
+@bg-orb-yellow:    rgba(255, 215, 128, 0.1);
+
+// Text Colors — 浅色系文字
+@text-primary:      #3D2A35;   // 深紫褐（柔和）
+@text-secondary:    #8A7065;   // 中暖灰
+@text-muted:        #9A8070;   // 浅暖灰
+
+// Border Colors
+@border:            rgba(200, 140, 80, 0.18);
+@border-hover:      rgba(255, 143, 80, 0.3);
+@border-glow:       rgba(255, 143, 80, 0.4);
+
+// Tag Colors
+@tag-hot-bg:        rgba(255, 215, 128, 0.3);
+@tag-hot-color:     #C49A00;
+@tag-new-bg:        rgba(255, 179, 128, 0.2);
+@tag-new-color:     #C46A2A;
+@tag-tech-bg:       rgba(168, 216, 255, 0.25);
+@tag-tech-color:    #0070B0;
+@tag-thought-bg:    rgba(255, 215, 128, 0.25);
+@tag-thought-color: #C49A00;
+@tag-story-bg:      rgba(255, 179, 128, 0.2);
+@tag-story-color:   #C46A2A;
+
+// Glass & Hover
+@glass:             rgba(255, 255, 255, 0.5);
+@glass-hover:       rgba(255, 143, 80, 0.08);
+
+// Glow & Shadows
+@glow-orange:       rgba(255, 143, 80, 0.2);
+@glow-orange-strong: rgba(255, 143, 80, 0.4);
+@glow-blue:         rgba(168, 216, 255, 0.2);
+
+// Gradient Presets
+@gradient-logo:     linear-gradient(135deg, @accent-orange, @accent-peach);
+@gradient-hero:     linear-gradient(135deg, #3D2A35 0%, rgba(61,42,53,0.7) 100%);
+@gradient-bg:       radial-gradient(ellipse at 10% 0%, @bg-orb-orange 0%, transparent 50%),
+                    radial-gradient(ellipse at 90% 100%, @bg-orb-blue 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 50%, @bg-orb-yellow 0%, transparent 40%),
+                    @bg-deep;

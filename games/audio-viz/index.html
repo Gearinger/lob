@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 音乐可视化 - Audio Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #FFF5EE;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: #3D2A35;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 120, 140, 0.2);
+            box-shadow: 0 4px 30px rgba(200, 120, 140, 0.15);
+        }
+
+        #controls h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #E88A3D, #FFB3C6, #A8D8FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #E88A3D 0%, #D64D6A 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 12px rgba(232, 90, 122, 0.25);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        #info {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #A89098;
+        }
+
+        #info span {
+            color: #E88A3D;
+            font-weight: 600;
+        }
+
+        .axis-label {
+            position: fixed;
+            color: rgba(61, 42, 53, 0.5);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        #axis-x { right: 20px; top: 50%; }
+        #axis-y { left: 20px; top: 20px; }
+        #axis-z { right: 20px; bottom: 20px; }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #E88A3D;
+            font-size: 24px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="controls">
+        <h1>🎵 音乐可视化</h1>
+        <p style="color:#A89098; margin-bottom:15px; font-size:13px;">
+            声压→X轴 | 频率→Y轴 | 时值→Z轴
+        </p>
+        <input type="file" id="file-input" accept="audio/*">
+        <button class="btn" onclick="document.getElementById('file-input').click()">
+            📁 选择音乐文件
+        </button>
+        <button class="btn" id="play-btn" disabled>▶ 播放</button>
+        <button class="btn" id="pause-btn" disabled>⏸ 暂停</button>
+
+        <div id="info">
+            <div>采样点: <span id="sample-count">0</span></div>
+            <div>当前频率: <span id="freq">0</span> Hz</div>
+            <div>声压: <span id="volume">0</span> dB</div>
+        </div>
+    </div>
+
+    <div id="loading">加载中...</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js setup
+        let scene, camera, renderer, particles, particleGeometry, particleMaterial;
+        let audioContext, analyser, dataArray, source;
+        let isPlaying = false;
+
+        // Config
+        const SAMPLE_POINTS = 2000;
+        const PARTICLE_SIZE = 2;
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xFFF5F7);
+            scene.fog = new THREE.FogExp2(0xFFE0E8, 0.002);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 50, 150);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setClearColor(0xFFF5F7, 1);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Particles
+            particleGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(SAMPLE_POINTS * 3);
+            const colors = new Float32Array(SAMPLE_POINTS * 3);
+            const sizes = new Float32Array(SAMPLE_POINTS);
+
+            for (let i = 0; i < SAMPLE_POINTS; i++) {
+                positions[i * 3] = 0;
+                positions[i * 3 + 1] = 0;
+                positions[i * 3 + 2] = 0;
+
+                colors[i * 3] = 1;
+                colors[i * 3 + 1] = 1;
+                colors[i * 3 + 2] = 1;
+
+                sizes[i] = 0;
+            }
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            // Custom shader material for glowing particles
+            particleMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    pointTexture: { value: createGlowTexture() }
+                },
+                vertexShader: `
+                    attribute float size;
+                    attribute vec3 color;
+                    varying vec3 vColor;
+                    uniform float time;
+
+                    void main() {
+                        vColor = color;
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        gl_PointSize = size * (300.0 / -mvPosition.z);
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    uniform sampler2D pointTexture;
+                    varying vec3 vColor;
+
+                    void main() {
+                        gl_FragColor = vec4(vColor, 1.0);
+                        gl_FragColor = gl_FragColor * texture2D(pointTexture, gl_PointCoord);
+                    }
+                `,
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true
+            });
+
+            particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+
+            // Add grid helper - soft pink instead of dark
+            const gridHelper = new THREE.GridHelper(200, 50, 0xFFB3C6, 0xFFE0E8);
+            gridHelper.position.y = -50;
+            scene.add(gridHelper);
+
+            // Axis helpers - light macaron colors
+            createAxis(0xE85A7A, 'X: 声压', 100, 0, 0);
+            createAxis(0xA8D8FF, 'Y: 频率', 0, 100, 0);
+            createAxis(0xFFB3C6, 'Z: 时值', 0, 0, 100);
+
+            // Ambient light - soft warm
+            const ambientLight = new THREE.AmbientLight(0xFFE0E8);
+            scene.add(ambientLight);
+
+            animate();
+        }
+
+        function createAxis(color, label, x, y, z) {
+            const material = new THREE.LineBasicMaterial({ color: color });
+            const points = [];
+            points.push(new THREE.Vector3(0, 0, 0));
+            points.push(new THREE.Vector3(x, y, z));
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+        }
+
+        function createGlowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 32, 32);
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        function setupAudio(file) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                audioContext.decodeAudioData(e.target.result, function(buffer) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('sample-count').textContent = SAMPLE_POINTS;
+
+                    // Enable buttons
+                    document.getElementById('play-btn').disabled = false;
+                    document.getElementById('pause-btn').disabled = false;
+
+                    window.audioBuffer = buffer;
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function playAudio() {
+            if (source) {
+                source.stop();
+            }
+
+            source = audioContext.createBufferSource();
+            source.buffer = window.audioBuffer;
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            source.start(0);
+            isPlaying = true;
+
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            source.onended = function() {
+                isPlaying = false;
+            };
+        }
+
+        function updateParticles() {
+            if (!isPlaying || !analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            const positions = particleGeometry.attributes.position.array;
+            const colors = particleGeometry.attributes.color.array;
+            const sizes = particleGeometry.attributes.size.array;
+
+            // Get current audio data
+            const frequencyData = dataArray;
+            const timeDomainData = new Uint8Array(analyser.fftSize);
+            analyser.getByteTimeDomainData(timeDomainData);
+
+            // Calculate average volume (声压 -> X轴)
+            let sum = 0;
+            for (let i = 0; i < frequencyData.length; i++) {
+                sum += frequencyData[i];
+            }
+            const avgVolume = sum / frequencyData.length;
+            const volumeDb = 20 * Math.log10(avgVolume / 128);
+            document.getElementById('volume').textContent = volumeDb.toFixed(1);
+
+            // Calculate dominant frequency (频率 -> Y轴)
+            let maxIndex = 0;
+            let maxValue = 0;
+            for (let i = 0; i < frequencyData.length / 2; i++) {
+                if (frequencyData[i] > maxValue) {
+                    maxValue = frequencyData[i];
+                    maxIndex = i;
+                }
+            }
+            const frequency = maxIndex * audioContext.sampleRate / analyser.fftSize;
+            document.getElementById('freq').textContent = frequency.toFixed(0);
+
+            // Map to 3D space
+            for (let i = 0; i < SAMPLE_POINTS; i++) {
+                const dataIndex = Math.floor(i * frequencyData.length / SAMPLE_POINTS);
+                const value = frequencyData[dataIndex] / 255;
+                const timeValue = (timeDomainData[dataIndex * 2] - 128) / 128;
+
+                // X轴: 声压 (左右波动)
+                positions[i * 3] = (value - 0.5) * 100;
+
+                // Y轴: 频率 (上下起伏)
+                positions[i * 3 + 1] = value * 80;
+
+                // Z轴: 时值/时间 (纵深推进)
+                const zPos = (i / SAMPLE_POINTS - 0.5) * 200 + timeValue * 20;
+                positions[i * 3 + 2] = zPos;
+
+                // Color based on frequency - light macaron palette
+                const hue = value;
+                // Shift colors to macaron palette: pink to blue range
+                colors[i * 3] = 0.9 + hue * 0.1;        // R: high
+                colors[i * 3 + 1] = 0.5 + hue * 0.35;   // G: medium
+                colors[i * 3 + 2] = 0.75 + hue * 0.25; // B: high
+
+                // Size based on volume
+                sizes[i] = value * 10 + 1;
+            }
+
+            particleGeometry.attributes.position.needsUpdate = true;
+            particleGeometry.attributes.color.needsUpdate = true;
+            particleGeometry.attributes.size.needsUpdate = true;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate camera slowly
+            const time = Date.now() * 0.0001;
+            camera.position.x = Math.sin(time) * 150;
+            camera.position.z = Math.cos(time) * 150;
+            camera.lookAt(0, 0, 0);
+
+            particleMaterial.uniforms.time.value = time;
+
+            updateParticles();
+
+            renderer.render(scene, camera);
+        }
+
+        // Event listeners
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('loading').style.display = 'block';
+                setupAudio(file);
+            }
+        });
+
+        document.getElementById('play-btn').addEventListener('click', function() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            playAudio();
+        });
+
+        document.getElementById('pause-btn').addEventListener('click', function() {
+            if (source) {
+                source.stop();
+                isPlaying = false;
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>

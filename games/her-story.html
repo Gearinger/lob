@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>她是谁 — 历史的碎片</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #FFF5EE;
+      color: #3D2A35;
+      font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 开场页 */
+    #start-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #FFF5EE 0%, #FFE0E8 100%);
+      z-index: 100;
+      transition: opacity 0.8s ease;
+    }
+
+    #start-screen.hidden { opacity: 0; pointer-events: none; }
+
+    .title {
+      font-size: clamp(2rem, 8vw, 4rem);
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #E88A3D, #FFB3C6, #E88A3D);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      color: #A89098;
+      letter-spacing: 0.5em;
+      margin-bottom: 4rem;
+    }
+
+    .intro-text {
+      max-width: 500px;
+      text-align: center;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #6A4A55;
+      padding: 0 2rem;
+      margin-bottom: 3rem;
+    }
+
+    #start-btn {
+      background: linear-gradient(135deg, #E88A3D, #D64D6A);
+      border: none;
+      color: white;
+      padding: 1rem 3rem;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 30px rgba(232, 90, 122, 0.3);
+    }
+
+    #start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 40px rgba(232, 90, 122, 0.5);
+    }
+
+    /* 游戏主界面 */
+    #game-screen {
+      display: none;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    #game-screen.active { display: flex; }
+
+    /* 顶部栏 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: rgba(255, 245, 247, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(200, 120, 140, 0.2);
+    }
+
+    .era-title {
+      font-size: 0.85rem;
+      color: #E88A3D;
+      letter-spacing: 0.3em;
+    }
+
+    .progress-info {
+      font-size: 0.8rem;
+      color: #A89098;
+    }
+
+    .progress-info span { color: #E88A3D; }
+
+    /* 地图区域 */
+    #map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #FFF5EE;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* 时代背景装饰 */
+    .era-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    /* 人物节点 */
+    .person-node {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .person-node.locked {
+      filter: grayscale(1) brightness(1.2);
+      cursor: default;
+    }
+
+    .person-node:hover:not(.locked) {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .person-node.explored { filter: none; }
+
+    .node-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #FFE0E8, #FFF5EE);
+      border: 2px solid rgba(232, 90, 122, 0.5);
+      box-shadow: 0 0 20px rgba(232, 90, 122, 0.15);
+    }
+
+    .person-node.explored .node-circle {
+      border-color: #E88A3D;
+      box-shadow: 0 0 30px rgba(232, 90, 122, 0.3);
+    }
+
+    .node-name {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6A4A55;
+      letter-spacing: 0.1em;
+    }
+
+    /* 碎片指示器 */
+    .clue-dots {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .clue-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #E8D0D8;
+      transition: all 0.3s ease;
+    }
+
+    .clue-dot.found {
+      background: #E88A3D;
+      box-shadow: 0 0 8px rgba(232, 90, 122, 0.5);
+    }
+
+    /* 探索弹窗 */
+    #explore-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 245, 247, 0.97);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    #explore-modal.active { display: flex; }
+
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: #A89098;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+
+    .clue-card {
+      background: linear-gradient(135deg, #FFFFFF, #FFF5EE);
+      border: 1px solid rgba(200, 120, 140, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    #explore-modal.active .clue-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .clue-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .clue-title {
+      font-size: 1.1rem;
+      color: #E88A3D;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.2em;
+    }
+
+    .clue-hint {
+      font-size: 0.9rem;
+      color: #6A4A55;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .clue-reveal {
+      background: rgba(232, 90, 122, 0.08);
+      border: 1px solid rgba(232, 90, 122, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: #3D2A35;
+      line-height: 1.7;
+      display: none;
+    }
+
+    .clue-reveal.revealed { display: block; }
+
+    .reveal-btn {
+      background: linear-gradient(135deg, #E88A3D, #D64D6A);
+      border: none;
+      color: white;
+      padding: 0.7rem 2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .reveal-btn:hover { transform: translateY(-2px); }
+
+    /* 人物详情弹窗 */
+    #person-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 245, 247, 0.97);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    #person-modal.active { display: flex; }
+
+    .person-card {
+      background: linear-gradient(135deg, #FFFFFF, #FFF5EE);
+      border: 1px solid rgba(200, 120, 140, 0.2);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    #person-modal.active .person-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .person-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: auto auto 1.5rem;
+      background: linear-gradient(135deg, #E88A3D, #D64D6A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: 0 0 40px rgba(232, 90, 122, 0.3);
+    }
+
+    .person-name {
+      font-size: 1.5rem;
+      color: #E88A3D;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.2em;
+    }
+
+    .person-era {
+      font-size: 0.85rem;
+      color: #A89098;
+      margin-bottom: 1.5rem;
+    }
+
+    .person-story {
+      font-size: 0.9rem;
+      color: #6A4A55;
+      line-height: 1.9;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+
+    .person-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      background: rgba(232, 90, 122, 0.1);
+      border: 1px solid rgba(232, 90, 122, 0.25);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: #E88A3D;
+    }
+
+    .complete-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #E88A3D, #D64D6A);
+      padding: 0.6rem 1.5rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      color: white;
+      margin-bottom: 1.5rem;
+    }
+
+    /* 完成页 */
+    #complete-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, #FFF5EE 0%, #FFE0E8 100%);
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    #complete-screen.active { display: flex; }
+
+    .complete-title {
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+      background: linear-gradient(135deg, #E88A3D, #FFB3C6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      letter-spacing: 0.2em;
+    }
+
+    .complete-sub {
+      font-size: 1rem;
+      color: #A89098;
+      margin-bottom: 3rem;
+      line-height: 1.8;
+    }
+
+    .restart-btn {
+      background: none;
+      border: 1px solid rgba(232, 90, 122, 0.4);
+      color: #E88A3D;
+      padding: 0.8rem 2rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .restart-btn:hover {
+      background: rgba(232, 90, 122, 0.1);
+    }
+
+    /* 连接线 SVG */
+    #connections {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 底部提示 */
+    .hint-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 245, 247, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 0.8rem 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #A89098;
+      border-top: 1px solid rgba(200, 120, 140, 0.15);
+    }
+
+    /* 动画 */
+    @keyframes float {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50% { transform: translate(-50%, -50%) translateY(-5px); }
+    }
+
+    .person-node:not(.locked) .node-circle {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(232, 90, 122, 0.15); }
+      50% { box-shadow: 0 0 30px rgba(232, 90, 122, 0.35); }
+    }
+
+    .person-node:not(.locked) .node-circle {
+      animation: float 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 开场页 -->
+  <div id="start-screen">
+    <h1 class="title">她是谁</h1>
+    <p class="subtitle">历史的碎片</p>
+    <p class="intro-text">
+      在时间的迷雾中，有些身影被淡忘了。<br>
+      她们的故事散落在时光的角落，<br>
+      等着你一点点收集、拼凑、还原。<br><br>
+      点击地图上的光点，<br>
+      找到那些被遗忘的女性。
+    </p>
+    <button id="start-btn">开始探索</button>
+  </div>
+
+  <!-- 游戏主界面 -->
+  <div id="game-screen">
+    <div class="top-bar">
+      <div class="era-title">1920s · 觉醒年代</div>
+      <div class="progress-info">已解锁 <span id="progress-count">0</span>/2</div>
+    </div>
+
+    <div id="map-container">
+      <div id="map">
+        <svg id="connections"></svg>
+      </div>
+    </div>
+
+    <div class="hint-bar">点击光点，收集碎片，拼凑她们的人生</div>
+  </div>
+
+  <!-- 探索弹窗 -->
+  <div id="explore-modal">
+    <button class="modal-close" onclick="closeExplore()">✕</button>
+    <div class="clue-card">
+      <div class="clue-icon" id="clue-icon">🌸</div>
+      <h3 class="clue-title" id="clue-title">碎片一</h3>
+      <p class="clue-hint" id="clue-hint">她曾在某座桥上驻足，望着流水出神...</p>
+      <div class="clue-reveal" id="clue-reveal"></div>
+      <button class="reveal-btn" id="reveal-btn" onclick="revealClue()">揭示线索</button>
+    </div>
+  </div>
+
+  <!-- 人物详情弹窗 -->
+  <div id="person-modal">
+    <button class="modal-close" onclick="closePerson()">✕</button>
+    <div class="person-card">
+      <div class="person-avatar" id="person-avatar">👤</div>
+      <h2 class="person-name" id="person-name">人物名</h2>
+      <p class="person-era" id="person-era">年代</p>
+      <div class="complete-badge" id="complete-badge">
+        <span>✓</span> 碎片收集完成
+      </div>
+      <div class="person-tags" id="person-tags"></div>
+      <p class="person-story" id="person-story">故事内容</p>
+      <button class="reveal-btn" onclick="closePerson()">她们值得被记住</button>
+    </div>
+  </div>
+
+  <!-- 完成页 -->
+  <div id="complete-screen">
+    <h2 class="complete-title">「觉醒年代」篇章完结</h2>
+    <p class="complete-sub">
+      两位伟大女性的碎片已拼凑完整。<br>
+      她们的故事，将永远被铭记。<br><br>
+      她们值得被记住。
+    </p>
+    <button class="restart-btn" onclick="restartGame()">再次探索</button>
+  </div>
+
+  <script>
+    // 游戏数据
+    const gameData = {
+      era: '1920s · 觉醒年代',
+      persons: [
+        {
+          id: 'linhuiein',
+          name: '林徽因',
+          emoji: '🏛️',
+          x: 30,
+          y: 40,
+          country: '中国',
+          clues: [
+            { icon: '🌸', title: '碎片一 · 春天', hint: '她在一座古建筑的屋檐下，仰望着精美的雕饰，那是她一生的起点。', reveal: '1904年，林徽因出生于杭州。她的父亲林长民是著名学者，从小带她游历欧洲，培养了她对建筑艺术的热爱。' },
+            { icon: '📜', title: '碎片二 · 书信', hint: '一封来自异国的信，笔迹清秀，诉说着某种理想与追求。', reveal: '1920年，16岁的林徽因随父亲游历欧洲。在伦敦，她结识了正在学习建筑学的徐志摩，两人通信讨论文学与艺术。' },
+            { icon: '🧱', title: '碎片三 · 营造', hint: '一张泛黄的手绘图稿，画的是一种独特的建筑结构——它叫"斗拱"。', reveal: '1930年代起，林徽因与丈夫梁思成共同从事中国古建筑研究。他们走遍全国，实地测绘，拯救了无数濒临消失的古建筑。' },
+            { icon: '🪦', title: '碎片四 · 墓碑', hint: '一块朴素的墓碑，上面没有华丽的装饰，只有几行小字。', reveal: '1955年，林徽因病逝于北京。她亲自设计了人民英雄纪念碑的底座纹饰，却未能亲眼看到纪念碑建成。' }
+          ],
+          tags: ['建筑学家', '诗人', '作家', '中国古建筑守护者'],
+          story: '她是中国现代建筑学的先驱，也是那个时代最出色的女性之一。她用一生证明：女性可以在科学与艺术领域同样卓越。她的名字，值得被铭记。',
+          unlocked: false,
+          exploredCount: 0
+        },
+        {
+          id: 'curie',
+          name: '玛丽·居里',
+          emoji: '🔬',
+          x: 70,
+          y: 35,
+          country: '外国',
+          clues: [
+            { icon: '💡', title: 'Fragment I · Light', hint: 'A dark room, a faint glow emanating from a small glass bottle...', reveal: 'In 1898, Marie Curie discovered a strange phenomenon: the element uranium emitted mysterious rays. She called it "radioactivity" — a word she coined herself.' },
+            { icon: '⚗️', title: 'Fragment II · Pitchblende', hint: 'A pile of dark residue that others had discarded, but she saw something precious within it.', reveal: 'From tons of pitchblende waste, she and Pierre Curie isolated a new element — radium. It took four years of backbreaking labor, one ton of ore processed at a time.' },
+            { icon: '🎓', title: 'Fragment III · Diploma', hint: 'Two diplomas, but the second one carries a different weight — it belongs to a woman, a rarity in that era.', reveal: 'In 1903, Marie Curie became the first woman to win a Nobel Prize in Physics. In 1911, she won a second Nobel — this time in Chemistry, alone.' },
+            { icon: '☢️', title: 'Fragment IV · Legacy', hint: 'A radium treatment session, a field hospital during the war. She brought science to the battlefield.', reveal: 'During WWI, she developed mobile X-ray units — "petites Curies" — that saved countless lives. She died in 1934 from radiation exposure, her notebook still radioactive today.' }
+          ],
+          tags: ['Physicist', 'Chemist', 'Nobel Laureate ×2', 'Radiation Pioneer'],
+          story: 'She was the first woman to win a Nobel Prize — and the only person to win Nobel Prizes in two different sciences. Her discoveries changed medicine forever. Her legacy: impossible to measure.',
+          unlocked: false,
+          exploredCount: 0
+        }
+      ]
+    };
+
+    let currentClue = null;
+    let currentPerson = null;
+
+    // 初始化
+    document.getElementById('start-btn').addEventListener('click', startGame);
+
+    function startGame() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.add('active');
+      renderMap();
+    }
+
+    function renderMap() {
+      const map = document.getElementById('map');
+
+      // 清空节点（保留 SVG）
+      map.querySelectorAll('.person-node').forEach(n => n.remove());
+
+      gameData.persons.forEach(person => {
+        const node = document.createElement('div');
+        node.className = `person-node ${person.unlocked ? 'explored' : ''} ${person.exploredCount === 0 ? 'locked' : ''}`;
+        node.style.left = `${person.x}%`;
+        node.style.top = `${person.y}%`;
+
+        const clueDots = person.clues.map((_, i) =>
+          `<div class="clue-dot ${i < person.exploredCount ? 'found' : ''}"></div>`
+        ).join('');
+
+        node.innerHTML = `
+          <div class="node-circle">${person.emoji}</div>
+          <div class="node-name">${person.name}</div>
+          <div class="clue-dots">${clueDots}</div>
+        `;
+
+        node.addEventListener('click', () => handleNodeClick(person));
+        map.appendChild(node);
+      });
+
+      updateProgress();
+      drawConnections();
+    }
+
+    function drawConnections() {
+      const persons = gameData.persons.filter(p => p.exploredCount > 0);
+      if (persons.length < 2) return;
+
+      const p1 = persons[0], p2 = persons[1];
+      const svg = document.getElementById('connections');
+      const container = document.getElementById('map-container');
+      const rect = container.getBoundingClientRect();
+
+      const x1 = (p1.x / 100) * rect.width;
+      const y1 = (p1.y / 100) * rect.height;
+      const x2 = (p2.x / 100) * rect.width;
+      const y2 = (p2.y / 100) * rect.height;
+
+      const midX = (x1 + x2) / 2;
+      const midY = Math.min(y1, y2) - 30;
+
+      svg.innerHTML = `
+        <path d="M ${x1} ${y1} Q ${midX} ${midY} ${x2} ${y2}"
+              stroke="url(#grad)" stroke-width="1" fill="none" opacity="0.3"
+              stroke-dasharray="4,4"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#E88A3D"/>
+            <stop offset="100%" style="stop-color:#FFB3C6"/>
+          </linearGradient>
+        </defs>
+      `;
+    }
+
+    function handleNodeClick(person) {
+      if (person.unlocked) {
+        showPersonModal(person);
+        return;
+      }
+
+      // 随机选一个未探索的碎片
+      const unexploredClues = person.clues.filter((_, i) => i >= person.exploredCount);
+      if (unexploredClues.length === 0) {
+        showPersonModal(person);
+        return;
+      }
+
+      const clue = unexploredClues[Math.floor(Math.random() * unexploredClues.length)];
+      showExploreModal(person, clue);
+    }
+
+    function showExploreModal(person, clue) {
+      currentClue = { person, clue };
+
+      document.getElementById('clue-icon').textContent = clue.icon;
+      document.getElementById('clue-title').textContent = clue.title;
+      document.getElementById('clue-hint').textContent = clue.hint;
+      document.getElementById('clue-reveal').textContent = clue.reveal;
+      document.getElementById('clue-reveal').classList.remove('revealed');
+      document.getElementById('reveal-btn').style.display = 'block';
+
+      document.getElementById('explore-modal').classList.add('active');
+    }
+
+    function revealClue() {
+      if (!currentClue) return;
+
+      document.getElementById('clue-reveal').classList.add('revealed');
+      document.getElementById('reveal-btn').style.display = 'none';
+
+      // 更新进度
+      currentClue.person.exploredCount++;
+
+      // 检查是否解锁人物
+      if (currentClue.person.exploredCount >= currentClue.person.clues.length) {
+        currentClue.person.unlocked = true;
+      }
+
+      setTimeout(() => {
+        closeExplore();
+        renderMap();
+        checkCompletion();
+      }, 2000);
+    }
+
+    function closeExplore() {
+      document.getElementById('explore-modal').classList.remove('active');
+      currentClue = null;
+    }
+
+    function showPersonModal(person) {
+      currentPerson = person;
+
+      document.getElementById('person-avatar').textContent = person.emoji;
+      document.getElementById('person-name').textContent = person.name;
+      document.getElementById('person-era').textContent = `${person.era || gameData.era} · ${person.country}`;
+      document.getElementById('person-story').textContent = person.story;
+
+      const tagsHtml = person.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+      document.getElementById('person-tags').innerHTML = tagsHtml;
+
+      document.getElementById('complete-badge').style.display =
+        person.unlocked ? 'inline-flex' : 'none';
+
+      document.getElementById('person-modal').classList.add('active');
+    }
+
+    function closePerson() {
+      document.getElementById('person-modal').classList.remove('active');
+      currentPerson = null;
+    }
+
+    function updateProgress() {
+      const unlocked = gameData.persons.filter(p => p.unlocked).length;
+      document.getElementById('progress-count').textContent = unlocked;
+    }
+
+    function checkCompletion() {
+      if (gameData.persons.every(p => p.unlocked)) {
+        setTimeout(() => {
+          document.getElementById('complete-screen').classList.add('active');
+        }, 500);
+      }
+    }
+
+    function restartGame() {
+      // 重置
+      gameData.persons.forEach(p => {
+        p.unlocked = false;
+        p.exploredCount = 0;
+      });
+
+      document.getElementById('complete-screen').classList.remove('active');
+      document.getElementById('game-screen').classList.remove('active');
+      document.getElementById('start-screen').classList.remove('hidden');
+
+      document.getElementById('connections').innerHTML = '';
+    }
+
+    // 窗口调整时重绘连接线
+    window.addEventListener('resize', () => {
+      if (document.getElementById('game-screen').classList.contains('active')) {
+        drawConnections();
+      }
+    });
+  </script>
+</body>
+</html>

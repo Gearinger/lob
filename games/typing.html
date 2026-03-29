@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>打字达人</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FFF5EE 0%, #FFE4EC 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        h1 { color: #3D2A35; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(200,120,140,0.2); font-size: 1.5rem; }
+        .controls { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active { transform: scale(0.95); }
+        .btn-primary { background: #E88A3D; color: white; }
+        .btn-secondary { background: #A8D8FF; color: #3D2A35; }
+        .info { color: #3D2A35; font-size: 18px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .info span { background: rgba(200,120,140,0.1); padding: 10px 20px; border-radius: 8px; }
+        .info strong { color: #A8D8FF; }
+        #game-area {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(200,140,80,0.15);
+        }
+        .current-word {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 4px;
+        }
+        .char { 
+            display: inline-block;
+            transition: all 0.1s;
+        }
+        .char.correct { color: #E88A3D; }
+        .char.wrong { color: #ff4757; background: rgba(255,71,87,0.15); }
+        .char.pending { color: #999; }
+        .char.current { 
+            color: #E88A3D; 
+            text-decoration: underline;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .input-display {
+            background: #FFF5EE;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+            color: #999;
+            min-height: 50px;
+            word-break: break-all;
+        }
+        .input-display.has-input {
+            color: #3D2A35;
+        }
+        .words-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .word-item {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(200,120,140,0.1);
+            color: #999;
+            font-size: 16px;
+        }
+        .word-item.completed {
+            background: rgba(232,90,122,0.15);
+            color: #E88A3D;
+        }
+        .word-item.current {
+            background: rgba(232,90,122,0.15);
+            color: #E88A3D;
+            transform: scale(1.1);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(200,120,140,0.1);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #E88A3D, #A8D8FF);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .message {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .message h2 { color: #E88A3D; font-size: 32px; margin-bottom: 15px; }
+        .message p { color: #666; margin-bottom: 10px; }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(200,140,80,0.15);
+            color: #3D2A35;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-btn:hover { background: rgba(200,120,140,0.25); }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 返回游戏大厅</a>
+    <h1>⌨️ 打字达人</h1>
+    <div class="controls">
+        <button class="btn-primary" onclick="initGame()">🎮 开始游戏</button>
+        <button class="btn-secondary" onclick="setDifficulty()">📝 词数: <span id="word-count">20</span></button>
+    </div>
+    <div class="info">
+        <span>速度: <strong id="wpm">0</strong> 字/分</span>
+        <span>正确率: <strong id="accuracy">100%</strong></span>
+        <span>进度: <strong id="progress">0%</strong></span>
+    </div>
+    <div id="game-area">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="current-word" id="current-word"></div>
+        <div class="input-display" id="input-display">按下任意键开始...</div>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="message">
+            <h2 id="msg-title">🎉 恭喜!</h2>
+            <p id="msg-wpm">速度: 0 字/分</p>
+            <p id="msg-accuracy">正确率: 100%</p>
+            <p id="msg-time">用时: 0秒</p>
+            <button class="btn-primary" onclick="closeOverlay(); initGame();">再来一次</button>
+        </div>
+    </div>
+    <script>
+        const WORD_LIST = [
+            'javascript', 'python', 'programming', 'computer', 'keyboard',
+            'algorithm', 'database', 'function', 'variable', 'constant',
+            'loop', 'condition', 'array', 'object', 'string', 'number',
+            'boolean', 'null', 'undefined', 'symbol', 'async', 'await',
+            'promise', 'callback', 'class', 'method', 'inheritance',
+            'interface', 'module', 'package', 'framework', 'library',
+            'api', 'endpoint', 'request', 'response', 'header', 'body',
+            'authentication', 'authorization', 'token', 'session', 'cookie',
+            'cache', 'proxy', 'load', 'balancer', 'cluster', 'container',
+            'docker', 'kubernetes', 'cloud', 'server', 'client', 'browser',
+            'network', 'protocol', 'http', 'https', 'websocket', 'tcp',
+            'udp', 'dns', 'domain', 'hosting', 'deployment', 'pipeline'
+        ];
+        
+        let words = [];
+        let currentIndex = 0;
+        let typedChars = '';
+        let correctChars = 0;
+        let totalChars = 0;
+        let startTime = null;
+        let gameStarted = false;
+        let wordCount = 20;
+        let completedWords = [];
+
+        function setDifficulty() {
+            const options = [10, 20, 30, 50];
+            wordCount = options[(options.indexOf(wordCount) + 1) % options.length];
+            document.getElementById('word-count').textContent = wordCount;
+            initGame();
+        }
+
+        function initGame() {
+            words = shuffle([...WORD_LIST]).slice(0, wordCount);
+            currentIndex = 0;
+            typedChars = '';
+            correctChars = 0;
+            totalChars = 0;
+            startTime = null;
+            gameStarted = false;
+            completedWords = [];
+            
+            document.getElementById('input-display').textContent = '按下任意键开始...';
+            document.getElementById('input-display').classList.remove('has-input');
+            document.getElementById('progress-fill').style.width = '0%';
+            updateStats();
+            renderWord();
+        }
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function renderWord() {
+            const word = words[currentIndex];
+            const display = document.getElementById('current-word');
+            display.innerHTML = '';
+            
+            for (let i = 0; i < word.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = word[i];
+                
+                if (i < typedChars.length) {
+                    span.classList.add(typedChars[i] === word[i] ? 'correct' : 'wrong');
+                } else if (i === typedChars.length) {
+                    span.classList.add('current');
+                } else {
+                    span.classList.add('pending');
+                }
+                
+                display.appendChild(span);
+            }
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Backspace') {
+                typedChars = typedChars.slice(0, -1);
+                renderWord();
+                return;
+            }
+            
+            if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+            
+            if (!gameStarted) {
+                gameStarted = true;
+                startTime = Date.now();
+            }
+            
+            const word = words[currentIndex];
+            if (typedChars.length < word.length) {
+                typedChars += e.key;
+                totalChars++;
+                if (e.key === word[typedChars.length - 1]) {
+                    correctChars++;
+                }
+                renderWord();
+                updateStats();
+                
+                // Check if word complete
+                if (typedChars === word) {
+                    completedWords.push(currentIndex);
+                    currentIndex++;
+                    typedChars = '';
+                    
+                    // Update progress
+                    const progress = (completedWords.length / wordCount) * 100;
+                    document.getElementById('progress-fill').style.width = progress + '%';
+                    
+                    if (currentIndex >= wordCount) {
+                        endGame();
+                    } else {
+                        renderWord();
+                    }
+                }
+            }
+        }
+
+        function updateStats() {
+            if (!gameStarted || totalChars === 0) {
+                document.getElementById('wpm').textContent = '0';
+                document.getElementById('accuracy').textContent = '100%';
+                document.getElementById('progress').textContent = '0%';
+                return;
+            }
+            
+            const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
+            const wpm = Math.round((typedChars.length / 5) / elapsed);
+            const accuracy = Math.round((correctChars / totalChars) * 100);
+            const progress = Math.round((completedWords.length / wordCount) * 100);
+            
+            document.getElementById('wpm').textContent = wpm || 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('progress').textContent = progress + '%';
+            
+            document.getElementById('input-display').textContent = typedChars || '继续输入...';
+            document.getElementById('input-display').classList.add('has-input');
+        }
+
+        function endGame() {
+            const elapsed = Math.round((Date.now() - startTime) / 1000);
+            const wpm = Math.round((totalChars / 5) / (elapsed / 60));
+            const accuracy = Math.round((correctChars / totalChars) * 100);
+            
+            document.getElementById('msg-wpm').textContent = `速度: ${wpm} 字/分`;
+            document.getElementById('msg-accuracy').textContent = `正确率: ${accuracy}%`;
+            document.getElementById('msg-time').textContent = `用时: ${elapsed}秒`;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', handleKey);
+        initGame();
+    </script>
+</body>
+</html>

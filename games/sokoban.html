@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>推箱子</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body {
+            min-height: 100vh;
+            background: #FFF5EE;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        h1 { color: #3D2A35; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(200,120,140,0.2); font-size: 1.5rem; }
+        .controls { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active { transform: scale(0.95); }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #A8D8FF; color: #3D2A35; }
+        .info { color: #3D2A35; font-size: 20px; margin-bottom: 15px; }
+        #game-board {
+            background: #FFF5EE;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(200,120,140,0.2);
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            color: #3D2A35;
+            font-size: 14px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .message {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .message h2 { color: #4CAF50; font-size: 32px; margin-bottom: 15px; }
+        .message p { color: #666; margin-bottom: 20px; }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(200,120,140,0.2);
+            color: #3D2A35;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-btn:hover { background: rgba(200,140,80,0.35); }
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .mobile-controls button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            background: rgba(200,120,140,0.2);
+            color: #3D2A35;
+        }
+        @media (max-width: 600px) {
+            .mobile-controls { display: grid; grid-template-areas: ". up ." "left . right" ". down ."; }
+            .mobile-controls button:nth-child(1) { grid-area: up; }
+            .mobile-controls button:nth-child(2) { grid-area: left; }
+            .mobile-controls button:nth-child(3) { grid-area: down; }
+            .mobile-controls button:nth-child(4) { grid-area: right; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 返回游戏大厅</a>
+    <h1>📦 推箱子</h1>
+    <div class="controls">
+        <button class="btn-primary" onclick="resetLevel()">🔄 重置</button>
+        <button class="btn-secondary" onclick="nextLevel()">➡️ 下一关</button>
+    </div>
+    <div class="info">
+        <span>关卡: <span id="level">1</span></span>
+        <span style="margin-left: 20px;">步数: <span id="moves">0</span></span>
+    </div>
+    <canvas id="game-board" width="480" height="400"></canvas>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-icon" style="background: rgba(200,120,140,0.2);">👤</div> 玩家</div>
+        <div class="legend-item"><div class="legend-icon" style="background: rgba(200,120,140,0.3);">📦</div> 箱子</div>
+        <div class="legend-item"><div class="legend-icon" style="background: rgba(200,140,80,0.15);">✅</div> 目标</div>
+        <div class="legend-item"><div class="legend-icon" style="background: rgba(200,120,140,0.4);">🧱</div> 墙壁</div>
+    </div>
+    <div class="mobile-controls">
+        <button onclick="move('UP')">⬆️</button>
+        <button onclick="move('LEFT')">⬅️</button>
+        <button onclick="move('DOWN')">⬇️</button>
+        <button onclick="move('RIGHT')">➡️</button>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="message">
+            <h2>🎉 恭喜!</h2>
+            <p id="msg-text">通关!</p>
+            <button class="btn-primary" onclick="closeOverlay(); nextLevel();">下一关</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('game-board');
+        const ctx = canvas.getContext('2d');
+        const TILE_SIZE = 40;
+        
+        // 地图符号: 0=空地, 1=墙, 2=玩家, 3=箱子, 4=目标, 5=箱子在目标上, 6=玩家在目标上
+        const levels = [
+            {
+                map: [
+                    [1,1,1,1,1,1,1,1],
+                    [1,0,0,0,0,0,0,1],
+                    [1,0,3,0,2,0,4,1],
+                    [1,0,0,0,3,0,4,1],
+                    [1,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,1,1]
+                ]
+            },
+            {
+                map: [
+                    [1,1,1,1,1,1,1,1,1],
+                    [1,4,0,0,1,0,0,4,1],
+                    [1,0,3,0,1,0,3,0,1],
+                    [1,0,0,2,0,0,0,0,1],
+                    [1,1,1,0,1,0,1,1,1],
+                    [1,0,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,1,1,1]
+                ]
+            },
+            {
+                map: [
+                    [1,1,1,1,1,1,1,1,1,1],
+                    [1,0,0,0,0,0,0,0,0,1],
+                    [1,0,2,0,3,0,3,0,0,1],
+                    [1,0,0,0,0,0,0,0,4,1],
+                    [1,0,3,0,1,0,1,0,4,1],
+                    [1,4,0,0,0,0,0,0,4,1],
+                    [1,1,1,1,1,1,1,1,1,1]
+                ]
+            }
+        ];
+        
+        let currentLevel = 0;
+        let gameMap = [];
+        let playerPos = {x: 0, y: 0};
+        let moves = 0;
+
+        function loadLevel(index) {
+            currentLevel = index % levels.length;
+            gameMap = JSON.parse(JSON.stringify(levels[currentLevel].map));
+            moves = 0;
+            
+            // Find player
+            for (let y = 0; y < gameMap.length; y++) {
+                for (let x = 0; x < gameMap[y].length; x++) {
+                    if (gameMap[y][x] === 2 || gameMap[y][x] === 6) {
+                        playerPos = {x, y};
+                    }
+                }
+            }
+            
+            document.getElementById('level').textContent = currentLevel + 1;
+            document.getElementById('moves').textContent = moves;
+            render();
+        }
+
+        function resetLevel() {
+            loadLevel(currentLevel);
+        }
+
+        function nextLevel() {
+            loadLevel(currentLevel + 1);
+        }
+
+        function render() {
+            canvas.width = gameMap[0].length * TILE_SIZE;
+            canvas.height = gameMap.length * TILE_SIZE;
+            
+            ctx.fillStyle = '#FFF5EE';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            for (let y = 0; y < gameMap.length; y++) {
+                for (let x = 0; x < gameMap[y].length; x++) {
+                    const cell = gameMap[y][x];
+                    const px = x * TILE_SIZE;
+                    const py = y * TILE_SIZE;
+                    
+                    // 地面
+                    if (cell === 0 || cell === 2 || cell === 3) {
+                        ctx.fillStyle = 'rgba(200,140,80,0.08)';
+                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    }
+                    
+                    // 目标点
+                    if (cell === 4 || cell === 5 || cell === 6) {
+                        ctx.fillStyle = '#FFB3C6';
+                        ctx.globalAlpha = 0.6;
+                        ctx.fillRect(px + 5, py + 5, TILE_SIZE - 10, TILE_SIZE - 10);
+                        ctx.globalAlpha = 1;
+                    }
+                    
+                    // 墙
+                    if (cell === 1) {
+                        ctx.fillStyle = 'rgba(200,120,140,0.4)';
+                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = 'rgba(200,120,140,0.25)';
+                        ctx.fillRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                    }
+                    
+                    // 箱子
+                    if (cell === 3 || cell === 5) {
+                        ctx.fillStyle = cell === 5 ? '#E88A3D' : '#FFB3C6';
+                        ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+                        ctx.strokeStyle = cell === 5 ? '#FFB3C6' : '#E88A3D';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+                    }
+                    
+                    // 玩家
+                    if (cell === 2 || cell === 6) {
+                        ctx.fillStyle = cell === 6 ? '#E88A3D' : '#E88A3D';
+                        ctx.beginPath();
+                        ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/2 - 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#3D2A35';
+                        ctx.beginPath();
+                        ctx.arc(px + TILE_SIZE/2 - 6, py + TILE_SIZE/2 - 4, 4, 0, Math.PI * 2);
+                        ctx.arc(px + TILE_SIZE/2 + 6, py + TILE_SIZE/2 - 4, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        function move(direction) {
+            const dx = direction === 'LEFT' ? -1 : direction === 'RIGHT' ? 1 : 0;
+            const dy = direction === 'UP' ? -1 : direction === 'DOWN' ? 1 : 0;
+            
+            const newX = playerPos.x + dx;
+            const newY = playerPos.y + dy;
+            const targetCell = gameMap[newY][newX];
+            
+            // 检查是否可以移动
+            if (targetCell === 1) return; // 墙
+            if (targetCell === 3 || targetCell === 5) {
+                // 推动箱子
+                const boxNewX = newX + dx;
+                const boxNewY = newY + dy;
+                const boxTargetCell = gameMap[boxNewY][boxNewX];
+                
+                if (boxTargetCell === 1 || boxTargetCell === 3 || boxTargetCell === 5) return; // 无法推动
+                
+                // 移动箱子
+                gameMap[boxNewY][boxNewX] = boxTargetCell === 4 ? 5 : 3;
+                gameMap[newY][newX] = targetCell === 5 ? 4 : 0;
+            }
+            
+            // 移动玩家
+            const currentCell = gameMap[playerPos.y][playerPos.x];
+            gameMap[playerPos.y][playerPos.x] = currentCell === 6 ? 4 : 0;
+            
+            const newCell = gameMap[newY][newX];
+            gameMap[newY][newX] = newCell === 4 ? 6 : 2;
+            
+            playerPos = {x: newX, y: newY};
+            moves++;
+            document.getElementById('moves').textContent = moves;
+            render();
+            
+            checkWin();
+        }
+
+        function checkWin() {
+            for (let y = 0; y < gameMap.length; y++) {
+                for (let x = 0; x < gameMap[y].length; x++) {
+                    if (gameMap[y][x] === 3) return; // 还有箱子没到位
+                }
+            }
+            
+            setTimeout(() => {
+                showMessage('🎉 恭喜!', `关卡 ${currentLevel + 1} 通关!`);
+            }, 100);
+        }
+
+        function showMessage(title, text) {
+            document.getElementById('msg-text').textContent = text;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': move('UP'); break;
+                case 'ArrowDown': case 's': case 'S': move('DOWN'); break;
+                case 'ArrowLeft': case 'a': case 'A': move('LEFT'); break;
+                case 'ArrowRight': case 'd': case 'D': move('RIGHT'); break;
+                case 'r': case 'R': resetLevel(); break;
+            }
+        });
+
+        loadLevel(0);
+    </script>
+</body>
+</html>

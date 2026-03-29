@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>连连看</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FFF5EE 0%, #FFE4EC 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        h1 {
+            color: #3D2A35;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(200,120,140,0.2);
+            font-size: 1.5rem;
+        }
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+            align-items: center;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #E88A3D;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #D64A6A;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: #A8D8FF;
+            color: #3D2A35;
+        }
+        .btn-secondary:hover {
+            background: #8BC8EF;
+            transform: scale(1.05);
+        }
+        .info {
+            color: #3D2A35;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        #game-board {
+            display: grid;
+            gap: 4px;
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(200,140,80,0.15);
+        }
+        .tile {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            box-shadow: 0 4px 6px rgba(200,140,80,0.15);
+        }
+        .tile:hover:not(.empty):not(.selected) {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(200,120,140,0.25);
+        }
+        .tile.selected {
+            background: #FFD6E0;
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(232,90,122,0.4);
+        }
+        .tile.matched {
+            animation: match 0.4s ease-out;
+            opacity: 0;
+            transform: scale(0);
+        }
+        @keyframes match {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .tile.empty {
+            background: transparent;
+            box-shadow: none;
+            cursor: default;
+        }
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(200,120,140,0.25);
+            display: none;
+            z-index: 100;
+        }
+        .message h2 {
+            color: #E88A3D;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.3);
+            display: none;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔗 连连看</h1>
+    <div class="controls">
+        <button class="btn-primary" onclick="initGame()">🎮 新游戏</button>
+        <button class="btn-secondary" onclick="toggleHint()">💡 提示</button>
+    </div>
+    <div class="info">
+        <span>⏱️ 时间: <span id="timer">0</span>s</span>
+        <span style="margin-left: 20px;">�剩下: <span id="remaining">0</span>对</span>
+    </div>
+    <div id="game-board"></div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="message" id="message">
+        <h2>🎉 恭喜通关!</h2>
+        <p id="final-time"></p>
+        <button class="btn-primary" onclick="closeMessage(); initGame();">再玩一次</button>
+    </div>
+
+    <script>
+        const ICONS = ['🍎','🍊','🍋','🍇','🍓','🍒','🥝','🍑','🌸','🌺','🌻','🌹','⭐','🌙','❤️','💎'];
+        const ROWS = 8;
+        const COLS = 10;
+        let board = [];
+        let selected = null;
+        let matchedPairs = 0;
+        let totalPairs = 0;
+        let timer = 0;
+        let timerInterval = null;
+        let hints = 3;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function canConnect(r1, c1, r2, c2) {
+            // Check direct connection
+            if (checkLine(r1, c1, r2, c2)) return true;
+            // Check one turn
+            if (checkOneTurn(r1, c1, r2, c2)) return true;
+            // Check two turns
+            if (checkTwoTurns(r1, c1, r2, c2)) return true;
+            return false;
+        }
+
+        function checkLine(r1, c1, r2, c2) {
+            if (r1 === r2) {
+                const minC = Math.min(c1, c2);
+                const maxC = Math.max(c1, c2);
+                for (let c = minC + 1; c < maxC; c++) {
+                    if (!isEmpty(r1, c)) return false;
+                }
+                return true;
+            }
+            if (c1 === c2) {
+                const minR = Math.min(r1, r2);
+                const maxR = Math.max(r1, r2);
+                for (let r = minR + 1; r < maxR; r++) {
+                    if (!isEmpty(r, c1)) return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        function checkOneTurn(r1, c1, r2, c2) {
+            // Corner point 1: (r1, c2)
+            if (isEmpty(r1, c2) && checkLine(r1, c1, r1, c2) && checkLine(r1, c2, r2, c2)) return true;
+            // Corner point 2: (r2, c1)
+            if (isEmpty(r2, c1) && checkLine(r1, c1, r2, c1) && checkLine(r2, c1, r2, c2)) return true;
+            return false;
+        }
+
+        function checkTwoTurns(r1, c1, r2, c2) {
+            // Horizontal scan
+            for (let c = -1; c <= COLS; c++) {
+                if ((c === c1 || c === c2) && c >= 0 && c < COLS) continue;
+                if (isEmpty(r1, c) && checkLine(r1, c1, r1, c) && checkLine(r1, c, r2, c) && checkLine(r2, c, r2, c2)) return true;
+            }
+            // Vertical scan
+            for (let r = -1; r <= ROWS; r++) {
+                if ((r === r1 || r === r2) && r >= 0 && r < ROWS) continue;
+                if (isEmpty(r, c1) && checkLine(r1, c1, r, c1) && checkLine(r, c1, r, c2) && checkLine(r, c2, r2, c2)) return true;
+            }
+            return false;
+        }
+
+        function isEmpty(r, c) {
+            if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+            return board[r][c] === null;
+        }
+
+        function findMatch(r, c) {
+            const icon = board[r][c];
+            for (let i = 0; i < ROWS; i++) {
+                for (let j = 0; j < COLS; j++) {
+                    if (i === r && j === c) continue;
+                    if (board[i][j] === icon && canConnect(r, c, i, j)) {
+                        return { r: i, c: j };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function hasAvailableMoves() {
+            for (let r1 = 0; r1 < ROWS; r1++) {
+                for (let c1 = 0; c1 < COLS; c1++) {
+                    if (board[r1][c1] !== null && findMatch(r1, c1)) return true;
+                }
+            }
+            return false;
+        }
+
+        function initGame() {
+            // Create pairs
+            const cells = ROWS * COLS;
+            const pairsNeeded = cells / 2;
+            totalPairs = pairsNeeded;
+            matchedPairs = 0;
+            timer = 0;
+            hints = 3;
+            
+            let tiles = [];
+            for (let i = 0; i < pairsNeeded; i++) {
+                const icon = ICONS[i % ICONS.length];
+                tiles.push(icon, icon);
+            }
+            tiles = shuffle(tiles);
+            
+            board = [];
+            for (let r = 0; r < ROWS; r++) {
+                board[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    board[r][c] = tiles[r * COLS + c];
+                }
+            }
+            
+            selected = null;
+            closeMessage();
+            startTimer();
+            render();
+        }
+
+        function render() {
+            const container = document.getElementById('game-board');
+            container.style.gridTemplateColumns = `repeat(${COLS}, 50px)`;
+            container.innerHTML = '';
+            
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile' + (board[r][c] === null ? ' empty' : '');
+                    tile.textContent = board[r][c] || '';
+                    tile.dataset.r = r;
+                    tile.dataset.c = c;
+                    if (board[r][c]) {
+                        tile.onclick = () => selectTile(r, c);
+                    }
+                    container.appendChild(tile);
+                }
+            }
+            
+            document.getElementById('remaining').textContent = totalPairs - matchedPairs;
+        }
+
+        function selectTile(r, c) {
+            if (board[r][c] === null) return;
+            
+            const tiles = document.querySelectorAll('.tile');
+            const index = r * COLS + c;
+            
+            if (selected) {
+                const [sr, sc] = selected;
+                tiles[sr * COLS + sc].classList.remove('selected');
+                
+                if (sr === r && sc === c) {
+                    selected = null;
+                    return;
+                }
+                
+                if (board[sr][sc] === board[r][c] && canConnect(sr, sc, r, c)) {
+                    // Match found
+                    matchedPairs++;
+                    board[sr][sc] = null;
+                    board[r][c] = null;
+                    
+                    tiles[sr * COLS + sc].classList.add('matched');
+                    tiles[index].classList.add('matched');
+                    
+                    setTimeout(() => {
+                        tiles[sr * COLS + sc].classList.add('empty');
+                        tiles[index].classList.add('empty');
+                        render();
+                        
+                        if (matchedPairs === totalPairs) {
+                            stopTimer();
+                            showWin();
+                        } else if (!hasAvailableMoves()) {
+                            shuffleBoard();
+                        }
+                    }, 400);
+                    
+                    selected = null;
+                } else {
+                    selected = [r, c];
+                    tiles[index].classList.add('selected');
+                }
+            } else {
+                selected = [r, c];
+                tiles[index].classList.add('selected');
+            }
+        }
+
+        function shuffleBoard() {
+            let tiles = [];
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] !== null) {
+                        tiles.push(board[r][c]);
+                    }
+                }
+            }
+            tiles = shuffle(tiles);
+            
+            let idx = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] !== null) {
+                        board[r][c] = tiles[idx++];
+                    }
+                }
+            }
+            render();
+        }
+
+        function toggleHint() {
+            if (hints <= 0) return;
+            hints--;
+            
+            for (let r1 = 0; r1 < ROWS; r1++) {
+                for (let c1 = 0; c1 < COLS; c1++) {
+                    if (board[r1][c1] !== null) {
+                        const match = findMatch(r1, c1);
+                        if (match) {
+                            const tiles = document.querySelectorAll('.tile');
+                            tiles[r1 * COLS + c1].style.background = '#FFD6E0';
+                            tiles[match.r * COLS + match.c].style.background = '#FFD6E0';
+                            setTimeout(() => {
+                                tiles[r1 * COLS + c1].style.background = '';
+                                tiles[match.r * COLS + match.c].style.background = '';
+                            }, 1500);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').textContent = timer;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function showWin() {
+            document.getElementById('final-time').textContent = `用时: ${timer} 秒`;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('message').style.display = 'block';
+        }
+
+        function closeMessage() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('message').style.display = 'none';
+        }
+
+        // Start game
+        initGame();
+    </script>
+</body>
+</html>

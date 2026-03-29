@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>迷宫逃脱</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FFF5EE 0%, #FFE4EC 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        h1 { color: #3D2A35; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(200,120,140,0.2); font-size: 1.5rem; }
+        .controls { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active { transform: scale(0.95); }
+        .btn-primary { background: #E88A3D; color: white; }
+        .btn-secondary { background: #A8D8FF; color: #3D2A35; }
+        .info { color: #3D2A35; font-size: 20px; margin-bottom: 15px; }
+        #game-board {
+            background: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(200,140,80,0.15);
+        }
+        .cell {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+        }
+        .cell.wall { background: #DDD0DC; }
+        .cell.path { background: #FFFFFF; }
+        .cell.player {
+            background: #E88A3D;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+        .cell.exit {
+            background: linear-gradient(135deg, #FFD6E0, #FFB3C6);
+            animation: glow 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); }
+            50% { transform: scale(1); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px #FFB3C6; }
+            50% { box-shadow: 0 0 20px #FFB3C6, 0 0 30px #FFD6E0; }
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .message {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .message h2 { color: #E88A3D; font-size: 32px; margin-bottom: 15px; }
+        .message p { color: #666; margin-bottom: 20px; }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(200,140,80,0.15);
+            color: #3D2A35;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-btn:hover { background: rgba(200,120,140,0.25); }
+        .difficulty-select {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .difficulty-select button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .difficulty-select button.active {
+            background: #E88A3D;
+            color: white;
+        }
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .mobile-controls button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            background: rgba(200,140,80,0.15);
+            color: #3D2A35;
+        }
+        @media (max-width: 600px) {
+            .cell { width: 18px; height: 18px; }
+            .mobile-controls { display: grid; grid-template-areas: ". up ." "left . right" ". down ."; }
+            .mobile-controls button:nth-child(1) { grid-area: up; }
+            .mobile-controls button:nth-child(2) { grid-area: left; }
+            .mobile-controls button:nth-child(3) { grid-area: down; }
+            .mobile-controls button:nth-child(4) { grid-area: right; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 返回游戏大厅</a>
+    <h1>🧩 迷宫逃脱</h1>
+    <div class="controls">
+        <div class="difficulty-select">
+            <button class="btn-secondary active" onclick="setDifficulty('easy')">简单</button>
+            <button class="btn-secondary" onclick="setDifficulty('medium')">中等</button>
+            <button class="btn-secondary" onclick="setDifficulty('hard')">困难</button>
+        </div>
+        <button class="btn-primary" onclick="generateMaze()">🔄 新迷宫</button>
+    </div>
+    <div class="info">
+        <span>⏱️ 时间: <span id="timer">0</span>s</span>
+    </div>
+    <div id="game-board"></div>
+    <div class="mobile-controls">
+        <button onclick="move('UP')">⬆️</button>
+        <button onclick="move('LEFT')">⬅️</button>
+        <button onclick="move('DOWN')">⬇️</button>
+        <button onclick="move('RIGHT')">➡️</button>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="message">
+            <h2>🎉 恭喜!</h2>
+            <p id="msg-text">用时: 0s</p>
+            <button class="btn-primary" onclick="closeOverlay(); generateMaze();">再来一局</button>
+        </div>
+    </div>
+    <script>
+        const DIFFICULTIES = {
+            easy: { size: 11, label: '简单' },
+            medium: { size: 15, label: '中等' },
+            hard: { size: 21, label: '困难' }
+        };
+        
+        let currentDiff = 'easy';
+        let size;
+        let maze = [];
+        let playerPos = {x: 1, y: 1};
+        let exitPos = {x: 0, y: 0};
+        let timer;
+        let timeElapsed;
+        let gameStarted = false;
+
+        function setDifficulty(diff) {
+            currentDiff = diff;
+            document.querySelectorAll('.difficulty-select button').forEach((btn, i) => {
+                btn.classList.toggle('active', ['easy','medium','hard'][i] === diff);
+            });
+            generateMaze();
+        }
+
+        function generateMaze() {
+            size = DIFFICULTIES[currentDiff].size;
+            maze = [];
+            
+            // Initialize with walls
+            for (let y = 0; y < size; y++) {
+                maze[y] = [];
+                for (let x = 0; x < size; x++) {
+                    maze[y][x] = 1; // Wall
+                }
+            }
+            
+            // Recursive backtracking algorithm
+            const stack = [];
+            const startX = 1;
+            const startY = 1;
+            maze[startY][startX] = 0;
+            stack.push({x: startX, y: startY});
+            
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+                const neighbors = getUnvisitedNeighbors(current.x, current.y);
+                
+                if (neighbors.length > 0) {
+                    const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    removeWall(current, next);
+                    maze[next.y][next.x] = 0;
+                    stack.push(next);
+                } else {
+                    stack.pop();
+                }
+            }
+            
+            // Set exit
+            exitPos = {x: size - 2, y: size - 2};
+            maze[exitPos.y][exitPos.x] = 0;
+            
+            // Ensure path to exit
+            if (maze[size-3][size-2] === 1 && maze[size-2][size-3] === 1) {
+                maze[size-3][size-2] = 0;
+            }
+            
+            playerPos = {x: 1, y: 1};
+            timeElapsed = 0;
+            gameStarted = false;
+            clearInterval(timer);
+            document.getElementById('timer').textContent = '0';
+            
+            render();
+        }
+
+        function getUnvisitedNeighbors(x, y) {
+            const neighbors = [];
+            const directions = [
+                {dx: 0, dy: -2},
+                {dx: 2, dy: 0},
+                {dx: 0, dy: 2},
+                {dx: -2, dy: 0}
+            ];
+            
+            for (const dir of directions) {
+                const nx = x + dir.dx;
+                const ny = y + dir.dy;
+                if (nx > 0 && nx < size - 1 && ny > 0 && ny < size - 1 && maze[ny][nx] === 1) {
+                    neighbors.push({x: nx, y: ny});
+                }
+            }
+            return neighbors;
+        }
+
+        function removeWall(current, next) {
+            const dx = (next.x - current.x) / 2;
+            const dy = (next.y - current.y) / 2;
+            maze[current.y + dy][current.x + dx] = 0;
+        }
+
+        function render() {
+            const container = document.getElementById('game-board');
+            container.innerHTML = '';
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${size}, 25px)`;
+            
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    if (x === playerPos.x && y === playerPos.y) {
+                        cell.classList.add('player');
+                    } else if (x === exitPos.x && y === exitPos.y) {
+                        cell.classList.add('exit');
+                    } else if (maze[y][x] === 1) {
+                        cell.classList.add('wall');
+                    } else {
+                        cell.classList.add('path');
+                    }
+                    
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        function move(direction) {
+            if (!gameStarted) {
+                gameStarted = true;
+                timer = setInterval(() => {
+                    timeElapsed++;
+                    document.getElementById('timer').textContent = timeElapsed;
+                }, 1000);
+            }
+            
+            const dx = direction === 'LEFT' ? -1 : direction === 'RIGHT' ? 1 : 0;
+            const dy = direction === 'UP' ? -1 : direction === 'DOWN' ? 1 : 0;
+            
+            const newX = playerPos.x + dx;
+            const newY = playerPos.y + dy;
+            
+            if (newX >= 0 && newX < size && newY >= 0 && newY < size && maze[newY][newX] === 0) {
+                playerPos = {x: newX, y: newY};
+                render();
+                checkWin();
+            }
+        }
+
+        function checkWin() {
+            if (playerPos.x === exitPos.x && playerPos.y === exitPos.y) {
+                clearInterval(timer);
+                showMessage();
+            }
+        }
+
+        function showMessage() {
+            document.getElementById('msg-text').textContent = `用时: ${timeElapsed} 秒`;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': e.preventDefault(); move('UP'); break;
+                case 'ArrowDown': case 's': case 'S': e.preventDefault(); move('DOWN'); break;
+                case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); move('LEFT'); break;
+                case 'ArrowRight': case 'd': case 'D': e.preventDefault(); move('RIGHT'); break;
+            }
+        });
+
+        generateMaze();
+    </script>
+</body>
+</html>

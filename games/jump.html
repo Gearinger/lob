@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>跳一跳</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body {
+            background: #F5F5F5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(180deg, #FFD6E0 0%, #FFF5EE 100%);
+        }
+        .ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .score-display {
+            text-align: center;
+            padding-top: 40px;
+        }
+        .current-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #E88A3D;
+            text-shadow: 2px 2px 4px rgba(200,120,140,0.2);
+        }
+        .best-score {
+            font-size: 14px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .power-indicator {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100px;
+            background: rgba(200,140,80,0.15);
+            border-radius: 2px;
+            display: none;
+        }
+        .power-indicator.active {
+            display: block;
+        }
+        .power-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #E88A3D, #A8D8FF);
+            border-radius: 2px;
+            transition: height 0.05s linear;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(200,120,140,0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3D2A35;
+            font-size: 20px;
+            pointer-events: auto;
+            z-index: 20;
+        }
+        .start-screen, .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200,120,140,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .start-screen.hidden, .game-over-screen.hidden {
+            display: none;
+        }
+        .title {
+            font-size: 48px;
+            color: #3D2A35;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(200,120,140,0.2);
+        }
+        .start-btn {
+            background: linear-gradient(135deg, #E88A3D, #FFB3C6);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(232,90,122,0.3);
+            pointer-events: auto;
+        }
+        .game-over-score {
+            font-size: 64px;
+            color: #E88A3D;
+            margin-bottom: 10px;
+        }
+        .game-over-label {
+            font-size: 18px;
+            color: #3D2A35;
+            margin-bottom: 40px;
+        }
+        .restart-btn {
+            background: linear-gradient(135deg, #A8D8FF, #E8D4E8);
+            color: #3D2A35;
+            border: none;
+            padding: 15px 50px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(200,120,140,0.5);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui-layer">
+        <div class="score-display">
+            <div class="current-score" id="currentScore">0</div>
+            <div class="best-score" id="bestScore">最高: 0</div>
+        </div>
+    </div>
+    
+    <a href="index.html" class="back-btn">←</a>
+    
+    <div class="power-indicator" id="powerIndicator">
+        <div class="power-fill" id="powerFill"></div>
+    </div>
+    
+    <div class="start-screen" id="startScreen">
+        <div class="title">🎮 跳一跳</div>
+        <button class="start-btn" onclick="startGame()">开始游戏</button>
+        <p style="color: rgba(255,255,255,0.7); margin-top: 20px; font-size: 14px;">
+            长按屏幕蓄力，松手跳跃
+        </p>
+    </div>
+    
+    <div class="game-over-screen hidden" id="gameOverScreen">
+        <div class="game-over-score" id="finalScore">0</div>
+        <div class="game-over-label">分</div>
+        <button class="restart-btn" onclick="restartGame()">再玩一次</button>
+    </div>
+    
+    <div class="footer">长按蓄力，松手跳跃</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布大小
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // 游戏配置
+        const CONFIG = {
+            PLAYER_RADIUS: 20,
+            PLATFORM_WIDTH: 70,
+            PLATFORM_HEIGHT: 18,
+            GRAVITY: 0.5,
+            MAX_POWER: 20,
+            MIN_POWER: 3,
+            POWER_SPEED: 0.4,
+            CAMERA_SMOOTH: 0.08,
+            CAMERA_SMOOTH_X: 0.05,
+            PLATFORM_GAP_MIN: 80,
+            PLATFORM_GAP_MAX: 180,
+            PLATFORM_Y_VARIATION: 100
+        };
+        
+        // 游戏状态
+        let gameState = {
+            running: false,
+            score: 0,
+            best: parseInt(localStorage.getItem('jump-best') || '0'),
+            cameraX: 0,
+            cameraY: 0,
+            cameraTargetX: 0,
+            cameraTargetY: 0,
+            platforms: [],
+            player: null,
+            isPressing: false,
+            power: 0,
+            powerDirection: 1
+        };
+        
+        // 玩家类
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = CONFIG.PLAYER_RADIUS;
+                this.isJumping = false;
+                this.rotation = 0;
+            }
+            
+            update() {
+                if (this.isJumping) {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += CONFIG.GRAVITY;
+                    this.rotation += 0.15;
+                }
+                
+                // 掉落检测
+                if (this.y > gameState.cameraY + canvas.height + 100) {
+                    return false;
+                }
+                return true;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y - gameState.cameraY);
+                ctx.rotate(this.rotation);
+                
+                // 身体阴影
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.beginPath();
+                ctx.arc(3, 3, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 身体
+                const gradient = ctx.createRadialGradient(-5, -5, 0, 0, 0, this.radius);
+                gradient.addColorStop(0, '#FF9A9A');
+                gradient.addColorStop(1, '#FF6B6B');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 眼睛
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-6, -4, 6, 0, Math.PI * 2);
+                ctx.arc(6, -4, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 瞳孔
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(-5, -3, 3, 0, Math.PI * 2);
+                ctx.arc(7, -3, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 腮红
+                ctx.fillStyle = 'rgba(255,150,150,0.5)';
+                ctx.beginPath();
+                ctx.arc(-12, 4, 5, 0, Math.PI * 2);
+                ctx.arc(12, 4, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            jump(angle, power) {
+                this.isJumping = true;
+                this.vx = Math.cos(angle) * power;
+                this.vy = -Math.sin(angle) * power;
+            }
+        }
+        
+        // 平台类
+        class Platform {
+            constructor(x, y, width) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = CONFIG.PLATFORM_HEIGHT;
+                this.landed = false;
+                this.colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F8B500'];
+                this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            }
+            
+            draw() {
+                const screenX = this.x - gameState.cameraX;
+                const screenY = this.y - gameState.cameraY;
+                
+                // 只绘制屏幕内的平台
+                if (screenX < -100 || screenX > canvas.width + 100 || 
+                    screenY < -50 || screenY > canvas.height + 50) return;
+                
+                ctx.save();
+                
+                // 阴影
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                this.roundRect(ctx, screenX + 4, screenY + 4, this.width, this.height, 8);
+                ctx.fill();
+                
+                // 本体
+                const gradient = ctx.createLinearGradient(screenX, screenY, screenX, screenY + this.height);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(1, this.darkenColor(this.color, 20));
+                ctx.fillStyle = gradient;
+                this.roundRect(ctx, screenX, screenY, this.width, this.height, 8);
+                ctx.fill();
+                
+                // 高光
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                this.roundRect(ctx, screenX, screenY, this.width, 6, {tl: 8, tr: 8, bl: 0, br: 0});
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            roundRect(ctx, x, y, w, h, r) {
+                if (typeof r === 'number') {
+                    r = {tl: r, tr: r, bl: r, br: r};
+                }
+                ctx.beginPath();
+                ctx.moveTo(x + r.tl, y);
+                ctx.lineTo(x + w - r.tr, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+                ctx.lineTo(x + w, y + h - r.br);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+                ctx.lineTo(x + r.bl, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+                ctx.lineTo(x, y + r.tl);
+                ctx.quadraticCurveTo(x, y, x + r.tl, y);
+                ctx.closePath();
+            }
+            
+            darkenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = Math.max((num >> 16) - amt, 0);
+                const G = Math.max((num >> 8 & 0x00FF) - amt, 0);
+                const B = Math.max((num & 0x0000FF) - amt, 0);
+                return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+            }
+        }
+        
+        // 音效系统
+        const AudioSys = {
+            ctx: null,
+            enabled: true,
+            
+            init() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            
+            play(type) {
+                if (!this.enabled || !this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                const now = this.ctx.currentTime;
+                
+                if (type === 'jump') {
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'land') {
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.4);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            }
+        };
+        
+        function initGame() {
+            gameState.platforms = [];
+            gameState.score = 0;
+            gameState.isPressing = false;
+            gameState.power = 0;
+            gameState.cameraY = 0;
+            gameState.cameraTargetY = 0;
+            
+            // 初始平台
+            const startPlatform = new Platform(canvas.width / 2 - 50, canvas.height - 150, 100);
+            startPlatform.landed = true;
+            gameState.platforms.push(startPlatform);
+            
+            // 生成后续平台
+            let lastX = startPlatform.x + startPlatform.width;
+            let lastY = startPlatform.y;
+            
+            for (let i = 0; i < 20; i++) {
+                const gap = CONFIG.PLATFORM_GAP_MIN + Math.random() * (CONFIG.PLATFORM_GAP_MAX - CONFIG.PLATFORM_GAP_MIN);
+                const yVar = (Math.random() - 0.5) * CONFIG.PLATFORM_Y_VARIATION;
+                const newY = Math.max(200, Math.min(canvas.height - 200, lastY + yVar));
+                const newX = lastX + gap;
+                
+                gameState.platforms.push(new Platform(newX, newY, CONFIG.PLATFORM_WIDTH));
+                lastX = newX;
+                lastY = newY;
+            }
+            
+            // 玩家
+            gameState.player = new Player(
+                startPlatform.x + startPlatform.width / 2,
+                startPlatform.y - CONFIG.PLATFORM_HEIGHT / 2 - CONFIG.PLAYER_RADIUS
+            );
+            
+            // 设置相机
+            gameState.cameraX = player.x - canvas.width / 2;
+            gameState.cameraY = canvas.height - 300;
+            gameState.cameraTargetX = gameState.cameraX;
+            gameState.cameraTargetY = gameState.cameraY;
+            
+            // 更新UI
+            document.getElementById('currentScore').textContent = '0';
+            document.getElementById('bestScore').textContent = `最高: ${gameState.best}`;
+        }
+        
+        function startGame() {
+            AudioSys.init();
+            document.getElementById('startScreen').classList.add('hidden');
+            initGame();
+            gameState.running = true;
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            initGame();
+            gameState.running = true;
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function gameOver() {
+            gameState.running = false;
+            AudioSys.play('fail');
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function jump() {
+            if (gameState.power < CONFIG.MIN_POWER) {
+                gameState.power = 0;
+                document.getElementById('powerIndicator').classList.remove('active');
+                return;
+            }
+            
+            AudioSys.play('jump');
+            
+            const angle = 60 * Math.PI / 180;
+            gameState.player.jump(angle, gameState.power);
+            gameState.power = 0;
+            document.getElementById('powerIndicator').classList.remove('active');
+        }
+        
+        function checkLanding() {
+            const player = gameState.player;
+            const landedPlatform = gameState.platforms.find(p => {
+                if (p.landed) return false;
+                if (player.vy <= 0) return false;
+                
+                const playerBottom = player.y + player.radius;
+                const platformTop = p.y - p.height / 2;
+                
+                return playerBottom >= platformTop && 
+                       playerBottom <= platformTop + 20 &&
+                       player.x >= p.x - 10 &&
+                       player.x <= p.x + p.width + 10;
+            });
+            
+            if (landedPlatform) {
+                landedPlatform.landed = true;
+                player.isJumping = false;
+                player.y = landedPlatform.y - landedPlatform.height / 2 - player.radius;
+                player.vx = 0;
+                player.vy = 0;
+                player.rotation = 0;
+                
+                gameState.score++;
+                document.getElementById('currentScore').textContent = gameState.score;
+                
+                if (gameState.score > gameState.best) {
+                    gameState.best = gameState.score;
+                    localStorage.setItem('jump-best', gameState.best);
+                    document.getElementById('bestScore').textContent = `最高: ${gameState.best}`;
+                }
+                
+                AudioSys.play('land');
+                
+                // 生成新平台
+                const lastPlatform = gameState.platforms[gameState.platforms.length - 1];
+                const gap = CONFIG.PLATFORM_GAP_MIN + Math.random() * (CONFIG.PLATFORM_GAP_MAX - CONFIG.PLATFORM_GAP_MIN);
+                const yVar = (Math.random() - 0.5) * CONFIG.PLATFORM_Y_VARIATION;
+                const newY = Math.max(200, Math.min(canvas.height - 200, lastPlatform.y + yVar));
+                const newX = lastPlatform.x + lastPlatform.width / 2 + gap;
+                
+                gameState.platforms.push(new Platform(newX, newY, CONFIG.PLATFORM_WIDTH));
+                
+                // 移除旧平台
+                if (gameState.platforms.length > 25) {
+                    gameState.platforms.shift();
+                }
+                
+                // 设置相机跟随
+                gameState.cameraTargetY = player.y - canvas.height * 0.6;
+            }
+        }
+        
+        function drawBackground() {
+            // 渐变天空
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#FFD6E0');
+            gradient.addColorStop(1, '#FFF5EE');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 云朵（随相机移动）
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            const cloudOffsetX = -gameState.cameraX * 0.3;
+            const cloudY = ((-gameState.cameraY * 0.3) % 400);
+            for (let i = 0; i < 8; i++) {
+                const x = (cloudOffsetX + i * 250 + 50) % (canvas.width + 400) - 200;
+                const y = cloudY + 80 + (i % 3) * 60;
+                ctx.beginPath();
+                ctx.arc(x, y, 35, 0, Math.PI * 2);
+                ctx.arc(x + 30, y - 15, 30, 0, Math.PI * 2);
+                ctx.arc(x + 60, y, 35, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function gameLoop() {
+            if (!gameState.running) return;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            drawBackground();
+            
+            // 更新玩家
+            if (gameState.player.isJumping) {
+                const alive = gameState.player.update();
+                if (!alive) {
+                    gameOver();
+                    return;
+                }
+                checkLanding();
+            }
+            
+            // 相机平滑跟随（X轴）
+            const targetX = gameState.player.x - canvas.width / 2;
+            gameState.cameraTargetX = targetX;
+            gameState.cameraX += (gameState.cameraTargetX - gameState.cameraX) * CONFIG.CAMERA_SMOOTH_X;
+            
+            // 相机平滑跟随（Y轴）
+            const targetY = gameState.player.y - canvas.height * 0.5;
+            if (targetY < gameState.cameraTargetY) {
+                gameState.cameraTargetY = targetY;
+            }
+            gameState.cameraY += (gameState.cameraTargetY - gameState.cameraY) * CONFIG.CAMERA_SMOOTH;
+            
+            // 绘制平台
+            gameState.platforms.forEach(p => p.draw());
+            
+            // 绘制玩家
+            gameState.player.draw();
+            
+            // 蓄力
+            if (gameState.isPressing && !gameState.player.isJumping) {
+                gameState.power = Math.min(gameState.power + CONFIG.POWER_SPEED, CONFIG.MAX_POWER);
+                document.getElementById('powerIndicator').classList.add('active');
+                document.getElementById('powerFill').style.height = (gameState.power / CONFIG.MAX_POWER * 100) + '%';
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 输入处理
+        function handleStart(e) {
+            e.preventDefault();
+            if (!gameState.running || gameState.player.isJumping) return;
+            gameState.isPressing = true;
+        }
+        
+        function handleEnd(e) {
+            e.preventDefault();
+            if (!gameState.running) return;
+            if (gameState.isPressing) {
+                gameState.isPressing = false;
+                jump();
+            }
+        }
+        
+        // 触摸事件
+        canvas.addEventListener('touchstart', handleStart, { passive: false });
+        canvas.addEventListener('touchend', handleEnd, { passive: false });
+        
+        // 鼠标事件（桌面测试）
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mouseup', handleEnd);
+        
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !gameState.player?.isJumping && gameState.running) {
+                e.preventDefault();
+                handleStart(e);
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                handleEnd(e);
+            }
+        });
+        
+        // 初始化显示
+        document.getElementById('bestScore').textContent = `最高: ${gameState.best}`;
+    </script>
+</body>
+</html>
