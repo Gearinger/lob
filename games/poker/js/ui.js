@@ -53,6 +53,23 @@ export class UI {
     chip.addEventListener('animationend', () => chip.remove());
   }
 
+  showToast(msg, icon = '✅') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.innerHTML = `<span class="icon">${icon}</span>${msg}`;
+    container.appendChild(toast);
+    
+    // Auto remove after 2.8s total animation
+    setTimeout(() => { toast.remove(); }, 2800);
+  }
+
   triggerPotBurst() {
     const el = document.querySelector('.pot-display');
     if (!el) return;
@@ -83,6 +100,8 @@ export class UI {
     if (btnConfirm) {
       btnConfirm.onclick = () => {
         this.playSFX('click');
+        const seatEl = document.querySelector('.player-seat.pos-self');
+        this.spawnChipParticle(seatEl);
         const input = document.getElementById('raise-amount-input');
         const val = parseInt(input.value);
         if (isNaN(val) || val <= 0) return;

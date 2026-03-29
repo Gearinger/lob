@@ -960,3 +960,26 @@ a {
 .deal-d2 { animation-delay: 240ms; }
 .deal-d3 { animation-delay: 360ms; }
 .deal-d4 { animation-delay: 480ms; }
+
+/* ===== TOAST NOTIFICATION ===== */
+.toast-container {
+  position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+  z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.toast-message {
+  background: rgba(40, 30, 35, 0.85); color: #fff; padding: 12px 24px; border-radius: 30px;
+  font-size: 0.9rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(232, 138, 61, 0.3); backdrop-filter: blur(10px);
+  display: flex; align-items: center; white-space: nowrap;
+  animation: toastFadeIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards, toastFadeOut 0.3s 2.5s forwards;
+}
+.toast-message .icon { margin-right: 8px; font-size: 1.1rem; }
+
+@keyframes toastFadeIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastFadeOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-20px) scale(0.9); }
+}

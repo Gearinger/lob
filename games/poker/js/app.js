@@ -148,6 +148,7 @@ export class App {
 
   setReady() {
     if (!this.room) return;
+    this.ui.playSFX('click');
     const myP = this.room.players.find(p => p.id === this.myId);
     if (myP) {
       myP.isReady = !myP.isReady;
@@ -172,6 +173,7 @@ export class App {
 
   addBot(name) {
     if (!this.room) return;
+    this.ui.playSFX('click');
     const bot = this.room.addBot(name);
     if (bot) {
       this._broadcastState();
@@ -182,6 +184,7 @@ export class App {
 
   removeBot(id) {
     if (!this.isHost || !this.room) return;
+    this.ui.playSFX('click');
     const p = this.room.players.find(p => p.id === id);
     if (p && p.isBot) {
       this.room.removePlayer(id);
@@ -209,7 +212,8 @@ export class App {
     if (!this.room) return;
     const myIdx = this.room.players.findIndex(p => p.id === this.myId);
     if (myIdx !== this.room.currentTurn) return;
-
+    
+    this.ui.playSFX('click');
     this.clearBotTimeout();
     const me = this.room.players[myIdx];
     const actualToCall = this.room.currentBet - (me.currentBet || 0);
@@ -370,11 +374,13 @@ export class App {
 export const POKER_VERSION = '1.2.0';
 window.appRemoveBot = (id) => { if (window.app) window.app.removeBot(id); };
 window.appJoinRoom = () => {
+  if (window.app) window.app.ui.playSFX('click');
   const name = document.getElementById('player-name-input').value.trim() || '玩家B';
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
   if (code && window.app) window.app._joinRoom(name, code);
 };
 window.appCreateRoom = () => {
+  if (window.app) window.app.ui.playSFX('click');
   const name = document.getElementById('player-name-input').value.trim() || '玩家A';
   const code = Math.random().toString(36).substring(2,6).toUpperCase();
   if (window.app) window.app._createRoom(name, code);
@@ -390,6 +396,17 @@ window.appResetRoom = () => { if (window.app) window.app._leave(); };
 window.appAdjustRaise = (v) => {
   const input = document.getElementById('raise-amount-input');
   if (input) input.value = Math.max(0, (parseInt(input.value||0)||0) + v);
+};
+window.copyRoomCode = () => {
+  if (window.app) window.app.ui.playSFX('click');
+  const code = document.getElementById('display-room-code').textContent;
+  if (code && code !== '----') {
+    navigator.clipboard.writeText(code).then(() => {
+      if (window.app) window.app.ui.showToast(`房号 ${code} 已复制！`, '📋');
+    }).catch(e => {
+      if (window.app) window.app.ui.showToast(`无法复制房号`, '❌');
+    });
+  }
 };
 
 // ==================== INITIALIZATION ====================
