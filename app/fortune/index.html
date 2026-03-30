@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>玄天上帝灵签</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8d5a3;
+      --gold-dark: #8b6914;
+      --red: #8b1a1a;
+      --red-deep: #5c0f0f;
+      --black: #0d0d0d;
+      --paper: #f5e6c8;
+      --paper-dark: #d4c4a0;
+      --text-light: #f0e6d2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Serif SC', serif;
+      background: var(--black);
+      color: var(--text-light);
+    }
+
+    /* Pages */
+    .page { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .page.active { display: flex; flex-direction: column; }
+
+    /* ============ PAGE 1: Verification ============ */
+    #page-verify {
+      background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 40%, #2d1515 100%);
+      justify-content: center; align-items: center;
+      overflow: hidden;
+    }
+
+    .verify-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 40% at 50% 30%, rgba(139,26,26,0.15) 0%, transparent 70%);
+    }
+
+    /* Incense smoke particles */
+    .smoke-container { position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%); width: 200px; height: 300px; pointer-events: none; }
+    .smoke {
+      position: absolute; bottom: 0; left: 50%; width: 3px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      animation: rise linear infinite;
+      transform: translateX(-50%);
+    }
+    @keyframes rise {
+      0% { height: 0; opacity: 0; transform: translateX(-50%) translateY(0) scaleX(1); }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.2; }
+      100% { height: 120px; opacity: 0; transform: translateX(-50%) translateY(-120px) scaleX(4); }
+    }
+
+    /* Cloud decoration */
+    .cloud {
+      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.02); filter: blur(20px);
+      animation: float ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      50% { transform: translateY(-20px) translateX(10px); }
+    }
+
+    .verify-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(201,168,76,0.4), 0 0 60px rgba(201,168,76,0.2);
+      letter-spacing: 0.2em;
+      margin-bottom: 0.3em;
+      text-align: center;
+      position: relative; z-index: 2;
+    }
+
+    .verify-subtitle {
+      font-size: 0.85rem;
+      color: rgba(240,230,210,0.5);
+      letter-spacing: 0.3em;
+      margin-bottom: 3rem;
+      text-align: center;
+      position: relative; z-index: 2;
+    }
+
+    .verify-code-group {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 1rem; position: relative; z-index: 2;
+    }
+
+    .code-input-display {
+      display: flex; gap: 0.75rem;
+    }
+
+    .code-char {
+      width: 48px; height: 60px;
+      background: rgba(201,168,76,0.08);
+      border: 2px solid rgba(201,168,76,0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-family: 'Ma Shan Zheng', cursive;
+      color: var(--gold-light);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .code-char::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 50%);
+    }
+    .code-char.filled { border-color: var(--gold); box-shadow: 0 0 15px rgba(201,168,76,0.3); }
+    .code-char.cursor::after {
+      content: '|'; position: absolute; right: 10px;
+      color: var(--gold); animation: blink 0.8s ease-in-out infinite;
+      font-size: 1.5rem;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .code-keypad {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .key-btn {
+      width: 64px; height: 48px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px;
+      color: var(--gold-light);
+      font-size: 1.4rem; font-family: 'ZCOOL XiaoWei', serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-appearance: none;
+    }
+    .key-btn:active { transform: scale(0.92); background: rgba(201,168,76,0.2); }
+    .key-btn.delete { font-size: 1rem; }
+
+    .verify-error {
+      color: #ff6b6b; font-size: 0.8rem; height: 1.2em; margin-top: 0.5rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .verify-error.show { opacity: 1; }
+
+    .temple-decoration {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+      background: linear-gradient(0deg, rgba(139,26,26,0.1) 0%, transparent 100%);
+    }
+
+    /* ============ PAGE 2: Shake ============ */
+    #page-shake {
+      background: linear-gradient(180deg, #0d0d0d 0%, #1a0505 50%, #0d0d0d 100%);
+      justify-content: center; align-items: center;
+      overflow: hidden;
+    }
+
+    .shake-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 50% at 50% 40%, rgba(139,26,26,0.12) 0%, transparent 70%);
+    }
+
+    .shake-content { text-align: center; position: relative; z-index: 2; }
+
+    .phone-icon {
+      width: 80px; height: 140px;
+      border: 3px solid rgba(201,168,76,0.4);
+      border-radius: 16px;
+      margin: 0 auto 2rem;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      animation: shake-idle 3s ease-in-out infinite;
+    }
+    @keyframes shake-idle {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    .phone-icon::before {
+      content: '📿'; font-size: 2.5rem;
+    }
+
+    .phone-icon.shaking {
+      animation: phone-shake 0.5s ease-in-out infinite;
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(201,168,76,0.4);
+    }
+    @keyframes phone-shake {
+      0% { transform: translateX(-4px) rotate(-4deg); }
+      25% { transform: translateX(4px) rotate(4deg); }
+      50% { transform: translateX(-4px) rotate(-2deg); }
+      75% { transform: translateX(4px) rotate(2deg); }
+      100% { transform: translateX(0) rotate(0); }
+    }
+
+    .shake-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 2rem; color: var(--gold);
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(201,168,76,0.3);
+    }
+
+    .shake-hint {
+      font-size: 0.9rem; color: rgba(240,230,210,0.5);
+      line-height: 1.8; margin-top: 1rem;
+    }
+
+    .shake-progress {
+      width: 200px; height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin: 2rem auto 0;
+      overflow: hidden;
+    }
+    .shake-progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 2px;
+      transition: width 0.1s;
+    }
+
+    .shake-counter {
+      font-size: 0.8rem; color: rgba(240,230,210,0.3);
+      margin-top: 0.5rem;
+    }
+
+    /* ============ PAGE 3: Result ============ */
+    #page-result {
+      background: linear-gradient(180deg, #0a0805 0%, #1a1008 50%, #0d0a05 100%);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .result-header {
+      text-align: center; padding: 3rem 2rem 2rem;
+      background: linear-gradient(180deg, rgba(139,26,26,0.15) 0%, transparent 100%);
+      position: relative;
+    }
+
+    .result-stamp {
+      width: 100px; height: 100px;
+      margin: 0 auto 1.5rem;
+      border: 3px solid var(--red);
+      border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+      animation: stamp-appear 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0; transform: scale(0.5) rotate(-15deg);
+    }
+    @keyframes stamp-appear {
+      to { opacity: 1; transform: scale(1) rotate(-15deg); }
+    }
+    .result-stamp::before {
+      content: ''; position: absolute; inset: 4px;
+      border: 1px solid var(--red); border-radius: 50%;
+    }
+    .stamp-number {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 2.2rem; color: var(--red);
+      line-height: 1;
+    }
+    .stamp-label {
+      font-size: 0.6rem; color: var(--red); letter-spacing: 0.2em;
+      margin-top: 2px;
+    }
+
+    .result-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 2rem; color: var(--gold);
+      text-shadow: 0 0 20px rgba(201,168,76,0.3);
+      margin-bottom: 0.3rem;
+    }
+
+    .result-rank {
+      font-size: 0.85rem; color: rgba(240,230,210,0.6);
+      letter-spacing: 0.15em;
+    }
+
+    .result-poem {
+      margin: 1.5rem 1.5rem;
+      padding: 1.5rem;
+      background: rgba(245,230,200,0.04);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 12px;
+      position: relative;
+      font-family: 'ZCOOL XiaoWei', serif;
+      font-size: 1.05rem;
+      line-height: 2;
+      color: var(--paper-dark);
+      letter-spacing: 0.05em;
+    }
+    .result-poem::before, .result-poem::after {
+      content: '❧'; position: absolute; font-size: 1.2rem;
+      color: rgba(201,168,76,0.3);
+    }
+    .result-poem::before { top: 0.3rem; left: 0.5rem; }
+    .result-poem::after { bottom: 0.3rem; right: 0.5rem; transform: rotate(180deg); }
+
+    .result-analysis {
+      margin: 0 1.5rem 2rem;
+    }
+
+    .analysis-section {
+      margin-bottom: 1.2rem;
+      opacity: 0; transform: translateY(20px);
+      animation: slide-up 0.6s ease forwards;
+    }
+    .analysis-section:nth-child(1) { animation-delay: 0.2s; }
+    .analysis-section:nth-child(2) { animation-delay: 0.4s; }
+    .analysis-section:nth-child(3) { animation-delay: 0.6s; }
+    .analysis-section:nth-child(4) { animation-delay: 0.8s; }
+    @keyframes slide-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .analysis-label {
+      font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold-dark);
+      margin-bottom: 0.4rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .analysis-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(201,168,76,0.3), transparent);
+    }
+
+    .analysis-text {
+      font-size: 0.9rem; line-height: 1.8;
+      color: rgba(240,230,210,0.75);
+    }
+
+    .result-footer {
+      text-align: center; padding: 2rem;
+    }
+
+    .re-shake-btn {
+      padding: 0.8rem 2.5rem;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 30px;
+      color: var(--gold-light);
+      font-size: 0.9rem; font-family: 'Noto Serif SC', serif;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .re-shake-btn:active {
+      background: rgba(201,168,76,0.1);
+      border-color: var(--gold);
+    }
+
+    /* Decorative dividers */
+    .divider {
+      width: 60%; height: 1px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed; border-radius: 50%;
+      pointer-events: none; z-index: 1;
+      animation: orb-drift linear infinite;
+    }
+    @keyframes orb-drift {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.3; }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+    }
+
+    /* Loading animation */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(13,13,13,0.95);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-text {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 1.5rem; color: var(--gold);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Stars background */
+    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .star {
+      position: absolute; width: 2px; height: 2px;
+      background: rgba(255,255,255,0.3); border-radius: 50%;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ PAGE 1: Verification ============ -->
+<div id="page-verify" class="page active">
+  <div class="verify-bg"></div>
+  <div class="smoke-container" id="smokeContainer"></div>
+  <div class="temple-decoration"></div>
+
+  <div class="verify-title">玄天上帝灵签</div>
+  <div class="verify-subtitle">庚子年 · 诚心问卜</div>
+
+  <div class="verify-code-group">
+    <div class="code-input-display" id="codeDisplay">
+      <div class="code-char" id="char0"><span></span></div>
+      <div class="code-char" id="char1"><span></span></div>
+      <div class="code-char" id="char2"><span></span></div>
+      <div class="code-char" id="char3"><span></span></div>
+    </div>
+    <div class="verify-error" id="verifyError">验证码错误，请重新输入</div>
+
+    <div class="code-keypad">
+      <button class="key-btn" onclick="inputDigit('1')">一</button>
+      <button class="key-btn" onclick="inputDigit('2')">二</button>
+      <button class="key-btn" onclick="inputDigit('3')">三</button>
+      <button class="key-btn" onclick="inputDigit('4')">四</button>
+      <button class="key-btn" onclick="inputDigit('5')">五</button>
+      <button class="key-btn" onclick="inputDigit('6')">六</button>
+      <button class="key-btn" onclick="inputDigit('7')">七</button>
+      <button class="key-btn" onclick="inputDigit('8')">八</button>
+      <button class="key-btn" onclick="inputDigit('9')">九</button>
+      <button class="key-btn delete" onclick="deleteDigit()">删</button>
+      <button class="key-btn" onclick="inputDigit('0')">零</button>
+      <button class="key-btn" onclick="submitCode()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 2: Shake ============ -->
+<div id="page-shake" class="page">
+  <div class="shake-glow"></div>
+  <div class="shake-content">
+    <div class="phone-icon" id="phoneIcon"></div>
+    <div class="shake-title">摇动手机抽取灵签</div>
+    <div class="shake-hint">
+      请手持手机，<br>诚心默念所问之事<br>然后轻摇三下
+    </div>
+    <div class="shake-progress">
+      <div class="shake-progress-bar" id="shakeProgress"></div>
+    </div>
+    <div class="shake-counter" id="shakeCounter">摇动次数：0 / 3</div>
+  </div>
+</div>
+
+<!-- ============ PAGE 3: Result ============ -->
+<div id="page-result" class="page">
+  <div class="result-header">
+    <div class="result-stamp" id="resultStamp">
+      <div class="stamp-number" id="stampNumber">上上</div>
+      <div class="stamp-label">第 · 签</div>
+    </div>
+    <div class="result-title" id="resultTitle">第一签</div>
+    <div class="result-rank" id="resultRank">上上吉</div>
+  </div>
+
+  <div class="result-poem" id="resultPoem">
+    诗曰：云开日出正当空<br>万物苏醒春意浓<br>心想事成皆如愿<br>贵人相助路路通
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="result-analysis" id="resultAnalysis">
+    <div class="analysis-section">
+      <div class="analysis-label">🌟 运势</div>
+      <div class="analysis-text" id="analysisYun">整体运势极佳，如旭日东升，诸事顺遂。</div>
+    </div>
+    <div class="analysis-section">
+      <div class="analysis-label">💼 事业</div>
+      <div class="analysis-text" id="analysisCareer">有机会出现，贵人扶持，前景光明。</div>
+    </div>
+    <div class="analysis-section">
+      <div class="analysis-label">❤️ 感情</div>
+      <div class="analysis-text" id="analysisLove">感情方面将有意外惊喜，单身者宜主动。</div>
+    </div>
+    <div class="analysis-section">
+      <div class="analysis-label">💰 财富</div>
+      <div class="analysis-text" id="analysisWealth">财运转好，正财稳定，偏财亦有收获。</div>
+    </div>
+    <div class="analysis-section">
+      <div class="analysis-label">🏥 健康</div>
+      <div class="analysis-text" id="analysisHealth">身心康泰，注意休息，避免过度劳累。</div>
+    </div>
+  </div>
+
+  <div class="result-footer">
+    <button class="re-shake-btn" onclick="restart()">再次求签</button>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-text">仙官正在解签...</div>
+</div>
+
+<script>
+// ============ Data ============
+const fortunes = [
+  {
+    num: 1, rank: "上上吉", title: "旭日东升",
+    poem: "云开日出正当空，万物苏醒春意浓<br>心想事成皆如愿，贵人相助路路通",
+    yun: "整体运势极佳，如旭日东升，诸事顺遂。贵人运强，做事多有天助。",
+    career: "事业蒸蒸日上，有新机遇出现，宜把握时机，大胆进取。",
+    love: "感情甜蜜，单身者有望遇到正缘，已婚者感情更加稳固。",
+    wealth: "财星高照，正财偏财均有收获，宜把握投资机会。",
+    health: "气血充盈，精神饱满，注意季节变化预防感冒。"
+  },
+  {
+    num: 2, rank: "上吉", title: "春风得意",
+    poem: "骏马奔腾万里遥，春风得意上云霄<br>前程广阔无穷路，锦绣年华在今朝",
+    yun: "运势上扬，凡事顺心，名利双收之时。",
+    career: "事业进展顺利，有升职加薪的机会，适合开展新计划。",
+    love: "桃花运佳，人际交往顺利，单身者易遇到志趣相投之人。",
+    wealth: "财运亨通，可适当参与投资，但需分散风险。",
+    health: "精力充沛，但需注意休息，不可过度消耗体力。"
+  },
+  {
+    num: 3, rank: "中吉", title: "稳中求进",
+    poem: "船行稳水过江河，不急不躁自安然<br>步步为营终有得，静待花开月更圆",
+    yun: "运势平稳，不宜冒进，以守为主，伺机而动。",
+    career: "工作稳定，但突破有限，需要耐心等待时机。",
+    love: "感情平淡是真，细水长流，珍惜眼前人。",
+    wealth: "财运平稳，无大进大出，积累为上。",
+    health: "身体状态良好，保持规律作息即可。"
+  },
+  {
+    num: 4, rank: "中平", title: "平常之道",
+    poem: "日出日落寻常事，花开花谢自有期<br>莫为闲事愁白发，且将心安即是归",
+    yun: "运势平常，无大起大落，以平常心对待即可。",
+    career: "按部就班，不宜有大动作，做好本职工作。",
+    love: "感情稳定，但少了一些激情，平淡中见真情。",
+    wealth: "收支平衡，无横财之运，宜量入为出。",
+    health: "偶有小恙，注意调养即可恢复。"
+  },
+  {
+    num: 5, rank: "中平", title: "静待时机",
+    poem: "深山古寺听钟声，心静如水自然凉<br>时机未到莫强求，静待春风化雨来",
+    yun: "时机未到，宜静不宜动，沉淀自身为上策。",
+    career: "当前环境不适合大的变动，积蓄力量等待机会。",
+    love: "感情方面不宜操之过急，缘分自有天定。",
+    wealth: "财务上以保守为主，避免冒险投资。",
+    health: "精神略有疲惫，需要适当放松和休息。"
+  },
+  {
+    num: 6, rank: "中吉", title: "贵人相扶",
+    poem: "山高自有客来行，水深也有渡船人<br>危难之时伸援手，贵人相助过难关",
+    yun: "有贵人出现，关键时刻会有人帮助。",
+    career: "会遇到赏识你的贵人，抓住机会展示才能。",
+    love: "有机会通过朋友介绍认识新朋友，感情有进展。",
+    wealth: "有意外之财或得到他人帮助获利的机会。",
+    health: "健康状况稳定，有小问题及时处理即可。"
+  },
+  {
+    num: 7, rank: "中平", title: "劳心劳力",
+    poem: "日出而作日落息，劳心劳力为家计<br>付出虽有千般苦，待到秋来收成时",
+    yun: "需要付出较多努力，但终会有所收获。",
+    career: "工作较忙，但成果会得到认可，继续坚持。",
+    love: "感情需要用心经营，多花时间陪伴对方。",
+    wealth: "一分耕耘一分收获，没有捷径可走。",
+    health: "身体透支信号明显，注意休息和调节。"
+  },
+  {
+    num: 8, rank: "上吉", title: "紫气东来",
+    poem: "紫气东来满乾坤，祥云缭绕入家门<br>瑞雪兆丰年景好，福禄双全福满门",
+    yun: "大吉之兆，祥瑞临门，诸事顺遂。",
+    career: "事业飞黄腾达，职位晋升或创业有成的绝佳时机。",
+    love: "感情美满，与伴侣关系融洽，家庭和睦。",
+    wealth: "财源广进，理财有方，积少成多。",
+    health: "身心和谐，贵人运强，容易遇到良医。"
+  },
+  {
+    num: 9, rank: "中平", title: "浮云遮日",
+    poem: "浮云聚散无常定，日光时隐又时现<br>莫为眼前迷障困，乌云散尽见青天",
+    yun: "眼前有些阻碍，但不必过于担忧，阳光终会出现。",
+    career: "工作上遇到一些阻力或小人，坚持正道即可。",
+    love: "与伴侣之间有些小矛盾，沟通是解决问题的关键。",
+    wealth: "财务上有些小波折，但不会造成大损失。",
+    health: "情绪有些低落，需要调整心态，积极面对。"
+  },
+  {
+    num: 10, rank: "中吉", title: "雨过天晴",
+    poem: "狂风暴雨终有时，雨过天晴彩虹现<br>历经波折心更坚，拨云见日见光明",
+    yun: "最困难的时期已经过去，前途逐渐明朗。",
+    career: "之前的问题得到解决，新的机会正在涌现。",
+    love: "感情经历考验后更加坚定，关系升华。",
+    wealth: "财务压力减轻，经济状况逐渐好转。",
+    health: "身心状态明显好转，活力逐渐恢复。"
+  },
+  {
+    num: 11, rank: "中平", title: "守成不易",
+    poem: "守成创业一般难，不进则退莫等闲<br>日日新知日日进，方为立身之本源",
+    yun: "保持现状有难度，需要不断进取。",
+    career: "现有工作稳定，但需创新求变，不可守旧。",
+    love: "感情需要双方共同努力维系，单方面付出难持久。",
+    wealth: "财务需要谨慎管理，不可铺张浪费。",
+    health: "身体处于平稳期，但需要适当运动保健。"
+  },
+  {
+    num: 12, rank: "上上吉", title: "独占鳌头",
+    poem: "十年寒窗无人问，一朝成名天下知<br>独占鳌头登金榜，风光无限在此时",
+    yun: "功名成就，愿望达成的人生高光时刻。",
+    career: "考试、面试、竞赛等均有极大可能获得好结果。",
+    love: "才学魅力吸引异性，感情方面有美好收获。",
+    wealth: "付出得到丰厚回报，名利双收。",
+    health: "状态极佳，思维敏捷，创意不断。"
+  },
+  {
+    num: 13, rank: "中平", title: "随遇而安",
+    poem: "随波逐流非我意，随遇而安是良策<br>山水有情皆有定，逍遥自在一生涯",
+    yun: "保持豁达心态，不强求，顺其自然。",
+    career: "不适宜激进策略，保持现状，等待时机。",
+    love: "缘分自有安排，不必刻意追求，随缘就好。",
+    wealth: "财务上以节流为主，开源需要时机。",
+    health: "心态平和是最好的养生之道。"
+  },
+  {
+    num: 14, rank: "中平", title: "似谜如梦",
+    poem: "水中月影镜中花，看得见来摸不到<br>似梦似真费思量，不如放下自消遥",
+    yun: "眼前事物真假难辨，不宜做重大决定。",
+    career: "局势不明朗，投资、合作等需谨慎行事。",
+    love: "感情上有些雾里看花，需要更多时间观察。",
+    wealth: "财务上有看不清的地方，慎防被骗。",
+    health: "身体发出的信号可能不准确，需找专业医生诊断。"
+  },
+  {
+    num: 15, rank: "中吉", title: "春回大地",
+    poem: "春风化雨润万物，枯木逢春再发枝<br>残花犹有重开日，人无两度少年时",
+    yun: "逆境转机出现，过去的阴霾正在散去。",
+    career: "之前停滞的项目有望重新启动，带来转机。",
+    love: "冷冻的感情有机会重新燃起，珍惜眼前人。",
+    wealth: "经济状况开始好转，但需要时间来恢复。",
+    health: "身心状态正在向好的方向发展。"
+  },
+  {
+    num: 16, rank: "中平", title: "独善其身",
+    poem: "闹中取静静独安，红尘看破自清凉<br>不问世事多烦恼，但求心安福自长",
+    yun: "适宜修养身心的时期，不宜有大的变动。",
+    career: "当前环境复杂，适合做好自己的事，少管闲事。",
+    love: "感情上需要更多独处空间，理清自己的心意。",
+    wealth: "财务上宜守不宜攻，保守理财为上。",
+    health: "身心疲惫，需要静养，独处是最好的恢复方式。"
+  },
+  {
+    num: 17, rank: "中吉", title: "枯木逢春",
+    poem: "枯木逢春再发叶，久旱逢甘雨露声<br>时来运转皆因善，祸去福临吉星照",
+    yun: "运势由坏转好，否极泰来的吉祥之兆。",
+    career: "之前搁浅的计划有望重新开展，迎来转机。",
+    love: "感情上冰释前嫌，关系修复的良机。",
+    wealth: "经济拮据的状况开始改善，财运转好。",
+    health: "病痛开始好转，恢复健康的希望增大。"
+  },
+  {
+    num: 18, rank: "中平", title: "路在脚下",
+    poem: "山重水复疑无路，柳暗花明又一村<br>世间道路多曲折，坚持到底见光明",
+    yun: "过程曲折，但结局是好的，坚持就是胜利。",
+    career: "项目进展中遇到困难，但最终会找到解决方案。",
+    love: "感情经历波折后更加珍惜对方。",
+    wealth: "财务上经历一番波折，最终会有所收获。",
+    health: "治疗过程曲折但最终会康复，要有信心。"
+  },
+  {
+    num: 19, rank: "中平", title: "镜花水月",
+    poem: "镜里观花空美色，水中捞月一场空<br>贪心不足蛇吞象，知足常乐福自通",
+    yun: "有些追求可能是虚妄的，需要调整心态。",
+    career: "目标可能过于理想化，需要更加务实。",
+    love: "感情上可能是一厢情愿，需要认清现实。",
+    wealth: "投资或财务上有不切实际的想法，需要谨慎。",
+    health: "身体并无大碍，是心理作用在作怪。"
+  },
+  {
+    num: 20, rank: "中吉", title: "和气生财",
+    poem: "和气致祥瑞气生，财从勤俭自来临<br>家和万事兴中福，上下同心土变金",
+    yun: "和谐的氛围带来好运，与人为善是根本。",
+    career: "团队合作顺利，同事关系融洽，工作效率提高。",
+    love: "与伴侣相处融洽，家庭氛围和睦温馨。",
+    wealth: "人际关系带来财运，合作共赢的机会增多。",
+    health: "在和谐的环境中身心愉悦，健康状况良好。"
+  },
+  {
+    num: 21, rank: "中吉", title: "修心养性",
+    poem: "深山古寺远红尘，修身养性自归真<br>不求名利身外事，但求无愧于我心",
+    yun: "适宜沉淀内心，提升自我的时期。",
+    career: "适合学习新知识、新技能，为未来做准备。",
+    love: "感情上需要更多用心经营，不能只顾事业。",
+    wealth: "财务上适合做长期规划，不宜投机取巧。",
+    health: "心灵修养对健康大有裨益，宜静心调养。"
+  },
+  {
+    num: 22, rank: "中平", title: "暗流涌动",
+    poem: "风平浪静潜暗流，明枪易躲暗箭难<br>谨慎行得万年船，莫因大意起祸端",
+    yun: "表面平静但暗中藏有隐患，需要谨慎行事。",
+    career: "工作环境可能有潜在风险，要多留意细节。",
+    love: "感情表面和谐，但有些问题需要正视和沟通。",
+    wealth: "财务上要防小人暗算，重要合同要仔细审核。",
+    health: "有些隐患疾病需要注意体检，早发现早治疗。"
+  },
+  {
+    num: 23, rank: "中吉", title: "否极泰来",
+    poem: "冬去春来天理定，否极泰来自然功<br>黑暗尽时光明在，苦尽甘来福自通",
+    yun: "艰难时期即将结束，好运即将到来。",
+    career: "之前的不顺将得到改善，抓住即将出现的机会。",
+    love: "感情上的阴霾正在散去，曙光就在眼前。",
+    wealth: "经济最困难的时期已过，财源将逐渐恢复。",
+    health: "身体最差的阶段已过，正在慢慢康复。"
+  },
+  {
+    num: 24, rank: "中平", title: "安分守己",
+    poem: "命中注定八角米，走遍天下不满升<br>安分守己心常泰，莫为贪心起纷争",
+    yun: "运势平稳，不宜有非分之想，安分守己为吉。",
+    career: "做好本职工作，不宜跳槽或创业，保守为上。",
+    love: "感情上不要有攀比之心，珍惜现有的就好。",
+    wealth: "量入为出，不宜做超出能力范围的投资。",
+    health: "身体状况一般，保持良好的生活习惯即可。"
+  },
+  {
+    num: 25, rank: "中吉", title: "厚德载物",
+    poem: "大地承载万物生，厚德无华养群英<br>积善之家有余庆，福泽绵长及子孙",
+    yun: "积德行善会带来好运，好运是积累来的。",
+    career: "之前的善行开始得到回报，继续保持善念。",
+    love: "真诚善良的人会得到真爱，人品是关键。",
+    wealth: "善心带来善报，财务上会有意外收获。",
+    health: "积德行善，身心健康，这是最好的养生之道。"
+  },
+  {
+    num: 26, rank: "中平", title: "心诚则灵",
+    poem: "心诚则灵占此卦，信者自得吉来迎<br>疑神疑鬼反无益，不如正心听天命",
+    yun: "心诚是获得指引的关键，疑心会阻挡好运。",
+    career: "对当前的计划要有信心，犹豫不决会错失良机。",
+    love: "感情上要真诚待人，猜疑会破坏关系。",
+    wealth: "投资决策要果断，犹豫会导致损失。",
+    health: "要相信医生的诊断，积极配合治疗。"
+  },
+  {
+    num: 27, rank: "中吉", title: "凤凰于飞",
+    poem: "凤凰于飞在九霄，和鸣锵锵在今朝<br>千里姻缘一线引，琴瑟和鸣共百年",
+    yun: "姻缘运极佳，有美好伴侣出现的迹象。",
+    career: "会遇到重要的合作伙伴或贵人相助。",
+    love: "感情运非常好，已婚者更加甜蜜，未婚者有佳缘。",
+    wealth: "因人脉而带来财运，合作项目进展顺利。",
+    health: "身心愉悦，容光焕发，感情顺利是最好的养颜。"
+  },
+  {
+    num: 28, rank: "中平", title: "谨慎言行",
+    poem: "良言一句三冬暖，恶语伤人六月寒<br>谨言慎行方为上，莫因口舌起祸端",
+    yun: "要特别注意言语表达，一句话可能改变局势。",
+    career: "职场沟通要谨慎，避免祸从口出。",
+    love: "说话要注意分寸，不要伤害到在乎的人。",
+    wealth: "财务上不要随便许诺，避免纠纷。",
+    health: "言多伤气，适当保持沉默对身心有益。"
+  },
+  {
+    num: 29, rank: "中吉", title: "贵人相助",
+    poem: "山穷水尽疑无路，忽逢贵人指迷津<br>危难之时伸援手，扶摇直上九重天",
+    yun: "在关键时刻会得到帮助，这是命运的眷顾。",
+    career: "有背景或人脉的帮助，事业获得突破。",
+    love: "在家人或朋友的支持下，感情进展顺利。",
+    wealth: "有贵人相助，财务问题得到解决或获利。",
+    health: "遇到良医，治疗效果显著，恢复较快。"
+  },
+  {
+    num: 30, rank: "中平", title: "循序渐进",
+    poem: "千里之行足下起，九层之台泥土积<br>循序渐进方为道，莫贪速成误时机",
+    yun: "成功需要时间和积累，不能急于求成。",
+    career: "按计划一步步推进，打好基础最重要。",
+    love: "感情需要慢慢培养，急于确定关系可能适得其反。",
+    wealth: "理财需要耐心，长线投资优于短线投机。",
+    health: "调养身体需要循序渐进，不能期望一蹴而就。"
+  },
+  {
+    num: 31, rank: "上吉", title: "福星高照",
+    poem: "福星高照耀前程，紫气东来满门庭<br>天赐吉祥皆如意，福禄双全庆有余",
+    yun: "福气满满，吉祥如意，好运常伴左右。",
+    career: "事业顺利，所想之事皆能成就。",
+    love: "感情生活幸福美满，令人羡慕。",
+    wealth: "财运极佳，财神眷顾，收获丰厚。",
+    health: "身体康健，精力旺盛，福寿双全。"
+  },
+  {
+    num: 32, rank: "中平", title: "风云变幻",
+    poem: "天有不测风云变，人有旦夕祸福随<br>处变不惊方为上，临危不乱显英雄",
+    yun: "运势变化较大，需要有心理准备。",
+    career: "外部环境变化较多，需要灵活应对。",
+    love: "感情可能出现变数，要冷静处理。",
+    wealth: "财务上要防备突发情况，储备应急资金。",
+    health: "要注意安全，避免意外伤害。"
+  },
+  {
+    num: 33, rank: "中吉", title: "因果循环",
+    poem: "种瓜得瓜种豆豆，种下善因收善果<br>天道循环无终始，劝君莫做亏心事",
+    yun: "因果报应，种什么因得什么果。",
+    career: "之前的努力正在得到回报，继续积德行善。",
+    love: "感情上的结果是之前行为的体现。",
+    wealth: "财务上的得失与行为相关，多行善事。",
+    health: "健康与日常生活习惯息息相关，反思改进。"
+  },
+  {
+    num: 34, rank: "中平", title: "小有波折",
+    poem: "月有阴晴圆缺时，人有悲欢离合情<br>小有波折不为意，风雨之后见彩虹",
+    yun: "会有一些小挫折，但整体不影响大局。",
+    career: "工作中有小麻烦，但都能顺利解决。",
+    love: "感情有些小打小闹，反而增进感情。",
+    wealth: "财务有些小损失，但不影响整体状况。",
+    health: "偶感不适，但问题不大，及时调养即可。"
+  },
+  {
+    num: 35, rank: "中吉", title: "左右逢源",
+    poem: "左宜右有皆如意，前路光明任驱驰<br>左右逢源事事顺，春风得意马蹄急",
+    yun: "诸事顺遂，无论做什么都比较顺利。",
+    career: "工作得心应手，与同事领导关系融洽。",
+    love: "人缘极好，在社交场合如鱼得水。",
+    wealth: "财运畅通，赚钱的机会很多。",
+    health: "身心舒畅，整个人充满活力。"
+  },
+  {
+    num: 36, rank: "中平", title: "守株待兔",
+    poem: "守株待兔非上策，坐等机缘恐成空<br>不如主动寻出路，天助自助者成功",
+    yun: "被动等待可能会错失良机，需要主动出击。",
+    career: "不要坐等机会，要主动寻找和创造机会。",
+    love: "感情上不要守株待兔，要主动表达。",
+    wealth: "被动理财可能收益不佳，要主动学习。",
+    health: "被动等待疾病好转不如主动调养。"
+  },
+  {
+    num: 37, rank: "中吉", title: "自强不息",
+    poem: "天行健者自强息，君子以自强自息<br>命运掌握在自己，莫靠他人度平生",
+    yun: "自己是最可靠的靠山，努力就会有收获。",
+    career: "靠自己的能力和努力，脚踏实地最可靠。",
+    love: "感情上也要自强，吸引到真正欣赏你的人。",
+    wealth: "通过自己的智慧和能力创造财富。",
+    health: "积极锻炼和保养，健康掌握在自己手中。"
+  },
+  {
+    num: 38, rank: "中平", title: "事与愿违",
+    poem: "往往设计局，未料到天意<br>事若与愿违时，反思调整再前行",
+    yun: "计划可能不如预期顺利，需要调整。",
+    career: "工作目标可能需要调整，降低期望。",
+    love: "感情上的期望可能过高，需要务实。",
+    wealth: "投资收益可能不如预期，需要止损。",
+    health: "治疗方案可能需要调整，更换医生或疗法。"
+  },
+  {
+    num: 39, rank: "中吉", title: "以退为进",
+    poem: "进退有度方为智，以退为进是高招<br>舍小得大真君子，能屈能伸是英豪",
+    yun: "适时退让不是软弱，而是为了更好的前进。",
+    career: "当前不适合进攻，适当的退让会迎来更大机会。",
+    love: "感情上不要过于强势，退一步海阔天空。",
+    wealth: "财务上不要计较眼前得失，眼光要放长远。",
+    health: "暂时休息调养，是为了更好地出发。"
+  },
+  {
+    num: 40, rank: "中平", title: "随缘自在",
+    poem: "花开花落随他去，云卷云舒任往来<br>万般皆是命注定，随缘自在心常开",
+    yun: "保持平和心态，不强求，不执着。",
+    career: "工作上尽人事听天命，不留遗憾即可。",
+    love: "感情上随缘，不强求，不将就。",
+    wealth: "财务上不奢望大富大贵，平安即是福。",
+    health: "以平常心对待身体状况，心理健康最重要。"
+  },
+  {
+    num: 41, rank: "中吉", title: "积少成多",
+    poem: "点滴之水汇成河，粒粒之米堆满箩<br>积少成多终成富，积善成德福寿多",
+    yun: "积累带来收获，持之以恒是关键。",
+    career: "从小事做起，积攒经验和资源，终成大器。",
+    love: "感情中的点滴细节，积累出深厚的感情。",
+    wealth: "理财从节省开始，积少成多，聚沙成塔。",
+    health: "日常保养积累，健康需要长期坚持。"
+  },
+  {
+    num: 42, rank: "中平", title: "三心两意",
+    poem: "三心二意事难成，左顾右盼失本真<br>下定决心全力赴，一心一意方成功",
+    yun: "决心不够，犹豫不决会影响结果。",
+    career: "需要下定决心，摇摆不定会错失机会。",
+    love: "感情上要明确自己的心意，不能三心二意。",
+    wealth: "投资理财要专注，频繁更换方向难以成功。",
+    health: "治疗方案要坚定，频繁换医生不利康复。"
+  },
+  {
+    num: 43, rank: "中吉", title: "逢凶化吉",
+    poem: "山重水复疑无路，柳暗花明又一村<br>逢凶化吉天来助，绝处逢生福自生",
+    yun: "危机中隐藏着转机，大难不死必有后福。",
+    career: "看似困难的情况会有转机，坚守岗位。",
+    love: "感情危机可以化解，反而更加珍惜。",
+    wealth: "财务危机可能得到缓解或有转机出现。",
+    health: "病情虽有波折但终会康复，要有信心。"
+  },
+  {
+    num: 44, rank: "中平", title: "按部就班",
+    poem: "按部就班不蹉跎，循序渐进自得多<br>不求一夜成名日，但求稳步上层楼",
+    yun: "平稳发展是当前的主旋律，不宜冒进。",
+    career: "按照计划推进，不越级不冒进。",
+    love: "感情按部就班发展，不急于求成。",
+    wealth: "理财按部就班，不贪心不冒险。",
+    health: "身体调养按部就班，不可急于求成。"
+  },
+  {
+    num: 45, rank: "上吉", title: "龙凤呈祥",
+    poem: "龙腾凤舞呈吉祥，瑞气盈门福满堂<br>天赐良缘天作合，荣华富贵福寿长",
+    yun: "大吉之兆，龙凤呈祥，富贵双全。",
+    career: "事业飞腾，有创业或晋升的大好时机。",
+    love: "姻缘天定，有情人终成眷属，或感情更进一步。",
+    wealth: "财星高照，有大笔财富降临的可能。",
+    health: "龙精虎猛，身心状态达到最佳。"
+  },
+  {
+    num: 46, rank: "中平", title: "犹豫不决",
+    poem: "前路茫茫雾中行，犹豫不决难分明<br>当断不断反受乱，及早决定方安宁",
+    yun: "需要果断决策，犹豫会带来更多困扰。",
+    career: "到了做决定的时候了，不要再拖延。",
+    love: "感情上要勇于表达，不要留下遗憾。",
+    wealth: "投资要果断，犹豫可能错过最佳时机。",
+    health: "治疗方案需要尽快决定，拖延不利康复。"
+  },
+  {
+    num: 47, rank: "中吉", title: "金玉满堂",
+    poem: "金玉满堂富贵家，堆金积玉实堪夸<br>财源广进通四海，金玉满堂耀光华",
+    yun: "财运极佳，有财富大幅增加的可能。",
+    career: "事业带来丰厚回报，财务状况显著改善。",
+    love: "经济基础稳固，感情更加顺利。",
+    wealth: "正财偏财均有大收获，理财收益颇丰。",
+    health: "经济无忧可以享受更好的医疗和养生条件。"
+  },
+  {
+    num: 48, rank: "中平", title: "平平无奇",
+    poem: "日出东方日落西，花开花落各有期<br>平平凡凡也是福，莫求大贵伤身体",
+    yun: "普通平常的一年，无大吉也无大凶。",
+    career: "工作稳定，没有特别出彩的地方。",
+    love: "感情平淡是真，细水长流也是福。",
+    wealth: "财务平稳，量入为出，略有盈余。",
+    health: "身体无大碍，保持现状就好。"
+  },
+  {
+    num: 49, rank: "中平", title: "缘木求鱼",
+    poem: "缘木求鱼道不得，南辕北辙空奔波<br>方法不对努力白，方向错了尽头多",
+    yun: "方法或方向有问题，需要反思调整。",
+    career: "当前的方法可能不对，需要重新思考策略。",
+    love: "追求的方式可能有问题，需要换位思考。",
+    wealth: "投资方向可能错了，需要重新评估。",
+    health: "治疗方案可能不对，考虑其他途径。"
+  },
+  {
+    num: 50, rank: "中吉", title: "精益求精",
+    poem: "好还要求更加好，精益求精品自高<br>百尺竿头进一步，更上一层楼更高",
+    yun: "追求卓越会得到回报，不满足是进步的动力。",
+    career: "工作上追求更高质量，会得到认可和回报。",
+    love: "感情上用心经营，不断改进相处方式。",
+    wealth: "理财上不断学习，提高投资能力。",
+    health: "养生上追求更好方法，身心状态不断提升。"
+  },
+  {
+    num: 51, rank: "中平", title: "画蛇添足",
+    poem: "画蛇添足多此一举，弄巧成拙悔当初<br>恰到好处方为美，适可而止是良图",
+    yun: "过度追求反而弄巧成拙，需要懂得收手。",
+    career: "不要画蛇添足，多余的努力可能适得其反。",
+    love: "感情上不要过于强求，适当留白更美好。",
+    wealth: "投资上不要贪多，见好就收。",
+    health: "养生上不要过度，适度最重要。"
+  },
+  {
+    num: 52, rank: "上吉", title: "天赐良缘",
+    poem: "天赐良缘前世定，红绳系足到今生<br>执子之手与子老，百年好合笑盈盈",
+    yun: "绝佳的姻缘运，有天定的好缘分出现。",
+    career: "会遇到改变命运的机会或合伙人。",
+    love: "感情运极佳，正缘出现，佳偶天成。",
+    wealth: "有贵人带来非常好的财务机会。",
+    health: "身心和谐，遇难呈祥，有福气护佑。"
+  },
+  {
+    num: 53, rank: "中平", title: "夜长梦多",
+    poem: "夜长梦多恐生变，迟则生变宜早决<br>夜长梦多恐生枝，当机立断是正道",
+    yun: "拖延可能带来变数，尽早决策为宜。",
+    career: "项目或决定不要拖，尽快落实。",
+    love: "感情上不要拖，有话要说清楚。",
+    wealth: "交易或决定不要拖，早定早安心。",
+    health: "身体问题不要拖，尽早就医。"
+  },
+  {
+    num: 54, rank: "中平", title: "一波三折",
+    poem: "一波刚平一波起，三折还有四折来<br>世间万事多磨难，坚持到底见花开",
+    yun: "过程曲折，但最终会有好结果。",
+    career: "项目进展不顺利，需要耐心克服。",
+    love: "感情经历多次波折，但不要放弃。",
+    wealth: "财务上有些起伏，但坚持会有回报。",
+    health: "康复过程曲折，但终会好转。"
+  },
+  {
+    num: 55, rank: "中吉", title: "功成名就",
+    poem: "十年寒窗苦读书，一朝成名天下知<br>金榜题名荣耀日，功成名就笑微微",
+    yun: "付出得到回报，获得成功和认可。",
+    career: "长期努力终有成果，获得晋升或成就。",
+    love: "事业成功后，感情也更加稳定。",
+    wealth: "努力工作获得丰厚回报，财务状况改善。",
+    health: "收获的喜悦是最好的补药，身心俱佳。"
+  },
+  {
+    num: 56, rank: "中平", title: "静观其变",
+    poem: "静观其变待时机，以不变应万变之<br>时机未到莫妄动，静待时机自有时",
+    yun: "当前宜静观其变，不宜轻举妄动。",
+    career: "外部环境不明朗，先观察再行动。",
+    love: "感情上先静观其变，看清形势再说。",
+    wealth: "财务上保持观望，不要盲目行动。",
+    health: "身体状况先观察，不急于下结论。"
+  },
+  {
+    num: 57, rank: "中吉", title: "福祸相依",
+    poem: "福兮祸所伏，祸兮福所倚<br>福祸相倚天之道，坦然面对是明理",
+    yun: "福祸相依，坏事可能变好事，好事也可能藏隐忧。",
+    career: "顺利中要警惕问题，问题中要看到机会。",
+    love: "感情中的矛盾可能是磨合，甜蜜中也要珍惜。",
+    wealth: "赚钱后要防范风险，亏损中也要总结经验。",
+    health: "无病时要注意保养，病时也要乐观面对。"
+  },
+  {
+    num: 58, rank: "中平", title: "当局者迷",
+    poem: "当局者迷旁观者清，身在此山不知形<br>兼听则明偏听暗，旁敲侧击得真情",
+    yun: "自己可能看不清楚，需要借助他人视角。",
+    career: "请教前辈或朋友，获得不同角度的建议。",
+    love: "请旁观者帮忙分析，可能会看清问题。",
+    wealth: "投资决策多听听意见，不要一意孤行。",
+    health: "身体状况咨询多个医生，避免误诊。"
+  },
+  {
+    num: 59, rank: "中吉", title: "千锤百炼",
+    poem: "千锤百炼出深山，烈火焚烧若等闲<br>粉身碎骨浑不怕，要留清白在人间",
+    yun: "经历磨砺后更加坚强，最终会苦尽甘来。",
+    career: "当前的困难是磨练，咬牙坚持终会成功。",
+    love: "感情经历考验后更加坚定。",
+    wealth: "财务困境是磨练，坚持过去就是晴天。",
+    health: "病中坚强面对，恢复后会更加珍惜健康。"
+  },
+  {
+    num: 60, rank: "上上吉", title: "心想事成",
+    poem: "心想事成无不成，求签问卜皆灵应<br>天随人愿皆欢喜，福寿双全乐盈盈",
+    yun: "抽到此签为上上之选，所求皆能如愿以偿。",
+    career: "事业愿望可以实现，大展宏图之时。",
+    love: "感情心想事成，有情人终成眷属。",
+    wealth: "财富愿望可以实现，财运亨通。",
+    health: "健康愿望可以实现，身心康泰。",
+    stampText: "心想事成"
+  }
+];
+
+// ============ State ============
+let currentCode = "";
+const CORRECT_CODE = "8888"; // 预设验证码
+let shakeCount = 0;
+let shakeThreshold = 25;
+let lastShakeTime = 0;
+let selectedFortune = null;
+let shakeDetectionActive = false;
+
+// ============ Init ============
+function init() {
+  createSmoke();
+  createStars();
+  createOrbs();
+}
+
+// ============ Page Navigation ============
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ============ Verification ============
+function inputDigit(d) {
+  if (currentCode.length >= 4) return;
+  currentCode += d;
+  updateCodeDisplay();
+  if (currentCode.length === 4) {
+    document.getElementById('char3').classList.add('filled');
+  }
+}
+
+function deleteDigit() {
+  if (currentCode.length === 0) return;
+  currentCode = currentCode.slice(0, -1);
+  updateCodeDisplay();
+}
+
+function updateCodeDisplay() {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('char' + i);
+    const span = el.querySelector('span');
+    if (i < currentCode.length) {
+      const chinese = ['零','一','二','三','四','五','六','七','八','九'];
+      span.textContent = chinese[parseInt(currentCode[i])];
+      el.classList.add('filled');
+    } else {
+      span.textContent = '';
+      el.classList.remove('filled');
+    }
+  }
+}
+
+function submitCode() {
+  if (currentCode.length !== 4) return;
+  if (currentCode === CORRECT_CODE) {
+    document.getElementById('verifyError').classList.remove('show');
+    showPage('page-shake');
+    startShakeDetection();
+  } else {
+    document.getElementById('verifyError').classList.add('show');
+    currentCode = "";
+    updateCodeDisplay();
+    // Shake animation
+    document.getElementById('codeDisplay').style.animation = 'none';
+    setTimeout(() => {
+      document.getElementById('codeDisplay').style.animation = 'phone-shake 0.3s ease-in-out';
+    }, 10);
+  }
+}
+
+// ============ Shake Detection ============
+function startShakeDetection() {
+  shakeCount = 0;
+  shakeDetectionActive = true;
+  updateShakeUI();
+
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(r => {
+        if (r === 'granted') window.addEventListener('devicemotion', handleShake);
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener('devicemotion', handleShake);
+  }
+}
+
+function handleShake(e) {
+  if (!shakeDetectionActive) return;
+
+  const acc = e.accelerationIncludingGravity;
+  if (!acc) return;
+
+  const now = Date.now();
+  if (now - lastShakeTime < 500) return; // debounce
+
+  const total = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+  if (total > shakeThreshold) {
+    lastShakeTime = now;
+    shakeCount++;
+    updateShakeUI();
+
+    document.getElementById('phoneIcon').classList.add('shaking');
+    setTimeout(() => document.getElementById('phoneIcon').classList.remove('shaking'), 500);
+
+    if (shakeCount >= 3) {
+      shakeDetectionActive = false;
+      window.removeEventListener('devicemotion', handleShake);
+      setTimeout(showFortune, 600);
+    }
+  }
+}
+
+function updateShakeUI() {
+  const pct = (shakeCount / 3) * 100;
+  document.getElementById('shakeProgress').style.width = pct + '%';
+  document.getElementById('shakeCounter').textContent = `摇动次数：${shakeCount} / 3`;
+}
+
+// Also support click/tap for desktop testing
+document.addEventListener('click', () => {
+  if (!shakeDetectionActive || document.getElementById('page-shake').classList.contains('active') === false) return;
+  if (Date.now() - lastShakeTime < 300) return;
+  lastShakeTime = Date.now();
+  shakeCount++;
+  updateShakeUI();
+  document.getElementById('phoneIcon').classList.add('shaking');
+  setTimeout(() => document.getElementById('phoneIcon').classList.remove('shaking'), 500);
+  if (shakeCount >= 3) {
+    shakeDetectionActive = false;
+    window.removeEventListener('devicemotion', handleShake);
+    setTimeout(showFortune, 600);
+  }
+});
+
+// ============ Fortune ============
+function showFortune() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    selectedFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    displayFortune(selectedFortune);
+    overlay.classList.remove('show');
+    showPage('page-result');
+  }, 1500);
+}
+
+function displayFortune(f) {
+  document.getElementById('stampNumber').textContent = f.rank;
+  document.getElementById('resultTitle').textContent = `第 ${f.num} 签 · ${f.title}`;
+  document.getElementById('resultRank').textContent = f.rank;
+  document.getElementById('resultPoem').innerHTML = '诗曰：' + f.poem;
+  document.getElementById('analysisYun').textContent = f.yun;
+  document.getElementById('analysisCareer').textContent = f.career;
+  document.getElementById('analysisLove').textContent = f.love;
+  document.getElementById('analysisWealth').textContent = f.wealth;
+  document.getElementById('analysisHealth').textContent = f.health;
+}
+
+// ============ Restart ============
+function restart() {
+  currentCode = "";
+  updateCodeDisplay();
+  shakeCount = 0;
+  document.getElementById('shakeProgress').style.width = '0%';
+  document.getElementById('shakeCounter').textContent = '摇动次数：0 / 3';
+  showPage('page-verify');
+}
+
+// ============ Visual Effects ============
+function createSmoke() {
+  const container = document.getElementById('smokeContainer');
+  for (let i = 0; i < 12; i++) {
+    const smoke = document.createElement('div');
+    smoke.className = 'smoke';
+    smoke.style.left = (40 + Math.random() * 20) + '%';
+    smoke.style.animationDuration = (4 + Math.random() * 4) + 's';
+    smoke.style.animationDelay = (Math.random() * 5) + 's';
+    container.appendChild(smoke);
+  }
+}
+
+function createStars() {
+  const container = document.createElement('div');
+  container.className = 'stars';
+  document.body.appendChild(container);
+  for (let i = 0; i < 30; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDelay = Math.random() * 3 + 's';
+    container.appendChild(star);
+  }
+}
+
+function createOrbs() {
+  for (let i = 0; i < 5; i++) {
+    const orb = document.createElement('div');
+    orb.className = 'orb';
+    const size = 20 + Math.random() * 40;
+    orb.style.width = size + 'px';
+    orb.style.height = size + 'px';
+    orb.style.left = Math.random() * 100 + '%';
+    orb.style.background = `radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%)`;
+    orb.style.animationDuration = (15 + Math.random() * 20) + 's';
+    orb.style.animationDelay = (Math.random() * 10) + 's';
+    document.body.appendChild(orb);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 性格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #eee;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .question {
+            display: none;
+        }
+        
+        .question.active {
+            display: block;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            color: #555;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f6ff;
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .result.active {
+            display: block;
+        }
+        
+        .mbti-type {
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+        
+        .type-name {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .type-desc {
+            color: #666;
+            line-height: 1.8;
+            text-align: left;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f6ff;
+            border-radius: 12px;
+            white-space: pre-line;
+        }
+        
+        .dimension-scores {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .dimension {
+            text-align: center;
+        }
+        
+        .dimension-label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        .dimension-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .share-btn {
+            background: #333;
+            margin: 10px;
+        }
+        
+        .intro {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .intro p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .question-text {
+                font-size: 16px;
+            }
+            .mbti-type {
+                font-size: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MBTI 性格测试</h1>
+            <p>发现你的性格类型</p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="content">
+            <!-- 引导页 -->
+            <div class="intro" id="intro">
+                <p>MBTI（Myers-Briggs Type Indicator）是一种性格分类模型，将人的性格分为16种类型。</p>
+                <p>本测试共 <strong>60</strong> 道题目，预计用时 <strong>5-10</strong> 分钟。</p>
+                <p>请根据你的第一反应选择最符合你的选项。</p>
+                <button class="btn" onclick="startTest()">开始测试</button>
+            </div>
+            
+            <!-- 题目区域 -->
+            <div id="questions"></div>
+            
+            <!-- 结果页 -->
+            <div class="result" id="result">
+                <div class="type-name" id="typeName"></div>
+                <div class="mbti-type" id="mbtiType"></div>
+                <div class="dimension-scores" id="dimensionScores"></div>
+                <div class="type-desc" id="typeDesc"></div>
+                <button class="btn" onclick="shareResult()">分享结果</button>
+                <button class="btn share-btn" onclick="restartTest()">重新测试</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MBTI 题目数据
+        const questions = [
+            // E/I 维度 (外向/内向) - 15题
+            { dimension: "EI", text: "在社交场合中，你通常", options: ["主动与人交谈，结识新朋友", "等待别人来与你交谈"] },
+            { dimension: "EI", text: "当你独自一人时，你会", options: ["感到无聊，主动找事做", "享受独处的时光"] },
+            { dimension: "EI", text: "你在聚会中通常", options: ["成为焦点，带动气氛", "静静观察，倾听他人"] },
+            { dimension: "EI", text: "与陌生人交流时，你通常", options: ["很快就能熟络起来", "需要一段时间才能打开话题"] },
+            { dimension: "EI", text: "你更喜欢", options: ["团队合作，集思广益", "独自思考，专注工作"] },
+            { dimension: "EI", text: "在表达想法时，你通常", options: ["直接说出口", "先在心里组织好再说"] },
+            { dimension: "EI", text: "你更容易从", options: ["与他人的交流中获得能量", "独处中获得能量"] },
+            { dimension: "EI", text: "当你遇到问题时，你会", options: ["向他人寻求建议", "自己思考解决方案"] },
+            { dimension: "EI", text: "你更喜欢", options: ["说做就做，边做边想", "先想清楚再做"] },
+            { dimension: "EI", text: "在陌生环境中，你倾向于", options: ["主动探索，结识新朋友", "保持低调，观察环境"] },
+            { dimension: "EI", text: "你更容易被", options: ["外部世界的人和事吸引", "内心的想法和概念吸引"] },
+            { dimension: "EI", text: "你更喜欢", options: ["多元化的话题和活动", "深入探讨少数话题"] },
+            { dimension: "EI", text: "在表达情感方面，你通常", options: ["外露，直接表达", "内敛，含蓄表达"] },
+            { dimension: "EI", text: "你更容易", options: ["广交朋友", "交深朋友"] },
+            { dimension: "EI", text: "面对突发事件时，你通常", options: ["立即行动", "先思考再行动"] },
+            
+            // S/N 维度 (感觉/直觉) - 15题
+            { dimension: "SN", text: "你更注重", options: ["实际经验和事实", "可能性和想象"] },
+            { dimension: "SN", text: "你更相信", options: ["亲眼所见，亲身经历", "直觉和第六感"] },
+            { dimension: "SN", text: "在学习新事物时，你更喜欢", options: ["动手实践，具体操作", "理论研究，理解原理"] },
+            { dimension: "SN", text: "你更倾向于", options: ["遵循传统方法", "尝试新方法"] },
+            { dimension: "SN", text: "你更容易记住", options: ["具体的数据和细节", "整体的概念和图案"] },
+            { dimension: "SN", text: "你更关注", options: ["当前现实", "未来可能"] },
+            { dimension: "SN", text: "你更喜欢", options: ["具体明确的指示", "灵活自由的空间"] },
+            { dimension: "SN", text: "在解决问题时，你更依靠", options: ["过往经验", "创新思维"] },
+            { dimension: "SN", text: "你更容易被", options: ["实际成果吸引", "新颖创意吸引"] },
+            { dimension: "SN", text: "你更看重", options: ["事实和数据", "可能性和潜力"] },
+            { dimension: "SN", text: "你更喜欢", options: ["按部就班的生活", "充满变化的生活"] },
+            { dimension: "SN", text: "在阅读时，你更注重", options: ["具体的细节描述", "隐含的深层含义"] },
+            { dimension: "SN", text: "你更容易", options: ["观察到具体的变化", "感知到整体的趋势"] },
+            { dimension: "SN", text: "你更喜欢", options: ["稳定的、可预测的", "灵活的、变化的"] },
+            { dimension: "SN", text: "你更容易被", options: ["现实问题吸引", "抽象概念吸引"] },
+            
+            // T/F 维度 (思考/情感) - 15题
+            { dimension: "TF", text: "在做决定时，你更看重", options: ["逻辑和客观分析", "个人价值观和他人感受"] },
+            { dimension: "TF", text: "你认为公正比慈悲更", options: ["重要", "不重要"] },
+            { dimension: "TF", text: "当别人向你倾诉时，你通常", options: ["给出建议和解决方案", "给予情感支持和安慰"] },
+            { dimension: "TF", text: "你更容易被", options: ["有理有据的观点说服", "情感真挚的话语打动"] },
+            { dimension: "TF", text: "你更在意", options: ["做事的原则和规则", "人际关系的和谐"] },
+            { dimension: "TF", text: "你更倾向于", options: ["诚实直率", "委婉体贴"] },
+            { dimension: "TF", text: "在冲突中，你更关注", options: ["谁对谁错", "如何维护关系"] },
+            { dimension: "TF", text: "你更容易", options: ["指出问题所在", "照顾对方情绪"] },
+            { dimension: "TF", text: "你更欣赏", options: ["逻辑思维能力", "情感共鸣能力"] },
+            { dimension: "TF", text: "你更容易因为", options: ["不合理的事情愤怒", "伤害感情的事情愤怒"] },
+            { dimension: "TF", text: "你更看重", options: ["效率和成果", "过程中的感受"] },
+            { dimension: "TF", text: "在评价他人时，你更注重", options: ["对方的能力和表现", "对方的动机和意图"] },
+            { dimension: "TF", text: "你更容易", options: ["根据事实做判断", "考虑人情做判断"] },
+            { dimension: "TF", text: "你更喜欢", options: ["理性的讨论", "感性的交流"] },
+            { dimension: "TF", text: "你更容易被", options: ["逻辑清晰的分析说服", "真诚的情感表达打动"] },
+            
+            // J/P 维度 (判断/知觉) - 15题
+            { dimension: "JP", text: "你更喜欢", options: ["有计划、有条理", "灵活应变、顺其自然"] },
+            { dimension: "JP", text: "你通常", options: ["提前规划好一切", "随遇而安"] },
+            { dimension: "JP", text: "你更倾向于", options: ["按时完成任务", "等到最后一刻才动手"] },
+            { dimension: "JP", text: "你更喜欢", options: ["决定后严格执行", "保持开放，随时调整"] },
+            { dimension: "JP", text: "在工作中，你更注重", options: ["按计划推进", "灵活应对变化"] },
+            { dimension: "JP", text: "你更容易因为", options: ["拖延感到焦虑", "被限制感到不适"] },
+            { dimension: "JP", text: "你更喜欢", options: ["确定的结果", "开放的可能性"] },
+            { dimension: "JP", text: "你通常", options: ["把事情安排得井井有条", "随情况变化而调整"] },
+            { dimension: "JP", text: "你更害怕", options: ["错过截止日期", "失去自由和灵活性"] },
+            { dimension: "JP", text: "你更喜欢", options: ["一次性完成一件事", "同时处理多件事"] },
+            { dimension: "JP", text: "在面对新项目时，你会", options: ["先制定详细计划", "先开始再做调整"] },
+            { dimension: "JP", text: "你更容易", options: ["遵守规则和期限", "根据情况灵活变通"] },
+            { dimension: "JP", text: "你更喜欢", options: ["有明确的目标和截止日期", "没有固定期限的自由"] },
+            { dimension: "JP", text: "你通常", options: ["定期整理和回顾", "需要时再找"] },
+            { dimension: "JP", text: "你更容易", options: ["做决定并坚持", "保持开放态度"] }
+        ];
+        
+        // 16种人格详细描述
+        const typeDescriptions = {
+            "INTJ": { 
+                name: "建筑师", 
+                desc: "你是天生的战略家，拥有远见卓识和强大的执行力。你善于分析问题，制定长期计划，并坚持不懈地追求目标。你喜欢独立工作，对效率和能力有极高的要求。\n\n【性格特点】\n• 独立思考，理性客观\n• 追求效率和成果\n• 善于规划长远目标\n• 自信且坚定\n\n【优点】\n• 战略思维能力强\n• 独立自主，不依赖他人\n• 决策果断坚定\n• 学习能力强\n\n【缺点】\n• 可能显得冷漠或苛刻\n• 过度追求完美\n• 不善于表达情感\n\n【职业建议】\n适合从事战略规划、咨询、技术开发、金融分析等需要独立思考和长期规划的工作。\n\n【人际关系】\n你重视深度而非广度的关系。表达感激和关心对你来说可能需要刻意练习，但在信任的人面前，你其实非常忠诚。"
+            },
+            "INTP": { 
+                name: "逻辑学家", 
+                desc: "你是天生的思想家，对知识和真理有着不懈的追求。你喜欢分析事物的运作原理，探索新的概念和理论。你的思维敏捷，善于发现问题并寻找创新解决方案。\n\n【性格特点】\n• 理性分析，独立思考\n• 好奇心强，求知欲旺盛\n• 善于发现逻辑漏洞\n• 喜欢理论而非实践\n\n【优点】\n• 分析能力强\n• 思维开放，接受新观点\n• 创新能力突出\n• 客观公正\n\n【缺点】\n• 容易过度思考\n• 不善于实际执行\n• 情绪表达困难\n\n【职业建议】\n适合从事科研、编程、哲学、数据分析、投资等需要深入研究和逻辑思考的工作。\n\n【人际关系】\n你欣赏智慧型对话，但社交不是你的强项。你需要理解的是，真诚的关系需要主动维护。"
+            },
+            "ENTJ": { 
+                name: "指挥官", 
+                desc: "你是天生的领导者，富有魅力和决断力。你善于组织资源，制定战略，并激励他人跟随你的愿景。你喜欢挑战，享受在竞争环境中脱颖而出。\n\n【性格特点】\n• 自信果断，意志坚定\n• 善于激励和领导\n• 目标导向，结果导向\n• 喜欢掌控局面\n\n【优点】\n• 领导力和组织能力强\n• 决策果断迅速\n• 善于发现问题并解决\n• 抗压能力强\n\n【缺点】\n• 可能过于专断\n• 缺乏耐心\n• 不善于处理复杂情绪\n\n【职业建议】\n适合从事企业管理、创业、咨询、法律、政治等需要领导力和决策能力的工作。\n\n【人际关系】\n你欣赏有能力的人，但也需要学会倾听和尊重他人的感受。你的直接有时候会伤害到敏感的人。"
+            },
+            "ENTP": { 
+                name: "辩论家", 
+                desc: "你是聪明好奇的冒险家，喜欢智力上的挑战。你善于发现问题，提出创意，喜欢与他人辩论各种想法。你永远不会满足于现状，总是在寻找新的可能。\n\n【性格特点】\n• 思维敏捷，能言善辩\n• 创意丰富，点子多\n• 善于发现问题\n• 喜欢挑战和辩论\n\n【优点】\n• 创新能力突出\n• 适应力强\n• 善于沟通交流\n• 思维开放\n\n【缺点】\n• 难以专注一件事\n• 容易半途而废\n• 辩论时可能得理不饶人\n\n【职业建议】\n适合从事营销、创意、咨询、媒体、投资等需要创新思维和沟通能力的工作。\n\n【人际关系】\n你喜欢和各种人交流，但深度关系对你来说需要更多努力。学会倾听和给予关注会让你的关系更深入。"
+            },
+            "INFJ": { 
+                name: "提倡者", 
+                desc: "你是富有理想主义的精神导师，有着强烈的内心信念和同情心。你善于理解他人，洞察人心，总是希望通过自己的力量让世界变得更好。你安静但有力量。\n\n【性格特点】\n• 理想主义，追求意义\n• 洞察力强，理解他人\n• 富有同情心，关心他人\n• 内敛但有影响力\n\n【优点】\n• 洞察力敏锐\n• 坚持理想不放弃\n• 善于理解他人\n• 有创造力\n\n【缺点】\n• 过度自我牺牲\n• 难以接受批评\n• 容易失望\n\n【职业建议】\n适合从事心理咨询、教育、艺术、写作、社会工作、宗教等需要洞察力和同理心的工作。\n\n【人际关系】\n你重视深度关系，对朋友非常忠诚。你需要学会设立边界，保护自己的情感能量。"
+            },
+            "INFP": { 
+                name: "调停者", 
+                desc: "你是富有诗意的理想主义者，内心充满浪漫和善良。你追求内心的和谐，重视个人价值观，总是试图找到生命的意义和价值。你的温柔是这个世界的珍贵财富。\n\n【性格特点】\n• 理想主义，浪漫多情\n• 敏感细腻，富有同理心\n• 追求真实和意义\n• 内向但内心丰富\n\n【优点】\n• 富有创造力和艺术气质\n• 善于理解他人感受\n• 忠诚且投入\n• 价值观坚定\n\n【缺点】\n• 过度自我牺牲\n• 逃避现实困难\n• 过度敏感\n\n【职业建议】\n适合从事艺术、写作、心理咨询、教育、宗教、公益等需要创造力和同理心的工作。\n\n【人际关系】\n你追求灵魂层面的深度连接。你需要找到真正理解你的人，同时也要学会在现实中保护自己。"
+            },
+            "ENFJ": { 
+                name: "主人公", 
+                desc: "你是天生的领导者，富有魅力和感染力。你善于激励他人，帮助每个人成为更好的自己。你有强烈的责任感，总是想办法帮助身边的人和世界。\n\n【性格特点】\n• 魅力四射，感染力强\n• 善于激励和鼓舞\n• 关注他人成长\n• 责任感强\n\n【优点】\n• 领导力和沟通能力强\n• 善于发现他人潜能\n• 富有同情心\n• 行动力强\n\n【缺点】\n• 过度在意他人看法\n• 忽视自己需求\n• 可能过于理想化\n\n【职业建议】\n适合从事教育、管理、咨询、HR、演讲、政治等需要人际影响力和领导力的工作。\n\n【人际关系】\n你善于经营人际关系，朋友很多。但你需要学会说\"不\"，给自己一些空间。"
+            },
+            "ENFP": { 
+                name: "竞选者", 
+                desc: "你是热情洋溢的创意家，永远充满活力和可能性。你善于激发灵感，喜欢探索新事物，你的热情会感染身边的每一个人。生活因你而精彩！\n\n【性格特点】\n• 热情奔放，活力四射\n• 创意无限，想法多\n• 善于激励他人\n• 喜欢新鲜感\n\n【优点】\n• 充满热情和活力\n• 创意丰富\n• 善于沟通交流\n• 适应力强\n\n【缺点】\n• 难以专注\n• 逃避困难\n• 情绪波动大\n\n【职业建议】\n适合从事营销、创意、广告、媒体、演艺、旅游等需要热情和创意的工作。\n\n【人际关系】\n你是派对的核心，朋友遍布各地。你需要的是能够陪你一起疯狂、同时也能倾听你内心的朋友。"
+            },
+            "ISTJ": { 
+                name: "物流师", 
+                desc: "你是值得信赖的守护者，重视责任和传统。你言出必行，做事踏实可靠，是团队中可以依靠的力量。你尊重规则，讲究效率，是社会的稳定基石。\n\n【性格特点】\n• 稳重可靠，负责尽职\n• 注重事实和数据\n• 尊重传统和规则\n• 讲究效率和实用\n\n【优点】\n• 可靠，值得信赖\n• 注重细节\n• 组织能力强\n• 专注执着\n\n【缺点】\n• 过度保守\n• 不善于变通\n• 难以接受新事物\n\n【职业建议】\n适合从事会计、审计、执法、工程、医疗、管理等需要可靠性和专业性的工作。\n\n【人际关系】\n你重视长期友谊，但表达感情的方式比较含蓄。学会直接表达感受会让关系更亲密。"
+            },
+            "ISFJ": { 
+                name: "守卫者", 
+                desc: "你是温暖的守护者，默默付出不求回报。你细心体贴，总是把别人的需求放在自己之前。你的温柔和善良让身边的人感到安全和被爱。\n\n【性格特点】\n• 温柔体贴，无私奉献\n• 细心周到，关注他人\n• 传统保守，重视家庭\n• 谦虚低调\n\n【优点】\n• 富有同理心\n• 细心周到\n• 忠诚可靠\n• 善于照顾他人\n\n【缺点】\n• 过度自我牺牲\n• 难以拒绝他人\n• 过度在意他人评价\n\n【职业建议】\n适合从事护理、教育、服务、行政、家庭医学等需要关怀和细致的工作。\n\n【人际关系】\n你是那种会默默记住朋友喜好、在你需要时递上一杯热水的人。你需要学会爱自己。"
+            },
+            "ESTJ": { 
+                name: "总经理", 
+                desc: "你是天生的管理者，擅长组织和执行。你重视规则和效率，行动力强，总是能够把事情安排得井井有条。你是团队中的顶梁柱。\n\n【性格特点】\n• 果断决策，组织能力强\n• 重视规则和秩序\n• 结果导向，效率至上\n• 传统保守\n\n【优点】\n• 领导力强\n• 执行力强\n• 责任感强\n• 善于规划\n\n【缺点】\n• 过于强硬\n• 缺乏灵活性\n• 不善于处理情绪\n\n【职业建议】\n适合从事企业管理、执法、军事、金融、项目管理等需要组织和领导能力的工作。\n\n【人际关系】\n你直接坦率，不太会绕弯子。学会 softer side 会让你更有魅力。"
+            },
+            "ESFJ": { 
+                name: "执政官", 
+                desc: "你是温暖的社交达人，总是乐于助人。你重视人际和谐，喜欢照顾他人，是朋友中的贴心小棉袄。你的存在让生活更加温暖。\n\n【性格特点】\n• 热情友好，善于社交\n• 乐于助人，关注他人\n• 重视传统和和谐\n• 实际务实\n\n【优点】\n• 人际能力强\n• 善于照顾他人\n• 可靠忠诚\n• 行动力强\n\n【缺点】\n• 过度在意他人看法\n• 难以接受批评\n• 可能过于从众\n\n【职业建议】\n适合从事教育、服务、医疗、HR、行政、销售等需要人际交往和关怀的工作。\n\n【人际关系】\n你朋友很多，善于维护关系。你需要学会的是，有些事情不必迎合所有人。"
+            },
+            "ISTP": { 
+                name: "鉴赏家", 
+                desc: "你是大胆务实的冒险家，善于理解事物的运作原理。你喜欢动手实践，在实践中学习和成长。你冷静理性，是解决问题的高手。\n\n【性格特点】\n• 冷静理性，善于分析\n• 动手能力强\n• 灵活适应，务实实际\n• 喜欢独立行动\n\n【优点】\n• 动手能力强\n• 善于解决问题\n• 冷静沉着\n• 适应力强\n\n【缺点】\n• 不善于表达情感\n• 难以与人建立深度联系\n• 容易冒险\n\n【职业建议】\n适合从事工程、技术、执法、赛车、手工艺、金融等需要实际操作和分析能力的工作。\n\n【人际关系】\n你比较独立，不需要太多社交。但偶尔也要学会表达感情，让朋友知道你在乎他们。"
+            },
+            "ISFP": { 
+                name: "探险家", 
+                desc: "你是灵活的艺术家，审美敏锐，善于发现生活中的美。你自由灵活，享受当下，总是按照自己的节奏生活。你的温柔和独特让人着迷。\n\n【性格特点】\n• 审美敏锐，追求美感\n• 灵活自由，随性而为\n• 温柔体贴，敏感细腻\n• 行动派，注重体验\n\n【优点】\n• 艺术气质浓\n• 适应力强\n• 善于发现美\n• 温柔善良\n\n【缺点】\n• 容易逃避责任\n• 难以做决定\n• 过度追求自由\n\n【职业建议】\n适合从事艺术、设计、摄影、烹饪、园艺、时尚、旅游等需要审美和创造力的工作。\n\n【人际关系】\n你重视个人空间和自由，但也要学会对重要的人负责任。你的温柔是独特的礼物。"
+            },
+            "ESTP": { 
+                name: "企业家", 
+                desc: "你是精力充沛的行动派，喜欢冒险和挑战。你善于抓住机会，即兴应变能力超强。你的人生信条是：先做了再说！\n\n【性格特点】\n• 精力充沛，行动力强\n• 善于社交，八面玲珑\n• 灵活应变，现实务实\n• 喜欢冒险和刺激\n\n【优点】\n• 善于抓住机会\n• 社交能力强\n• 适应力强\n• 执行力强\n\n【缺点】\n• 缺乏耐心\n• 容易冲动\n• 难以专注\n\n【职业建议】\n适合从事销售、创业、投资、娱乐、体育、房地产等需要冒险精神和社交能力的工作。\n\n【人际关系】\n你是派对动物，朋友遍布各行各业。学会倾听和专注会让你的关系更有深度。"
+            },
+            "ESFP": { 
+                name: "表演者", 
+                desc: "你是舞台上的明星，总是充满活力和热情。你善于调动气氛，让每个人都感到开心。你的人生哲学是：享受当下，开心最重要！\n\n【性格特点】\n• 热情洋溢，活力四射\n• 善于表演，感染力强\n• 喜欢成为焦点\n• 享受当下，务实实际\n\n【优点】\n• 人际能力强\n• 充满热情\n• 善于调动气氛\n• 行动力强\n\n【缺点】\n• 难以接受批评\n• 容易冲动\n• 缺乏长远规划\n\n【职业建议】\n适合从事演艺、销售、服务、旅游、娱乐、主持等需要表达和表现的工作。\n\n【人际关系】\n你是人群中的开心果，大家都喜欢你。但也要学会在安静的时刻审视自己的内心。"
+            }
+        };
+        
+        let currentQuestion = 0;
+        let answers = [];
+        
+        function startTest() {
+            document.getElementById('intro').style.display = 'none';
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '';
+            
+            const q = questions[currentQuestion];
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question active';
+            
+            let optionsHTML = q.options.map((opt, i) => 
+                `<div class="option" onclick="selectOption(${i})">${opt}</div>`
+            ).join('');
+            
+            questionDiv.innerHTML = `
+                <div class="question-number">问题 ${currentQuestion + 1} / ${questions.length}</div>
+                <div class="question-text">${q.text}</div>
+                <div class="options">${optionsHTML}</div>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+            `;
+            
+            questionsDiv.appendChild(questionDiv);
+            updateProgress();
+        }
+        
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+            });
+            document.getElementById('nextBtn').disabled = false;
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+        
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+        
+        function calculateResult() {
+            let scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            
+            questions.forEach((q, i) => {
+                if (answers[i] === 0) {
+                    if (q.dimension === "EI") scores.EI++;
+                    if (q.dimension === "SN") scores.SN++;
+                    if (q.dimension === "TF") scores.TF++;
+                    if (q.dimension === "JP") scores.JP++;
+                } else {
+                    if (q.dimension === "EI") scores.EI--;
+                    if (q.dimension === "SN") scores.SN--;
+                    if (q.dimension === "TF") scores.TF--;
+                    if (q.dimension === "JP") scores.JP--;
+                }
+            });
+            
+            let mbti = "";
+            mbti += scores.EI > 0 ? "E" : "I";
+            mbti += scores.SN > 0 ? "S" : "N";
+            mbti += scores.TF > 0 ? "T" : "F";
+            mbti += scores.JP > 0 ? "J" : "P";
+            
+            return { mbti, scores };
+        }
+        
+        function showResult() {
+            const { mbti, scores } = calculateResult();
+            const typeInfo = typeDescriptions[mbti];
+            
+            document.getElementById('questions').style.display = 'none';
+            document.getElementById('result').classList.add('active');
+            document.getElementById('progress').style.width = '100%';
+            
+            document.getElementById('mbtiType').textContent = mbti;
+            document.getElementById('typeName').textContent = typeInfo.name;
+            document.getElementById('typeDesc').textContent = typeInfo.desc;
+            
+            const dimensions = [
+                { label: "外向/内向", score: scores.EI, type: "EI" },
+                { label: "感觉/直觉", score: scores.SN, type: "SN" },
+                { label: "思考/情感", score: scores.TF, type: "TF" },
+                { label: "判断/知觉", score: scores.JP, type: "JP" }
+            ];
+            
+            document.getElementById('dimensionScores').innerHTML = dimensions.map(d => {
+                const sign = d.score > 0 ? (d.type === "EI" ? "E" : d.type === "SN" ? "S" : d.type === "TF" ? "T" : "J") : 
+                                 (d.type === "EI" ? "I" : d.type === "SN" ? "N" : d.type === "TF" ? "F" : "P");
+                return `
+                    <div class="dimension">
+                        <div class="dimension-label">${d.label}</div>
+                        <div class="dimension-value">${sign} (${Math.abs(d.score)})</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function shareResult() {
+            const mbti = document.getElementById('mbtiType').textContent;
+            const typeName = document.getElementById('typeName').textContent;
+            const text = `我的MBTI性格类型是 ${mbti}（${typeName}），快来测试你的吧！`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'MBTI 性格测试',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text + ' ' + window.location.href);
+                alert('结果已复制到剪贴板！');
+            }
+        }
+        
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            document.getElementById('questions').style.display = 'block';
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('progress').style.width = '0%';
+            showQuestion();
+        }
+    </script>
+</body>
+</html>

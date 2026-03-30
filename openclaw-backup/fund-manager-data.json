@@ -1,0 +1,92 @@
+[
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "600519",
+    "stock_name": "贵州茅台",
+    "shares": 103.68,
+    "net_ratio": 9.52
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "000333",
+    "stock_name": "美的集团",
+    "shares": 1809.63,
+    "net_ratio": 9.43
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "600809",
+    "stock_name": "山西汾酒",
+    "shares": 753.91,
+    "net_ratio": 8.63
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "600660",
+    "stock_name": "福耀玻璃",
+    "shares": 1767.36,
+    "net_ratio": 7.63
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "601058",
+    "stock_name": "赛轮轮胎",
+    "shares": 6159.56,
+    "net_ratio": 6.64
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "601633",
+    "stock_name": "长城汽车",
+    "shares": 4260.57,
+    "net_ratio": 6.43
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "605499",
+    "stock_name": "东鹏饮料",
+    "shares": 342.33,
+    "net_ratio": 6.1
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "000568",
+    "stock_name": "泸州老窖",
+    "shares": 778.82,
+    "net_ratio": 6.03
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "000596",
+    "stock_name": "古井贡酒",
+    "shares": 652.87,
+    "net_ratio": 5.77
+  },
+  {
+    "fund_code": "110022",
+    "manager": "萧楠",
+    "style": "消费成长",
+    "stock_code": "000858",
+    "stock_name": "五粮液",
+    "shares": 750.59,
+    "net_ratio": 5.3
+  }
+]
