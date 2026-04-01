@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>德扑交互流程图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f0f2f5; font-family: -apple-system, 'PingFang SC', sans-serif; padding: 20px; }
+  h1 { text-align: center; font-size: 18px; color: #333; margin-bottom: 16px; }
+  svg { display: block; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+</style>
+</head>
+<body>
+
+<h1>🃏 德扑在线对战 — 交互流程图</h1>
+
+<svg viewBox="0 0 900 1600" xmlns="http://www.w3.org/2000/svg" width="900" height="1600">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L0,10 L10,5 z" fill="#999"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L0,10 L10,5 z" fill="#E88A3D"/>
+    </marker>
+    <marker id="arrowPink" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L0,10 L10,5 z" fill="#FFB3C6"/>
+    </marker>
+  </defs>
+
+  <!-- 大厅 -->
+  <rect x="350" y="20" width="200" height="50" rx="10" fill="#FF8FA3" stroke="#E85A7A" stroke-width="2"/>
+  <text x="450" y="52" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">🏠 大厅</text>
+
+  <line x1="450" y1="70" x2="450" y2="100" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 菱形：选择身份 -->
+  <polygon points="450,100 570,130 450,160 330,130" fill="#A8D8FF" stroke="#5BA3E0" stroke-width="2"/>
+  <text x="450" y="135" text-anchor="middle" fill="#333" font-size="12">选择身份</text>
+
+  <path d="M330,130 L160,130 L160,105" stroke="#E88A3D" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+  <text x="245" y="122" text-anchor="middle" fill="#E88A3D" font-size="11" font-style="italic">创建房间</text>
+
+  <path d="M570,130 L740,130 L740,105" stroke="#E88A3D" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+  <text x="655" y="122" text-anchor="middle" fill="#E88A3D" font-size="11" font-style="italic">加入房间</text>
+
+  <rect x="65" y="105" width="190" height="50" rx="8" fill="#fff" stroke="#E88A3D" stroke-width="2"/>
+  <text x="160" y="125" text-anchor="middle" fill="#333" font-size="12">创建房间</text>
+  <text x="160" y="142" text-anchor="middle" fill="#888" font-size="11">输入昵称 + 房间号</text>
+
+  <rect x="645" y="105" width="190" height="50" rx="8" fill="#fff" stroke="#E88A3D" stroke-width="2"/>
+  <text x="740" y="125" text-anchor="middle" fill="#333" font-size="12">加入房间</text>
+  <text x="740" y="142" text-anchor="middle" fill="#888" font-size="11">输入昵称 + 房间号</text>
+
+  <line x1="160" y1="155" x2="160" y2="190" stroke="#999" stroke-width="2"/>
+  <line x1="160" y1="190" x2="350" y2="190" stroke="#999" stroke-width="2"/>
+  <line x1="740" y1="155" x2="740" y2="190" stroke="#999" stroke-width="2"/>
+  <line x1="740" y1="190" x2="550" y2="190" stroke="#999" stroke-width="2"/>
+  <line x1="350" y1="190" x2="550" y2="190" stroke="#999" stroke-width="2"/>
+  <line x1="450" y1="190" x2="450" y2="212" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="212" width="200" height="45" rx="8" fill="#FFF8F0" stroke="#FFB3C6" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="450" y="240" text-anchor="middle" fill="#9A8070" font-size="12" font-style="italic">⏳ 等待连接...</text>
+
+  <line x1="450" y1="257" x2="450" y2="265" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <polygon points="450,265 570,295 450,325 330,295" fill="#A8D8FF" stroke="#5BA3E0" stroke-width="2"/>
+  <text x="450" y="300" text-anchor="middle" fill="#333" font-size="12">双方已连接？</text>
+
+  <line x1="450" y1="325" x2="450" y2="355" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="355" width="200" height="45" rx="8" fill="#E88A3D" stroke="#D07030" stroke-width="2"/>
+  <text x="450" y="383" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">🎮 开始游戏</text>
+
+  <line x1="450" y1="400" x2="450" y2="435" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="435" width="200" height="50" rx="8" fill="#764ba2" stroke="#553388" stroke-width="2"/>
+  <text x="450" y="458" text-anchor="middle" fill="#fff" font-size="13">🃏 发牌</text>
+  <text x="450" y="475" text-anchor="middle" fill="#eee" font-size="11">每位玩家 2 张底牌</text>
+
+  <line x1="450" y1="485" x2="450" y2="520" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="520" width="200" height="50" rx="8" fill="#4a90d9" stroke="#3060A0" stroke-width="2"/>
+  <text x="450" y="543" text-anchor="middle" fill="#fff" font-size="12">💰 Pre-flop 下注</text>
+  <text x="450" y="560" text-anchor="middle" fill="#eee" font-size="11">大小盲设置</text>
+
+  <rect x="640" y="520" width="140" height="95" rx="8" fill="#fff" stroke="#4a90d9" stroke-width="2"/>
+  <text x="710" y="542" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">下注选项：</text>
+  <text x="710" y="558" text-anchor="middle" fill="#555" font-size="10">• 让牌</text>
+  <text x="710" y="570" text-anchor="middle" fill="#555" font-size="10">• 跟注</text>
+  <text x="710" y="582" text-anchor="middle" fill="#555" font-size="10">• 加注</text>
+  <text x="710" y="594" text-anchor="middle" fill="#555" font-size="10">• All-in</text>
+  <text x="710" y="606" text-anchor="middle" fill="#555" font-size="10">• 弃牌</text>
+
+  <path d="M350,545 L170,545 L170,715" stroke="#FFB3C6" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowPink)"/>
+  <text x="260" y="540" text-anchor="middle" fill="#E85A7A" font-size="11" font-style="italic">弃牌</text>
+
+  <rect x="60" y="715" width="90" height="40" rx="8" fill="#FFB3C6" stroke="#E85A7A" stroke-width="2"/>
+  <text x="105" y="740" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">弃牌</text>
+
+  <line x1="105" y1="755" x2="105" y2="790" stroke="#FFB3C6" stroke-width="2" marker-end="url(#arrowPink)"/>
+  <rect x="55" y="790" width="100" height="35" rx="8" fill="#FFB3C6" stroke="#E85A7A" stroke-width="2"/>
+  <text x="105" y="812" text-anchor="middle" fill="#fff" font-size="11">直接结算</text>
+
+  <line x1="450" y1="570" x2="450" y2="605" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="605" width="200" height="50" rx="8" fill="#764ba2" stroke="#553388" stroke-width="2"/>
+  <text x="450" y="628" text-anchor="middle" fill="#fff" font-size="13">🃄 Flop — 翻牌</text>
+  <text x="450" y="645" text-anchor="middle" fill="#eee" font-size="11">3 张公共牌</text>
+
+  <line x1="450" y1="655" x2="450" y2="690" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="690" width="200" height="45" rx="8" fill="#4a90d9" stroke="#3060A0" stroke-width="2"/>
+  <text x="450" y="718" text-anchor="middle" fill="#fff" font-size="12">💰 Flop 下注轮</text>
+
+  <path d="M350,712 L170,712 L170,715" stroke="#FFB3C6" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowPink)"/>
+
+  <line x1="450" y1="735" x2="450" y2="770" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="770" width="200" height="50" rx="8" fill="#764ba2" stroke="#553388" stroke-width="2"/>
+  <text x="450" y="793" text-anchor="middle" fill="#fff" font-size="13">🃄 Turn — 转牌</text>
+  <text x="450" y="810" text-anchor="middle" fill="#eee" font-size="11">第 4 张公共牌</text>
+
+  <line x1="450" y1="820" x2="450" y2="855" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="855" width="200" height="45" rx="8" fill="#4a90d9" stroke="#3060A0" stroke-width="2"/>
+  <text x="450" y="883" text-anchor="middle" fill="#fff" font-size="12">💰 Turn 下注轮</text>
+
+  <line x1="450" y1="900" x2="450" y2="935" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="935" width="200" height="50" rx="8" fill="#764ba2" stroke="#553388" stroke-width="2"/>
+  <text x="450" y="958" text-anchor="middle" fill="#fff" font-size="13">🃄 River — 河牌</text>
+  <text x="450" y="975" text-anchor="middle" fill="#eee" font-size="11">第 5 张公共牌</text>
+
+  <line x1="450" y1="985" x2="450" y2="1020" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="1020" width="200" height="45" rx="8" fill="#4a90d9" stroke="#3060A0" stroke-width="2"/>
+  <text x="450" y="1048" text-anchor="middle" fill="#fff" font-size="12">💰 River 下注轮（最后一轮）</text>
+
+  <line x1="450" y1="1065" x2="450" y2="1100" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="1100" width="200" height="50" rx="8" fill="#E88A3D" stroke="#D07030" stroke-width="2"/>
+  <text x="450" y="1123" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">🎯 摊牌</text>
+  <text x="450" y="1140" text-anchor="middle" fill="#fff" font-size="11">双方亮出手牌</text>
+
+  <line x1="450" y1="1150" x2="450" y2="1185" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="1185" width="200" height="50" rx="8" fill="#FFD580" stroke="#D07030" stroke-width="2"/>
+  <text x="450" y="1208" text-anchor="middle" fill="#333" font-size="12">比牌判断</text>
+  <text x="450" y="1225" text-anchor="middle" fill="#555" font-size="11">德扑牌型规则</text>
+
+  <line x1="450" y1="1235" x2="450" y2="1270" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="1270" width="200" height="50" rx="8" fill="#90EE90" stroke="#50C050" stroke-width="2"/>
+  <text x="450" y="1293" text-anchor="middle" fill="#1a5a1a" font-size="13" font-weight="bold">💎 结算</text>
+  <text x="450" y="1310" text-anchor="middle" fill="#2a7a2a" font-size="11">筹码分配</text>
+
+  <path d="M55,807 L55,1295 L350,1295" stroke="#FFB3C6" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowPink)"/>
+
+  <line x1="450" y1="1320" x2="450" y2="1355" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <polygon points="450,1355 570,1385 450,1415 330,1385" fill="#A8D8FF" stroke="#5BA3E0" stroke-width="2"/>
+  <text x="450" y="1390" text-anchor="middle" fill="#333" font-size="12">继续下一局？</text>
+
+  <text x="555" y="1378" text-anchor="middle" fill="#1a5a1a" font-size="11" font-style="italic">是</text>
+  <path d="M570,1385 L590,1385 L590,1360 L665,1360" stroke="#E88A3D" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+
+  <rect x="665" y="1360" width="150" height="40" rx="8" fill="#E88A3D" stroke="#D07030" stroke-width="2"/>
+  <text x="740" y="1385" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">🔄 下一局</text>
+
+  <text x="450" y="1428" text-anchor="middle" fill="#999" font-size="11" font-style="italic">否</text>
+  <line x1="450" y1="1415" x2="450" y2="1450" stroke="#999" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <ellipse cx="450" cy="1475" rx="60" ry="30" fill="#ccc" stroke="#999" stroke-width="2"/>
+  <text x="450" y="1481" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">🏁 结束</text>
+
+  <path d="M815,1360 L815,460 L550,460" stroke="#E88A3D" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
+  <line x1="550" y1="460" x2="550" y2="435" stroke="#E88A3D" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+  <!-- 图例 -->
+  <rect x="20" y="20" width="160" height="120" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="30" y="38" fill="#333" font-size="11" font-weight="bold">图例</text>
+  <rect x="30" y="48" width="14" height="10" rx="3" fill="#FF8FA3"/>
+  <text x="50" y="58" fill="#333" font-size="10">入口/开始</text>
+  <rect x="30" y="64" width="14" height="10" rx="3" fill="#764ba2"/>
+  <text x="50" y="74" fill="#333" font-size="10">发牌阶段</text>
+  <rect x="30" y="80" width="14" height="10" rx="3" fill="#4a90d9"/>
+  <text x="50" y="90" fill="#333" font-size="10">下注轮</text>
+  <polygon points="37,106 46,112 37,118 28,112" fill="#A8D8FF"/>
+  <text x="50" y="115" fill="#333" font-size="10">判断节点</text>
+  <rect x="30" y="122" width="14" height="10" rx="3" fill="#90EE90"/>
+  <text x="50" y="132" fill="#333" font-size="10">结算</text>
+</svg>
+
+</body>
+</html>
