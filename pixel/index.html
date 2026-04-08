@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 PixelForge - 像素风生成器</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0d0d12;
+      --bg-card: #16161e;
+      --border: #2a2a3a;
+      --accent-cyan: #00fff7;
+      --accent-magenta: #ff00ff;
+      --accent-yellow: #ffff00;
+      --text-primary: #e8e8f0;
+      --text-dim: #8888a0;
+      --success: #00ff88;
+      --danger: #ff4466;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* Pixel grid background */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 247, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 247, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    .logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 28px;
+      color: var(--accent-cyan);
+      text-shadow: 
+        3px 3px 0 var(--accent-magenta),
+        6px 6px 0 rgba(0, 255, 247, 0.3);
+      margin-bottom: 15px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 3px 3px 0 var(--accent-magenta), 6px 6px 0 rgba(0, 255, 247, 0.3); }
+      to { text-shadow: 3px 3px 0 var(--accent-magenta), 6px 6px 20px rgba(0, 255, 247, 0.6); }
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 3px dashed var(--border);
+      border-radius: 12px;
+      padding: 60px 40px;
+      text-align: center;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    .upload-zone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .upload-zone:hover::before,
+    .upload-zone.dragover::before {
+      left: 100%;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 255, 247, 0.05);
+    }
+
+    .upload-zone.has-file {
+      border-style: solid;
+      border-color: var(--success);
+    }
+
+    .upload-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .upload-text {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .upload-hint {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .upload-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 14px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), #00ccff);
+      color: var(--bg-dark);
+      box-shadow: 0 4px 15px rgba(0, 255, 247, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 255, 247, 0.5);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent-magenta);
+      border: 2px solid var(--accent-magenta);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent-magenta);
+      color: var(--bg-dark);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #00cc66);
+      color: var(--bg-dark);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Hidden file inputs */
+    .file-input {
+      display: none;
+    }
+
+    /* Preview Area */
+    .preview-area {
+      display: none;
+      margin-bottom: 30px;
+    }
+
+    .preview-area.active {
+      display: block;
+    }
+
+    .preview-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    @media (max-width: 600px) {
+      .preview-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .preview-box {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .preview-box h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--accent-yellow);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .preview-box canvas,
+    .preview-box video,
+    .preview-box img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 6px;
+      image-rendering: pixelated;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .controls-panel h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--accent-cyan);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .control-label span:first-child {
+      font-weight: 700;
+    }
+
+    .control-value {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--accent-magenta);
+    }
+
+    /* Slider */
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 255, 247, 0.5);
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-group:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+    }
+
+    .toggle-hint {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 56px;
+      height: 28px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--border);
+      border-radius: 28px;
+      transition: 0.3s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--accent-cyan);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(28px);
+    }
+
+    /* Select */
+    .select-wrapper {
+      position: relative;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 14px;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Loading State */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 13, 18, 0.9);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--accent-cyan);
+      margin-top: 20px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent-cyan);
+      border-right-color: var(--accent-magenta);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status Messages */
+    .status-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .status-bar.show {
+      opacity: 1;
+    }
+
+    .status-bar.success {
+      background: var(--success);
+      color: var(--bg-dark);
+    }
+
+    .status-bar.error {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    /* Video preview specific */
+    .video-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .video-controls .btn {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    /* GIF preview */
+    .gif-preview {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .gif-preview.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="logo">PixelForge</h1>
+      <p class="tagline">图片 & 视频 → 像素风素材</p>
+    </header>
+
+    <!-- Upload Zone -->
+    <div class="upload-zone" id="uploadZone">
+      <span class="upload-icon">🎮</span>
+      <p class="upload-text">拖放文件或点击上传</p>
+      <p class="upload-hint">支持 JPG、PNG、GIF、WebM、MP4</p>
+      
+      <div class="upload-buttons">
+        <button class="btn btn-primary" onclick="document.getElementById('imageInput').click()">
+          📷 上传图片
+        </button>
+        <button class="btn btn-secondary" onclick="document.getElementById('videoInput').click()">
+          🎥 上传视频
+        </button>
+        <button class="btn btn-secondary" onclick="openCamera()">
+          📸 拍照
+        </button>
+      </div>
+      
+      <input type="file" id="imageInput" class="file-input" accept="image/*">
+      <input type="file" id="videoInput" class="file-input" accept="video/*">
+    </div>
+
+    <!-- Camera Capture -->
+    <div class="controls-panel" id="cameraPanel" style="display: none;">
+      <h3>📸 摄像头预览</h3>
+      <div style="text-align: center;">
+        <video id="cameraVideo" autoplay playsinline style="max-width: 100%; max-height: 300px; border-radius: 8px;"></video>
+      </div>
+      <div class="video-controls">
+        <button class="btn btn-primary" onclick="captureFromCamera()">📸 拍照</button>
+        <button class="btn btn-secondary" onclick="stopCamera()">❌ 关闭摄像头</button>
+      </div>
+    </div>
+
+    <!-- Preview Area -->
+    <div class="preview-area" id="previewArea">
+      <div class="preview-container">
+        <div class="preview-box">
+          <h3>原始素材</h3>
+          <canvas id="originalCanvas"></canvas>
+          <p id="fileInfo" style="font-size: 12px; color: var(--text-dim); margin-top: 10px;"></p>
+        </div>
+        <div class="preview-box">
+          <h3>像素风预览</h3>
+          <canvas id="previewCanvas"></canvas>
+          <div id="gifPreview" class="gif-preview">
+            <img id="gifPreviewImg" style="max-width: 100%; border-radius: 6px;">
+            <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">GIF 预览</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <h3>⚙️ 生成设置</h3>
+        
+        <div class="control-group">
+          <div class="control-label">
+            <span>像素大小</span>
+            <span class="control-value" id="pixelSizeValue">8px</span>
+          </div>
+          <input type="range" id="pixelSize" min="2" max="24" value="8">
+        </div>
+
+        <div class="toggle-group">
+          <div>
+            <div class="toggle-label">扣除背景</div>
+            <div class="toggle-hint">智能识别人物/主体，透明背景更适合游戏素材</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="removeBg">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-group">
+          <div>
+            <div class="toggle-label">抖动效果</div>
+            <div class="toggle-hint">模拟经典游戏机的色彩限制</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="dithering" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>调色板</span>
+          </div>
+          <div class="select-wrapper">
+            <select id="palette">
+              <option value="original">原始色彩</option>
+              <option value="nes">NES (54色)</option>
+              <option value="gameboy">GameBoy (4色)</option>
+              <option value="c64">C64 (16色)</option>
+              <option value="pico8">PICO-8 (16色)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>输出尺寸</span>
+          </div>
+          <div class="select-wrapper">
+            <select id="outputSize">
+              <option value="original">原始尺寸</option>
+              <option value="64">64px</option>
+              <option value="128">128px</option>
+              <option value="256">256px</option>
+              <option value="512">512px</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group" id="gifSettings" style="display: none;">
+          <div class="control-label">
+            <span>视频帧数</span>
+            <span class="control-value" id="frameCountValue">10帧</span>
+          </div>
+          <input type="range" id="frameCount" min="5" max="30" value="10">
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="generateBtn" onclick="generatePixelArt()">
+          ✨ 生成像素风
+        </button>
+        <button class="btn btn-success" id="downloadPng" onclick="downloadPNG()" disabled>
+          📥 下载 PNG
+        </button>
+        <button class="btn btn-secondary" id="downloadGif" onclick="downloadGIF()" disabled style="display: none;">
+          📥 下载 GIF
+        </button>
+        <button class="btn btn-secondary" onclick="resetAll()">
+          🔄 重置
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text" id="loadingText">处理中...</p>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="statusBar"></div>
+
+  <footer>
+    <p>PixelForge © 2026 | 使用 Canvas + AI 背景识别技术</p>
+  </footer>
+
+  <!-- Background Removal CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.js"></script>
+  <!-- GIF Encoder -->
+  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+
+  <script>
+    // State
+    let currentFile = null;
+    let currentVideo = null;
+    let currentFrames = [];
+    let processedBlob = null;
+    let isVideo = false;
+    let gifEncoder = null;
+    let cameraStream = null;
+
+    // DOM Elements
+    const uploadZone = document.getElementById('uploadZone');
+    const imageInput = document.getElementById('imageInput');
+    const videoInput = document.getElementById('videoInput');
+    const previewArea = document.getElementById('previewArea');
+    const originalCanvas = document.getElementById('originalCanvas');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const cameraPanel = document.getElementById('cameraPanel');
+    const cameraVideo = document.getElementById('cameraVideo');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    const statusBar = document.getElementById('statusBar');
+
+    // Palette definitions
+    const palettes = {
+      original: null,
+      nes: [
+        '#7C7C7C','#0000FC','#0000BC','#4428BC','#940084','#A80020','#A81000','#881400',
+        '#503000','#007800','#006800','#005800','#004058','#000000','#000000','#000000',
+        '#BCBCBC','#0078F8','#0058F8','#6844FC','#D800CC','#E40058','#F83800','#E45C10',
+        '#AC7C00','#00B800','#00A800','#00A844','#008888','#000000','#000000','#000000',
+        '#F8F8F8','#3CBCFC','#6888FC','#9872F9','#F878F8','#F85898','#F87858','#FCA044',
+        '#F8B800','#B8F818','#58D854','#58F898','#00E8D8','#787878','#000000','#000000',
+        '#FCFCFC','#A4E4FC','#B8B8F8','#D8B8F8','#F8B8F8','#F8A4C0','#F0D0B0','#FCE0A8',
+        '#F8D878','#D8F878','#B8F8B8','#B8F8D8','#00FCFC','#D8D8D8','#000000','#000000'
+      ],
+      gameboy: ['#0f380f', '#306230', '#8bac0f', '#9bbc0f'],
+      c64: [
+        '#000000','#ffffff','#880000','#aaffee','#cc44cc','#00cc55','#0000aa','#eeee77',
+        '#dd8855','#664400','#ff7777','#333333','#777777','#aaff66','#0088ff','#bbbbbb'
+      ],
+      pico8: [
+        '#000000','#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7','#FFF1E8',
+        '#FF004D','#FFA300','#FFEC27','#00E436','#29ADFF','#83769C','#FF77A8','#FFCCAA'
+      ]
+    };
+
+    // Event Listeners
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    videoInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    // Control listeners
+    document.getElementById('pixelSize').addEventListener('input', (e) => {
+      document.getElementById('pixelSizeValue').textContent = e.target.value + 'px';
+      if (processedBlob) generatePixelArt();
+    });
+
+    document.getElementById('removeBg').addEventListener('change', () => {
+      if (processedBlob) generatePixelArt();
+    });
+
+    document.getElementById('dithering').addEventListener('change', () => {
+      if (processedBlob) generatePixelArt();
+    });
+
+    document.getElementById('palette').addEventListener('change', () => {
+      if (processedBlob) generatePixelArt();
+    });
+
+    document.getElementById('outputSize').addEventListener('change', () => {
+      if (processedBlob) generatePixelArt();
+    });
+
+    document.getElementById('frameCount').addEventListener('input', (e) => {
+      document.getElementById('frameCountValue').textContent = e.target.value + '帧';
+    });
+
+    // File Handler
+    function handleFile(file) {
+      currentFile = file;
+      isVideo = file.type.startsWith('video/');
+      
+      uploadZone.classList.add('has-file');
+      
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.muted = true;
+        video.onloadedmetadata = () => {
+          currentVideo = video;
+          document.getElementById('gifSettings').style.display = 'block';
+          document.getElementById('downloadGif').style.display = 'inline-block';
+          extractVideoFrames(video);
+        };
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            currentVideo = null;
+            document.getElementById('gifSettings').style.display = 'none';
+            document.getElementById('downloadGif').style.display = 'none';
+            drawOriginal(img);
+            generatePixelArt();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Camera Functions
+    async function openCamera() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        cameraVideo.srcObject = cameraStream;
+        cameraPanel.style.display = 'block';
+        uploadZone.style.display = 'none';
+      } catch (err) {
+        showStatus('无法访问摄像头，请检查权限设置', 'error');
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      cameraPanel.style.display = 'none';
+      uploadZone.style.display = 'block';
+    }
+
+    function captureFromCamera() {
+      const canvas = document.createElement('canvas');
+      canvas.width = cameraVideo.videoWidth;
+      canvas.height = cameraVideo.videoHeight;
+      canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        const file = new File([blob], 'camera-capture.png', { type: 'image/png' });
+        stopCamera();
+        handleFile(file);
+      }, 'image/png');
+    }
+
+    // Extract frames from video
+    function extractVideoFrames(video) {
+      showLoading('正在提取视频帧...');
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const frameCount = parseInt(document.getElementById('frameCount').value);
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      currentFrames = [];
+      const duration = video.duration;
+      const interval = duration / frameCount;
+      
+      let extracted = 0;
+      
+      function extractFrame(time) {
+        return new Promise((resolve) => {
+          video.currentTime = time;
+          video.onseeked = () => {
+            ctx.drawImage(video, 0, 0);
+            const frameCanvas = document.createElement('canvas');
+            frameCanvas.width = canvas.width;
+            frameCanvas.height = canvas.height;
+            frameCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            currentFrames.push(frameCanvas);
+            resolve();
+          };
+        });
+      }
+      
+      const promises = [];
+      for (let i = 0; i < frameCount; i++) {
+        promises.push(extractFrame(i * interval));
+      }
+      
+      Promise.all(promises).then(() => {
+        drawOriginal(video);
+        generatePixelArt();
+        hideLoading();
+        showStatus(`成功提取 ${frameCount} 帧`, 'success');
+      });
+    }
+
+    // Draw original to canvas
+    function drawOriginal(source) {
+      const ctx = originalCanvas.getContext('2d');
+      const maxW = 400, maxH = 300;
+      let w = source.videoWidth || source.width;
+      let h = source.videoHeight || source.height;
+      
+      if (w > maxW) {
+        h = h * (maxW / w);
+        w = maxW;
+      }
+      if (h > maxH) {
+        w = w * (maxH / h);
+        h = maxH;
+      }
+      
+      originalCanvas.width = w;
+      originalCanvas.height = h;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(source, 0, 0, w, h);
+      
+      const size = currentFile ? currentFile.size : 0;
+      const sizeStr = size > 1024 * 1024 ? (size / 1024 / 1024).toFixed(1) + ' MB' : 
+                      size > 1024 ? (size / 1024).toFixed(0) + ' KB' : size + ' B';
+      document.getElementById('fileInfo').textContent = `${w} × ${h} | ${sizeStr}`;
+      
+      previewArea.classList.add('active');
+    }
+
+    // Main pixel art generation
+    async function generatePixelArt() {
+      if (!currentFile && currentFrames.length === 0) return;
+      
+      showLoading('生成像素风...');
+      
+      try {
+        const pixelSize = parseInt(document.getElementById('pixelSize').value);
+        const removeBg = document.getElementById('removeBg').checked;
+        const dither = document.getElementById('dithering').checked;
+        const paletteName = document.getElementById('palette').value;
+        const outputSize = document.getElementById('outputSize').value;
+        
+        let sourceCanvas;
+        
+        if (isVideo && currentFrames.length > 0) {
+          // Process video frames
+          const processedFrames = [];
+          
+          for (let i = 0; i < currentFrames.length; i++) {
+            showLoading(`处理帧 ${i + 1}/${currentFrames.length}...`);
+            let frame = currentFrames[i];
+            
+            // Remove background if needed
+            if (removeBg) {
+              frame = await removeBackground(frame);
+            }
+            
+            // Pixelate
+            frame = pixelateCanvas(frame, pixelSize, dither, paletteName);
+            
+            // Resize if needed
+            if (outputSize !== 'original') {
+              frame = resizeCanvas(frame, parseInt(outputSize));
+            }
+            
+            processedFrames.push(frame);
+          }
+          
+          // Generate GIF
+          await generateGIF(processedFrames);
+          hideLoading();
+          showStatus('GIF 生成完成！', 'success');
+          document.getElementById('downloadGif').disabled = false;
+          document.getElementById('downloadPng').disabled = true;
+          
+        } else {
+          // Process single image
+          sourceCanvas = document.createElement('canvas');
+          sourceCanvas.width = originalCanvas.width;
+          sourceCanvas.height = originalCanvas.height;
+          sourceCanvas.getContext('2d').drawImage(originalCanvas, 0, 0);
+          
+          let processed = sourceCanvas;
+          
+          if (removeBg) {
+            showLoading('正在识别人物...');
+            processed = await removeBackground(sourceCanvas);
+          }
+          
+          showLoading('正在像素化...');
+          processed = pixelateCanvas(processed, pixelSize, dither, paletteName);
+          
+          if (outputSize !== 'original') {
+            processed = resizeCanvas(processed, parseInt(outputSize));
+          }
+          
+          // Draw to preview
+          const ctx = previewCanvas.getContext('2d');
+          previewCanvas.width = processed.width;
+          previewCanvas.height = processed.height;
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(processed, 0, 0);
+          
+          document.getElementById('gifPreview').classList.remove('active');
+          previewCanvas.style.display = 'block';
+          
+          processed.toBlob((blob) => {
+            processedBlob = blob;
+            document.getElementById('downloadPng').disabled = false;
+            document.getElementById('downloadGif').disabled = true;
+          }, 'image/png');
+          
+          hideLoading();
+          showStatus('像素风生成完成！', 'success');
+        }
+        
+      } catch (err) {
+        console.error(err);
+        hideLoading();
+        showStatus('生成失败: ' + err.message, 'error');
+      }
+    }
+
+    // Remove background using @imgly/background-removal
+    async function removeBackground(canvas) {
+      try {
+        const blob = await canvasToBlob(canvas);
+        const resultBlob = await removeBackground(blob, {
+          progress: (key, current, total) => {
+            showLoading(`识别背景... ${Math.round(current/total*100)}%`);
+          },
+          publicPath: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/'
+        });
+        
+        return await blobToCanvas(resultBlob);
+      } catch (err) {
+        console.warn('Background removal failed, using original:', err);
+        return canvas;
+      }
+    }
+
+    // Pixelate canvas
+    function pixelateCanvas(canvas, pixelSize, dither, paletteName) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const smallW = Math.ceil(w / pixelSize);
+      const smallH = Math.ceil(h / pixelSize);
+      
+      const small = document.createElement('canvas');
+      small.width = smallW;
+      small.height = smallH;
+      const smallCtx = small.getContext('2d');
+      
+      smallCtx.drawImage(canvas, 0, 0, smallW, smallH);
+      
+      const large = document.createElement('canvas');
+      large.width = smallW * pixelSize;
+      large.height = smallH * pixelSize;
+      const largeCtx = large.getContext('2d');
+      largeCtx.imageSmoothingEnabled = false;
+      
+      const palette = paletteName !== 'original' ? palettes[paletteName] : null;
+      
+      for (let y = 0; y < smallH; y++) {
+        for (let x = 0; x < smallW; x++) {
+          const pixel = smallCtx.getImageData(x, y, 1, 1).data;
+          
+          let r, g, b, a;
+          
+          if (palette) {
+            // Find closest palette color
+            const closest = findClosestColor([pixel[0], pixel[1], pixel[2]], palette, dither);
+            [r, g, b] = closest;
+            a = pixel[3];
+          } else {
+            r = pixel[0];
+            g = pixel[1];
+            b = pixel[2];
+            a = pixel[3];
+            
+            if (dither) {
+              // Floyd-Steinberg dithering approximation
+              r = Math.min(255, Math.round(r / 32) * 32 + (Math.random() > 0.5 ? 16 : 0));
+              g = Math.min(255, Math.round(g / 32) * 32 + (Math.random() > 0.5 ? 16 : 0));
+              b = Math.min(255, Math.round(b / 32) * 32 + (Math.random() > 0.5 ? 16 : 0));
+            }
+          }
+          
+          // Handle transparency
+          if (a < 128) {
+            largeCtx.clearRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+          } else {
+            largeCtx.fillStyle = `rgb(${r},${g},${b})`;
+            largeCtx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+          }
+        }
+      }
+      
+      return large;
+    }
+
+    // Find closest color in palette
+    function findClosestColor(rgb, palette, dither) {
+      let minDist = Infinity;
+      let closest = palette[0];
+      
+      for (const color of palette) {
+        const [pr, pg, pb] = hexToRgb(color);
+        const dist = (rgb[0] - pr) ** 2 + (rgb[1] - pg) ** 2 + (rgb[2] - pb) ** 2;
+        if (dist < minDist) {
+          minDist = dist;
+          closest = [pr, pg, pb];
+        }
+      }
+      
+      if (dither) {
+        closest = closest.map(c => Math.min(255, Math.round(c / 32) * 32 + (Math.random() > 0.5 ? 16 : 0)));
+      }
+      
+      return closest;
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
+    }
+
+    // Resize canvas
+    function resizeCanvas(canvas, size) {
+      const result = document.createElement('canvas');
+      result.width = size;
+      result.height = size;
+      const ctx = result.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(canvas, 0, 0, size, size);
+      return result;
+    }
+
+    // Generate GIF from frames
+    async function generateGIF(frames) {
+      return new Promise((resolve) => {
+        const gif = new GIF({
+          workers: 2,
+          quality: 10,
+          width: frames[0].width,
+          height: frames[0].height,
+          workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+        });
+        
+        frames.forEach(frame => {
+          gif.addFrame(frame, { delay: 100 });
+        });
+        
+        gif.on('finished', (blob) => {
+          processedBlob = blob;
+          
+          // Show GIF preview
+          const url = URL.createObjectURL(blob);
+          document.getElementById('gifPreviewImg').src = url;
+          document.getElementById('gifPreview').classList.add('active');
+          previewCanvas.style.display = 'none';
+          
+          resolve();
+        });
+        
+        gif.render();
+      });
+    }
+
+    // Download functions
+    function downloadPNG() {
+      if (!processedBlob) return;
+      
+      const url = URL.createObjectURL(processedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pixel-art-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus('PNG 已下载！', 'success');
+    }
+
+    function downloadGIF() {
+      if (!processedBlob) return;
+      
+      const url = URL.createObjectURL(processedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pixel-art-${Date.now()}.gif`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus('GIF 已下载！', 'success');
+    }
+
+    // Reset
+    function resetAll() {
+      currentFile = null;
+      currentVideo = null;
+      currentFrames = [];
+      processedBlob = null;
+      isVideo = false;
+      
+      uploadZone.classList.remove('has-file');
+      previewArea.classList.remove('active');
+      document.getElementById('gifPreview').classList.remove('active');
+      
+      imageInput.value = '';
+      videoInput.value = '';
+      
+      document.getElementById('downloadPng').disabled = true;
+      document.getElementById('downloadGif').disabled = true;
+    }
+
+    // Helper functions
+    function showLoading(text) {
+      loadingText.textContent = text;
+      loadingOverlay.classList.add('active');
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove('active');
+    }
+
+    function showStatus(text, type) {
+      statusBar.textContent = text;
+      statusBar.className = `status-bar ${type} show`;
+      setTimeout(() => statusBar.classList.remove('show'), 3000);
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    }
+
+    function blobToCanvas(blob) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          resolve(canvas);
+        };
+        img.src = URL.createObjectURL(blob);
+      });
+    }
+  </script>
+</body>
+</html>
