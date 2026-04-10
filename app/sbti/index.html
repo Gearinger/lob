@@ -14,8 +14,13 @@ canvas#noise,canvas#void{position:fixed;top:0;left:0;width:100%;height:100%;poin
 canvas#noise{opacity:.06}
 canvas#void{opacity:.12}
 .container{max-width:640px;width:100%;position:relative;z-index:2}
-.card{background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1.5px solid rgba(212,197,169,.2);border-radius:2px;padding:36px 28px;position:relative;box-shadow:0 0 40px rgba(74,25,66,.3),0 0 80px rgba(139,26,26,.15),inset 0 0 60px rgba(0,0,0,.5);margin-bottom:20px}
-.card:hover{box-shadow:0 0 60px rgba(74,25,66,.5),0 0 120px rgba(139,26,26,.2),inset 0 0 60px rgba(0,0,0,.5)}
+.card{background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1.5px solid rgba(212,197,169,.2);border-radius:0;padding:36px 28px;position:relative;box-shadow:0 0 40px rgba(74,25,66,.3),0 0 80px rgba(139,26,26,.15),inset 0 0 60px rgba(0,0,0,.5);margin-bottom:20px;transform:rotate(-0.3deg)}
+.card::after{content:'';position:absolute;inset:6px;border:1.5px dashed rgba(139,105,20,.25);pointer-events:none}
+.card:hover{box-shadow:0 0 60px rgba(74,25,66,.5),0 0 120px rgba(139,26,26,.2),inset 0 0 60px rgba(0,0,0,.5);transform:rotate(0deg)}
+.card:nth-child(2){transform:rotate(0.4deg)}
+.card:nth-child(3){transform:rotate(-0.2deg)}
+.card:nth-child(4){transform:rotate(0.5deg)}
+.card:nth-child(5){transform:rotate(-0.35deg)}
 .page{display:none;flex-direction:column;align-items:center;text-align:center}
 .page.active{display:flex}
 .title{font-family:'Noto Serif SC',serif;font-size:clamp(2.8em,8vw,4.5em);color:var(--bone);margin-bottom:8px;letter-spacing:.15em;font-weight:900;text-shadow:0 0 20px rgba(212,197,169,.3),0 0 40px rgba(74,25,66,.5)}
@@ -39,7 +44,7 @@ canvas#void{opacity:.12}
 .intro-icons span:nth-child(4){animation-delay:2.4s}
 @keyframes flicker{0%,97%,100%{opacity:1}98%,99%{opacity:.7}}
 .progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:.82em;color:rgba(212,197,169,.5)}
-.progress-bar{flex:1;height:2px;background:rgba(212,197,169,.1);position:relative}
+.progress-bar{flex:1;height:2px;background:rgba(212,197,169,.1);position:relative;border:1px solid rgba(139,105,20,.2);transform:rotate(0.1deg)}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--blood),var(--sick-yellow));width:0;transition:width .4s}
 .progress-fill::after{content:'';position:absolute;right:0;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 8px rgba(212,197,169,.5)}
 .question-card{background:rgba(26,16,37,.8);border:1px solid rgba(74,25,66,.5);padding:28px 24px;margin-bottom:20px;position:relative;animation:slideIn .4s ease;text-align:left}
@@ -48,7 +53,8 @@ canvas#void{opacity:.12}
 .question-num{font-size:.72em;color:rgba(212,197,169,.4);letter-spacing:.1em;margin-bottom:12px}
 .question-text{font-size:1.05em;line-height:1.8;color:var(--ghost);margin-bottom:18px}
 .options{display:flex;flex-direction:column;gap:8px}
-.option{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid rgba(212,197,169,.12);cursor:pointer;transition:all .2s;font-size:.92em;line-height:1.6;color:rgba(212,197,169,.7);text-align:left}
+.option{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid rgba(212,197,169,.15);cursor:pointer;transition:all .2s;font-size:.92em;line-height:1.6;color:rgba(212,197,169,.7);text-align:left;border-radius:0;position:relative}
+.option::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 3 L6 3 M3 0 L3 6' stroke='rgba(212,197,169,0.05)' stroke-width='0.5'/%3E%3C/svg%3E");pointer-events:none}
 .option:hover{border-color:rgba(90,138,90,.6);background:rgba(90,138,90,.08);color:var(--ghost);padding-left:18px}
 .option.selected{border-color:var(--sick-yellow);background:rgba(139,105,20,.15);color:var(--ghost)}
 .option-letter{width:24px;height:24px;border-radius:50%;border:1px solid rgba(212,197,169,.3);display:flex;align-items:center;justify-content:center;font-size:.75em;flex-shrink:0;color:rgba(212,197,169,.4);transition:all .2s}
@@ -60,14 +66,15 @@ canvas#void{opacity:.12}
 .btn-nav.submit:hover{background:rgba(90,138,90,.4)}
 .btn-nav.submit:disabled{opacity:.3;cursor:not-allowed}
 .submit-notice{text-align:center;font-size:.78em;color:rgba(212,197,169,.35);margin-top:12px;letter-spacing:.05em;font-style:italic}
-.result-card{text-align:center;animation:resultIn .8s ease}
+.result-card{text-align:center;animation:resultIn .8s ease;position:relative}
+.result-card::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:60%;height:2px;background:linear-gradient(90deg,transparent,rgba(139,105,20,.4),transparent)}
 @keyframes resultIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .result-badge{display:inline-block;font-size:.72em;letter-spacing:.15em;color:rgba(212,197,169,.4);margin-bottom:8px;text-transform:uppercase}
 .result-type{font-family:'Noto Serif SC',serif;font-size:clamp(2.5em,7vw,4em);color:var(--ghost);margin:8px 0;letter-spacing:.08em;font-weight:900;text-shadow:0 0 30px rgba(212,197,169,.3);animation:typeIn .8s ease .2s both}
 @keyframes typeIn{from{letter-spacing:.3em;opacity:0}to{letter-spacing:.08em;opacity:1}}
 .result-desc{font-size:.9em;line-height:1.9;color:rgba(212,197,169,.65);margin:16px 0;text-align:left;padding:16px;border-left:2px solid rgba(139,26,26,.4);background:rgba(139,26,26,.05)}
 .result-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}
-.tag{padding:4px 12px;font-size:.75em;border:1px solid rgba(212,197,169,.2);color:rgba(212,197,169,.5);letter-spacing:.08em}
+.tag{padding:4px 12px;font-size:.75em;border:1px solid rgba(212,197,169,.25);color:rgba(212,197,169,.5);letter-spacing:.08em;border-radius:0;transform:rotate(calc(var(--r, 0) * 1deg))}
 .result-doodle{font-size:3em;margin:12px 0;filter:drop-shadow(0 0 15px rgba(212,197,169,.2))}
 .score-detail{background:rgba(0,0,0,.3);padding:14px 16px;margin:16px 0;text-align:left;border:1px solid rgba(212,197,169,.08)}
 .score-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:.8em;border-bottom:1px solid rgba(212,197,169,.05);color:rgba(212,197,169,.5)}
@@ -206,37 +213,37 @@ const questions = [
 // 维度: S-N, B-I, T-F, O-I
 // 0=选A, 1=选B, 2=选C
 const dimMap = [
-  [1,0,0], // Q1: S/N
-  [0,2,1], // Q2: B/I
-  [2,1,0], // Q3: T/F
-  [1,0,2], // Q4: S/N
-  [0,1,2], // Q5: B/I
-  [0,1,2], // Q6: T/F
-  [2,1,0], // Q7: S/N
-  [0,1,2], // Q8: B/I
-  [0,1,2], // Q9: T/F
-  [2,0,1], // Q10: S/N
-  [0,1,2], // Q11: B/I
-  [2,1,0], // Q12: S/N
-  [2,1,0], // Q13: T/F
-  [0,1,2], // Q14: S/N
-  [2,1,0], // Q15: B/I
-  [2,1,0], // Q16: T/F
-  [0,1,2], // Q17: S/N
-  [2,1,0], // Q18: B/I
-  [0,1,2], // Q19: T/F
-  [0,2,1], // Q20: S/N
-  [0,1,2], // Q21: B/I
-  [2,1,0], // Q22: T/F
-  [2,1,0], // Q23: S/N
-  [0,1,2], // Q24: B/I
-  [2,1,0], // Q25: T/F
-  [2,1,0], // Q26: S/N
-  [0,1,2], // Q27: B/I
-  [0,1,2], // Q28: T/F
-  [2,1,0], // Q29: S/N
-  [0,1,2], // Q30: 特殊维度
-  [0,1,2], // Q31: T/F
+  [0,0,1,2], // Q1 S-N
+  [1,2,1,0], // Q2 B-I
+  [2,0,1,2], // Q3 T-F
+  [0,2,1,0], // Q4 S-N
+  [1,0,1,2], // Q5 B-I
+  [2,0,1,2], // Q6 T-F
+  [0,2,1,0], // Q7 S-N
+  [1,2,1,0], // Q8 B-I
+  [2,0,1,2], // Q9 T-F
+  [0,2,0,1], // Q10 S-N
+  [1,2,1,0], // Q11 B-I
+  [0,2,1,0], // Q12 S-N
+  [2,0,1,2], // Q13 T-F
+  [1,0,1,2], // Q14 S-N
+  [1,2,1,0], // Q15 B-I
+  [2,0,1,2], // Q16 T-F
+  [1,2,1,0], // Q17 S-N
+  [1,2,1,0], // Q18 B-I
+  [2,0,1,2], // Q19 T-F
+  [0,2,0,1], // Q20 S-N
+  [1,0,1,2], // Q21 B-I
+  [2,2,1,0], // Q22 T-F
+  [0,2,1,0], // Q23 S-N
+  [1,2,1,0], // Q24 B-I
+  [2,2,1,0], // Q25 T-F
+  [0,2,1,0], // Q26 S-N
+  [1,0,1,2], // Q27 B-I
+  [2,0,1,2], // Q28 T-F
+  [2,2,1,0], // Q29 T-F
+  [3,2,1,0], // Q30 Extra
+  [2,0,1,2], // Q31 T-F
 ];
 
 // ====== 人格结果 ======
@@ -357,9 +364,10 @@ function calcDim() {
     const ans = answers[qi];
     if (ans < 0) return;
     const map = dimMap[qi];
-    dims[0] += map[ans] || 0;
+    const dim = map[0];       // which dimension (0-3)
+    const val = map[ans + 1] || 0;  // score for this answer (offset by 1 since [0]=dimension)
+    dims[dim] += val;
   });
-  // 归一化到 0-100
   const maxPossible = questions.length * 2;
   return dims.map(d => Math.min(100, Math.round((d / maxPossible) * 200)));
 }
