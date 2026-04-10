@@ -5,117 +5,167 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SBTI 离谱人格测试</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#2c2c2c;--paper:#fdf6e3;--pen-red:#e74c3c;--pen-blue:#3498db;--pen-green:#27ae60;--pen-yellow:#f39c12;--shadow:rgba(0,0,0,.15)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#e8e0d0;background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,#d4c9b0 28px,#d4c9b0 29px);font-family:'ZCOOL KuaiLe','PingFang SC',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:var(--ink)}
-.container{max-width:680px;width:100%;position:relative}
-.card{background:var(--paper);border-radius:4px;padding:32px 28px;position:relative;box-shadow:4px 6px 0 var(--shadow);transform:rotate(-.3deg);transition:transform .3s}
-.card:hover{transform:rotate(0) scale(1.01)}
-.card::before{content:'';position:absolute;inset:8px;border:2px dashed #c9b99a;border-radius:4px;pointer-events:none}
-.doodle-top{position:absolute;top:-15px;right:20px;font-size:28px;transform:rotate(12deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.2));user-select:none}
+:root{--void:#0a0812;--deep:#1a1025;--purple:#4a1942;--sick:#5a8a5a;--blood:#8b1a1a;--bone:#d4c5a9;--sick-yellow:#8b6914;--ghost:#e8e0d0}
+body{background:var(--void);background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,25,66,.15)3px,rgba(74,25,66,.15)4px),radial-gradient(ellipse at 20% 80%,rgba(74,25,66,.4)0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(139,26,26,.3)0%,transparent 50%);font-family:'Noto Serif SC','PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:var(--bone);overflow-x:hidden}
+canvas#noise,canvas#void{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+canvas#noise{opacity:.06}
+canvas#void{opacity:.12}
+.container{max-width:640px;width:100%;position:relative;z-index:2}
+.card{background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1.5px solid rgba(212,197,169,.2);border-radius:2px;padding:36px 28px;position:relative;box-shadow:0 0 40px rgba(74,25,66,.3),0 0 80px rgba(139,26,26,.15),inset 0 0 60px rgba(0,0,0,.5);margin-bottom:20px}
+.card:hover{box-shadow:0 0 60px rgba(74,25,66,.5),0 0 120px rgba(139,26,26,.2),inset 0 0 60px rgba(0,0,0,.5)}
 .page{display:none;flex-direction:column;align-items:center;text-align:center}
 .page.active{display:flex}
-.title{font-family:'Ma Shan Zheng',cursive;font-size:3.2em;color:var(--ink);margin-bottom:8px;letter-spacing:4px;text-shadow:2px 2px 0 var(--shadow);position:relative}
-.title::after{content:'~~';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:.5em;color:var(--pen-red)}
-.subtitle{font-size:1.1em;color:#7a6a50;margin-bottom:24px;line-height:1.6}
-.decorative-line{width:120px;height:3px;background:var(--pen-red);border-radius:2px;transform:rotate(-1deg);margin:12px 0 20px;position:relative}
-.decorative-line::before,.decorative-line::after{content:'✿';position:absolute;top:-8px;font-size:14px;color:var(--pen-red)}
-.decorative-line::before{left:-4px}
-.decorative-line::after{right:-4px;transform:scaleX(-1)}
-.type-count{background:var(--ink);color:var(--paper);padding:10px 24px;border-radius:20px;font-size:.95em;margin-bottom:28px;transform:rotate(.5deg)}
-.btn{background:var(--paper);border:2.5px solid var(--ink);border-radius:12px;padding:14px 40px;font-family:inherit;font-size:1.15em;cursor:pointer;transition:all .2s;position:relative;box-shadow:3px 4px 0 var(--ink);margin:6px}
-.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 var(--ink)}
-.btn:active{transform:translate(2px,2px);box-shadow:1px 2px 0 var(--ink)}
-.btn-primary{background:var(--pen-red);color:#fff;border-color:#c0392b;box-shadow:3px 4px 0 #c0392b}
-.btn-primary:hover{box-shadow:5px 6px 0 #c0392b}
-.btn-primary:active{box-shadow:1px 2px 0 #c0392b}
-.intro-doodles{display:flex;gap:16px;margin:20px 0;font-size:2.5em;animation:wobble 3s ease-in-out infinite}
-@keyframes wobble{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:.9em;color:#7a6a50}
-.progress-bar{flex:1;height:10px;background:#e0d5c0;border-radius:5px;overflow:hidden;border:1.5px solid #c9b99a;position:relative}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--pen-green),var(--pen-yellow));border-radius:5px;transition:width .4s;position:relative}
-.progress-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:8px;background:rgba(255,255,255,.4);border-radius:0 5px 5px 0}
-.question-card{background:var(--paper);border:2.5px solid var(--ink);border-radius:12px;padding:24px 20px;margin-bottom:20px;position:relative;box-shadow:3px 4px 0 var(--ink);animation:slideIn .3s ease}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.question-num{position:absolute;top:-14px;left:20px;background:var(--pen-yellow);color:var(--ink);padding:2px 14px;border-radius:10px;font-size:.85em;border:2px solid var(--ink);font-weight:bold;transform:rotate(-1deg)}
-.question-text{font-size:1.08em;line-height:1.7;margin-top:6px;margin-bottom:16px}
-.options{display:flex;flex-direction:column;gap:10px}
-.option{display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid #c9b99a;border-radius:10px;cursor:pointer;transition:all .15s;background:var(--paper);font-size:.95em;line-height:1.5;text-align:left}
-.option:hover{border-color:var(--pen-blue);background:#f0f7ff;transform:translateX(4px)}
-.option.selected{border-color:var(--pen-green);background:#eafff0;transform:translateX(4px)}
-.option-letter{width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.85em;flex-shrink:0;background:var(--paper);transition:all .15s}
-.option.selected .option-letter{background:var(--pen-green);color:#fff;border-color:var(--pen-green)}
-.nav-btns{display:flex;gap:12px;justify-content:center;margin-top:8px}
-.btn-nav{padding:12px 32px;font-size:1em;border-radius:10px;border:2.5px solid var(--ink);background:var(--paper);font-family:inherit;cursor:pointer;box-shadow:3px 4px 0 var(--ink);transition:all .15s}
-.btn-nav:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 var(--ink)}
-.btn-nav:active{transform:translate(2px,2px);box-shadow:1px 2px 0 var(--ink)}
-.btn-nav.submit{background:var(--pen-green);color:#fff;border-color:#1e8449;box-shadow:3px 4px 0 #1e8449}
-.btn-nav.submit:hover{box-shadow:5px 6px 0 #1e8449}
-.btn-nav.submit:disabled{background:#bdc3c7;border-color:#95a5a6;box-shadow:2px 3px 0 #95a5a6;cursor:not-allowed;opacity:.7;transform:none}
-.result-card{text-align:center;animation:resultIn .6s ease}
-@keyframes resultIn{from{opacity:0;transform:scale(.9) rotate(-2deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-.result-type-badge{display:inline-block;background:var(--pen-red);color:#fff;padding:6px 20px;border-radius:20px;font-size:.85em;margin-bottom:12px;transform:rotate(-2deg);border:2px solid var(--ink)}
-.result-type{font-family:'Ma Shan Zheng',cursive;font-size:3.5em;color:var(--ink);margin:8px 0;letter-spacing:2px;text-shadow:3px 3px 0 var(--shadow);animation:typeIn .8s ease .2s both}
-@keyframes typeIn{from{letter-spacing:20px;opacity:0}to{letter-spacing:2px;opacity:1}}
-.result-desc{font-size:1em;line-height:1.8;color:#5a4a30;margin:16px 0;text-align:left;padding:16px;background:rgba(0,0,0,.03);border-radius:8px;border-left:4px solid var(--pen-blue)}
+.title{font-family:'Noto Serif SC',serif;font-size:clamp(2.8em,8vw,4.5em);color:var(--bone);margin-bottom:8px;letter-spacing:.15em;font-weight:900;text-shadow:0 0 20px rgba(212,197,169,.3),0 0 40px rgba(74,25,66,.5)}
+.title::after{content:'';display:block;width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--sick-yellow),transparent);margin:12px auto 0}
+.subtitle{font-size:.95em;color:rgba(212,197,169,.6);margin-bottom:24px;line-height:1.8}
+.decorative{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--blood),var(--sick-yellow),var(--blood),transparent);margin:16px auto;position:relative}
+.decorative::before,.decorative::after{content:'◈';position:absolute;top:-8px;color:var(--sick-yellow);font-size:10px;opacity:.7}
+.decorative::before{left:0}
+.decorative::after{right:0}
+.type-count{background:rgba(139,26,26,.3);border:1px solid rgba(139,26,26,.5);color:var(--ghost);padding:8px 20px;font-size:.82em;letter-spacing:.1em;margin-bottom:24px;display:inline-block}
+.btn{background:transparent;border:1.5px solid rgba(212,197,169,.4);border-radius:1px;padding:14px 40px;font-family:'Noto Serif SC',serif;font-size:1em;color:var(--bone);cursor:pointer;letter-spacing:.15em;transition:all .3s}
+.btn:hover{border-color:rgba(212,197,169,.8);color:#fff;text-shadow:0 0 10px rgba(212,197,169,.5)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:rgba(139,26,26,.4);border-color:var(--blood);color:var(--ghost)}
+.btn-primary:hover{background:rgba(139,26,26,.7);border-color:var(--blood);text-shadow:0 0 15px rgba(231,76,60,.5)}
+.intro-icons{display:flex;gap:20px;margin:20px 0;font-size:2.2em;justify-content:center}
+.intro-icons span{animation:flicker 4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(212,197,169,.3))}
+.intro-icons span:nth-child(1){animation-delay:0s}
+.intro-icons span:nth-child(2){animation-delay:.8s}
+.intro-icons span:nth-child(3){animation-delay:1.6s}
+.intro-icons span:nth-child(4){animation-delay:2.4s}
+@keyframes flicker{0%,97%,100%{opacity:1}98%,99%{opacity:.7}}
+.progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:.82em;color:rgba(212,197,169,.5)}
+.progress-bar{flex:1;height:2px;background:rgba(212,197,169,.1);position:relative}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blood),var(--sick-yellow));width:0;transition:width .4s}
+.progress-fill::after{content:'';position:absolute;right:0;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 8px rgba(212,197,169,.5)}
+.question-card{background:rgba(26,16,37,.8);border:1px solid rgba(74,25,66,.5);padding:28px 24px;margin-bottom:20px;position:relative;animation:slideIn .4s ease;text-align:left}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.question-card::before{content:'';position:absolute;top:-1px;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--sick-yellow),transparent)}
+.question-num{font-size:.72em;color:rgba(212,197,169,.4);letter-spacing:.1em;margin-bottom:12px}
+.question-text{font-size:1.05em;line-height:1.8;color:var(--ghost);margin-bottom:18px}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid rgba(212,197,169,.12);cursor:pointer;transition:all .2s;font-size:.92em;line-height:1.6;color:rgba(212,197,169,.7);text-align:left}
+.option:hover{border-color:rgba(90,138,90,.6);background:rgba(90,138,90,.08);color:var(--ghost);padding-left:18px}
+.option.selected{border-color:var(--sick-yellow);background:rgba(139,105,20,.15);color:var(--ghost)}
+.option-letter{width:24px;height:24px;border-radius:50%;border:1px solid rgba(212,197,169,.3);display:flex;align-items:center;justify-content:center;font-size:.75em;flex-shrink:0;color:rgba(212,197,169,.4);transition:all .2s}
+.option.selected .option-letter{background:rgba(139,105,20,.4);border-color:var(--sick-yellow);color:var(--bone)}
+.nav-btns{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.btn-nav{padding:10px 24px;font-size:.9em;border:1px solid rgba(212,197,169,.25);background:transparent;color:rgba(212,197,169,.6);cursor:pointer;letter-spacing:.1em;transition:all .2s}
+.btn-nav:hover{border-color:rgba(212,197,169,.6);color:var(--bone)}
+.btn-nav.submit{background:rgba(90,138,90,.25);border-color:var(--sick);color:var(--ghost)}
+.btn-nav.submit:hover{background:rgba(90,138,90,.4)}
+.btn-nav.submit:disabled{opacity:.3;cursor:not-allowed}
+.submit-notice{text-align:center;font-size:.78em;color:rgba(212,197,169,.35);margin-top:12px;letter-spacing:.05em;font-style:italic}
+.result-card{text-align:center;animation:resultIn .8s ease}
+@keyframes resultIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.result-badge{display:inline-block;font-size:.72em;letter-spacing:.15em;color:rgba(212,197,169,.4);margin-bottom:8px;text-transform:uppercase}
+.result-type{font-family:'Noto Serif SC',serif;font-size:clamp(2.5em,7vw,4em);color:var(--ghost);margin:8px 0;letter-spacing:.08em;font-weight:900;text-shadow:0 0 30px rgba(212,197,169,.3);animation:typeIn .8s ease .2s both}
+@keyframes typeIn{from{letter-spacing:.3em;opacity:0}to{letter-spacing:.08em;opacity:1}}
+.result-desc{font-size:.9em;line-height:1.9;color:rgba(212,197,169,.65);margin:16px 0;text-align:left;padding:16px;border-left:2px solid rgba(139,26,26,.4);background:rgba(139,26,26,.05)}
 .result-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}
-.tag{padding:4px 14px;border-radius:12px;font-size:.82em;border:1.5px solid var(--ink);background:var(--paper);transform:rotate(var(--r,0))}
-.result-doodle{font-size:3em;margin:16px 0;animation:wobble 2.5s ease-in-out infinite}
-.score-detail{background:#f5f0e5;border-radius:8px;padding:14px 18px;margin:16px 0;border:1.5px dashed #c9b99a;text-align:left}
-.score-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.9em;border-bottom:1px dashed #d4c9b0}
+.tag{padding:4px 12px;font-size:.75em;border:1px solid rgba(212,197,169,.2);color:rgba(212,197,169,.5);letter-spacing:.08em}
+.result-doodle{font-size:3em;margin:12px 0;filter:drop-shadow(0 0 15px rgba(212,197,169,.2))}
+.score-detail{background:rgba(0,0,0,.3);padding:14px 16px;margin:16px 0;text-align:left;border:1px solid rgba(212,197,169,.08)}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:.8em;border-bottom:1px solid rgba(212,197,169,.05);color:rgba(212,197,169,.5)}
 .score-row:last-child{border-bottom:none}
-.bar-bg{width:100px;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;border:1px solid #c9b99a}
-.bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
-.corner-doodle{position:fixed;font-size:2em;opacity:.15;pointer-events:none;z-index:0;user-select:none}
-.corner-doodle.tl{top:10px;left:10px;transform:rotate(-15deg)}
-.corner-doodle.br{bottom:10px;right:10px;transform:rotate(15deg) scaleX(-1)}
-.submit-notice{text-align:center;font-size:.85em;color:#7a6a50;margin-top:12px;padding:8px;background:#fff9e6;border-radius:8px;border:1.5px dashed var(--pen-yellow)}
-@media{max-width:600px){.title{font-size:2.4em}.result-type{font-size:2.6em}.card{padding:20px 16px}.question-text{font-size:1em}}
+.bar-bg{width:80px;height:3px;background:rgba(212,197,169,.1);overflow:hidden;display:inline-block;vertical-align:middle}
+.bar-fill{height:100%;width:0;transition:width 1s ease}
+.corner{position:fixed;font-size:1.5em;opacity:.08;pointer-events:none;z-index:1;user-select:none}
+.corner.tl{top:20px;left:20px}
+.corner.br{bottom:20px;right:20px;transform:rotate(180deg)}
+.corner.mid{top:50%;left:5px;transform:translateY(-50%)}
+.corner.midr{top:50%;right:5px;transform:translateY(-50%) rotate(90deg)}
+@media(max-width:600px){.card{padding:24px 16px}.title{font-size:2.4em}.btn{padding:12px 28px}}
 </style>
 </head>
 <body>
-<div class="corner-doodle tl">💀</div>
-<div class="corner-doodle br">🌿</div>
+<canvas id="noise"></canvas>
+<canvas id="void"></canvas>
+<div class="corner tl">👁</div>
+<div class="corner br">🕯</div>
+<div class="corner mid">◈</div>
+<div class="corner midr">◈</div>
 <div class="container">
 <div class="page active" id="page-home">
-<div class="card" style="text-align:center;padding:40px 28px">
-<div class="doodle-top">🎭</div>
-<div class="intro-doodles"><span>🪑</span><span>🌱</span><span>💼</span><span>🛋️</span></div>
+<div class="card" style="text-align:center">
+<div class="intro-icons"><span>🪑</span><span>🌱</span><span>💼</span><span>🛋️</span></div>
 <h1 class="title">SBTI</h1>
+<div class="decorative"></div>
 <p class="subtitle">Silly Big Personality Test<br>测出你人格里最离谱的那个部分</p>
-<div class="decorative-line"></div>
-<div class="type-count">🎉 共有 27 种离谱人格</div>
-<p style="color:#7a6a50;font-size:.9em;margin-bottom:20px;line-height:1.6">共 31 道题，认真你就输了<br>正经题和离谱题穿插着来，做完你就知道自己是什么物种</p>
+<div class="type-count">27 种离谱人格</div>
+<p style="color:rgba(212,197,169,.45);font-size:.82em;margin-bottom:20px;line-height:1.8">共 31 道题<br>正经题和离谱题穿插着来</p>
 <button class="btn btn-primary" id="btn-start">开始测试 →</button>
 </div>
 </div>
 <div class="page" id="page-test">
 <div class="card">
-<div class="progress-wrap"><span id="q-num">1 / 31</span><div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0"></div></div></div>
-<div class="question-card" id="question-card"><div class="question-num" id="q-badge">第 1 题</div><div class="question-text" id="q-text"></div><div class="options" id="q-options"></div></div>
-<div class="nav-btns"><button class="btn-nav" id="btn-prev" style="display:none">← 上一题</button><button class="btn-nav" id="btn-next">下一题 →</button><button class="btn-nav submit" id="btn-submit" disabled>提交结果</button></div>
-<div class="submit-notice" id="submit-notice" style="display:none">✅ 所有题目已答完！点击上方按钮查看你的离谱人格</div>
+<div class="progress-wrap"><span id="q-num">1 / 31</span><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div></div>
+<div class="question-card" id="question-card">
+<div class="question-num" id="q-badge">第 1 题</div>
+<div class="question-text" id="q-text"></div>
+<div class="options" id="q-options"></div>
+</div>
+<div class="nav-btns">
+<button class="btn-nav" id="btn-prev" style="display:none">←</button>
+<button class="btn-nav" id="btn-next">下一题 →</button>
+<button class="btn-nav submit" id="btn-submit" disabled>提交</button>
+</div>
+<div class="submit-notice" id="submit-notice" style="display:none">所有题目已答完</div>
 </div>
 </div>
 <div class="page" id="page-result">
 <div class="card result-card">
-<div class="doodle-top">🔮</div>
 <div class="result-doodle" id="r-doodle">🤪</div>
-<div class="result-type-badge">你的 SBTI 人格是</div>
-<div class="result-type" id="r-type">加载中...</div>
+<div class="result-badge">你的离谱人格是</div>
+<div class="result-type" id="r-type">???</div>
+<div class="decorative"></div>
 <div class="result-desc" id="r-desc"></div>
 <div class="result-tags" id="r-tags"></div>
 <div class="score-detail" id="r-score"></div>
-<div class="decorative-line"></div>
-<div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-<button class="btn btn-primary" id="btn-restart">再测一次 🔄</button>
-<button class="btn" id="btn-share">📤 分享测试</button>
+<div class="nav-btns" style="margin-top:16px">
+<button class="btn" id="btn-restart">再测一次</button>
 </div>
 </div>
 </div>
 </div>
+<script>
+(function(){
+var canvas=document.getElementById('noise'),ctx=canvas.getContext('2d');
+function rz(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+rz();window.addEventListener('resize',rz);
+(function nd(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(var i=0;i<40;i++){
+    var x=Math.random()*canvas.width,y=Math.random()*canvas.height,s=Math.random()*2+0.5;
+    ctx.fillStyle='rgba(212,197,169,'+(Math.random()*0.03)+')';
+    ctx.fillRect(x,y,s,s);
+  }
+  requestAnimationFrame(nd);
+}());
+var c2=document.getElementById('void'),c2ctx=c2.getContext('2d');
+function rz2(){c2.width=window.innerWidth;c2.height=window.innerHeight}
+rz2();window.addEventListener('resize',rz2);
+var t=0;
+(function dr(){
+  c2ctx.clearRect(0,0,c2.width,c2.height);
+  t+=0.003;
+  for(var i=0;i<8;i++){
+    var x=(Math.sin(i*0.8+t*0.2)*0.3+0.5)*c2.width;
+    var y=(Math.cos(i*1.1+t*0.15)*0.3+0.5)*c2.height;
+    var g=c2ctx.createRadialGradient(x,y,0,x,y,50);
+    g.addColorStop(0,'rgba(74,25,66,0.08)');
+    g.addColorStop(1,'transparent');
+    c2ctx.fillStyle=g;
+    c2ctx.fillRect(x-50,y-50,100,100);
+  }
+  requestAnimationFrame(dr);
+}());
+}());
+</script>
 <script>
 // ====== 题目数据 ======
 const questions = [
@@ -387,8 +437,6 @@ function shareResult() {
   }
 }
 
-</script>
-<script>
 document.getElementById('btn-start').onclick=startTest;
 document.getElementById('btn-prev').onclick=prevQ;
 document.getElementById('btn-next').onclick=nextQ;
