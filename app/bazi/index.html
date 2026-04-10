@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字简批 🪷</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");font-family:'PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#2c2c2c}
+.card{background:#fdf8f0;border:2.5px solid #2c2c2c;border-radius:16px;padding:32px 28px;box-shadow:4px 5px 0 rgba(0,0,0,.15);text-align:center;position:relative;max-width:500px;width:100%;margin-bottom:24px}
+.card::before{content:'';position:absolute;inset:8px;border:1.5px dashed #c9b99a;border-radius:12px;pointer-events:none}
+.back{color:#888;font-size:.85em;text-decoration:none;display:block;margin-bottom:12px}
+.title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 #d4c4a8;margin-bottom:6px}
+.decorative{width:70px;height:3px;background:#e67e22;border-radius:2px;margin:8px auto}
+.form{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.input-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.input-group{text-align:left}
+.input-group label{font-size:.82em;color:#888;display:block;margin-bottom:4px}
+.input-group input, .input-group select{border:2px solid #c9b99a;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:1em;background:#fdf8f0;outline:none;min-width:140px;transition:border-color .2s}
+.input-group input:focus, .input-group select:focus{border-color:#e67e22}
+.btn{background:#e67e22;color:#fff;border:2px solid #d35400;border-radius:12px;padding:13px 32px;font-family:'Ma Shan Zheng',cursive;font-size:1.2em;letter-spacing:3px;cursor:pointer;box-shadow:3px 4px 0 #d35400;transition:all .2s;margin-top:18px;display:inline-block}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 #d35400}
+.result{display:none;margin-top:16px;text-align:left}
+.result.show{display:block;animation:fadeIn .6s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.pillar{background:rgba(230,126,34,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:12px;text-align:center;font-size:.85em}
+.pillar-label{font-family:'Ma Shan Zheng',cursive;color:#e67e22;font-size:.9em;letter-spacing:2px;margin-bottom:4px}
+.pillar-val{font-size:1.05em;font-weight:bold;color:#2c2c2c}
+.ganji{font-size:.82em;color:#888;margin-top:4px}
+.element-bar{margin:14px auto;max-width:320px;text-align:left}
+.element-bar-title{font-family:'Ma Shan Zheng',cursive;letter-spacing:2px;font-size:.9em;color:#888;margin-bottom:8px}
+.element-row{display:flex;align-items:center;gap:8px;font-size:.82em;margin-bottom:6px}
+.element-name{width:20px;color:#888;text-align:center}
+.element-bg{flex:1;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden}
+.element-fill{height:100%;border-radius:4px;width:0;transition:width 1s ease}
+.overall{text-align:center;background:rgba(230,126,34,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:14px;margin-top:14px;font-size:.92em;line-height:1.8;color:#5a4a30}
+.overall-title{font-family:'Ma Shan Zheng',cursive;color:#e67e22;letter-spacing:2px;font-size:1em;margin-bottom:8px;text-align:center}
+.notice{font-size:.78em;color:#aaa;margin-top:14px;text-align:center;font-style:italic}
+@media(max-width:500px){.card{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="../" class="back">← 玄学实验室</a>
+  <div class="title">八字简批</div>
+  <div class="decorative"></div>
+  <p style="font-size:.9em;color:#888;margin-top:8px">出生年月，暗藏命运玄机<br>输入信息，看看你的人生剧本</p>
+  <div class="form" id="form">
+    <div class="input-row">
+      <div class="input-group">
+        <label>出生年份</label>
+        <input type="number" id="year" min="1950" max="2025" value="1990">
+      </div>
+      <div class="input-group">
+        <label>出生月份</label>
+        <input type="number" id="month" min="1" max="12" value="1">
+      </div>
+      <div class="input-group">
+        <label>出生日期</label>
+        <input type="number" id="day" min="1" max="31" value="1">
+      </div>
+    </div>
+    <button class="btn" onclick="doBazi()">🪷 开始批命</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="pillar-grid" id="pillars"></div>
+    <div class="element-bar">
+      <div class="element-bar-title">五行分布</div>
+      <div id="elementBars"></div>
+    </div>
+    <div class="overall" id="overall"></div>
+    <div class="notice">仅供娱乐，命运掌握在自己手中 🪷</div>
+    <button class="btn" onclick="resetBazi()" style="margin-top:14px">🔄 再测一次</button>
+  </div>
+</div>
+
+<script>
+const gan=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const zhi=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const wuxing=['木','火','土','金','水'];
+const wxIdx={木:0,火:1,土:2,金:3,水:4};
+const wxColor=['#27ae60','#e74c3c','#f39c12','#3498db','#2c3e50'];
+
+const wxMap={};
+'甲子甲午乙丑甲辰甲寅甲申丙寅丙戌丁卯丁未戊午戊子己巳己亥庚申庚寅辛酉辛亥壬午壬子癸卯癸酉'.match(/.{2}/g).forEach((s,i)=>wxMap[s[0]+s[1]]=i);
+'甲午乙巳丙子丁酉戊午己未庚辰辛卯壬子癸亥'.match(/.{2}/g).forEach((s,i)=>wxMap[s[0]+s[1]]=i);
+// Fill remaining combos
+for(let g=0;g<10;g++){for(let z=0;z<12;z++){const key=gan[g]+zhi[z];if(!wxMap[key]){const wx=(wxIdx[gan[g]]*2+z)%5;wxMap[key]=wx;}}}
+
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h);}
+
+function getGanZhi(year,month,day){
+  const yBase=4, zy=(year-yBase)%10;
+  const yz=(year-yBase)%12;
+  const mZ=(month*2+1)%12;
+  const dZ=Math.floor((year*1.25+month*10.5+day*1.4)/2)%12;
+  const mG=zy>=0?(zy+1)%10:9;
+  return {yearG:gan[(zy+10)%10],yearZ:zhi[(yz+12)%12],monthG:gan[mG],monthZ:zhi[mZ],dayG:gan[(zy+day-1)%10],dayZ:zhi[dZ]};
+}
+
+function getElement(name,zh){
+  const g=wxIdx[name]!=null?wxIdx[name]:0;
+  const z=wxIdx[zh]!=null?wxIdx[zh]:0;
+  return wuxing[(g+z)%5];
+}
+
+const pillarLabels=['年柱','月柱','日柱','时柱'];
+const pillarKeys=['year','month','day','hour'];
+
+const wxDescs={
+  great:['五行齐全，命运厚重！格局清奇，非富即贵。天生命运眷顾，但也要懂得惜福。','五行流转顺畅，运势极佳。做什么都比较顺利，贵人运强，成功只是时间问题。'],
+  good:['五行偏旺某一行，人生有明确的追求方向。只要在自己擅长的领域深耕，必有成就。','格局不错，有一定的运势基础。在对的时机做对的事情，成功的概率很高。'],
+  normal:['五行比较平衡，没有特别突出的优劣。命运走势平稳，大起大落的概率较低。','中平之造，没有明显偏颇。需要靠后天的努力来改变命运，没有捷径。'],
+  lack:['五行缺某一行，可能在相应的人生领域有所不足。不过缺不代表没有，通过后天弥补可以化解。','命格略有缺失，不必太过担心。可以通过名字、颜色、风水等方式后天弥补。']
+};
+
+function doBazi(){
+  const year=+document.getElementById('year').value;
+  const month=+document.getElementById('month').value;
+  const day=+document.getElementById('day').value;
+  if(!year||!month||!day){alert('请填写完整的出生日期');return;}
+
+  const p=getGanZhi(year,month,day);
+  const hourG=gan[(+gan.indexOf(p.dayG)+Math.floor(Math.random()*5))%10];
+  const hourZ=zhi[Math.floor(Math.random()*12)];
+  const pillars=[
+    {g:p.yearG,z:p.yearZ,l:p.yearG+p.yearZ},
+    {g:p.monthG,z:p.monthZ,l:p.monthG+p.monthZ},
+    {g:p.dayG,z:p.dayZ,l:p.dayG+p.dayZ},
+    {g:hourG,z:hourZ,l:hourG+hourZ}
+  ];
+
+  const wxCounts=[0,0,0,0,0];
+  pillars.forEach(p=>{const w=getElement(p.g,p.z);wxCounts[wxIdx[w]]++;});
+
+  const seed=hash(String(year)+month+day);
+  const level=seed%100;
+
+  let levelKey;
+  if(level>=80) levelKey='great';
+  else if(level>=60) levelKey='good';
+  else if(level>=40) levelKey='normal';
+  else levelKey='lack';
+
+  const lackIdx=wxCounts.indexOf(0);
+  const mostIdx=wxCounts.indexOf(Math.max(...wxCounts));
+
+  document.getElementById('pillars').innerHTML=pillars.map((p,i)=>{
+    const w=getElement(p.g,p.z);
+    return `<div class="pillar">
+      <div class="pillar-label">${pillarLabels[i]}</div>
+      <div class="pillar-val">${p.g} ${p.z}</div>
+      <div class="ganji">${w} · ${w==='木'?'东方生气':w==='火'?'朱雀赤光':w==='土'?'勾陈稳重':w==='金'?'白虎肃杀':'玄武深沉'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('elementBars').innerHTML=wxCounts.map((c,i)=>`
+    <div class="element-row">
+      <div class="element-name">${wuxing[i]}</div>
+      <div class="element-bg"><div class="element-fill" data-w="${c*25}" style="background:${wxColor[i]}"></div></div>
+      <div>${c}分</div>
+    </div>`).join('');
+
+  const dlist=wxDescs[levelKey];
+  const d=dlist[Math.floor(seed%dlist.length)];
+  const lackStr=wxCounts.some(c=>c===0)?`五行缺${wuxing[lackIdx]}，建议多接触${wuxing[lackIdx]}相关的活动或方位。`:'五行不缺，格局较为圆满。';
+  document.getElementById('overall').innerHTML=`<div class="overall-title">🪷 命理简批</div>${d}<br><br><b>${lackStr}</b><br><br>日主${p.dayG}，${p.dayZ}时生。`;
+
+  document.getElementById('form').style.display='none';
+  document.getElementById('result').classList.add('show');
+
+  setTimeout(()=>{
+    document.querySelectorAll('.element-fill').forEach(b=>{
+      const w=+b.dataset.w;
+      b.style.width=(w||5)+'%';
+    });
+  },100);
+}
+
+function resetBazi(){
+  document.getElementById('form').style.display='flex';
+  document.getElementById('result').classList.remove('show');
+}
+</script>
+</body>
+</html>

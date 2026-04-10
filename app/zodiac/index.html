@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星座配对 ⭐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");font-family:'ZCOOL XiaoWei','PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#2c2c2c}
+.card{background:#fdf8f0;border:2.5px solid #2c2c2c;border-radius:16px;padding:32px 28px;box-shadow:4px 5px 0 rgba(0,0,0,.15);position:relative;max-width:540px;width:100%;text-align:center;margin-bottom:24px}
+.card::before{content:'';position:absolute;inset:8px;border:1.5px dashed #c9b99a;border-radius:12px;pointer-events:none}
+.back{display:inline-block;margin-bottom:16px;color:#888;font-size:.9em;text-decoration:none;border:1.5px solid #c9b99a;padding:6px 16px;border-radius:20px;transition:all .2s}
+.back:hover{border-color:#3498db;color:#3498db}
+.title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 #d4c4a8;margin-bottom:6px}
+.decorative{width:80px;height:3px;background:#3498db;border-radius:2px;margin:10px auto}
+.intro{font-size:.9em;color:#888;line-height:1.7;margin-top:10px}
+.form{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+.input-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.input-group{text-align:left}
+.input-group label{font-size:.82em;color:#888;display:block;margin-bottom:4px}
+.input-group select{border:2px solid #c9b99a;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:1em;background:#fdf8f0;color:#2c2c2c;outline:none;cursor:pointer;min-width:130px}
+.input-group select:focus{border-color:#3498db}
+.btn{background:#3498db;color:#fff;border:2px solid #2980b9;border-radius:12px;padding:14px 36px;font-family:'Ma Shan Zheng',cursive;font-size:1.3em;letter-spacing:3px;cursor:pointer;box-shadow:3px 4px 0 #2980b9;transition:all .2s;display:inline-block;margin-top:20px}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 #2980b9}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 2px 0 #2980b9}
+/* Result */
+.result{display:none}
+.result.show{display:block;animation:fadeIn .6s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pair{font-size:2.5em;margin:10px 0;font-family:'Ma Shan Zheng',cursive;letter-spacing:4px}
+.match-score{font-size:3.5em;font-family:'Ma Shan Zheng',cursive;color:#3498db;margin:8px 0;animation:countUp 1s ease both}
+@keyframes countUp{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.match-label{font-size:.85em;color:#888;margin-bottom:6px}
+.hearts{font-size:1.8em;letter-spacing:6px;margin:6px 0}
+.bars{display:flex;flex-direction:column;gap:10px;margin:16px auto;max-width:320px;text-align:left}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:.85em}
+.bar-name{width:50px;color:#888}
+.bar-bg{flex:1;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.2s ease}
+.analysis{background:rgba(52,152,219,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:14px;margin-top:14px;text-align:left;font-size:.9em;line-height:1.8;color:#5a4a30}
+.analysis-title{font-family:'Ma Shan Zheng',cursive;font-size:1.05em;color:#3498db;margin-bottom:8px;letter-spacing:2px}
+.tips{font-size:.85em;color:#888;margin-top:12px;line-height:1.7}
+@media(max-width:500px){.card{padding:20px 16px}.input-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="../" class="back">← 玄学实验室</a>
+  <div class="title">星座配对</div>
+  <div class="decorative"></div>
+  <p class="intro">你的星座和TA的星座<br>缘分几何？命运自有答案</p>
+
+  <div class="form" id="form">
+    <div class="input-row">
+      <div class="input-group">
+        <label>你的星座</label>
+        <select id="s1"><option value="">选择星座</option></select>
+      </div>
+      <div class="input-group">
+        <label>TA的星座</label>
+        <select id="s2"><option value="">选择星座</option></select>
+      </div>
+    </div>
+    <button class="btn" onclick="doMatch()">⭐ 查看配对结果</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="pair" id="pair"></div>
+    <div class="hearts" id="hearts"></div>
+    <div class="match-score" id="score"></div>
+    <div class="match-label">缘分指数</div>
+    <div class="bars" id="bars"></div>
+    <div class="analysis" id="analysis"></div>
+    <div class="tips" id="tips"></div>
+    <button class="btn" onclick="resetMatch()">🔄 再测一次</button>
+  </div>
+</div>
+
+<script>
+const stars=[
+  {name:'白羊座',emoji:'♈',emoji2:'🐏',color:'#e74c3c'},
+  {name:'金牛座',emoji:'♉',emoji2:'🐂',color:'#27ae60'},
+  {name:'双子座',emoji:'♊',emoji2:'👯',color:'#f39c12'},
+  {name:'巨蟹座',emoji:'♋',emoji2:'🦀',color:'#3498db'},
+  {name:'狮子座',emoji:'♌',emoji2:'🦁',color:'#e67e22'},
+  {name:'处女座',emoji:'♍',emoji2:'👸',color:'#9b59b6'},
+  {name:'天秤座',emoji:'♎',emoji2:'⚖️',color:'#1abc9c'},
+  {name:'天蝎座',emoji:'♏',emoji2:'🦂',color:'#2c3e50'},
+  {name:'射手座',emoji:'♐',emoji2:'🏹',color:'#c0392b'},
+  {name:'摩羯座',emoji:'♑',emoji2:'🐐',color:'#7f8c8d'},
+  {name:'水瓶座',emoji:'♒',emoji2:'🏺',color:'#16a085'},
+  {name:'双鱼座',emoji:'♓',emoji2:'🐟',color:'#8e44ad'}
+];
+
+const compat=[
+  [95,72,78,68,92,62,88,75,85,65,70,82],
+  [72,95,65,88,68,90,72,80,62,95,75,60],
+  [78,65,95,60,75,55,78,58,80,62,88,70],
+  [68,88,60,95,55,75,68,92,50,80,62,95],
+  [92,68,75,55,95,58,80,62,90,55,65,72],
+  [62,90,55,75,58,95,62,85,55,92,88,65],
+  [88,72,78,68,80,62,95,58,82,65,90,70],
+  [75,80,58,92,62,85,58,95,55,78,65,90],
+  [85,62,80,50,90,55,82,55,95,50,75,68],
+  [65,95,62,80,55,92,65,78,50,95,60,55],
+  [70,75,88,62,65,88,90,65,75,60,95,58],
+  [82,60,70,95,72,65,70,90,68,55,58,95]
+];
+
+const barNames=['性格契合','沟通顺畅','情感温度','信任基础','共同成长'];
+
+const analyses={
+  high:[
+    '你们简直是天生一对！火星撞地球般的化学反应，性格互补又彼此欣赏。相处时会有很多火花，但也要注意别太强势，多给对方空间会更甜蜜。',
+    '这组配对简直是神仙眷侣！你们的频率高度契合，沟通起来毫不费力。TA懂你的欲言又止，你懂TA的沉默是金。好好珍惜这份缘分！',
+    '命运对你们格外眷顾。这段关系里，你们既是彼此的盔甲，又是彼此的软肋。记得保持最初的心动，那是最珍贵的东西。'
+  ],
+  medium:[
+    '缘分中等，需要用心经营。你们有差异，但差异也是吸引力的一部分。多沟通、少猜疑，给彼此成长的时间，幸福自然会来敲门。',
+    '这组配对像是慢热的红酒，需要时间沉淀出香味。你们可能在很多地方看法不同，但这恰恰是让彼此看到更大世界的机会。',
+    '有一定的缘分基础，但不是那种一见钟情的类型。你们更像是日久生情，细水长流型。耐心是你们的关键词。'
+  ],
+  low:[
+    '这组配对需要更多的磨合和包容。你们的性格或价值观有较大差异，但这不意味着不能在一起——只是需要付出更多努力去理解对方。',
+    '客观来说，缘分指数偏低。但这世间的事哪有绝对的？缘分天注定， 事在人为。只要双方都愿意为彼此改变，没有什么是不能克服的。',
+    '性格差异较大，容易在日常相处中产生摩擦。建议设定一些"停战协议"，遇到分歧时先冷静再沟通，而不是正面硬刚。'
+  ]
+};
+
+const tips={
+  high:['珍惜当下的美好','保持各自的独立性','遇到矛盾及时沟通'],
+  medium:['多制造二人世界','学会欣赏差异','不要轻易说放弃'],
+  low:['建立有效沟通机制','设定相处边界','用心去理解对方']
+};
+
+const heartCount={high:5,medium:3,low:1};
+
+function init(){
+  const s=document.getElementById('s1');
+  const t=document.getElementById('s2');
+  stars.forEach((st,i)=>{
+    const o1=document.createElement('option');
+    o1.value=i;o1.textContent=st.emoji+' '+st.name;
+    const o2=document.createElement('option');
+    o2.value=i;o2.textContent=st.emoji+' '+st.name;
+    s.appendChild(o1);t.appendChild(o2.cloneNode(true));
+  });
+}
+init();
+
+function doMatch(){
+  const v1=document.getElementById('s1').value;
+  const v2=document.getElementById('s2').value;
+  if(v1===''||v2===''){alert('请选择两个星座');return;}
+  const i1=+v1,i2=+v2;
+  const st1=stars[i1],st2=stars[i2];
+  const score=compat[i1][i2];
+  const level=score>=82?'high':score>=65?'medium':'low';
+
+  const hearts='❤️'.repeat(heartCount[level])+(level!=='high'?'💔'.repeat(3-heartCount[level]):'');
+  document.getElementById('pair').textContent=st1.emoji+' '+st1.name+' × '+st2.emoji+' '+st2.name;
+  document.getElementById('hearts').textContent=hearts;
+  document.getElementById('score').textContent=score+'%';
+
+  const barColors=['#e74c3c','#f39c12','#27ae60','#3498db','#9b59b6'];
+  const seed=Math.abs(i1*100+i2);
+  const rand=()=>{let s=seed;return()=>{s=(s*16807)%2147483647;return(s%40+60)/100;}};
+  const r=rand();
+  const bars=barNames.map((n,i)=>({name:n,val:Math.round(r()*30+score-15),color:barColors[i]}));
+
+  document.getElementById('bars').innerHTML=bars.map(b=>`
+    <div class="bar-row">
+      <div class="bar-name">${b.name}</div>
+      <div class="bar-bg"><div class="bar-fill" style="background:${b.color}" data-w="${b.val}"></div></div>
+      <div style="font-size:.8em;width:30px;text-align:right">${b.val}%</div>
+    </div>`).join('');
+
+  const anal=analyses[level];
+  document.getElementById('analysis').innerHTML=`
+    <div class="analysis-title">💡 命理分析</div>
+    ${anal[Math.floor(Math.random()*anal.length)]}`;
+
+  const tps=tips[level];
+  document.getElementById('tips').innerHTML='<b>🌟 相处建议：</b>'+tps.map(t=>'· '+t).join(' ');
+
+  document.getElementById('form').style.display='none';
+  document.getElementById('result').classList.add('show');
+
+  setTimeout(()=>{
+    document.querySelectorAll('.bar-fill').forEach(bar=>{
+      const w=Math.max(10,Math.min(100,+bar.dataset.w));
+      bar.style.width=w+'%';
+    });
+  },100);
+}
+
+function resetMatch(){
+  document.getElementById('form').style.display='flex';
+  document.getElementById('result').classList.remove('show');
+}
+</script>
+</body>
+</html>

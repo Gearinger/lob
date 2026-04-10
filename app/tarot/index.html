@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>塔罗占卜 🌙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");font-family:'ZCOOL XiaoWei','PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#2c2c2c}
+.card{background:#fdf8f0;border:2.5px solid #2c2c2c;border-radius:16px;padding:32px 28px;box-shadow:4px 5px 0 rgba(0,0,0,.15);position:relative;max-width:560px;width:100%;text-align:center;margin-bottom:24px}
+.card::before{content:'';position:absolute;inset:8px;border:1.5px dashed #c9b99a;border-radius:12px;pointer-events:none}
+.back{display:inline-block;margin-bottom:16px;color:#888;font-size:.9em;text-decoration:none;border:1.5px solid #c9b99a;padding:6px 16px;border-radius:20px;transition:all .2s}
+.back:hover{border-color:#8e44ad;color:#8e44ad}
+.title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 #d4c4a8;margin-bottom:6px}
+.decorative{width:80px;height:3px;background:#8e44ad;border-radius:2px;margin:10px auto}
+.intro{font-size:.9em;color:#888;line-height:1.7;margin-top:10px}
+.btn{background:#8e44ad;color:#fff;border:2px solid #6c3483;border-radius:12px;padding:14px 36px;font-family:'Ma Shan Zheng',cursive;font-size:1.3em;letter-spacing:3px;cursor:pointer;box-shadow:3px 4px 0 #6c3483;transition:all .2s;margin-top:20px;display:inline-block}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 #6c3483}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 2px 0 #6c3483}
+.result{display:none;text-align:center}
+.result.show{display:block;animation:fadeIn .6s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.cards-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.tarot-card{width:100px;height:150px;border-radius:8px;border:2px solid #2c2c2c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:3em;background:#fdf8f0;box-shadow:3px 4px 0 rgba(0,0,0,.15);transition:transform .3s;cursor:pointer;position:relative}
+.tarot-card:hover{transform:translateY(-6px) rotate(2deg)}
+.tarot-card.flipped{background:#2c2c2c;color:#fff}
+.tarot-card .card-name{font-size:.65em;margin-top:4px;text-align:center;line-height:1.3;padding:0 4px}
+.tarot-card .position-label{position:absolute;top:-10px;background:#8e44ad;color:#fff;font-size:.65em;padding:2px 8px;border-radius:10px}
+.card-label{font-size:.8em;color:#888;margin:12px 0 4px;font-family:'Ma Shan Zheng',cursive;letter-spacing:2px}
+.meaning{background:rgba(142,68,173,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:16px;margin-top:14px;text-align:left;font-size:.92em;line-height:1.8;color:#5a4a30}
+.meaning-title{font-family:'Ma Shan Zheng',cursive;font-size:1.1em;color:#8e44ad;margin-bottom:8px;letter-spacing:2px}
+.question-box{margin-top:16px}
+.question-input{border:2px solid #c9b99a;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:.95em;width:100%;max-width:320px;background:#fdf8f0;outline:none;transition:border-color .2s}
+.question-input:focus{border-color:#8e44ad}
+.notice{font-size:.78em;color:#aaa;margin-top:16px;font-style:italic}
+.spread-btn{margin-top:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="../" class="back">← 玄学实验室</a>
+  <div class="title">塔罗占卜</div>
+  <div class="decorative"></div>
+  <p class="intro">集中精神，心中默念你的问题<br>然后抽取三张牌：过去 · 现在 · 未来</p>
+  <div class="question-box">
+    <input class="question-input" id="question" placeholder="心中默念你的问题...">
+  </div>
+  <button class="btn spread-btn" onclick="drawCards()">🌙 开始占卜</button>
+
+  <div class="result" id="result">
+    <div class="card-label">你的三张牌</div>
+    <div class="cards-row" id="cardsRow"></div>
+    <div class="meaning" id="meaning"></div>
+    <div class="notice">塔罗牌仅供参考，真正的答案在你心中 🌙</div>
+    <button class="btn" onclick="resetTarot()" style="margin-top:18px">🔄 再占一次</button>
+  </div>
+</div>
+
+<script>
+const cards=[
+  {emoji:'⚔️',name:'正义',desc:'过去的你做出了理性的决定，公正在心中。保持这份清醒，它会带你走出迷雾。',color:'#3498db'},
+  {emoji:'💎',name:'钻石',desc:'财运上佳，可能有意外收获。但别贪心，见好就收才是真智慧。',color:'#1abc9c'},
+  {emoji:'🌙',name:'月亮',desc:'前方有迷雾和幻象，不要轻信表象。直觉在指引你，但需要仔细分辨真假。',color:'#9b59b6'},
+  {emoji:'☀️',name:'太阳',desc:'阳光灿烂！一切都在向好的方向发展。适合表白、签约、开启新计划。',color:'#f39c12'},
+  {emoji:'⭐',name:'星星',desc:'希望之光不灭。无论现在多么艰难，星星都在告诉你：坚持下去。',color:'#e74c3c'},
+  {emoji:'🃏',name:'命运之轮',desc:'转折点到来了。运气正在轮转，可能有意外惊喜。顺势而为，好运就在下一个拐角。',color:'#27ae60'},
+  {emoji:'💀',name:'死神',desc:'不是真的死亡，而是旧的结束。放下执念，拥抱新生。破茧才能成蝶。',color:'#2c3e50'},
+  {emoji:'🔥',name:'塔',desc:'突如其来的变动打破了平静。不要害怕，这是重建的序曲。废墟之上才能建新楼。',color:'#e67e22'},
+  {emoji:'💕',name:'恋人',desc:'感情的关键抉择来临。听从内心的声音，不要被外界的声音左右。',color:'#e91e63'},
+  {emoji:'👑',name:'皇帝',desc:'秩序和权威在召唤。你需要更自律、更坚定。成功来自于自律而非运气。',color:'#8e44ad'},
+  {emoji:'🔮',name:'女祭司',desc:'内在智慧在低语。答案不在外界，而在你心中。静下心来，倾听自己。',color:'#16a085'},
+  {emoji:'🎡',name:'吊人',desc:'暂停不是退缩。有时候停下来喘口气，用不同的视角看问题，会有新发现。',color:'#95a5a6'},
+  {emoji:'⚖️',name:'审判',desc:'反思与清算的时刻。过去的功课该交卷了。无论结果如何，接受它，然后向前。',color:'#c0392b'},
+  {emoji:'🌿',name:'绿色',desc:' Growth and renewal. Something new is taking root. Nurture it with patience.',color:'#2ecc71'},
+  {emoji:'🤲',name:'施舍',desc:'施比得更有福。给予本身就是回报。你的善念正在为你积累看不见的运气。',color:'#1abc9c'},
+  {emoji:'⏳',name:'时间',desc:'好事需要时间。不要急，让子弹多飞一会儿。你的等待终将值得。',color:'#34495e'},
+];
+
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h);}
+function seededRand(seed){let s=seed;return()=>{s=(s*16807+0)%2147483647;return(s-1)/2147483646;}}
+
+function shuffle(arr,rand){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function drawCards(){
+  const q=document.getElementByIdd('question').value.trim();
+  const today=new Date().toISOString();
+  const seed=hash((q||'default')+today);
+  const rand=seededRand(seed);
+  const shuffled=shuffle(cards,rand);
+  const drawn=shuffled.slice(0,3);
+  const positions=['过去','现在','未来'];
+  const posColors=['#3498db','#f39c12','#8e44ad'];
+
+  document.getElementByIdd('cardsRow').innerHTML=drawn.map((c,i)=>`
+    <div class="tarot-card" onclick="this.classList.toggle('flipped')">
+      <div class="position-label" style="background:${posColors[i]}">${positions[i]}</div>
+      <div style="font-size:2.5em">${c.emoji}</div>
+      <div class="card-name">${c.name}</div>
+    </div>`).join('');
+
+  document.getElementByIdd('meaning').innerHTML=`
+    <div class="meaning-title">🔮 ${q||'你的问题'} 解牌</div>
+    ${drawn.map((c,i)=>`<p style="margin-bottom:8px"><b style="color:${posColors[i]}">${positions[i]}</b>：${c.desc}</p>`).join('')}
+    <p style="margin-top:10px;font-style:italic;color:#888">三张牌相互关联，共同揭示你的处境。记住：塔罗是镜子，照见的是你自己。</p>`;
+
+  document.getElementByIdd('result').classList.add('show');
+  document.querySelector('.spread-btn').style.display='none';
+}
+
+function resetTarot(){
+  document.getElementByIdd('result').classList.remove('show');
+  document.querySelector('.spread-btn').style.display='inline-block';
+  document.getElementByIdd('cardsRow').innerHTML='';
+}
+</script>
+</body>
+</html>
