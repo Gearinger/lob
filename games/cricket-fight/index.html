@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>赛博斗蛐蛐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--void:#0a0812;--deep:#1a1025;--blood:#8b1a1a;--bone:#d4c5a9;--sick:#5a8a5a;--ghost:#e8e0d0;--accent:#8b6914}
+body{background:var(--void);font-family:'Noto Serif SC',serif;color:var(--bone);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 40px;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,25,66,.1)3px,rgba(74,25,66,.1)4px)}
+canvas#noise{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.06}
+.panel{width:100%;max-width:420px;background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1px solid rgba(212,197,169,.15);position:relative;margin-bottom:12px;transform:rotate(-0.2deg);z-index:1}
+.panel::after{content:'';position:absolute;inset:5px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
+.panel:nth-child(2){transform:rotate(0.15deg)}
+.panel:nth-child(3){transform:rotate(-0.1deg)}
+.panel:nth-child(4){transform:rotate(0.2deg)}
+.panel-header{text-align:center;padding:10px 16px 8px;border-bottom:1px solid rgba(212,197,169,.08);font-size:.72em;letter-spacing:.15em;color:rgba(212,197,169,.4)}
+.panel-header span{color:var(--bone)}
+.hp-bar-wrap{padding:8px 14px 4px}
+.stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.78em;color:rgba(212,197,169,.6);letter-spacing:.05em}
+.hp-bar-bg{height:6px;background:rgba(212,197,169,.08);margin-top:4px;border-radius:0;position:relative;overflow:hidden}
+.hp-bar{height:100%;background:linear-gradient(90deg,var(--sick),var(--sick));transition:width .4s ease;position:relative}
+.hp-bar.enemy{background:linear-gradient(90deg,var(--blood),var(--blood))}
+.hp-num{padding:0 14px 8px;font-size:.75em;color:rgba(212,197,169,.45);letter-spacing:.05em;text-align:right}
+#game-title{text-align:center;margin-bottom:12px;z-index:1;position:relative}
+#game-title h1{font-size:1.4em;letter-spacing:.2em;color:var(--ghost);font-weight:900;text-shadow:0 0 20px rgba(212,197,169,.2);transform:rotate(-0.3deg);display:inline-block}
+#game-title h1::after{content:'';display:block;width:110%;height:1.5px;background:rgba(139,105,20,.4);margin:8px -5% 0}
+#round-info{font-size:.7em;color:rgba(212,197,169,.35);letter-spacing:.1em;margin-top:6px}
+.log-panel{height:180px;overflow-y:hidden;padding:8px 14px 4px}
+.log-entry{font-size:.75em;line-height:1.9;color:rgba(212,197,169,.55);letter-spacing:.02em;white-space:pre-wrap}
+.log-entry.player-action{color:rgba(90,138,90,.9)}
+.log-entry.enemy-action{color:rgba(139,26,26,.9)}
+.log-entry.system{color:rgba(139,105,20,.8);font-style:italic}
+.log-entry.crit{color:#f39c12}
+.log-entry.dodge{color:#3498db}
+.log-entry.victory{color:var(--sick);font-weight:700}
+.log-entry.death{color:var(--blood);font-weight:700}
+#log-area{max-height:160px;overflow-y:auto;padding-right:4px}
+#log-area::-webkit-scrollbar{width:3px}
+#log-area::-webkit-scrollbar-track{background:transparent}
+#log-area::-webkit-scrollbar-thumb{background:rgba(139,105,20,.3)}
+.bottom-panel{padding:12px 14px}
+#gold-display{font-size:.85em;color:var(--accent);letter-spacing:.08em;margin-bottom:10px;text-align:center}
+.btn{display:block;width:100%;padding:12px;background:transparent;border:1px solid rgba(212,197,169,.25);color:var(--bone);font-family:'Noto Serif SC',serif;font-size:.85em;letter-spacing:.1em;cursor:pointer;transition:all .2s;margin-bottom:8px;border-radius:0;position:relative}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(74,25,66,.3),rgba(139,26,26,.2));opacity:0;transition:opacity .2s}
+.btn:hover::before{opacity:1}
+.btn:hover{border-color:rgba(212,197,169,.5);color:#fff}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn:disabled:hover::before{opacity:0}
+.btn-primary{border-color:rgba(139,105,20,.4);background:rgba(139,105,20,.08)}
+.choice-section{margin:10px 0}
+.choice-label{font-size:.68em;color:rgba(212,197,169,.35);letter-spacing:.1em;text-align:center;margin-bottom:8px}
+.choice-btn{padding:10px 14px;margin-bottom:6px;text-align:left;font-size:.8em}
+.choice-btn .c-name{color:var(--ghost);font-weight:700;margin-bottom:2px}
+.choice-btn .c-desc{color:rgba(212,197,169,.5);font-size:.9em}
+#school-badge{font-size:.72em;padding:3px 10px;border:1px solid rgba(139,105,20,.3);color:var(--accent);display:inline-block;margin-top:2px}
+#school-bar{height:3px;background:rgba(212,197,169,.08);margin-top:6px}
+#school-fill{height:100%;background:var(--accent);transition:width .3s}
+#result-overlay{position:fixed;inset:0;background:rgba(10,8,18,.92);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#result-overlay .res-card{background:linear-gradient(145deg,rgba(26,16,37,.98),rgba(10,8,18,.99));border:1px solid rgba(212,197,169,.15);padding:36px 28px;max-width:360px;width:100%;text-align:center;position:relative}
+#result-overlay .res-card::after{content:'';position:absolute;inset:6px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
+#result-overlay .res-title{font-size:2em;font-weight:900;color:var(--ghost);margin-bottom:12px;letter-spacing:.1em}
+#result-overlay .res-title.victory{color:var(--sick)}
+#result-overlay .res-title.defeat{color:var(--blood)}
+#result-overlay .res-detail{font-size:.8em;color:rgba(212,197,169,.5);line-height:1.8;margin-bottom:20px}
+#result-overlay .btn{margin-top:8px}
+.corner{position:fixed;font-size:1.2em;opacity:.05;pointer-events:none;z-index:0;user-select:none}
+.corner.tl{top:12px;left:10px}
+.corner.br{bottom:12px;right:10px;transform:rotate(180deg)}
+.hidden{display:none}
+#hp-val{color:var(--sick)}
+#enemy-hp-val{color:var(--blood)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.log-entry{animation:fadeIn .2s ease}
+</style>
+</head>
+<body>
+<canvas id="noise"></canvas>
+<div class="corner tl">🦗</div>
+<div class="corner br">⚔</div>
+
+<div id="game-title">
+  <h1>🦗 赛博斗蛐蛐</h1>
+  <div id="round-info">第 <span id="round-num">1</span> 轮 · <span id="streak-text">初始</span></div>
+</div>
+
+<div class="panel" id="player-panel">
+  <div class="panel-header">🟢 你的蛐蛐 · <span id="player-name">铁头娃</span></div>
+  <div class="stat-row" style="padding:6px 14px 0"><span>流派：<span id="school-badge">普攻流 Lv.1</span></span></div>
+  <div class="hp-bar-wrap"><div class="hp-bar-bg"><div class="hp-bar" id="hp-bar" style="width:100%"></div></div></div>
+  <div class="hp-num"><span id="hp-val">100</span> / <span id="hp-max">100</span> ❤️</div>
+  <div class="stat-row" style="padding:2px 14px"><span>⚔️ 攻击：<span id="atk-range">10-14</span></span><span>🛡️ 护甲：<span id="def-val">0</span></span></div>
+  <div id="school-bar" style="margin:4px 14px"><div id="school-fill" style="width:33%"></div></div>
+  <div class="stat-row" style="padding:2px 14px 6px"><span>💥 暴击：<span id="crit-val">5</span>%</span><span>🚪 闪避：<span id="dodge-val">0</span>%</span><span>☠️ 毒伤：<span id="poison-val">0</span></span></div>
+</div>
+
+<div class="panel" id="enemy-panel">
+  <div class="panel-header">🔴 敌方蛐蛐 · <span id="enemy-name">狂暴纺织娘</span></div>
+  <div class="stat-row" style="padding:6px 14px 0"><span>流派：<span id="enemy-school-badge">闪避流 Lv.1</span></span></div>
+  <div class="hp-bar-wrap"><div class="hp-bar-bg"><div class="hp-bar enemy" id="enemy-hp-bar" style="width:100%"></div></div></div>
+  <div class="hp-num"><span id="enemy-hp-val">75</span> / <span id="enemy-hp-max">75</span> ❤️</div>
+  <div class="stat-row" style="padding:2px 14px"><span>⚔️ 攻击：<span id="enemy-atk-range">17-22</span></span><span>🛡️ 护甲：<span id="enemy-def-val">0</span></span></div>
+  <div class="stat-row" style="padding:2px 14px 6px"><span>💥 暴击：<span id="enemy-crit-val">5</span>%</span><span>🚪 闪避：<span id="enemy-dodge-val">15</span>%</span><span>☠️ 毒伤：<span id="enemy-poison-val">0</span></span></div>
+</div>
+
+<div class="panel log-panel" id="log-panel">
+  <div class="panel-header">📝 战斗日志</div>
+  <div id="log-area"></div>
+</div>
+
+<div class="panel bottom-panel" id="bottom-panel">
+  <div id="gold-display">💰 金币：<span id="gold-val">20</span></div>
+  <div id="choices-area" class="choice-section hidden">
+    <div class="choice-label">─── 选择一项突破 ───</div>
+    <div id="choice-btns"></div>
+  </div>
+  <button class="btn btn-primary" id="btn-next" onclick="onNextRound()">⚔ 开始第 <span id="btn-round">1</span> 轮</button>
+  <button class="btn hidden" id="btn-upgrade" onclick="onUpgradeSchool()">⬆️ 强化流派 (15💰)</button>
+</div>
+
+<div id="result-overlay" class="hidden">
+  <div class="res-card">
+    <div class="res-title" id="res-title">胜利</div>
+    <div class="res-detail" id="res-detail"></div>
+    <button class="btn btn-primary" onclick="onRestart()">🔄 再来一局</button>
+  </div>
+</div>
+
+<script>
+// ==================== 流派数据 ====================
+const SCHOOLS = {
+  normal: {
+    name: '普攻流', emoji: '⚔️',
+    lv1: '攻击 +5',
+    lv2: '30% 概率连击',
+    lv3: '攻击额外 + 回合数×1',
+    color: '#e74c3c'
+  },
+  life: {
+    name: '生命流', emoji: '❤️',
+    lv1: '最大生命 +30',
+    lv2: '致命伤保留 1 血（每场限1次）',
+    lv3: '每回合回复 10% 已损失生命',
+    color: '#27ae60'
+  },
+  crit: {
+    name: '暴击流', emoji: '💥',
+    lv1: '暴击率 +20%',
+    lv2: '暴击伤害 250%',
+    lv3: '暴击无视 20% 护甲',
+    color: '#f39c12'
+  },
+  ult: {
+    name: '大招流', emoji: '🔮',
+    lv1: '第5秒释放法术，造成 30 伤',
+    lv2: '法术伤害 +40%',
+    lv3: '法术冷却 -2秒（即每3秒一次）',
+    color: '#9b59b6'
+  },
+  dodge: {
+    name: '闪避流', emoji: '💨',
+    lv1: '闪避率 +15%',
+    lv2: '闪避后下次必中 + 伤害 20%',
+    lv3: '受到法术伤害 -30%',
+    color: '#3498db'
+  },
+  poison: {
+    name: '毒伤流', emoji: '☠️',
+    lv1: '攻击附加 5 点毒伤（无视护甲/闪避）',
+    lv2: '毒可叠 2 层',
+    lv3: '每层毒造成 1% 最大生命伤害',
+    color: '#1abc9c'
+  }
+};
+
+const SCHOOL_KEYS = Object.keys(SCHOOLS);
+
+// ==================== 敌人名称词库 ====================
+const ENEMY_PREFIX = ['狂暴', '迅捷', '铁甲', '剧毒', '虚空', '烈焰', '暗影', '寒霜'];
+const ENEMY_SUFFIX = ['纺织娘', '铁线虫', '刀锋螳', '霸王蝶', '战熊蚁', '电击蜂', '毒蝎', '巨蜥'];
+
+// ==================== 三选一选项池 ====================
+const OPTIONS_POOL = [
+  { name: '巨力挥舞', desc: '⚔️ 基础攻击 +8', apply: p => { p.baseAtkMin += 4; p.baseAtkMax += 4; } },
+  { name: '钢筋铁骨', desc: '❤️ 最大生命 +40，并立即回满', apply: p => { p.maxHp += 40; p.hp = p.maxHp; } },
+  { name: '弱点洞察', desc: '💥 暴击率 +15%', apply: p => { p.critRate += 15; } },
+  { name: '迅捷身法', desc: '💨 闪避率 +8%', apply: p => { p.dodgeRate += 8; } },
+  { name: '淬毒刀刃', desc: '☠️ 攻击附带 3 点毒伤', apply: p => { p.poisonDmg += 3; } },
+  { name: '法术强化', desc: '🔮 大招固定伤害 +10', apply: p => { p.ultBonus += 10; } },
+  { name: '生命汲取', desc: '🩸 攻击时回复造成伤害的 10%', apply: p => { p.lifesteal += 10; } },
+  { name: '荆棘护甲', desc: '🛡️ 获得 5 护甲，受到攻击反弹 5 伤害', apply: p => { p.armor += 5; p.thorns += 5; } },
+  { name: '财源滚滚', desc: '💰 立即获得 20 金币', apply: p => { p.gold += 20; } },
+  { name: '经验胶囊', desc: '📈 流派等级 +1（最高3级）', apply: p => { if (p.schoolLv < 3) p.schoolLv++; } },
+];
+
+// ==================== 游戏状态 ====================
+let state = {
+  phase: 'PREPARE', // PREPARE | BATTLING | BATTLE_END | GAMEOVER
+  round: 1,
+  player: null,
+  enemy: null,
+  currentChoices: [],
+  animTimer: null,
+  logQueue: [],
+  logIndex: 0,
+  poisonStacks: { player: 0, enemy: 0 },
+  lifeLockUsed: { player: false, enemy: false },
+  ultCooldown: 0,
+  enemyUltCooldown: 0,
+  nextAtkGuaranteed: { player: false, enemy: false },
+  highScore: parseInt(localStorage.getItem('cricket-highscore') || '0')
+};
+
+function createPlayer() {
+  const sk = SCHOOL_KEYS[Math.floor(Math.random() * SCHOOL_KEYS.length)];
+  return {
+    name: genPlayerName(),
+    school: sk,
+    schoolLv: 1,
+    baseAtkMin: 10,
+    baseAtkMax: 14,
+    baseHp: 100,
+    maxHp: 100,
+    hp: 100,
+    armor: 0,
+    critRate: 5,
+    critDmg: 2.0,
+    dodgeRate: 0,
+    poisonDmg: 0,
+    ultBonus: 0,
+    lifesteal: 0,
+    thorns: 0,
+    gold: 20,
+    poisonStacks: 0
+  };
+}
+
+function genPlayerName() {
+  const adj = ['铁头', '铜皮', '狂暴', '迅捷', '隐形', '毒牙', '裂甲', '幻影', '霸王', '怒爪'];
+  const bug = ['蛐蛐', '蝼蛄', '螽斯', '蟋蟀', '纺织娘', '油葫芦'];
+  return adj[Math.floor(Math.random() * adj.length)] + bug[Math.floor(Math.random() * bug.length)];
+}
+
+function genEnemyName() {
+  return ENEMY_PREFIX[Math.floor(Math.random() * ENEMY_PREFIX.length)] +
+         ENEMY_SUFFIX[Math.floor(Math.random() * ENEMY_SUFFIX.length)];
+}
+
+function applySchoolEffects(p) {
+  const sk = p.school;
+  const lv = p.schoolLv;
+  p.armor = 0;
+  p.critRate = 5;
+  p.critDmg = 2.0;
+  p.dodgeRate = 0;
+  p.poisonDmg = 0;
+  p.ultBonus = 0;
+  p.lifesteal = 0;
+  p.thorns = 0;
+  p.baseAtkMin = 10;
+  p.baseAtkMax = 14;
+  p.maxHp = 100;
+  if (sk === 'normal') {
+    if (lv >= 1) { p.baseAtkMin += 5; p.baseAtkMax += 5; }
+  } else if (sk === 'life') {
+    if (lv >= 1) { p.maxHp += 30; }
+  } else if (sk === 'crit') {
+    if (lv >= 1) { p.critRate += 20; }
+    if (lv >= 2) { p.critDmg = 2.5; }
+  } else if (sk === 'dodge') {
+    if (lv >= 1) { p.dodgeRate += 15; }
+  } else if (sk === 'poison') {
+    if (lv >= 1) { p.poisonDmg += 5; }
+  } else if (sk === 'ult') {
+    if (lv >= 1) { p.ultBonus = 30; }
+    if (lv >= 3) { p.ultCooldown = 3; } else { p.ultCooldown = 5; }
+  }
+}
+
+function generateEnemy(round) {
+  const sk = SCHOOL_KEYS[Math.floor(Math.random() * SCHOOL_KEYS.length)];
+  const lv = Math.min(3, Math.ceil(round / 3));
+  const baseHp = 60 + round * 15;
+  const baseAtkMin = 15 + round * 2;
+  const baseAtkMax = 20 + round * 3;
+  const e = {
+    name: genEnemyName(),
+    school: sk,
+    schoolLv: lv,
+    baseAtkMin, baseAtkMax,
+    maxHp: baseHp,
+    hp: baseHp,
+    armor: 0,
+    critRate: 5,
+    critDmg: 2.0,
+    dodgeRate: 0,
+    poisonDmg: 0,
+    ultBonus: 0,
+    lifesteal: 0,
+    thorns: 0,
+    poisonStacks: 0
+  };
+  // Apply school effects
+  const skd = SCHOOLS[sk];
+  if (sk === 'normal') {
+    if (lv >= 1) { e.baseAtkMin += 5; e.baseAtkMax += 5; }
+  } else if (sk === 'life') {
+    if (lv >= 1) { e.maxHp += 30; }
+  } else if (sk === 'crit') {
+    if (lv >= 1) { e.critRate += 20; }
+    if (lv >= 2) { e.critDmg = 2.5; }
+  } else if (sk === 'dodge') {
+    if (lv >= 1) { e.dodgeRate += 15; }
+  } else if (sk === 'poison') {
+    if (lv >= 1) { e.poisonDmg += 5; }
+  } else if (sk === 'ult') {
+    if (lv >= 1) { e.ultBonus = 30; }
+    if (lv >= 3) { e.ultCooldown = 3; } else { e.ultCooldown = 5; }
+  }
+  e.hp = e.maxHp;
+  return e;
+}
+
+function calcDamage(attacker, defender, bonus = 1.0, forcedCrit = false) {
+  const base = attacker.baseAtkMin + Math.floor(Math.random() * (attacker.baseAtkMax - attacker.baseAtkMin + 1));
+  const isCrit = forcedCrit || Math.random() * 100 < attacker.critRate;
+  let dmg = base * (isCrit ? attacker.critDmg : 1.0) * bonus;
+  let reduction = defender.armor;
+  if (isCrit && attacker.schoolLv >= 3 && attacker.school === 'crit') {
+    reduction = Math.floor(reduction * 0.8);
+  }
+  dmg = Math.max(5, Math.floor(dmg - reduction));
+  return { dmg, isCrit };
+}
+
+function canDodge(defender, guaranteed) {
+  if (guaranteed) return false;
+  return Math.random() * 100 < defender.dodgeRate;
+}
+
+function battleStep(time, p, e, bonus) {
+  const logs = [];
+  // Player turn
+  let pDodge = canDodge(e, p.nextAtkGuaranteed);
+  if (pDodge) {
+    logs.push({ t: 'dodge', who: 'player', text: `第${time}秒：${e.name} 闪避了攻击！` });
+    p.nextAtkGuaranteed = false;
+  } else {
+    const { dmg, isCrit } = calcDamage(p, e, bonus, p.nextAtkGuaranteed);
+    let finalDmg = dmg;
+    if (e.school === 'life' && e.schoolLv >= 2 && !state.lifeLockUsed.enemy && e.hp - dmg <= 0) {
+      finalDmg = e.hp - 1;
+      state.lifeLockUsed.enemy = true;
+      logs.push({ t: 'system', who: 'player', text: `第${time}秒：${e.name} 触发生命锁血，保留1点血！` });
+    }
+    e.hp = Math.max(0, e.hp - finalDmg);
+    const cls = isCrit ? 'crit' : 'player-action';
+    const crtTxt = isCrit ? '💥暴击！' : '';
+    logs.push({ t: cls, who: 'player', text: `第${time}秒：${p.name} 攻击造成 ${finalDmg} 点伤害。${crtTxt}` });
+    if (p.lifesteal > 0) {
+      const heal = Math.floor(finalDmg * p.lifesteal / 100);
+      p.hp = Math.min(p.maxHp, p.hp + heal);
+      logs.push({ t: 'system', who: 'player', text: `  └ 吸取 ${heal} 点生命` });
+    }
+    if (p.poisonDmg > 0) {
+      const stacks = Math.min(p.school === 'poison' && p.schoolLv >= 2 ? 2 : 1, 1);
+      e.poisonStacks = Math.min(e.poisonStacks + stacks, p.school === 'poison' && p.schoolLv >= 2 ? 2 : 1);
+      logs.push({ t: 'poison', who: 'player', text: `  └ 附加 ${p.poisonDmg} 毒伤（${e.poisonStacks}层）` });
+    }
+    if (e.thorns > 0) {
+      p.hp = Math.max(0, p.hp - e.thorns);
+      logs.push({ t: 'enemy-action', who: 'player', text: `  └ 荆棘反弹 ${e.thorns} 伤害` });
+    }
+    if (p.nextAtkGuaranteed) p.nextAtkGuaranteed = false;
+    if (p.school === 'dodge' && p.schoolLv >= 2 && pDodge) {
+      p.nextAtkGuaranteed = true;
+      logs.push({ t: 'system', who: 'player', text: `  └ 下次攻击必中且伤害 +20%！` });
+    }
+  }
+  if (e.hp <= 0) {
+    logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
+    return { winner: 'player', logs };
+  }
+  // Ult
+  if (p.ultBonus > 0) {
+    if (state.ultCooldown <= 0) {
+      let ultDmg = p.ultBonus;
+      if (p.school === 'ult' && p.schoolLv >= 2) ultDmg = Math.floor(ultDmg * 1.4);
+      if (e.school === 'dodge' && e.schoolLv >= 3) ultDmg = Math.floor(ultDmg * 0.7);
+      e.hp = Math.max(0, e.hp - ultDmg);
+      logs.push({ t: 'crit', who: 'player', text: `第${time}秒：${p.name} 释放法术，造成 ${ultDmg} 点伤害！🔮` });
+      state.ultCooldown = p.schoolLv >= 3 ? 3 : 5;
+      if (e.hp <= 0) {
+        logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
+        return { winner: 'player', logs };
+      }
+    } else {
+      state.ultCooldown--;
+    }
+  }
+  // Enemy turn
+  let eDodge = canDodge(p, e.nextAtkGuaranteed);
+  if (eDodge) {
+    logs.push({ t: 'dodge', who: 'enemy', text: `第${time}秒：${p.name} 闪避了攻击！` });
+    e.nextAtkGuaranteed = false;
+  } else {
+    const { dmg, isCrit } = calcDamage(e, p, bonus, e.nextAtkGuaranteed);
+    let finalDmg = dmg;
+    if (p.school === 'life' && p.schoolLv >= 2 && !state.lifeLockUsed.player && p.hp - dmg <= 0) {
+      finalDmg = p.hp - 1;
+      state.lifeLockUsed.player = true;
+      logs.push({ t: 'system', who: 'enemy', text: `第${time}秒：${p.name} 触发生命锁血，保留1点血！` });
+    }
+    p.hp = Math.max(0, p.hp - finalDmg);
+    const cls = isCrit ? 'crit' : 'enemy-action';
+    const crtTxt = isCrit ? '💥暴击！' : '';
+    logs.push({ t: cls, who: 'enemy', text: `第${time}秒：${e.name} 攻击造成 ${finalDmg} 点伤害。${crtTxt}` });
+    if (e.lifesteal > 0) {
+      const heal = Math.floor(finalDmg * e.lifesteal / 100);
+      e.hp = Math.min(e.maxHp, e.hp + heal);
+    }
+    if (e.poisonDmg > 0) {
+      const stacks = Math.min(e.school === 'poison' && e.schoolLv >= 2 ? 2 : 1, 1);
+      p.poisonStacks = Math.min(p.poisonStacks + stacks, e.school === 'poison' && e.schoolLv >= 2 ? 2 : 1);
+      logs.push({ t: 'poison', who: 'enemy', text: `  └ 附加 ${e.poisonDmg} 毒伤（${p.poisonStacks}层）` });
+    }
+    if (p.thorns > 0) {
+      e.hp = Math.max(0, e.hp - p.thorns);
+      logs.push({ t: 'player-action', who: 'enemy', text: `  └ 荆棘反弹 ${p.thorns} 伤害` });
+    }
+    if (e.nextAtkGuaranteed) e.nextAtkGuaranteed = false;
+    if (e.school === 'dodge' && e.schoolLv >= 2 && eDodge) {
+      e.nextAtkGuaranteed = true;
+      logs.push({ t: 'system', who: 'enemy', text: `  └ 下次攻击必中且伤害 +20%！` });
+    }
+  }
+  if (p.hp <= 0) {
+    logs.push({ t: 'death', who: 'enemy', text: `${p.name} 倒下了！💀 战败…` });
+    return { winner: 'enemy', logs };
+  }
+  // Ult enemy
+  if (e.ultBonus > 0) {
+    if (state.enemyUltCooldown <= 0) {
+      let ultDmg = e.ultBonus;
+      if (e.school === 'ult' && e.schoolLv >= 2) ultDmg = Math.floor(ultDmg * 1.4);
+      if (p.school === 'dodge' && p.schoolLv >= 3) ultDmg = Math.floor(ultDmg * 0.7);
+      p.hp = Math.max(0, p.hp - ultDmg);
+      logs.push({ t: 'crit', who: 'enemy', text: `第${time}秒：${e.name} 释放法术，造成 ${ultDmg} 点伤害！🔮` });
+      state.enemyUltCooldown = e.schoolLv >= 3 ? 3 : 5;
+      if (p.hp <= 0) {
+        logs.push({ t: 'death', who: 'enemy', text: `${p.name} 倒下了！💀 战败…` });
+        return { winner: 'enemy', logs };
+      }
+    } else {
+      state.enemyUltCooldown--;
+    }
+  }
+  // Poison tick
+  if (p.poisonStacks > 0) {
+    const pPoisonDmg = e.poisonDmg * p.poisonStacks;
+    e.hp = Math.max(0, e.hp - pPoisonDmg);
+    logs.push({ t: 'poison', who: 'player', text: `  └ 毒伤发作，造成 ${pPoisonDmg} 点伤害（${p.poisonStacks}层）` });
+    if (e.hp <= 0) {
+      logs.push({ t: 'victory', who: 'player', text: `${e.name} 毒发倒下！🦗 胜利！` });
+      return { winner: 'player', logs };
+    }
+  }
+  if (e.poisonStacks > 0) {
+    const ePoisonDmg = p.poisonDmg * e.poisonStacks;
+    p.hp = Math.max(0, p.hp - ePoisonDmg);
+    logs.push({ t: 'poison', who: 'enemy', text: `  └ 毒伤发作，造成 ${ePoisonDmg} 点伤害（${e.poisonStacks}层）` });
+    if (p.hp <= 0) {
+      logs.push({ t: 'death', who: 'enemy', text: `${p.name} 毒发倒下！💀 战败…` });
+      return { winner: 'enemy', logs };
+    }
+  }
+  // Life regen
+  if (p.school === 'life' && p.schoolLv >= 3) {
+    const regen = Math.floor((p.maxHp - p.hp) * 0.1);
+    if (regen > 0) {
+      p.hp = Math.min(p.maxHp, p.hp + regen);
+      logs.push({ t: 'system', who: 'player', text: `  └ 生命回流 +${regen} HP` });
+    }
+  }
+  // Extra attack (normal lv2)
+  if (p.school === 'normal' && p.schoolLv >= 2 && Math.random() < 0.3) {
+    const { dmg, isCrit } = calcDamage(p, e, bonus);
+    e.hp = Math.max(0, e.hp - dmg);
+    const crtTxt = isCrit ? '💥暴击！' : '';
+    logs.push({ t: 'player-action', who: 'player', text: `  └ 连击！额外造成 ${dmg} 点伤害。${crtTxt}` });
+    if (e.hp <= 0) {
+      logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
+      return { winner: 'player', logs };
+    }
+  }
+  return { winner: null, logs };
+}
+
+function runBattle(player, enemy) {
+  const allLogs = [];
+  let time = 1;
+  while (true) {
+    let bonus = 1.0;
+    if (time >= 15) bonus = 2.0;
+    else if (time >= 10) bonus = 1.5;
+    const result = battleStep(time, player, enemy, bonus);
+    allLogs.push(...result.logs);
+    if (result.winner) return { winner: result.winner, logs: allLogs };
+    time++;
+    if (time > 30) {
+      allLogs.push({ t: 'system', who: 'player', text: '⚡ 回合超时，双方精疲力竭！' });
+      return { winner: player.hp >= enemy.hp ? 'player' : 'enemy', logs: allLogs };
+    }
+  }
+}
+
+// ==================== UI ====================
+function $(id) { return document.getElementById(id); }
+
+function updateUI() {
+  const p = state.player;
+  const e = state.enemy;
+  $('round-num').textContent = state.round;
+  $('streak-text').textContent = state.round > 1 ? `连胜 ${state.round - 1}` : '初始';
+  $('btn-round').textContent = state.round;
+  $('gold-val').textContent = p.gold;
+  // Player
+  $('player-name').textContent = p.name;
+  const skd = SCHOOLS[p.school];
+  $('school-badge').textContent = `${skd.emoji} ${skd.name} Lv.${p.schoolLv}`;
+  $('hp-val').textContent = p.hp;
+  $('hp-max').textContent = p.maxHp;
+  $('hp-bar').style.width = (p.hp / p.maxHp * 100) + '%';
+  $('atk-range').textContent = p.baseAtkMin + '-' + p.baseAtkMax;
+  $('def-val').textContent = p.armor;
+  $('crit-val').textContent = p.critRate;
+  $('dodge-val').textContent = p.dodgeRate;
+  $('poison-val').textContent = p.poisonDmg > 0 ? p.poisonDmg + (p.poisonStacks > 0 ? '(' + p.poisonStacks + ')' : '') : '0';
+  $('school-fill').style.width = (p.schoolLv / 3 * 100) + '%';
+  // Enemy
+  if (e) {
+    $('enemy-name').textContent = e.name;
+    const esd = SCHOOLS[e.school];
+    $('enemy-school-badge').textContent = `${esd.emoji} ${esd.name} Lv.${e.schoolLv}`;
+    $('enemy-hp-val').textContent = e.hp;
+    $('enemy-hp-max').textContent = e.maxHp;
+    $('enemy-hp-bar').style.width = (e.hp / e.maxHp * 100) + '%';
+    $('enemy-atk-range').textContent = e.baseAtkMin + '-' + e.baseAtkMax;
+    $('enemy-def-val').textContent = e.armor;
+    $('enemy-crit-val').textContent = e.critRate;
+    $('enemy-dodge-val').textContent = e.dodgeRate;
+    $('enemy-poison-val').textContent = e.poisonDmg > 0 ? e.poisonDmg : '0';
+  }
+  // Upgrade button
+  const upgBtn = $('btn-upgrade');
+  if (p.schoolLv < 3 && p.gold >= 15) {
+    upgBtn.classList.remove('hidden');
+  } else {
+    upgBtn.classList.add('hidden');
+  }
+}
+
+function addLog(entry) {
+  const logArea = $('log-area');
+  const div = document.createElement('div');
+  div.className = 'log-entry ' + (entry.t || '');
+  div.textContent = entry.text;
+  logArea.appendChild(div);
+  logArea.scrollTop = logArea.scrollHeight;
+}
+
+function clearLogs() {
+  $('log-area').innerHTML = '';
+}
+
+function showChoices(choices) {
+  state.currentChoices = choices;
+  const container = $('choice-btns');
+  container.innerHTML = '';
+  choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn choice-btn';
+    btn.innerHTML = `<div class="c-name">${String.fromCharCode(65 + i)}. ${ch.name}</div><div class="c-desc">${ch.desc}</div>`;
+    btn.onclick = () => onChoose(ch);
+    container.appendChild(btn);
+  });
+  $('choices-area').classList.remove('hidden');
+  $('btn-next').classList.add('hidden');
+}
+
+function hideChoices() {
+  $('choices-area').classList.add('hidden');
+  $('btn-next').classList.remove('hidden');
+}
+
+function onChoose(choice) {
+  choice.apply(state.player);
+  applySchoolEffects(state.player);
+  state.player.gold = Math.max(0, state.player.gold - 15);
+  addLog({ t: 'system', text: `✨ 选择了「${choice.name}」，${SCHOOLS[state.player.school].name}效果已更新。` });
+  hideChoices();
+  updateUI();
+  // Now enter battle
+  startBattle();
+}
+
+function onUpgradeSchool() {
+  if (state.player.schoolLv < 3 && state.player.gold >= 15) {
+    state.player.gold -= 15;
+    state.player.schoolLv++;
+    applySchoolEffects(state.player);
+    // Recalculate maxHp increase for life school
+    if (state.player.school === 'life') {
+      // Already handled in applySchoolEffects
+    }
+    state.player.hp = Math.min(state.player.hp, state.player.maxHp);
+    addLog({ t: 'system', text: `⬆️ 流派升为 ${SCHOOLS[state.player.school].name} Lv.${state.player.schoolLv}！` });
+    updateUI();
+  }
+}
+
+function startBattle() {
+  state.enemy = generateEnemy(state.round);
+  state.lifeLockUsed = { player: false, enemy: false };
+  state.ultCooldown = state.player.ultBonus > 0 ? (state.player.schoolLv >= 3 ? 3 : 5) : 0;
+  state.enemyUltCooldown = state.enemy.ultBonus > 0 ? (state.enemy.schoolLv >= 3 ? 3 : 5) : 0;
+  state.nextAtkGuaranteed = { player: false, enemy: false };
+  state.player.poisonStacks = 0;
+  state.enemy.poisonStacks = 0;
+  clearLogs();
+  addLog({ t: 'system', text: `⚔️ 第 ${state.round} 轮开始！` });
+  addLog({ t: 'system', text: `你的 ${state.player.name} (${SCHOOLS[state.player.school].name} Lv.${state.player.schoolLv}) vs ${state.enemy.name} (${SCHOOLS[state.enemy.school].name} Lv.${state.enemy.schoolLv})` });
+  updateUI();
+  state.phase = 'BATTLING';
+  const result = runBattle(state.player, state.enemy);
+  // Animate logs
+  state.logQueue = result.logs;
+  state.logIndex = 0;
+  state.phase = 'BATTLE_END';
+  animateLogs(() => {
+    if (result.winner === 'player') {
+      onVictory();
+    } else {
+      onDefeat();
+    }
+  });
+}
+
+function animateLogs(callback) {
+  if (state.logIndex >= state.logQueue.length) {
+    callback && callback();
+    return;
+  }
+  addLog(state.logQueue[state.logIndex]);
+  updateUI();
+  state.logIndex++;
+  state.animTimer = setTimeout(() => animateLogs(callback), 320);
+}
+
+function onVictory() {
+  const reward = 10 + state.round * 2;
+  state.player.gold += reward;
+  state.round++;
+  addLog({ t: 'system', text: `🎉 胜利！获得 ${reward} 金币` });
+  updateUI();
+  if (state.round - 1 > state.highScore) {
+    state.highScore = state.round - 1;
+    localStorage.setItem('cricket-highscore', state.highScore);
+    addLog({ t: 'system', text: `🏆 新纪录！最高连胜：${state.highScore}` });
+  }
+  state.phase = 'PREPARE';
+  // Generate new choices
+  const pool = [...OPTIONS_POOL];
+  const choices = [];
+  let attempts = 0;
+  while (choices.length < 3 && attempts < 50) {
+    const idx = Math.floor(Math.random() * pool.length);
+    const ch = pool[idx];
+    if (ch.name === '经验胶囊' && state.player.schoolLv >= 3) {
+      attempts++;
+      continue;
+    }
+    choices.push(ch);
+    pool.splice(idx, 1);
+    attempts++;
+  }
+  setTimeout(() => {
+    showChoices(choices);
+    updateUI();
+  }, 400);
+}
+
+function onDefeat() {
+  state.phase = 'GAMEOVER';
+  const overlay = $('result-overlay');
+  const title = $('res-title');
+  const detail = $('res-detail');
+  title.textContent = '💀 战败';
+  title.className = 'res-title defeat';
+  detail.innerHTML = `${state.player.name} 在第 ${state.round} 轮倒下了。<br>最高连胜：${state.highScore} 轮`;
+  overlay.classList.remove('hidden');
+}
+
+function onRestart() {
+  $('result-overlay').classList.add('hidden');
+  $('choices-area').classList.add('hidden');
+  $('btn-next').classList.remove('hidden');
+  clearLogs();
+  state.player = createPlayer();
+  applySchoolEffects(state.player);
+  state.player.hp = state.player.maxHp;
+  state.round = 1;
+  state.enemy = null;
+  state.phase = 'PREPARE';
+  addLog({ t: 'system', text: '🦗 新的蛐蛐诞生了！选择你的成长路线吧。' });
+  updateUI();
+}
+
+function onNextRound() {
+  if (state.phase !== 'PREPARE') return;
+  hideChoices();
+  clearLogs();
+  startBattle();
+}
+
+// ==================== 启动 ====================
+function init() {
+  state.player = createPlayer();
+  applySchoolEffects(state.player);
+  state.player.hp = state.player.maxHp;
+  state.round = 1;
+  clearLogs();
+  addLog({ t: 'system', text: `🦗 ${state.player.name} 登场！(${SCHOOLS[state.player.school].name} Lv.1)` });
+  addLog({ t: 'system', text: '⚔️ 选择你的成长路线，挑战越来越强的敌人！' });
+  updateUI();
+}
+
+init();
+
+// Noise canvas
+(function() {
+  var c = document.getElementById('noise'), ctx = c.getContext('2d');
+  function rz() { c.width = window.innerWidth; c.height = window.innerHeight; }
+  rz();
+  window.addEventListener('resize', rz);
+  (function nd() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (var i = 0; i < 25; i++) {
+      var x = Math.random() * c.width, y = Math.random() * c.height, s = Math.random() * 2 + 0.5;
+      ctx.fillStyle = 'rgba(212,197,169,' + (Math.random() * 0.03) + ')';
+      ctx.fillRect(x, y, s, s);
+    }
+    requestAnimationFrame(nd);
+  })();
+})();
+</script>
+</body>
+</html>
