@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBTI 图鉴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--void:#0a0812;--deep:#1a1025;--blood:#8b1a1a;--bone:#d4c5a9;--sick-yellow:#8b6914;--ghost:#e8e0d0;--sick:#5a8a5a}
+body{background:var(--void);background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,25,66,.12)3px,rgba(74,25,66,.12)4px),radial-gradient(ellipse at 20% 80%,rgba(74,25,66,.35)0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(139,26,26,.25)0%,transparent 50%);font-family:'Noto Serif SC','PingFang SC',serif;min-height:100vh;padding:0 20px 60px;color:var(--bone)}
+canvas#noise{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.05}
+.header{text-align:center;padding:40px 20px 24px;position:relative;z-index:1}
+.back{display:inline-block;margin-bottom:16px;color:rgba(212,197,169,.4);font-size:.85em;text-decoration:none;border:1px solid rgba(212,197,169,.2);padding:6px 16px;transition:all .2s}
+.back:hover{border-color:rgba(139,105,20,.5);color:rgba(212,197,169,.7)}
+.title{font-family:'Noto Serif SC',serif;font-size:clamp(2em,6vw,3.5em);font-weight:900;color:var(--ghost);letter-spacing:.1em;text-shadow:0 0 30px rgba(212,197,169,.3);transform:rotate(-0.5deg);display:inline-block;margin-bottom:8px}
+.title::after{content:'';display:block;width:80%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(139,105,20,.5),transparent);margin:10px auto 0;transform:rotate(0.3deg)}
+.subtitle{font-size:.85em;color:rgba(212,197,169,.45);letter-spacing:.05em;line-height:1.7}
+.count-badge{display:inline-block;background:rgba(139,26,26,.3);border:1px solid rgba(139,26,26,.5);padding:6px 18px;font-size:.8em;letter-spacing:.1em;margin-top:12px;color:var(--ghost)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;max-width:1100px;margin:0 auto;position:relative;z-index:1;padding:20px 0}
+.type-card{background:linear-gradient(135deg,rgba(26,16,37,.9),rgba(10,8,18,.95));border:1px solid rgba(212,197,169,.15);padding:20px 18px;position:relative;transition:all .25s;cursor:default}
+.type-card:nth-child(3n+1){transform:rotate(-0.3deg)}
+.type-card:nth-child(3n+2){transform:rotate(0.2deg)}
+.type-card:nth-child(3n+3){transform:rotate(-0.1deg)}
+.type-card:hover{transform:rotate(0deg) translateY(-4px);box-shadow:0 8px 30px rgba(74,25,66,.4);border-color:rgba(139,105,20,.4)}
+.type-card::before{content:'';position:absolute;top:-1px;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(139,105,20,.3),transparent)}
+.type-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.type-emoji{font-size:1.8em;filter:drop-shadow(0 0 6px rgba(212,197,169,.2))}
+.type-name{font-family:'Noto Serif SC',serif;font-size:1.1em;font-weight:700;color:var(--ghost);letter-spacing:.05em}
+.type-key{font-size:.68em;color:rgba(212,197,169,.3);letter-spacing:.08em;margin-left:auto;font-family:monospace;white-space:nowrap}
+.type-desc{font-size:.78em;color:rgba(212,197,169,.55);line-height:1.7;letter-spacing:.02em}
+.type-dim{font-size:.68em;color:rgba(139,105,20,.6);margin-top:8px;letter-spacing:.05em}
+.corner{position:fixed;font-size:1.5em;opacity:.07;pointer-events:none;z-index:0;user-select:none}
+.corner.tl{top:20px;left:15px}
+.corner.br{bottom:20px;right:15px;transform:rotate(180deg)}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr;gap:12px}.type-card{padding:14px 12px}.type-name{font-size:.95em}}
+</style>
+</head>
+<body>
+<canvas id="noise"></canvas>
+<div class="corner tl">👁</div>
+<div class="corner br">🕯</div>
+
+<div class="header">
+  <a href="./" class="back">← 回到测试</a>
+  <div class="title">SBTI 图鉴</div>
+  <div class="subtitle">32 种离谱人格完全收录<br>看看你是哪一种</div>
+  <div class="count-badge">32 种离谱人格</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const types=[
+  ["S_B_T_O","📚","社恐卷王","你对在乎的人掏心掏肺，但方式极其含蓄——给对方发一篇养生文章算关心，打3个电话没人接就默默焦虑到失眠。你觉得表达感情太油腻，宁可写小作文也不当面说。","S社 · B内 · T理性 · O目标"],
+  ["S_B_T_I","🤖","理性独行侠","你做决定不靠情绪靠逻辑，感情用事？不存在的。你觉得很多人哭是因为没学过概率论。朋友失恋找你倾诉，你第一反应是画决策树分析该不该分。","S社 · B内 · T理性 · I随性"],
+  ["S_B_F_O","🛡️","高冷守护者","你对在乎的人掏心掏肺，但方式极其含蓄——给对方发一篇养生文章算关心，打3个电话没人接就默默焦虑到失眠。你觉得表达感情太油腻，宁可写小作文也不当面说。","S社 · B内 · F感性 · O目标"],
+  ["S_B_F_I","🐼","闷骚老实人","你是那种被问'想吃什么'永远说'随便'的人，但心里其实有87个想法只是不说。恋爱里属于'你猜你猜你猜猜猜'型，对方猜不对你还委屈。","S社 · B内 · F感性 · I随性"],
+  ["S_I_T_O","🎯","策划型社牛","你是那种参加聚会前会在脑内预演3遍社交剧本的人：进门先跟谁打招呼、寒暄用哪3个话题、什么时候找借口撤退。实战起来完全不是那么回事。","S社 · I外 · T理性 · O目标"],
+  ["S_I_T_I","🧠","逻辑社交达人","你既能跟人聊得开心，又不会被情绪带跑。朋友吵架找你评理，你冷静分析完双方论点后说'我建议你们别聊了'——然后被骂了一顿。","S社 · I外 · T理性 · I随性"],
+  ["S_I_F_O","☀️","社牛暖宝宝","你是人群里的暖气片，跟谁都能聊起来，但你的热心是有'社交KPI'的——今天关心了3个人，完成了今日社交额度。内心其实在想：'怎么还没结束'。","S社 · I外 · F感性 · O目标"],
+  ["S_I_F_I","🌻","社牛小太阳","你是那种永远在笑、永远有余温的人，大家觉得你能量满满。其实你是'演技派'——演多了自己都分不清是真开心还是职业开心。","S社 · I外 · F感性 · I随性"],
+  ["N_B_T_O","🚀","反卷冒险王","你的人生口号是'规则就是用来打破的'，上班找漏洞、上课找逃课路线、连吃火锅都在研究怎么用最少的钱涮最多的菜。老板说你不务正业，你管这叫降维打击。","N宅 · B内 · T理性 · O目标"],
+  ["N_B_T_I","⚡","杠精天才","你的大脑永远在运转一个问题：'有没有更好的方案？'开会时你的发言永远以'但是——'开头。朋友说'今天吃火锅吧'，你的第一反应是'火锅的碳排放比炒菜高23%'。","N宅 · B内 · T理性 · I随性"],
+  ["N_B_F_O","🎸","浪漫叛逆者","你对世界有独特的审美，眼里的美和别人不一样——喜欢小众乐队、地下漫画、凌晨三点的路边摊。你觉得打卡网红景点的人都是韭菜，但自己也没少买。","N宅 · B内 · F感性 · O目标"],
+  ["N_B_F_I","🎨","空想艺术家","你脑子里装着一整个宇宙，每天晚上躺床上就能开一场个人演唱会。但执行率感人——想健身想了3年，至今只买了瑜伽垫。","N宅 · B内 · F感性 · I随性"],
+  ["N_I_T_O","🔥","热血策划人","你是那种凌晨3点突然有灵感爬起来记笔记的人，笔记本上写满了'创业计划'、'改变世界方案'、'给首富的一封信'。第二天醒来：昨晚我发了什么疯？","N宅 · I外 · T理性 · O目标"],
+  ["N_I_T_I","🧩","哲学家杠王","你总是在思考一些没人思考的问题——'如果我早上起床的第一件事是问自己今天想成为谁，那今天晚上我会不会变成那个人？'然后上班迟到了。","N宅 · I外 · T理性 · I随性"],
+  ["N_I_F_O","🌙","理想主义诗人","你相信童话，只是嘴上不承认。你觉得世界上没有坏人一说，只是每个人都有自己的故事。你偶尔会被骗，但很快原谅，因为你相信人性本善。","N宅 · I外 · F感性 · O目标"],
+  ["N_I_F_I","💫","深情梦想家","你既深情又爱做梦，喜欢一个人能喜欢到把所有社交平台都刷成ta喜欢的颜色。你觉得这是浪漫，对方觉得这是跟踪狂。","N宅 · I外 · F感性 · I随性"],
+  ["T_B_T_O","🧊","死理性派","你是那种'请问你这结论的置信区间是多少'的人。朋友跟你吐槽老板，你第一反应是：'要不画个甘特图？'聊天终结者本人。","T理性 · B内 · T理性 · O目标"],
+  ["T_B_T_I","🔍","冷漠分析师","你对情感的感知能力约等于体温计——只有高低，没有中间地带。别人哭了，你内心：'这是悲伤情绪的外化表现，触发因素是……'。","T理性 · B内 · T理性 · I随性"],
+  ["T_B_F_O","💀","毒舌评论家","你说话直，但你的直是'戳破皇帝新衣'那种直。朋友穿了一件新衣服问你怎么样，你说：'显得你更矮了。'然后问你要不要一起去喝咖啡。","T理性 · B内 · F感性 · O目标"],
+  ["T_B_F_I","🖤","冷血善良人","你是那种嘴上说'跟我没关系'但默默给流浪猫买罐头的人。你的善良是'不留名捐款'型的，感动了中国但没感动你身边的人。","T理性 · B内 · F感性 · I随性"],
+  ["T_I_T_O","🏆","辩论冠军","你参加辩论赛能拿冠军，跟家人吃饭也能吵起来。你不是坏，是控制不住想赢的本能。吵完之后你还会复盘：'我当时那个论点其实还能再犀利一点'。","T理性 · I外 · T理性 · O目标"],
+  ["T_I_T_I","♟️","谋略大师","你脑子转得比嘴快，说话之前已在脑内模拟了对方可能回应的17种方案，以及你对应的反击话术。所以你说话永远精准，每一句都在射程范围内。","T理性 · I外 · T理性 · I随性"],
+  ["T_I_F_O","💊","毒舌暖心人","你的话像手术刀——准，但疼。你说真话是因为在乎，觉得'朋友之间不用套路'。你骂完人还会补一句'我骂你是因为你有被骂的价值'，对方听完更气了。","T理性 · I外 · F感性 · O目标"],
+  ["T_I_F_I","🌹","毒舌温柔心","你是那种刀子嘴豆腐心的人，嘴上说'我才不在乎'，但朋友生病你比谁都紧张，连偏方都查了18个版本。","T理性 · I外 · F感性 · I随性"],
+  ["F_B_T_O","🫧","玻璃心战士","你每天都在'我是不是说错话了'和'ta是不是讨厌我了'之间横跳。发消息前要打3遍草稿，对方5分钟没回就开始写遗书。你的人际敏感度报表拉满，但生活满意度报表感人。","F感性 · B内 · T理性 · O目标"],
+  ["F_B_T_I","🎢","情绪过山车","你的情绪比天气预报还难预测，前一秒还在笑，下一秒可能因为想起某个尴尬瞬间开始社死。你是那种在KTV唱到伤感歌曲会真的哭出来的人，旁边人以为你失恋了，其实你只是觉得歌词写得挺好。","F感性 · B内 · T理性 · I随性"],
+  ["F_B_F_O","🥀","多愁善感王","你看个广告能哭3包纸巾，听朋友吐槽老公能共情到跟着生气。你是朋友圈的情绪大盘，跟你聊天永远有'实时情感直播'可看。","F感性 · B内 · F感性 · O目标"],
+  ["F_B_F_I","🦋","重度恋爱脑","你谈恋爱的方式是把整个人生绑定对方。对方发一条朋友圈你就开始写800字读后感，连对方用的表情包都要分析是什么情绪。你觉得这是深情，别人觉得这是行为艺术。","F感性 · B内 · F感性 · I随性"],
+  ["F_I_T_O","🎭","讨好型卷王","你的人生哲学是'我不能给别人添麻烦'，于是你一个人干3个人的活，还觉得是自己应该的。别人说'辛苦了'，你说'不辛苦'，其实背地里偷偷哭。","F感性 · I外 · T理性 · O目标"],
+  ["F_I_T_I","🦋","社交蝴蝶","你是那种见谁都能聊嗨的人，但散场后回到家，脱掉社交面具，一个人坐在黑暗里，觉得空虚极了。","F感性 · I外 · T理性 · I随性"],
+  ["F_I_F_O","❤️","深情社牛","你对世界的感知是360度全开的那种，能同时感受到18种情绪。你爱一个人可以爱到尘土里，但同时还能跟全场的人谈笑风生。","F感性 · I外 · F感性 · O目标"],
+  ["F_I_F_I","👼","人间小天使","你温柔、善良、共情能力爆表，别人跟你吐槽完心情就好了。你是朋友圈里的治愈系，但没人知道你其实也需要被治愈。","F感性 · I外 · F感性 · I随性"],
+];
+
+const grid = document.getElementById('grid');
+grid.innerHTML = types.map(([key, emoji, name, desc, dim]) =>
+  `<div class="type-card">
+    <div class="type-header">
+      <span class="type-emoji">${emoji}</span>
+      <span class="type-name">${name}</span>
+      <span class="type-key">${key}</span>
+    </div>
+    <div class="type-desc">${desc}</div>
+    <div class="type-dim">${dim}</div>
+  </div>`
+).join('');
+
+// Noise canvas
+var c=document.getElementById('noise'),ctx=c.getContext('2d');
+function rz(){c.width=window.innerWidth;c.height=window.innerHeight}
+rz();window.addEventListener('resize',rz);
+(function nd(){
+  ctx.clearRect(0,0,c.width,c.height);
+  for(var i=0;i<30;i++){
+    var x=Math.random()*c.width,y=Math.random()*c.height,s=Math.random()*2+0.5;
+    ctx.fillStyle='rgba(212,197,169,'+(Math.random()*0.03)+')';
+    ctx.fillRect(x,y,s,s);
+  }
+  requestAnimationFrame(nd);
+}());
+</script>
+</body>
+</html>
