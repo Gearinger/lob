@@ -282,6 +282,7 @@ function selectOption(idx) {
   if (currentQ === questions.length - 1 && answers.every(a => a >= 0)) {
     document.getElementById('btn-next').style.display = 'none';
     document.getElementById('btn-submit').style.display = 'inline-block';
+    document.getElementById('btn-submit').disabled = false;
     document.getElementById('submit-notice').style.display = 'block';
   }
 }
