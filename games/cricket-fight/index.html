@@ -2,759 +2,508 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>赛博斗蛐蛐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--void:#0a0812;--deep:#1a1025;--blood:#8b1a1a;--bone:#d4c5a9;--sick:#5a8a5a;--ghost:#e8e0d0;--accent:#8b6914}
-body{background:var(--void);font-family:'Noto Serif SC',serif;color:var(--bone);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 40px;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,25,66,.1)3px,rgba(74,25,66,.1)4px)}
-canvas#noise{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.06}
-.panel{width:100%;max-width:420px;background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1px solid rgba(212,197,169,.15);position:relative;margin-bottom:12px;transform:rotate(-0.2deg);z-index:1}
-.panel::after{content:'';position:absolute;inset:5px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
-.panel:nth-child(2){transform:rotate(0.15deg)}
-.panel:nth-child(3){transform:rotate(-0.1deg)}
-.panel:nth-child(4){transform:rotate(0.2deg)}
-.panel-header{text-align:center;padding:10px 16px 8px;border-bottom:1px solid rgba(212,197,169,.08);font-size:.72em;letter-spacing:.15em;color:rgba(212,197,169,.4)}
-.panel-header span{color:var(--bone)}
-.hp-bar-wrap{padding:8px 14px 4px}
-.stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.78em;color:rgba(212,197,169,.6);letter-spacing:.05em}
-.hp-bar-bg{height:6px;background:rgba(212,197,169,.08);margin-top:4px;border-radius:0;position:relative;overflow:hidden}
-.hp-bar{height:100%;background:linear-gradient(90deg,var(--sick),var(--sick));transition:width .4s ease;position:relative}
-.hp-bar.enemy{background:linear-gradient(90deg,var(--blood),var(--blood))}
-.hp-num{padding:0 14px 8px;font-size:.75em;color:rgba(212,197,169,.45);letter-spacing:.05em;text-align:right}
-#game-title{text-align:center;margin-bottom:12px;z-index:1;position:relative}
-#game-title h1{font-size:1.4em;letter-spacing:.2em;color:var(--ghost);font-weight:900;text-shadow:0 0 20px rgba(212,197,169,.2);transform:rotate(-0.3deg);display:inline-block}
-#game-title h1::after{content:'';display:block;width:110%;height:1.5px;background:rgba(139,105,20,.4);margin:8px -5% 0}
-#round-info{font-size:.7em;color:rgba(212,197,169,.35);letter-spacing:.1em;margin-top:6px}
-.log-panel{height:180px;overflow-y:hidden;padding:8px 14px 4px}
-.log-entry{font-size:.75em;line-height:1.9;color:rgba(212,197,169,.55);letter-spacing:.02em;white-space:pre-wrap}
-.log-entry.player-action{color:rgba(90,138,90,.9)}
-.log-entry.enemy-action{color:rgba(139,26,26,.9)}
-.log-entry.system{color:rgba(139,105,20,.8);font-style:italic}
-.log-entry.crit{color:#f39c12}
-.log-entry.dodge{color:#3498db}
-.log-entry.victory{color:var(--sick);font-weight:700}
-.log-entry.death{color:var(--blood);font-weight:700}
-#log-area{max-height:160px;overflow-y:auto;padding-right:4px}
-#log-area::-webkit-scrollbar{width:3px}
-#log-area::-webkit-scrollbar-track{background:transparent}
-#log-area::-webkit-scrollbar-thumb{background:rgba(139,105,20,.3)}
-.bottom-panel{padding:12px 14px}
-#gold-display{font-size:.85em;color:var(--accent);letter-spacing:.08em;margin-bottom:10px;text-align:center}
-.btn{display:block;width:100%;padding:12px;background:transparent;border:1px solid rgba(212,197,169,.25);color:var(--bone);font-family:'Noto Serif SC',serif;font-size:.85em;letter-spacing:.1em;cursor:pointer;transition:all .2s;margin-bottom:8px;border-radius:0;position:relative}
+:root{--v:#0a0812;--d:#1a1025;--b:#8b1a1a;--bn:#d4c5a9;--s:#5a8a5a;--g:#e8e0d0;--a:#8b6914}
+body{background:var(--v);font-family:'Noto Serif SC',serif;color:var(--bn);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px 10px 40px;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,25,66,.1)3px,rgba(74,25,66,.1)4px)}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.06}
+#splash{position:fixed;inset:0;background:var(--v);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#splash.h{display:none}
+.e{font-size:2.8em;margin-bottom:12px;animation:b 2s ease infinite}
+@keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.t{font-size:2em;font-weight:900;color:var(--g);letter-spacing:.15em;text-shadow:0 0 30px rgba(212,197,169,.3);transform:rotate(-0.5deg);display:inline-block;margin-bottom:6px}
+.t::after{content:'';display:block;width:110%;height:2px;background:linear-gradient(90deg,transparent,rgba(139,105,20,.5),transparent);margin:10px -5% 0}
+.s{font-size:.75em;color:rgba(212,197,169,.4);letter-spacing:.08em;margin:6px 0 20px}
+.r{text-align:left;font-size:.7em;color:rgba(212,197,169,.45);line-height:1.9;margin-bottom:22px;max-width:320px}
+.r div{margin-bottom:3px}
+.bt{background:rgba(139,105,20,.12);border:1px solid rgba(139,105,20,.4);padding:12px 44px;font-size:.88em;letter-spacing:.12em;color:var(--g);cursor:pointer;font-family:'Noto Serif SC',serif;transition:all .2s;border-radius:0}
+.bt:hover{background:rgba(139,105,20,.25)}
+.p{width:100%;max-width:420px;background:linear-gradient(145deg,rgba(26,16,37,.95),rgba(10,8,18,.98));border:1px solid rgba(212,197,169,.15);position:relative;margin-bottom:10px;transform:rotate(-0.2deg);z-index:1}
+.p::after{content:'';position:absolute;inset:4px;border:1px dashed rgba(139,105,20,.18);pointer-events:none}
+.p3{transform:rotate(0.15deg)}.p4{transform:rotate(-0.1deg)}.p5{transform:rotate(0.2deg)}
+.ph{text-align:center;padding:5px 10px 3px;font-size:.62em;letter-spacing:.08em;color:rgba(212,197,169,.35)}
+.hb{height:4px;background:rgba(212,197,169,.08);margin-top:4px;overflow:hidden}
+.hf{height:100%;background:linear-gradient(90deg,var(--s),var(--s));transition:width .3s}
+.hf.e{background:linear-gradient(90deg,var(--b),var(--b))}
+.hn{padding:0 10px 4px;font-size:.68em;color:rgba(212,197,169,.45);text-align:right}
+.sr{padding:1px 8px;font-size:.72em;color:rgba(212,197,169,.6);letter-spacing:.02em}
+.sb{font-size:.6em;padding:2px 7px;border:1px solid rgba(139,105,20,.3);color:var(--a);display:inline-block}
+#gt{text-align:center;margin-bottom:8px;z-index:1;position:relative}
+#gt h1{font-size:1.25em;letter-spacing:.18em;color:var(--g);font-weight:900;text-shadow:0 0 15px rgba(212,197,169,.2);transform:rotate(-0.3deg);display:inline-block}
+#gt::after{content:'';display:block;width:110%;height:1.5px;background:rgba(139,105,20,.4);margin:8px -5% 0}
+#ri{font-size:.65em;color:rgba(212,197,169,.35);letter-spacing:.08em;margin-top:3px}
+#arena{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:420px;margin-bottom:8px}
+#arena .p{margin-bottom:0;transform:none!important}
+#arena .p::after{display:none}
+.lp{min-height:100px;padding:5px 10px 3px}
+.le{font-size:.7em;line-height:1.7;color:rgba(212,197,169,.55);white-space:pre-wrap}
+.le.pa{color:rgba(90,138,90,.9)}
+.le.ea{color:rgba(139,26,26,.9)}
+.le.sy{color:rgba(139,105,20,.8)}
+.le.cr{color:#f39c12}
+.le.do{color:#3498db}
+.le.vi{color:var(--s);font-weight:700}
+.le.di{color:var(--b);font-weight:700}
+#la{max-height:90px;overflow-y:auto;padding-right:3px;min-height:40px}
+#la::-webkit-scrollbar{width:2px}
+#la::-webkit-scrollbar-thumb{background:rgba(139,105,20,.3)}
+.bp{padding:7px 12px}
+#gd{font-size:.82em;color:var(--a);letter-spacing:.06em;margin-bottom:7px;text-align:center}
+.btn{display:block;width:100%;padding:9px;background:transparent;border:1px solid rgba(212,197,169,.25);color:var(--bn);font-family:'Noto Serif SC',serif;font-size:.8em;letter-spacing:.05em;cursor:pointer;transition:all .2s;margin-bottom:5px;border-radius:0;position:relative;overflow:hidden}
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(74,25,66,.3),rgba(139,26,26,.2));opacity:0;transition:opacity .2s}
 .btn:hover::before{opacity:1}
 .btn:hover{border-color:rgba(212,197,169,.5);color:#fff}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.3;cursor:not-allowed}
 .btn:disabled:hover::before{opacity:0}
-.btn-primary{border-color:rgba(139,105,20,.4);background:rgba(139,105,20,.08)}
-.choice-section{margin:10px 0}
-.choice-label{font-size:.68em;color:rgba(212,197,169,.35);letter-spacing:.1em;text-align:center;margin-bottom:8px}
-.choice-btn{padding:10px 14px;margin-bottom:6px;text-align:left;font-size:.8em}
-.choice-btn .c-name{color:var(--ghost);font-weight:700;margin-bottom:2px}
-.choice-btn .c-desc{color:rgba(212,197,169,.5);font-size:.9em}
-#school-badge{font-size:.72em;padding:3px 10px;border:1px solid rgba(139,105,20,.3);color:var(--accent);display:inline-block;margin-top:2px}
-#school-bar{height:3px;background:rgba(212,197,169,.08);margin-top:6px}
-#school-fill{height:100%;background:var(--accent);transition:width .3s}
-#result-overlay{position:fixed;inset:0;background:rgba(10,8,18,.92);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-#result-overlay .res-card{background:linear-gradient(145deg,rgba(26,16,37,.98),rgba(10,8,18,.99));border:1px solid rgba(212,197,169,.15);padding:36px 28px;max-width:360px;width:100%;text-align:center;position:relative}
-#result-overlay .res-card::after{content:'';position:absolute;inset:6px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
-#result-overlay .res-title{font-size:2em;font-weight:900;color:var(--ghost);margin-bottom:12px;letter-spacing:.1em}
-#result-overlay .res-title.victory{color:var(--sick)}
-#result-overlay .res-title.defeat{color:var(--blood)}
-#result-overlay .res-detail{font-size:.8em;color:rgba(212,197,169,.5);line-height:1.8;margin-bottom:20px}
-#result-overlay .btn{margin-top:8px}
-.corner{position:fixed;font-size:1.2em;opacity:.05;pointer-events:none;z-index:0;user-select:none}
-.corner.tl{top:12px;left:10px}
-.corner.br{bottom:12px;right:10px;transform:rotate(180deg)}
-.hidden{display:none}
-#hp-val{color:var(--sick)}
-#enemy-hp-val{color:var(--blood)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.log-entry{animation:fadeIn .2s ease}
+.btn-p{border-color:rgba(139,105,20,.4);background:rgba(139,105,20,.08)}
+#co{position:fixed;inset:0;background:rgba(10,8,18,.9);z-index:50;display:flex;align-items:center;justify-content:center;padding:14px}
+#co.h{display:none}
+.cm{background:linear-gradient(145deg,rgba(26,16,37,.98),rgba(10,8,18,.99));border:1px solid rgba(212,197,169,.15);padding:16px 14px;max-width:370px;width:100%;position:relative}
+.cm::after{content:'';position:absolute;inset:4px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
+.cmh{font-size:.7em;color:rgba(212,197,169,.35);letter-spacing:.08em;text-align:center;margin-bottom:12px}
+.cb{padding:8px 12px;margin-bottom:5px;text-align:left;font-size:.78em;cursor:pointer}
+.cn{color:var(--g);font-weight:700;margin-bottom:2px}
+.cd{color:rgba(212,197,169,.5);font-size:.9em}
+.tr{border-color:rgba(231,76,60,.6)!important;background:rgba(231,76,60,.08)!important}
+.to{border-color:rgba(243,156,18,.6)!important;background:rgba(243,156,18,.08)!important}
+.tb{border-color:rgba(52,152,219,.6)!important;background:rgba(52,152,219,.08)!important}
+.tg{border-color:rgba(39,174,96,.6)!important;background:rgba(39,174,96,.08)!important}
+.tw{border-color:rgba(212,197,169,.3)!important}
+#ro{position:fixed;inset:0;background:rgba(10,8,18,.92);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#ro.h{display:none}
+.rc{background:linear-gradient(145deg,rgba(26,16,37,.98),rgba(10,8,18,.99));border:1px solid rgba(212,197,169,.15);padding:32px 24px;max-width:350px;width:100%;text-align:center;position:relative}
+.rc::after{content:'';position:absolute;inset:5px;border:1px dashed rgba(139,105,20,.2);pointer-events:none}
+.rt{font-size:1.8em;font-weight:900;color:var(--g);margin-bottom:10px;letter-spacing:.08em}
+.rt.v{color:var(--s)}.rt.x{color:var(--b)}
+.rd{font-size:.78em;color:rgba(212,197,169,.5);line-height:1.8;margin-bottom:18px}
+.cr2{position:fixed;font-size:1.2em;opacity:.05;pointer-events:none;z-index:0;user-select:none}
+.cr2.tl{top:10px;left:8px}.cr2.br{bottom:10px;right:8px;transform:rotate(180deg)}
+.h{display:none}
+@keyframes fa{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.le{animation:fa .2s ease}
+@media(max-width:380px){
+  .t{font-size:1.7em}.ph{padding:4px 8px;font-size:.58em}.sr{font-size:.68em;padding:1px 7px}.le{font-size:.65em}
+  #la{max-height:70px}.btn{padding:8px;font-size:.75em}.e{font-size:2.4em}
+}
+@media(min-width:600px){#arena{gap:14px!important}.ph{padding:7px 14px!important;font-size:.68em!important}.sr{padding:2px 12px!important}.le{font-size:.72em}#la{max-height:130px}}
 </style>
 </head>
 <body>
-<canvas id="noise"></canvas>
-<div class="corner tl">🦗</div>
-<div class="corner br">⚔</div>
+<canvas id="n"></canvas>
+<div class="cr2 tl">🦗</div><div class="cr2 br">⚔</div>
 
-<div id="game-title">
-  <h1>🦗 赛博斗蛐蛐</h1>
-  <div id="round-info">第 <span id="round-num">1</span> 轮 · <span id="streak-text">初始</span></div>
-</div>
-
-<div class="panel" id="player-panel">
-  <div class="panel-header">🟢 你的蛐蛐 · <span id="player-name">铁头娃</span></div>
-  <div class="stat-row" style="padding:6px 14px 0"><span>流派：<span id="school-badge">普攻流 Lv.1</span></span></div>
-  <div class="hp-bar-wrap"><div class="hp-bar-bg"><div class="hp-bar" id="hp-bar" style="width:100%"></div></div></div>
-  <div class="hp-num"><span id="hp-val">100</span> / <span id="hp-max">100</span> ❤️</div>
-  <div class="stat-row" style="padding:2px 14px"><span>⚔️ 攻击：<span id="atk-range">10-14</span></span><span>🛡️ 护甲：<span id="def-val">0</span></span></div>
-  <div id="school-bar" style="margin:4px 14px"><div id="school-fill" style="width:33%"></div></div>
-  <div class="stat-row" style="padding:2px 14px 6px"><span>💥 暴击：<span id="crit-val">5</span>%</span><span>🚪 闪避：<span id="dodge-val">0</span>%</span><span>☠️ 毒伤：<span id="poison-val">0</span></span></div>
-</div>
-
-<div class="panel" id="enemy-panel">
-  <div class="panel-header">🔴 敌方蛐蛐 · <span id="enemy-name">狂暴纺织娘</span></div>
-  <div class="stat-row" style="padding:6px 14px 0"><span>流派：<span id="enemy-school-badge">闪避流 Lv.1</span></span></div>
-  <div class="hp-bar-wrap"><div class="hp-bar-bg"><div class="hp-bar enemy" id="enemy-hp-bar" style="width:100%"></div></div></div>
-  <div class="hp-num"><span id="enemy-hp-val">75</span> / <span id="enemy-hp-max">75</span> ❤️</div>
-  <div class="stat-row" style="padding:2px 14px"><span>⚔️ 攻击：<span id="enemy-atk-range">17-22</span></span><span>🛡️ 护甲：<span id="enemy-def-val">0</span></span></div>
-  <div class="stat-row" style="padding:2px 14px 6px"><span>💥 暴击：<span id="enemy-crit-val">5</span>%</span><span>🚪 闪避：<span id="enemy-dodge-val">15</span>%</span><span>☠️ 毒伤：<span id="enemy-poison-val">0</span></span></div>
-</div>
-
-<div class="panel log-panel" id="log-panel">
-  <div class="panel-header">📝 战斗日志</div>
-  <div id="log-area"></div>
-</div>
-
-<div class="panel bottom-panel" id="bottom-panel">
-  <div id="gold-display">💰 金币：<span id="gold-val">20</span></div>
-  <div id="choices-area" class="choice-section hidden">
-    <div class="choice-label">─── 选择一项突破 ───</div>
-    <div id="choice-btns"></div>
+<div id="splash">
+  <div class="e">🦗</div>
+  <div class="t">赛博斗蛐蛐</div>
+  <div class="s">极简文字版 · 回合策略</div>
+  <div class="r">
+    <div>⚔️ 每轮战斗后选择一项突破成长</div>
+    <div>💰 收集金币，强化流派等级</div>
+    <div>🎯 挑战越来越强的敌人，追求更高连胜</div>
+    <div>🔴🟠🔵🟢⚪ 突破颜色代表稀有度</div>
   </div>
-  <button class="btn btn-primary" id="btn-next" onclick="onNextRound()">⚔ 开始第 <span id="btn-round">1</span> 轮</button>
-  <button class="btn hidden" id="btn-upgrade" onclick="onUpgradeSchool()">⬆️ 强化流派 (15💰)</button>
+  <button class="bt" id="sbt">开始游戏</button>
 </div>
 
-<div id="result-overlay" class="hidden">
-  <div class="res-card">
-    <div class="res-title" id="res-title">胜利</div>
-    <div class="res-detail" id="res-detail"></div>
-    <button class="btn btn-primary" onclick="onRestart()">🔄 再来一局</button>
+<div id="gt"><h1>🦗 赛博斗蛐蛐</h1>
+<div id="ri"><span id="st">初始</span> · <span id="rn">1</span></div>
+</div>
+
+<div id="arena">
+  <div class="p p3" id="pp">
+    <div class="ph">🟢 <span id="pn">铁头娃</span></div>
+    <div class="sr" style="padding:3px 8px 0"><span id="sb">⚔️ 普攻流 Lv.1</span></div>
+    <div class="hb" style="margin:3px 8px 0"><div class="hf" id="hb" style="width:100%"></div></div>
+    <div class="hn">❤️ <span id="hv">150</span>/<span id="hm">150</span></div>
+    <div class="sr"><span>⚔️ <span id="ar">12-16</span></span><span>🛡️ <span id="av">3</span></span></div>
+    <div class="sr"><span>💥<span id="cv">5</span>%</span><span>🚪<span id="dv">0</span>%</span><span>☠️<span id="pv">0</span></span></div>
+  </div>
+  <div class="p p4" id="ep">
+    <div class="ph">🔴 <span id="en">狂暴纺织娘</span></div>
+    <div class="sr" style="padding:3px 8px 0"><span id="esb">💨 闪避流 Lv.1</span></div>
+    <div class="hb" style="margin:3px 8px 0"><div class="hf e" id="ehb" style="width:100%"></div></div>
+    <div class="hn">❤️ <span id="ehv">75</span>/<span id="ehm">75</span></div>
+    <div class="sr"><span>⚔️ <span id="ear">14-18</span></span><span>🛡️ <span id="eav">0</span></span></div>
+    <div class="sr"><span>💥<span id="ecv">5</span>%</span><span>🚪<span id="edv">15</span>%</span><span>☠️<span id="epv">0</span></span></div>
+  </div>
+</div>
+
+<div class="p lp p5">
+  <div class="ph">📝 战斗日志</div>
+  <div id="la"></div>
+</div>
+
+<div class="p bp">
+  <div id="gd">💰 <span id="gv">20</span></div>
+  <button class="btn btn-p" id="bn">开始第<span id="bnt">1</span>轮</button>
+  <button class="btn h" id="bu">⬆️ 强化流派 <span id="buc">15</span>💰</button>
+</div>
+
+<div id="co" class="h">
+  <div class="cm">
+    <div class="cmh">─── 选择一项突破 ───</div>
+    <div id="cb"></div>
+  </div>
+</div>
+
+<div id="ro" class="h">
+  <div class="rc">
+    <div class="rt" id="rt">💀 战败</div>
+    <div class="rd" id="rd"></div>
   </div>
 </div>
 
 <script>
-// ==================== 流派数据 ====================
-const SCHOOLS = {
-  normal: {
-    name: '普攻流', emoji: '⚔️',
-    lv1: '攻击 +5',
-    lv2: '30% 概率连击',
-    lv3: '攻击额外 + 回合数×1',
-    color: '#e74c3c'
-  },
-  life: {
-    name: '生命流', emoji: '❤️',
-    lv1: '最大生命 +30',
-    lv2: '致命伤保留 1 血（每场限1次）',
-    lv3: '每回合回复 10% 已损失生命',
-    color: '#27ae60'
-  },
-  crit: {
-    name: '暴击流', emoji: '💥',
-    lv1: '暴击率 +20%',
-    lv2: '暴击伤害 250%',
-    lv3: '暴击无视 20% 护甲',
-    color: '#f39c12'
-  },
-  ult: {
-    name: '大招流', emoji: '🔮',
-    lv1: '第5秒释放法术，造成 30 伤',
-    lv2: '法术伤害 +40%',
-    lv3: '法术冷却 -2秒（即每3秒一次）',
-    color: '#9b59b6'
-  },
-  dodge: {
-    name: '闪避流', emoji: '💨',
-    lv1: '闪避率 +15%',
-    lv2: '闪避后下次必中 + 伤害 20%',
-    lv3: '受到法术伤害 -30%',
-    color: '#3498db'
-  },
-  poison: {
-    name: '毒伤流', emoji: '☠️',
-    lv1: '攻击附加 5 点毒伤（无视护甲/闪避）',
-    lv2: '毒可叠 2 层',
-    lv3: '每层毒造成 1% 最大生命伤害',
-    color: '#1abc9c'
-  }
-};
-
-const SCHOOL_KEYS = Object.keys(SCHOOLS);
-
-// ==================== 敌人名称词库 ====================
-const ENEMY_PREFIX = ['狂暴', '迅捷', '铁甲', '剧毒', '虚空', '烈焰', '暗影', '寒霜'];
-const ENEMY_SUFFIX = ['纺织娘', '铁线虫', '刀锋螳', '霸王蝶', '战熊蚁', '电击蜂', '毒蝎', '巨蜥'];
-
-// ==================== 三选一选项池 ====================
-const OPTIONS_POOL = [
-  { name: '巨力挥舞', desc: '⚔️ 基础攻击 +8', apply: p => { p.baseAtkMin += 4; p.baseAtkMax += 4; } },
-  { name: '钢筋铁骨', desc: '❤️ 最大生命 +40，并立即回满', apply: p => { p.maxHp += 40; p.hp = p.maxHp; } },
-  { name: '弱点洞察', desc: '💥 暴击率 +15%', apply: p => { p.critRate += 15; } },
-  { name: '迅捷身法', desc: '💨 闪避率 +8%', apply: p => { p.dodgeRate += 8; } },
-  { name: '淬毒刀刃', desc: '☠️ 攻击附带 3 点毒伤', apply: p => { p.poisonDmg += 3; } },
-  { name: '法术强化', desc: '🔮 大招固定伤害 +10', apply: p => { p.ultBonus += 10; } },
-  { name: '生命汲取', desc: '🩸 攻击时回复造成伤害的 10%', apply: p => { p.lifesteal += 10; } },
-  { name: '荆棘护甲', desc: '🛡️ 获得 5 护甲，受到攻击反弹 5 伤害', apply: p => { p.armor += 5; p.thorns += 5; } },
-  { name: '财源滚滚', desc: '💰 立即获得 20 金币', apply: p => { p.gold += 20; } },
-  { name: '经验胶囊', desc: '📈 流派等级 +1（最高3级）', apply: p => { if (p.schoolLv < 3) p.schoolLv++; } },
+(function(){
+var SS={normal:{name:'普攻流',emoji:'⚔️'},life:{name:'生命流',emoji:'❤️'},crit:{name:'暴击流',emoji:'💥'},ult:{name:'大招流',emoji:'🔮'},dodge:{name:'闪避流',emoji:'💨'},poison:{name:'毒伤流',emoji:'☠️'}};
+var SK=Object.keys(SS);
+var EP=['狂暴','迅捷','铁甲','剧毒','虚空','烈焰','暗影','寒霜'];
+var ES=['纺织娘','铁线虫','刀锋螳','霸王蝶','战熊蚁','电击蜂','毒蝎','巨蜥'];
+var OP=[
+  {n:'钢筋铁骨',d:'最大生命 +50，回满',f:function(p){p._h.push({t:'hp',v:50})},r:'tr'},
+  {n:'致命打击',d:'暴击率 +25%，暴击伤害 +50%',f:function(p){p._h.push({t:'cr',v:25,d:0.5})},r:'tr'},
+  {n:'迅捷连击',d:'每轮额外攻击一次',f:function(p){p._h.push({t:'ea',v:1})},r:'tr'},
+  {n:'巨力挥舞',d:'基础攻击 +8',f:function(p){p._h.push({t:'ar',v:8})},r:'to'},
+  {n:'钢筋铁骨',d:'最大生命 +30，回满',f:function(p){p._h.push({t:'hp',v:30})},r:'to'},
+  {n:'弱点洞察',d:'暴击率 +15%',f:function(p){p._h.push({t:'cr',v:15})},r:'to'},
+  {n:'迅捷身法',d:'闪避率 +12%',f:function(p){p._h.push({t:'dr',v:12})},r:'to'},
+  {n:'淬毒强化',d:'毒伤 +5',f:function(p){p._h.push({t:'pd',v:5})},r:'to'},
+  {n:'法术精通',d:'大招伤害 +20',f:function(p){p._h.push({t:'ub',v:20})},r:'to'},
+  {n:'吸血光环',d:'生命汲取 15%',f:function(p){p._h.push({t:'ls',v:15})},r:'tb'},
+  {n:'荆棘护甲',d:'护甲 +8，反弹 8',f:function(p){p._h.push({t:'th',v:8})},r:'tb'},
+  {n:'迅捷身法',d:'闪避率 +6%',f:function(p){p._h.push({t:'dr',v:6})},r:'tb'},
+  {n:'弱点洞察',d:'暴击率 +8%',f:function(p){p._h.push({t:'cr',v:8})},r:'tb'},
+  {n:'淬毒刀刃',d:'毒伤 +2',f:function(p){p._h.push({t:'pd',v:2})},r:'tb'},
+  {n:'生命强化',d:'最大生命 +25，回满',f:function(p){p._h.push({t:'hp',v:25})},r:'tg'},
+  {n:'小试牛刀',d:'基础攻击 +3',f:function(p){p._h.push({t:'ar',v:3})},r:'tg'},
+  {n:'财源滚滚',d:'立即获得 15 金币',f:function(p){p.g=(p.g||20)+15},r:'tg'},
+  {n:'经验胶囊',d:'流派等级 +1（最高3级）',f:function(p){if(p.sl<3)p.sl++},r:'tw'}
 ];
 
-// ==================== 游戏状态 ====================
-let state = {
-  phase: 'PREPARE', // PREPARE | BATTLING | BATTLE_END | GAMEOVER
-  round: 1,
-  player: null,
-  enemy: null,
-  currentChoices: [],
-  animTimer: null,
-  logQueue: [],
-  logIndex: 0,
-  poisonStacks: { player: 0, enemy: 0 },
-  lifeLockUsed: { player: false, enemy: false },
-  ultCooldown: 0,
-  enemyUltCooldown: 0,
-  nextAtkGuaranteed: { player: false, enemy: false },
-  highScore: parseInt(localStorage.getItem('cricket-highscore') || '0')
+function gn(){
+  var a=['铁头','铜皮','狂暴','迅捷','隐形','毒牙','裂甲','幻影','霸王','怒爪'];
+  var b=['蛐蛐','蝼蛄','螽斯','蟋蟀','纺织娘','油葫芦'];
+  return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)];
+}
+function ge(){
+  return EP[Math.floor(Math.random()*EP.length)]+ES[Math.floor(Math.random()*ES.length)];
+}
+function cp(){
+  var sk=SK[Math.floor(Math.random()*SK.length)];
+  return{n:gn(),sk:sk,sl:1,bAtk:[12,16],bHp:150,hp:150,mHp:150,ar:3,cr:5,cd:2.0,dr:0,pd:0,ls:0,th:0,ub:0,ea:0,mhb:0,g:20,ps:0,_h:[]};
+}
+function rc(p){
+  var cr=5,cd=2.0,dr=0,pd=0,ls=0,th=0,ar=3,atMin=12,atMax=16,ea=0,ub=0,mhb=0,p_mhb=0;
+  for(var i=0;i<p._h.length;i++){
+    var c=p._h[i];
+    if(c.t==='hp')mhb+=c.v;
+    else if(c.t==='cr'){cr+=c.v||0;cd+=(c.d||0);}
+    else if(c.t==='dr')dr+=c.v||0;
+    else if(c.t==='pd')pd+=c.v||0;
+    else if(c.t==='ls')ls+=c.v||0;
+    else if(c.t==='th')th+=c.v||0;
+    else if(c.t==='ar'){atMin+=c.v||0;atMax+=c.v||0;}
+    else if(c.t==='ea')ea+=(c.x||0);
+    else if(c.t==='ub')ub+=(c.v||0);}
+  var sk=p.sk,sl=p.sl;
+  if(sk==='normal'&&sl>=1){atMin+=5;atMax+=5;}
+  if(sk==='crit'&&sl>=1)cr+=20;
+  if(sk==='crit'&&sl>=2)cd+=0.5;
+  if(sk==='dodge'&&sl>=1)dr+=15;
+  if(sk==='poison'&&sl>=1)pd+=5;
+  if(sk==='ult'&&sl>=1)ub+=30;
+  if(sk==='life'&&sl>=1)mhb+=30;
+  p.cr=cr;p.cd=cd;p.dr=dr;p.pd=pd;p.ls=ls;p.th=th;p.ar=ar;
+  p.bAtk=[atMin,atMax];p.ea=ea;p.ub=ub;
+  p_mhb=mhb;p.mhb=mhb;p.mHp=p.bHp+p.mhb;
+}
+function ge2(r){
+  var sk=SK[Math.floor(Math.random()*SK.length)];
+  var sl=Math.min(3,Math.ceil(r/3));
+  var hp=50+r*12;
+  var atMin=12+Math.floor(r*1.5);
+  var atMax=16+Math.floor(r*2);
+  var e={n:ge(),sk:sk,sl:sl,bAtk:[atMin,atMax],bHp:hp,hp:hp,mHp:hp,ar:0,cr:5,cd:2.0,dr:0,pd:0,ls:0,th:0,ub:0,ea:0,ps:0,_h:[],_ul:-1,_nep:false,_nlp:false,_uep:false,_uel:false};
+  rc(e);return e;
+}
+function cde(d,g){return!g&&Math.random()*100<d.dr;}
+function cdg(a,d,b,f){
+  var ba=a.bAtk[0]+Math.floor(Math.random()*(a.bAtk[1]-a.bAtk[0]+1));
+  var ic=(f||Math.random()*100<a.cr);
+  var dmg=Math.floor(ba*(ic?a.cd:1)*b);
+  var rd=d.ar;
+  if(ic&&a.sk==='crit'&&a.sl>=3)rd=Math.floor(rd*0.8);
+  dmg=Math.max(5,dmg-rd);
+  return{d:dmg,c:ic};
+}
+function bs(t,p,e,b){
+  var ls=[];
+  // P atk
+  var pD=cde(e,p._nep);
+  if(pD){ls.push({t:'do',s:e.n+'闪避了！'});p._nep=false;}
+  else{
+    var r=cdg(p,e,b,p._nep);
+    var fd=r.d;
+    if(e.sk==='life'&&e.sl>=2&&!p._nep&&e.hp-fd<=0){fd=e.hp-1;p._nep=true;ls.push({t:'sy',s:e.n+'锁血！'});}
+    e.hp=Math.max(0,e.hp-fd);
+    ls.push({t:r.c?'cr':'pa',s:p.n+' '+fd+(r.c?' 💥':'')});
+    if(p.ls>0){var lh=Math.floor(fd*p.ls/100);p.hp=Math.min(p.mHp,p.hp+lh);ls.push({t:'sy',s:' └ 吸'+lh});}
+    if(p.pd>0){e.ps=Math.min(e.ps+1,p.sk==='poison'&&p.sl>=2?2:1);ls.push({t:'sy',s:' └ 毒'+p.pd+'('+e.ps+'层)'});}
+    if(e.th>0){p.hp=Math.max(0,p.hp-e.th);ls.push({t:'ea',s:' └ 荆'+e.th});}
+    if(p._nep)p._nep=false;
+    if(p.sk==='dodge'&&p.sl>=2&&pD){p._nep=true;ls.push({t:'sy',s:' └ 下次必中+20%！'});}
+  }
+  if(e.hp<=0){ls.push({t:'vi',s:e.n+'倒下！胜利！'});return{w:'p',ls:ls};}
+  for(var ei=0;ei<(p.ea||0);ei++){
+    if(e.hp<=0)break;
+    if(cde(e,false)){ls.push({t:'do',s:' └ 追击！'+e.n+'闪'});continue;}
+    var re=cdg(p,e,b,false);e.hp=Math.max(0,e.hp-re.d);
+    ls.push({t:re.c?'cr':'pa',s:' └ 追击！'+re.d+(re.c?' 💥':'')});
+    if(e.hp<=0){ls.push({t:'vi',s:' └ 追击击杀！'});return{w:'p',ls:ls};}
+  }
+  if(p.ub>0&&p._ul<=0){
+    var ud=p.ub;if(p.sk==='ult'&&p.sl>=2)ud=Math.floor(ud*1.4);
+    if(e.sk==='dodge'&&e.sl>=3)ud=Math.floor(ud*0.7);
+    e.hp=Math.max(0,e.hp-ud);ls.push({t:'cr',s:p.n+'法术！'+ud+' 🔮'});
+    p._ul=(p.sk==='ult'&&p.sl>=3)?3:5;
+    if(e.hp<=0){ls.push({t:'vi',s:e.n+'倒下！'});return{w:'p',ls:ls};}
+  }
+  if(p.ub>0)p._ul--;
+  // E atk
+  var eD=cde(p,e._nlp);
+  if(eD){ls.push({t:'do',s:p.n+'闪避了！'});e._nlp=false;}
+  else{
+    var re2=cdg(e,p,b,e._nlp);
+    var fd2=re2.d;
+    if(p.sk==='life'&&p.sl>=2&&!p._uel&&p.hp-fd2<=0){fd2=p.hp-1;p._uel=true;ls.push({t:'sy',s:p.n+'锁血！'});}
+    p.hp=Math.max(0,p.hp-fd2);
+    ls.push({t:re2.c?'cr':'ea',s:e.n+' '+fd2+(re2.c?' 💥':'')});
+    if(e.ls>0){var leh=Math.floor(fd2*e.ls/100);e.hp=Math.min(e.mHp,e.hp+leh);}
+    if(e.pd>0){p.ps=Math.min(p.ps+1,e.sk==='poison'&&e.sl>=2?2:1);ls.push({t:'sy',s:' └ 毒'+e.pd+'('+p.ps+'层)'});}
+    if(p.th>0){e.hp=Math.max(0,e.hp-p.th);ls.push({t:'pa',s:' └ 荆'+p.th});}
+    if(e._nlp)e._nlp=false;
+    if(e.sk==='dodge'&&e.sl>=2&&eD){e._nlp=true;ls.push({t:'sy',s:' └ 下次必中+20%！'});}
+  }
+  if(p.hp<=0){ls.push({t:'di',s:p.n+'倒下！战败…'});return{w:'e',ls:ls};}
+  if(e.ub>0&&e._uep<=0){
+    var eu=e.ub;if(e.sk==='ult'&&e.sl>=2)eu=Math.floor(eu*1.4);
+    if(p.sk==='dodge'&&p.sl>=3)eu=Math.floor(eu*0.7);
+    p.hp=Math.max(0,p.hp-eu);ls.push({t:'cr',s:e.n+'法术！'+eu+' 🔮'});
+    e._uep=(e.sk==='ult'&&e.sl>=3)?3:5;
+    if(p.hp<=0){ls.push({t:'di',s:p.n+'倒下！'});return{w:'e',ls:ls};}
+  }
+  if(e.ub>0)e._uep--;
+  if(e.ps>0){var ep=e.pd*e.ps;e.hp=Math.max(0,e.hp-ep);ls.push({t:'sy',s:' └ 毒发'+ep});if(e.hp<=0){ls.push({t:'vi',s:e.n+'毒发倒下！'});return{w:'p',ls:ls};}}
+  if(p.ps>0){var pp=p.pd*p.ps;p.hp=Math.max(0,p.hp-pp);ls.push({t:'sy',s:' └ 毒发'+pp});if(p.hp<=0){ls.push({t:'di',s:p.n+'毒发倒下！'});return{w:'e',ls:ls};}}
+  if(p.sk==='life'&&p.sl>=3){var rg=Math.floor((p.mHp-p.hp)*0.1);if(rg>0){p.hp=Math.min(p.mHp,p.hp+rg);ls.push({t:'sy',s:' └ 回流+'+rg});}}
+  return{w:null,ls:ls};
+}
+
+var st={ph:'SPLASH',r:1,pl:null,en:null,bt:0,br:null,at:null,hs:parseInt(localStorage.getItem('ch-hs')||'0')};
+
+function $(id){return document.getElementById(id);}
+function al(e){
+  var d=document.createElement('div');
+  d.className='le '+(e.t||'');
+  d.textContent=e.s;
+  $('la').appendChild(d);
+  $('la').scrollTop=$('la').scrollHeight;
+}
+function cl(){$('la').innerHTML='';}
+
+function ui(){
+  var p=st.pl,e=st.en;
+  $('rn').textContent=st.r;
+  $('st').textContent=st.r>1?'连胜'+(st.r-1):'初始';
+  $('bnt').textContent=st.r;
+  $('gv').textContent=p.g;
+  $('pn').textContent=p.n;
+  $('sb').textContent=SS[p.sk].emoji+' '+SS[p.sk].name+' Lv.'+p.sl;
+  $('hv').textContent=p.hp;
+  $('hm').textContent=p.mHp;
+  $('hb').style.width=(p.hp/p.mHp*100)+'%';
+  $('ar').textContent=p.bAtk[0]+'-'+p.bAtk[1];
+  $('av').textContent=p.ar;
+  $('cv').textContent=p.cr;
+  $('dv').textContent=p.dr;
+  $('pv').textContent=p.pd+(p.ps>0?'('+p.ps+')':'');
+  if(e){
+    $('en').textContent=e.n;
+    $('esb').textContent=SS[e.sk].emoji+' '+SS[e.sk].name+' Lv.'+e.sl;
+    $('ehv').textContent=e.hp;
+    $('ehm').textContent=e.mHp;
+    $('ehb').style.width=(e.hp/e.mHp*100)+'%';
+    $('ear').textContent=e.bAtk[0]+'-'+e.bAtk[1];
+    $('eav').textContent=e.ar;
+    $('ecv').textContent=e.cr;
+    $('edv').textContent=e.dr;
+    $('epv').textContent=e.pd;
+  }
+  if(p.sl<3&&p.g>=15)$('bu').classList.remove('h');
+  else $('bu').classList.add('h');
+}
+
+function gc(){
+  var tw={white:15,green:35,blue:28,orange:17,red:5};
+  var tt=0;for(var t in tw)tt+=tw[t];
+  var pool=OP.filter(function(o){
+    if(o.n==='经验胶囊'&&st.pl.sl>=3)return false;
+    return true;
+  });
+  var chs=[];
+  for(var i=0;i<50&&chs.length<3;i++){
+    var r=Math.random()*tt,cu=0,sel='white';
+    for(var t in tw){cu+=tw[t];if(r<cu){sel=t;break;}}
+    var tp=pool.filter(function(o){return o.r===sel&&chs.indexOf(o)<0;});
+    if(tp.length>0)chs.push(tp[Math.floor(Math.random()*tp.length)]);
+  }
+  while(chs.length<3){
+    var rem=pool.filter(function(o){return chs.indexOf(o)<0;});
+    if(rem.length===0)break;
+    chs.push(rem[Math.floor(Math.random()*rem.length)]);
+  }
+  return chs.slice(0,3);
+}
+
+function sco(chs){
+  var ct=$('cb');ct.innerHTML='';
+  chs.forEach(function(ch){
+    var btn=document.createElement('button');
+    btn.className='btn cb '+ch.r;
+    btn.innerHTML='<div class="cn">'+ch.n+'</div><div class="cd">'+ch.d+'</div>';
+    btn.onclick=(function(c){return function(){oc(c);};})(ch);
+    ct.appendChild(btn);
+  });
+  $('co').classList.remove('h');
+  $('bn').classList.add('h');
+}
+
+function hco(){$('co').classList.add('h');$('bn').classList.remove('h');}
+
+function oc(ch){
+  ch.f(st.pl);
+  rc(st.pl);
+  st.pl.hp=st.pl.mHp;
+  st.ph='PREPARE';
+  hco();
+  cl();
+  al({t:'sy',s:'选择了「'+ch.n+'」'});
+  al({t:'sy',s:'💥'+st.pl.cr+'% 🚪'+st.pl.dr+'% ☠️'+st.pl.pd+' ⚔️'+st.pl.bAtk[0]+'-'+st.pl.bAtk[1]+' ❤️'+st.pl.mHp});
+  al({t:'sy',s:'准备好了！'});
+  ui();
+}
+
+function ou(){
+  if(st.pl.sl<3&&st.pl.g>=15){
+    st.pl.g-=15;
+    st.pl.sl++;
+    al({t:'sy',s:'流派升为 '+SS[st.pl.sk].name+' Lv.'+st.pl.sl+'！'});
+    ui();
+  }
+}
+
+function sb(){
+  if(st.ph!=='PREPARE')return;
+  clearTimeout(st.at);
+  st.en=ge2(st.r);
+  st.pl._nep=false;st.pl._uel=false;st.pl._ul=st.pl.ub>0?(st.pl.sk==='ult'&&st.pl.sl>=3?3:5):-1;
+  st.en._uep=st.en.ub>0?(st.en.sk==='ult'&&st.en.sl>=3?3:5):-1;
+  st.pl._nlp=false;st.en._nep=false;
+  st.pl.ps=0;st.en.ps=0;
+  st.bt=0;st.br=null;
+  al({t:'sy',s:'─── 第'+st.r+'轮 ───'});
+  al({t:'sy',s:st.pl.n+' vs '+st.en.n});
+  ui();
+  st.ph='BATTLE';
+  bsa();
+}
+
+function bsa(){
+  if(st.ph!=='BATTLE')return;
+  st.bt++;
+  var bo=1.0;
+  if(st.bt>=15)bo=2.0;else if(st.bt>=10)bo=1.5;
+  var r=bs(st.bt,st.pl,st.en,bo);
+  r.ls.forEach(function(l){al(l);});
+  ui();
+  if(r.w){st.br=r.w;setTimeout(function(){if(st.br==='p')ov();else od();},600);return;}
+  if(st.bt>30){st.br=st.pl.hp>=st.en.hp?'p':'e';al({t:'sy',s:'⚡ 超时！'});setTimeout(function(){if(st.br==='p')ov();else od();},600);return;}
+  st.at=setTimeout(bsa,700);
+}
+
+function ov(){
+  var rw=15+st.r*2;
+  st.pl.g+=rw;
+  var pr=st.r;
+  st.r++;
+  if(pr>st.hs){st.hs=pr;localStorage.setItem('ch-hs',st.hs);}
+  al({t:'sy',s:'🎉 胜利！+'+rw+'💰'});
+  al({t:'sy',s:'最高连胜：'+st.hs});
+  st.ph='PREPARE';
+  ui();
+  setTimeout(function(){sco(gc());},400);
+}
+
+function od(){
+  st.ph='GAMEOVER';
+  $('rt').textContent='💀 战败';
+  $('rt').className='rt x';
+  $('rd').innerHTML=st.pl.n+' 在第'+st.r+'轮倒下。<br>最高连胜：'+st.hs+'<br><br><button class="btn btn-p" onclick="or()">🔄 再来一局</button>';
+  $('ro').classList.remove('h');
+}
+
+function or(){
+  clearTimeout(st.at);
+  $('ro').classList.add('h');
+  hco();
+  $('bn').classList.remove('h');
+  cl();
+  st.pl=cp();
+  st.r=1;st.en=null;st.ph='PREPARE';
+  al({t:'sy',s:'🦗 '+st.pl.n+' 登场！('+SS[st.pl.sk].name+' Lv.1)'});
+  al({t:'sy',s:'选择成长路线，挑战更强敌人！'});
+  ui();
+  setTimeout(function(){sco(gc());},400);
+}
+
+function onr(){
+  if(st.ph!=='PREPARE')return;
+  hco();
+  sb();
+}
+
+$('sbt').onclick=function(){
+  $('splash').classList.add('h');
+  st.pl=cp();
+  st.ph='PREPARE';
+  al({t:'sy',s:'🦗 '+st.pl.n+' 登场！('+SS[st.pl.sk].name+' Lv.1)'});
+  al({t:'sy',s:'选择成长路线，挑战更强敌人！'});
+  ui();
+  setTimeout(function(){sco(gc());},300);
 };
+$('bn').onclick=onr;
+$('bu').onclick=ou;
 
-function createPlayer() {
-  const sk = SCHOOL_KEYS[Math.floor(Math.random() * SCHOOL_KEYS.length)];
-  return {
-    name: genPlayerName(),
-    school: sk,
-    schoolLv: 1,
-    baseAtkMin: 10,
-    baseAtkMax: 14,
-    baseHp: 100,
-    maxHp: 100,
-    hp: 100,
-    armor: 0,
-    critRate: 5,
-    critDmg: 2.0,
-    dodgeRate: 0,
-    poisonDmg: 0,
-    ultBonus: 0,
-    lifesteal: 0,
-    thorns: 0,
-    gold: 20,
-    poisonStacks: 0
-  };
-}
-
-function genPlayerName() {
-  const adj = ['铁头', '铜皮', '狂暴', '迅捷', '隐形', '毒牙', '裂甲', '幻影', '霸王', '怒爪'];
-  const bug = ['蛐蛐', '蝼蛄', '螽斯', '蟋蟀', '纺织娘', '油葫芦'];
-  return adj[Math.floor(Math.random() * adj.length)] + bug[Math.floor(Math.random() * bug.length)];
-}
-
-function genEnemyName() {
-  return ENEMY_PREFIX[Math.floor(Math.random() * ENEMY_PREFIX.length)] +
-         ENEMY_SUFFIX[Math.floor(Math.random() * ENEMY_SUFFIX.length)];
-}
-
-function applySchoolEffects(p) {
-  const sk = p.school;
-  const lv = p.schoolLv;
-  p.armor = 0;
-  p.critRate = 5;
-  p.critDmg = 2.0;
-  p.dodgeRate = 0;
-  p.poisonDmg = 0;
-  p.ultBonus = 0;
-  p.lifesteal = 0;
-  p.thorns = 0;
-  p.baseAtkMin = 10;
-  p.baseAtkMax = 14;
-  p.maxHp = 100;
-  if (sk === 'normal') {
-    if (lv >= 1) { p.baseAtkMin += 5; p.baseAtkMax += 5; }
-  } else if (sk === 'life') {
-    if (lv >= 1) { p.maxHp += 30; }
-  } else if (sk === 'crit') {
-    if (lv >= 1) { p.critRate += 20; }
-    if (lv >= 2) { p.critDmg = 2.5; }
-  } else if (sk === 'dodge') {
-    if (lv >= 1) { p.dodgeRate += 15; }
-  } else if (sk === 'poison') {
-    if (lv >= 1) { p.poisonDmg += 5; }
-  } else if (sk === 'ult') {
-    if (lv >= 1) { p.ultBonus = 30; }
-    if (lv >= 3) { p.ultCooldown = 3; } else { p.ultCooldown = 5; }
-  }
-}
-
-function generateEnemy(round) {
-  const sk = SCHOOL_KEYS[Math.floor(Math.random() * SCHOOL_KEYS.length)];
-  const lv = Math.min(3, Math.ceil(round / 3));
-  const baseHp = 60 + round * 15;
-  const baseAtkMin = 15 + round * 2;
-  const baseAtkMax = 20 + round * 3;
-  const e = {
-    name: genEnemyName(),
-    school: sk,
-    schoolLv: lv,
-    baseAtkMin, baseAtkMax,
-    maxHp: baseHp,
-    hp: baseHp,
-    armor: 0,
-    critRate: 5,
-    critDmg: 2.0,
-    dodgeRate: 0,
-    poisonDmg: 0,
-    ultBonus: 0,
-    lifesteal: 0,
-    thorns: 0,
-    poisonStacks: 0
-  };
-  // Apply school effects
-  const skd = SCHOOLS[sk];
-  if (sk === 'normal') {
-    if (lv >= 1) { e.baseAtkMin += 5; e.baseAtkMax += 5; }
-  } else if (sk === 'life') {
-    if (lv >= 1) { e.maxHp += 30; }
-  } else if (sk === 'crit') {
-    if (lv >= 1) { e.critRate += 20; }
-    if (lv >= 2) { e.critDmg = 2.5; }
-  } else if (sk === 'dodge') {
-    if (lv >= 1) { e.dodgeRate += 15; }
-  } else if (sk === 'poison') {
-    if (lv >= 1) { e.poisonDmg += 5; }
-  } else if (sk === 'ult') {
-    if (lv >= 1) { e.ultBonus = 30; }
-    if (lv >= 3) { e.ultCooldown = 3; } else { e.ultCooldown = 5; }
-  }
-  e.hp = e.maxHp;
-  return e;
-}
-
-function calcDamage(attacker, defender, bonus = 1.0, forcedCrit = false) {
-  const base = attacker.baseAtkMin + Math.floor(Math.random() * (attacker.baseAtkMax - attacker.baseAtkMin + 1));
-  const isCrit = forcedCrit || Math.random() * 100 < attacker.critRate;
-  let dmg = base * (isCrit ? attacker.critDmg : 1.0) * bonus;
-  let reduction = defender.armor;
-  if (isCrit && attacker.schoolLv >= 3 && attacker.school === 'crit') {
-    reduction = Math.floor(reduction * 0.8);
-  }
-  dmg = Math.max(5, Math.floor(dmg - reduction));
-  return { dmg, isCrit };
-}
-
-function canDodge(defender, guaranteed) {
-  if (guaranteed) return false;
-  return Math.random() * 100 < defender.dodgeRate;
-}
-
-function battleStep(time, p, e, bonus) {
-  const logs = [];
-  // Player turn
-  let pDodge = canDodge(e, p.nextAtkGuaranteed);
-  if (pDodge) {
-    logs.push({ t: 'dodge', who: 'player', text: `第${time}秒：${e.name} 闪避了攻击！` });
-    p.nextAtkGuaranteed = false;
-  } else {
-    const { dmg, isCrit } = calcDamage(p, e, bonus, p.nextAtkGuaranteed);
-    let finalDmg = dmg;
-    if (e.school === 'life' && e.schoolLv >= 2 && !state.lifeLockUsed.enemy && e.hp - dmg <= 0) {
-      finalDmg = e.hp - 1;
-      state.lifeLockUsed.enemy = true;
-      logs.push({ t: 'system', who: 'player', text: `第${time}秒：${e.name} 触发生命锁血，保留1点血！` });
-    }
-    e.hp = Math.max(0, e.hp - finalDmg);
-    const cls = isCrit ? 'crit' : 'player-action';
-    const crtTxt = isCrit ? '💥暴击！' : '';
-    logs.push({ t: cls, who: 'player', text: `第${time}秒：${p.name} 攻击造成 ${finalDmg} 点伤害。${crtTxt}` });
-    if (p.lifesteal > 0) {
-      const heal = Math.floor(finalDmg * p.lifesteal / 100);
-      p.hp = Math.min(p.maxHp, p.hp + heal);
-      logs.push({ t: 'system', who: 'player', text: `  └ 吸取 ${heal} 点生命` });
-    }
-    if (p.poisonDmg > 0) {
-      const stacks = Math.min(p.school === 'poison' && p.schoolLv >= 2 ? 2 : 1, 1);
-      e.poisonStacks = Math.min(e.poisonStacks + stacks, p.school === 'poison' && p.schoolLv >= 2 ? 2 : 1);
-      logs.push({ t: 'poison', who: 'player', text: `  └ 附加 ${p.poisonDmg} 毒伤（${e.poisonStacks}层）` });
-    }
-    if (e.thorns > 0) {
-      p.hp = Math.max(0, p.hp - e.thorns);
-      logs.push({ t: 'enemy-action', who: 'player', text: `  └ 荆棘反弹 ${e.thorns} 伤害` });
-    }
-    if (p.nextAtkGuaranteed) p.nextAtkGuaranteed = false;
-    if (p.school === 'dodge' && p.schoolLv >= 2 && pDodge) {
-      p.nextAtkGuaranteed = true;
-      logs.push({ t: 'system', who: 'player', text: `  └ 下次攻击必中且伤害 +20%！` });
-    }
-  }
-  if (e.hp <= 0) {
-    logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
-    return { winner: 'player', logs };
-  }
-  // Ult
-  if (p.ultBonus > 0) {
-    if (state.ultCooldown <= 0) {
-      let ultDmg = p.ultBonus;
-      if (p.school === 'ult' && p.schoolLv >= 2) ultDmg = Math.floor(ultDmg * 1.4);
-      if (e.school === 'dodge' && e.schoolLv >= 3) ultDmg = Math.floor(ultDmg * 0.7);
-      e.hp = Math.max(0, e.hp - ultDmg);
-      logs.push({ t: 'crit', who: 'player', text: `第${time}秒：${p.name} 释放法术，造成 ${ultDmg} 点伤害！🔮` });
-      state.ultCooldown = p.schoolLv >= 3 ? 3 : 5;
-      if (e.hp <= 0) {
-        logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
-        return { winner: 'player', logs };
-      }
-    } else {
-      state.ultCooldown--;
-    }
-  }
-  // Enemy turn
-  let eDodge = canDodge(p, e.nextAtkGuaranteed);
-  if (eDodge) {
-    logs.push({ t: 'dodge', who: 'enemy', text: `第${time}秒：${p.name} 闪避了攻击！` });
-    e.nextAtkGuaranteed = false;
-  } else {
-    const { dmg, isCrit } = calcDamage(e, p, bonus, e.nextAtkGuaranteed);
-    let finalDmg = dmg;
-    if (p.school === 'life' && p.schoolLv >= 2 && !state.lifeLockUsed.player && p.hp - dmg <= 0) {
-      finalDmg = p.hp - 1;
-      state.lifeLockUsed.player = true;
-      logs.push({ t: 'system', who: 'enemy', text: `第${time}秒：${p.name} 触发生命锁血，保留1点血！` });
-    }
-    p.hp = Math.max(0, p.hp - finalDmg);
-    const cls = isCrit ? 'crit' : 'enemy-action';
-    const crtTxt = isCrit ? '💥暴击！' : '';
-    logs.push({ t: cls, who: 'enemy', text: `第${time}秒：${e.name} 攻击造成 ${finalDmg} 点伤害。${crtTxt}` });
-    if (e.lifesteal > 0) {
-      const heal = Math.floor(finalDmg * e.lifesteal / 100);
-      e.hp = Math.min(e.maxHp, e.hp + heal);
-    }
-    if (e.poisonDmg > 0) {
-      const stacks = Math.min(e.school === 'poison' && e.schoolLv >= 2 ? 2 : 1, 1);
-      p.poisonStacks = Math.min(p.poisonStacks + stacks, e.school === 'poison' && e.schoolLv >= 2 ? 2 : 1);
-      logs.push({ t: 'poison', who: 'enemy', text: `  └ 附加 ${e.poisonDmg} 毒伤（${p.poisonStacks}层）` });
-    }
-    if (p.thorns > 0) {
-      e.hp = Math.max(0, e.hp - p.thorns);
-      logs.push({ t: 'player-action', who: 'enemy', text: `  └ 荆棘反弹 ${p.thorns} 伤害` });
-    }
-    if (e.nextAtkGuaranteed) e.nextAtkGuaranteed = false;
-    if (e.school === 'dodge' && e.schoolLv >= 2 && eDodge) {
-      e.nextAtkGuaranteed = true;
-      logs.push({ t: 'system', who: 'enemy', text: `  └ 下次攻击必中且伤害 +20%！` });
-    }
-  }
-  if (p.hp <= 0) {
-    logs.push({ t: 'death', who: 'enemy', text: `${p.name} 倒下了！💀 战败…` });
-    return { winner: 'enemy', logs };
-  }
-  // Ult enemy
-  if (e.ultBonus > 0) {
-    if (state.enemyUltCooldown <= 0) {
-      let ultDmg = e.ultBonus;
-      if (e.school === 'ult' && e.schoolLv >= 2) ultDmg = Math.floor(ultDmg * 1.4);
-      if (p.school === 'dodge' && p.schoolLv >= 3) ultDmg = Math.floor(ultDmg * 0.7);
-      p.hp = Math.max(0, p.hp - ultDmg);
-      logs.push({ t: 'crit', who: 'enemy', text: `第${time}秒：${e.name} 释放法术，造成 ${ultDmg} 点伤害！🔮` });
-      state.enemyUltCooldown = e.schoolLv >= 3 ? 3 : 5;
-      if (p.hp <= 0) {
-        logs.push({ t: 'death', who: 'enemy', text: `${p.name} 倒下了！💀 战败…` });
-        return { winner: 'enemy', logs };
-      }
-    } else {
-      state.enemyUltCooldown--;
-    }
-  }
-  // Poison tick
-  if (p.poisonStacks > 0) {
-    const pPoisonDmg = e.poisonDmg * p.poisonStacks;
-    e.hp = Math.max(0, e.hp - pPoisonDmg);
-    logs.push({ t: 'poison', who: 'player', text: `  └ 毒伤发作，造成 ${pPoisonDmg} 点伤害（${p.poisonStacks}层）` });
-    if (e.hp <= 0) {
-      logs.push({ t: 'victory', who: 'player', text: `${e.name} 毒发倒下！🦗 胜利！` });
-      return { winner: 'player', logs };
-    }
-  }
-  if (e.poisonStacks > 0) {
-    const ePoisonDmg = p.poisonDmg * e.poisonStacks;
-    p.hp = Math.max(0, p.hp - ePoisonDmg);
-    logs.push({ t: 'poison', who: 'enemy', text: `  └ 毒伤发作，造成 ${ePoisonDmg} 点伤害（${e.poisonStacks}层）` });
-    if (p.hp <= 0) {
-      logs.push({ t: 'death', who: 'enemy', text: `${p.name} 毒发倒下！💀 战败…` });
-      return { winner: 'enemy', logs };
-    }
-  }
-  // Life regen
-  if (p.school === 'life' && p.schoolLv >= 3) {
-    const regen = Math.floor((p.maxHp - p.hp) * 0.1);
-    if (regen > 0) {
-      p.hp = Math.min(p.maxHp, p.hp + regen);
-      logs.push({ t: 'system', who: 'player', text: `  └ 生命回流 +${regen} HP` });
-    }
-  }
-  // Extra attack (normal lv2)
-  if (p.school === 'normal' && p.schoolLv >= 2 && Math.random() < 0.3) {
-    const { dmg, isCrit } = calcDamage(p, e, bonus);
-    e.hp = Math.max(0, e.hp - dmg);
-    const crtTxt = isCrit ? '💥暴击！' : '';
-    logs.push({ t: 'player-action', who: 'player', text: `  └ 连击！额外造成 ${dmg} 点伤害。${crtTxt}` });
-    if (e.hp <= 0) {
-      logs.push({ t: 'victory', who: 'player', text: `${e.name} 倒下了！🦗 胜利！` });
-      return { winner: 'player', logs };
-    }
-  }
-  return { winner: null, logs };
-}
-
-function runBattle(player, enemy) {
-  const allLogs = [];
-  let time = 1;
-  while (true) {
-    let bonus = 1.0;
-    if (time >= 15) bonus = 2.0;
-    else if (time >= 10) bonus = 1.5;
-    const result = battleStep(time, player, enemy, bonus);
-    allLogs.push(...result.logs);
-    if (result.winner) return { winner: result.winner, logs: allLogs };
-    time++;
-    if (time > 30) {
-      allLogs.push({ t: 'system', who: 'player', text: '⚡ 回合超时，双方精疲力竭！' });
-      return { winner: player.hp >= enemy.hp ? 'player' : 'enemy', logs: allLogs };
-    }
-  }
-}
-
-// ==================== UI ====================
-function $(id) { return document.getElementById(id); }
-
-function updateUI() {
-  const p = state.player;
-  const e = state.enemy;
-  $('round-num').textContent = state.round;
-  $('streak-text').textContent = state.round > 1 ? `连胜 ${state.round - 1}` : '初始';
-  $('btn-round').textContent = state.round;
-  $('gold-val').textContent = p.gold;
-  // Player
-  $('player-name').textContent = p.name;
-  const skd = SCHOOLS[p.school];
-  $('school-badge').textContent = `${skd.emoji} ${skd.name} Lv.${p.schoolLv}`;
-  $('hp-val').textContent = p.hp;
-  $('hp-max').textContent = p.maxHp;
-  $('hp-bar').style.width = (p.hp / p.maxHp * 100) + '%';
-  $('atk-range').textContent = p.baseAtkMin + '-' + p.baseAtkMax;
-  $('def-val').textContent = p.armor;
-  $('crit-val').textContent = p.critRate;
-  $('dodge-val').textContent = p.dodgeRate;
-  $('poison-val').textContent = p.poisonDmg > 0 ? p.poisonDmg + (p.poisonStacks > 0 ? '(' + p.poisonStacks + ')' : '') : '0';
-  $('school-fill').style.width = (p.schoolLv / 3 * 100) + '%';
-  // Enemy
-  if (e) {
-    $('enemy-name').textContent = e.name;
-    const esd = SCHOOLS[e.school];
-    $('enemy-school-badge').textContent = `${esd.emoji} ${esd.name} Lv.${e.schoolLv}`;
-    $('enemy-hp-val').textContent = e.hp;
-    $('enemy-hp-max').textContent = e.maxHp;
-    $('enemy-hp-bar').style.width = (e.hp / e.maxHp * 100) + '%';
-    $('enemy-atk-range').textContent = e.baseAtkMin + '-' + e.baseAtkMax;
-    $('enemy-def-val').textContent = e.armor;
-    $('enemy-crit-val').textContent = e.critRate;
-    $('enemy-dodge-val').textContent = e.dodgeRate;
-    $('enemy-poison-val').textContent = e.poisonDmg > 0 ? e.poisonDmg : '0';
-  }
-  // Upgrade button
-  const upgBtn = $('btn-upgrade');
-  if (p.schoolLv < 3 && p.gold >= 15) {
-    upgBtn.classList.remove('hidden');
-  } else {
-    upgBtn.classList.add('hidden');
-  }
-}
-
-function addLog(entry) {
-  const logArea = $('log-area');
-  const div = document.createElement('div');
-  div.className = 'log-entry ' + (entry.t || '');
-  div.textContent = entry.text;
-  logArea.appendChild(div);
-  logArea.scrollTop = logArea.scrollHeight;
-}
-
-function clearLogs() {
-  $('log-area').innerHTML = '';
-}
-
-function showChoices(choices) {
-  state.currentChoices = choices;
-  const container = $('choice-btns');
-  container.innerHTML = '';
-  choices.forEach((ch, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn choice-btn';
-    btn.innerHTML = `<div class="c-name">${String.fromCharCode(65 + i)}. ${ch.name}</div><div class="c-desc">${ch.desc}</div>`;
-    btn.onclick = () => onChoose(ch);
-    container.appendChild(btn);
-  });
-  $('choices-area').classList.remove('hidden');
-  $('btn-next').classList.add('hidden');
-}
-
-function hideChoices() {
-  $('choices-area').classList.add('hidden');
-  $('btn-next').classList.remove('hidden');
-}
-
-function onChoose(choice) {
-  choice.apply(state.player);
-  applySchoolEffects(state.player);
-  state.player.gold = Math.max(0, state.player.gold - 15);
-  addLog({ t: 'system', text: `✨ 选择了「${choice.name}」，${SCHOOLS[state.player.school].name}效果已更新。` });
-  hideChoices();
-  updateUI();
-  // Now enter battle
-  startBattle();
-}
-
-function onUpgradeSchool() {
-  if (state.player.schoolLv < 3 && state.player.gold >= 15) {
-    state.player.gold -= 15;
-    state.player.schoolLv++;
-    applySchoolEffects(state.player);
-    // Recalculate maxHp increase for life school
-    if (state.player.school === 'life') {
-      // Already handled in applySchoolEffects
-    }
-    state.player.hp = Math.min(state.player.hp, state.player.maxHp);
-    addLog({ t: 'system', text: `⬆️ 流派升为 ${SCHOOLS[state.player.school].name} Lv.${state.player.schoolLv}！` });
-    updateUI();
-  }
-}
-
-function startBattle() {
-  state.enemy = generateEnemy(state.round);
-  state.lifeLockUsed = { player: false, enemy: false };
-  state.ultCooldown = state.player.ultBonus > 0 ? (state.player.schoolLv >= 3 ? 3 : 5) : 0;
-  state.enemyUltCooldown = state.enemy.ultBonus > 0 ? (state.enemy.schoolLv >= 3 ? 3 : 5) : 0;
-  state.nextAtkGuaranteed = { player: false, enemy: false };
-  state.player.poisonStacks = 0;
-  state.enemy.poisonStacks = 0;
-  clearLogs();
-  addLog({ t: 'system', text: `⚔️ 第 ${state.round} 轮开始！` });
-  addLog({ t: 'system', text: `你的 ${state.player.name} (${SCHOOLS[state.player.school].name} Lv.${state.player.schoolLv}) vs ${state.enemy.name} (${SCHOOLS[state.enemy.school].name} Lv.${state.enemy.schoolLv})` });
-  updateUI();
-  state.phase = 'BATTLING';
-  const result = runBattle(state.player, state.enemy);
-  // Animate logs
-  state.logQueue = result.logs;
-  state.logIndex = 0;
-  state.phase = 'BATTLE_END';
-  animateLogs(() => {
-    if (result.winner === 'player') {
-      onVictory();
-    } else {
-      onDefeat();
-    }
-  });
-}
-
-function animateLogs(callback) {
-  if (state.logIndex >= state.logQueue.length) {
-    callback && callback();
-    return;
-  }
-  addLog(state.logQueue[state.logIndex]);
-  updateUI();
-  state.logIndex++;
-  state.animTimer = setTimeout(() => animateLogs(callback), 320);
-}
-
-function onVictory() {
-  const reward = 10 + state.round * 2;
-  state.player.gold += reward;
-  state.round++;
-  addLog({ t: 'system', text: `🎉 胜利！获得 ${reward} 金币` });
-  updateUI();
-  if (state.round - 1 > state.highScore) {
-    state.highScore = state.round - 1;
-    localStorage.setItem('cricket-highscore', state.highScore);
-    addLog({ t: 'system', text: `🏆 新纪录！最高连胜：${state.highScore}` });
-  }
-  state.phase = 'PREPARE';
-  // Generate new choices
-  const pool = [...OPTIONS_POOL];
-  const choices = [];
-  let attempts = 0;
-  while (choices.length < 3 && attempts < 50) {
-    const idx = Math.floor(Math.random() * pool.length);
-    const ch = pool[idx];
-    if (ch.name === '经验胶囊' && state.player.schoolLv >= 3) {
-      attempts++;
-      continue;
-    }
-    choices.push(ch);
-    pool.splice(idx, 1);
-    attempts++;
-  }
-  setTimeout(() => {
-    showChoices(choices);
-    updateUI();
-  }, 400);
-}
-
-function onDefeat() {
-  state.phase = 'GAMEOVER';
-  const overlay = $('result-overlay');
-  const title = $('res-title');
-  const detail = $('res-detail');
-  title.textContent = '💀 战败';
-  title.className = 'res-title defeat';
-  detail.innerHTML = `${state.player.name} 在第 ${state.round} 轮倒下了。<br>最高连胜：${state.highScore} 轮`;
-  overlay.classList.remove('hidden');
-}
-
-function onRestart() {
-  $('result-overlay').classList.add('hidden');
-  $('choices-area').classList.add('hidden');
-  $('btn-next').classList.remove('hidden');
-  clearLogs();
-  state.player = createPlayer();
-  applySchoolEffects(state.player);
-  state.player.hp = state.player.maxHp;
-  state.round = 1;
-  state.enemy = null;
-  state.phase = 'PREPARE';
-  addLog({ t: 'system', text: '🦗 新的蛐蛐诞生了！选择你的成长路线吧。' });
-  updateUI();
-}
-
-function onNextRound() {
-  if (state.phase !== 'PREPARE') return;
-  hideChoices();
-  clearLogs();
-  startBattle();
-}
-
-// ==================== 启动 ====================
-function init() {
-  state.player = createPlayer();
-  applySchoolEffects(state.player);
-  state.player.hp = state.player.maxHp;
-  state.round = 1;
-  clearLogs();
-  addLog({ t: 'system', text: `🦗 ${state.player.name} 登场！(${SCHOOLS[state.player.school].name} Lv.1)` });
-  addLog({ t: 'system', text: '⚔️ 选择你的成长路线，挑战越来越强的敌人！' });
-  updateUI();
-}
-
-init();
-
-// Noise canvas
-(function() {
-  var c = document.getElementById('noise'), ctx = c.getContext('2d');
-  function rz() { c.width = window.innerWidth; c.height = window.innerHeight; }
-  rz();
-  window.addEventListener('resize', rz);
-  (function nd() {
-    ctx.clearRect(0, 0, c.width, c.height);
-    for (var i = 0; i < 25; i++) {
-      var x = Math.random() * c.width, y = Math.random() * c.height, s = Math.random() * 2 + 0.5;
-      ctx.fillStyle = 'rgba(212,197,169,' + (Math.random() * 0.03) + ')';
-      ctx.fillRect(x, y, s, s);
+// Noise
+(function(){
+  var c=document.getElementById('n'),x=c.getContext('2d');
+  function rz(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  rz();window.addEventListener('resize',rz);
+  (function nd(){
+    x.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<25;i++){
+      var px=Math.random()*c.width,py=Math.random()*c.height,ps=Math.random()*2+0.5;
+      x.fillStyle='rgba(212,197,169,'+(Math.random()*0.03)+')';
+      x.fillRect(px,py,ps,ps);
     }
     requestAnimationFrame(nd);
   })();
+})();
 })();
 </script>
 </body>
