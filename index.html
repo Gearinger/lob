@@ -3,65 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lob — Hi there 🦞</title>
-  <link rel="stylesheet" href="colors.css">
+  <title>Lob's World 🦞</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: radial-gradient(ellipse at 20% 0%, rgba(255,143,163,0.12) 0%, transparent 50%),
-                   radial-gradient(ellipse at 80% 100%, rgba(168,216,255,0.12) 0%, transparent 50%),
-                   radial-gradient(ellipse at 50% 50%, rgba(255,179,198,0.08) 0%, transparent 60%),
-                   #FFF5EE;
-      overflow: hidden;
-      font-family: -apple-system, 'PingFang SC', sans-serif;
-      color: #3D2A35;
-    }
-
+    body { overflow: hidden; background: #FFF5EE; font-family: -apple-system, 'PingFang SC', sans-serif; }
     canvas { display: block; }
-
-    #lob-title {
+    #title {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
+      top: 20px;
+      left: 24px;
       z-index: 10;
       pointer-events: none;
     }
-
-    .lob-emoji {
-      font-size: 5rem;
-      margin-bottom: 12px;
-      filter: drop-shadow(0 0 40px rgba(255,143,80,0.4));
-      animation: floatEmoji 3s ease-in-out infinite;
+    #title h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #3D2A35;
+      letter-spacing: 0.05em;
     }
-
-    @keyframes floatEmoji {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+    #title p {
+      font-size: 0.7rem;
+      color: rgba(61,42,53,0.45);
+      letter-spacing: 0.12em;
+      margin-top: 3px;
     }
-
-    .lob-name {
-      font-size: 1rem;
-      letter-spacing: 0.4em;
-      color: rgba(61, 42, 53, 0.5);
-      text-transform: uppercase;
-    }
-
-    #hint {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.75rem;
-      color: rgba(61, 42, 53, 0.3);
-      letter-spacing: 0.15em;
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 1s ease;
-    }
-
     #loading {
       position: fixed;
       inset: 0;
@@ -69,459 +34,573 @@
       align-items: center;
       justify-content: center;
       z-index: 20;
-      font-size: 0.8rem;
-      color: rgba(240, 238, 255, 0.4);
-      letter-spacing: 0.2em;
+      font-size: 0.75rem;
+      color: rgba(168,216,255,0.7);
+      letter-spacing: 0.3em;
       transition: opacity 0.8s ease;
+      background: #FFF5EE;
     }
-
     #loading.hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
 
-  <div id="loading">LOADING...</div>
+<div id="loading">LOADING...</div>
 
-  <div id="lob-title">
-    <div class="lob-emoji">🦞</div>
-    <div class="lob-name">Lob's Space</div>
-  </div>
+<div id="title">
+  <h1>Lob's World 🦞</h1>
+  <p>click a shop to explore</p>
+</div>
 
-  <div id="hint">点击光板进入 · DRAG TO ORBIT</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Palette ───────────────────────────────────────────────
+const C = {
+  pink:     0xFF8FA3,
+  skyblue:  0xA8D8FF,
+  cream:    0xFFF5EE,
+  peach:    0xFFDAB3,
+  mint:     0xB8E8D0,
+  lavender: 0xD4B8E8,
+  yellow:   0xFFE066,
+  coral:    0xFF8FA3,
+  dark:     0x3D2A35,
+  ground:   0xF5E6D3,
+  road:     0xE8D5C4,
+  lamp:     0xFFE4B8,
+};
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script>
-    // === Scene Setup ===
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 12;
+// ─── Scene ─────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xFFF5EE);
+scene.fog = new THREE.Fog(0xFFF5EE, 30, 80);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 12, 22);
+camera.lookAt(0, 0, 0);
 
-    // === Lights ===
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
 
-    const pinkLight = new THREE.PointLight(0xFF8FA3, 1.5, 30);
-    pinkLight.position.set(5, 5, 5);
-    scene.add(pinkLight);
+// ─── Lights ────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0xFFE8D6, 0.7);
+scene.add(ambient);
 
-    const blueLight = new THREE.PointLight(0xA8D8FF, 1.2, 30);
-    blueLight.position.set(-5, -3, 5);
-    scene.add(blueLight);
+const sun = new THREE.DirectionalLight(0xFFE4C4, 1.0);
+sun.position.set(8, 20, 10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -30;
+sun.shadow.camera.right = 30;
+sun.shadow.camera.top = 30;
+sun.shadow.camera.bottom = -30;
+scene.add(sun);
 
-    const magentaLight = new THREE.PointLight(0xFFB3C6, 0.8, 25);
-    magentaLight.position.set(0, 0, 8);
-    scene.add(magentaLight);
+const pinkFill = new THREE.PointLight(0xFFB3C6, 0.8, 40);
+pinkFill.position.set(-12, 8, 0);
+scene.add(pinkFill);
 
-    // === Billboard Geometry ===
-    const billboardData = [
-      {
-        label: 'Blog',
-        sub: 'Writing & Thoughts',
-        icon: '✍️',
-        color: 0xFF8FA3,
-        position: new THREE.Vector3(-3.5, 1.5, 0),
-        link: 'blog/'
-      },
-      {
-        label: 'Games',
-        sub: '13 Mini Games',
-        icon: '🎮',
-        color: 0xA8D8FF,
-        position: new THREE.Vector3(3.5, 1.5, 0),
-        link: 'games/'
-      },
-      {
-        label: 'About',
-        sub: 'What is Lob?',
-        icon: '🌊',
-        color: 0xFFB3C6,
-        position: new THREE.Vector3(0, -2, 0),
-        link: '#'
-      },
-      {
-        label: 'SBTI',
-        sub: '离谱人格测试',
-        icon: '🎭',
-        color: 0xF39C12,
-        position: new THREE.Vector3(-3.5, -2, 0),
-        link: 'sbti/'
-      },
-    ];
+const blueFill = new THREE.PointLight(0xA8D8FF, 0.6, 40);
+blueFill.position.set(12, 8, 0);
+scene.add(blueFill);
 
-    // === Create Billboard Planes ===
-    const billboards = [];
+// ─── Helpers ───────────────────────────────────────────────
+function flatMat(color) {
+  return new THREE.MeshLambertMaterial({ color, flatShading: true });
+}
 
-    function createBillboard(data) {
-      const group = new THREE.Group();
+// Create a low-poly building group at position
+function makeBuilding(opts) {
+  const { x, z, color, accent, shape, w, h, d, label, link, phase } = opts;
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
 
-      // Card background - rounded rect using PlaneGeometry
-      const cardGeo = new THREE.PlaneGeometry(3.2, 2.2);
-      const cardMat = new THREE.MeshStandardMaterial({
-        color: 0x1A1020,
-        transparent: true,
-        opacity: 0.85,
-        roughness: 0.3,
-        metalness: 0.1,
-        side: THREE.DoubleSide,
-      });
-      const card = new THREE.Mesh(cardGeo, cardMat);
-      group.add(card);
+  const baseMat = flatMat(color);
+  const accentMat = flatMat(accent || 0x3D2A35);
+  const doorMat = flatMat(0x3D2A35);
 
-      // Border glow using EdgesGeometry
-      const edgesGeo = new THREE.EdgesGeometry(cardGeo);
-      const edgesMat = new THREE.LineBasicMaterial({
-        color: data.color,
-        transparent: true,
-        opacity: 0.6,
-      });
-      const edges = new THREE.LineSegments(edgesGeo, edgesMat);
-      group.add(edges);
+  let body;
 
-      // Icon
-      const iconCanvas = document.createElement('canvas');
-      iconCanvas.width = 128;
-      iconCanvas.height = 128;
-      const iconCtx = iconCanvas.getContext('2d');
-      iconCtx.font = '72px serif';
-      iconCtx.textAlign = 'center';
-      iconCtx.textBaseline = 'middle';
-      iconCtx.fillText(data.icon, 64, 64);
+  if (shape === 'house') {
+    // Main box body
+    body = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.6, d), baseMat);
+    body.position.y = h * 0.3;
+    body.castShadow = true;
+    group.add(body);
 
-      const iconTex = new THREE.CanvasTexture(iconCanvas);
-      const iconGeo = new THREE.PlaneGeometry(0.7, 0.7);
-      const iconMat = new THREE.MeshBasicMaterial({
-        map: iconTex,
-        transparent: true,
-        side: THREE.DoubleSide,
-      });
-      const iconMesh = new THREE.Mesh(iconGeo, iconMat);
-      iconMesh.position.z = 0.01;
-      iconMesh.position.y = 0.55;
-      group.add(iconMesh);
+    // Roof (pyramid)
+    const roofGeo = new THREE.ConeGeometry(w * 0.75, h * 0.5, 4);
+    const roof = new THREE.Mesh(roofGeo, flatMat(accent || C.dark));
+    roof.position.y = h * 0.6 + h * 0.25;
+    roof.rotation.y = Math.PI / 4;
+    roof.castShadow = true;
+    group.add(roof);
 
-      // Label text (using canvas texture)
-      function makeTextTex(text, sub, color) {
-        const tc = document.createElement('canvas');
-        tc.width = 512;
-        tc.height = 256;
-        const ctx = tc.getContext('2d');
+    // Door
+    const door = new THREE.Mesh(new THREE.BoxGeometry(w * 0.25, h * 0.25, 0.05), doorMat);
+    door.position.set(0, h * 0.1 + h * 0.125, d / 2 + 0.03);
+    group.add(door);
 
-        // Label
-        ctx.font = 'bold 52px -apple-system, sans-serif';
-        ctx.fillStyle = `rgba(240, 238, 255, 0.95)`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, 256, 80);
+    // Windows
+    const winGeo = new THREE.BoxGeometry(w * 0.18, h * 0.12, 0.05);
+    const winPositions = [[-w * 0.25, h * 0.38, d/2+0.03], [w * 0.25, h * 0.38, d/2+0.03]];
+    winPositions.forEach(pos => {
+      const win = new THREE.Mesh(winGeo, flatMat(C.lamp));
+      win.position.set(...pos);
+      group.add(win);
+    });
 
-        // Sub
-        ctx.font = '28px -apple-system, sans-serif';
-        ctx.fillStyle = `rgba(154, 138, 170, 0.8)`;
-        ctx.fillText(sub, 256, 150);
+  } else if (shape === 'tower') {
+    // Tall cylinder tower
+    body = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.45, w * 0.5, h, 6), baseMat);
+    body.position.y = h / 2;
+    body.castShadow = true;
+    group.add(body);
 
-        // Underline
-        ctx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(128, 185);
-        ctx.lineTo(384, 185);
-        ctx.stroke();
+    // Cone roof
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.55, h * 0.35, 6), flatMat(accent || C.dark));
+    roof.position.y = h + h * 0.175;
+    roof.rotation.y = Math.PI / 6;
+    roof.castShadow = true;
+    group.add(roof);
 
-        return new THREE.CanvasTexture(tc);
-      }
+    // Door
+    const door = new THREE.Mesh(new THREE.BoxGeometry(w * 0.25, h * 0.18, 0.05), doorMat);
+    door.position.set(0, h * 0.09, w * 0.45 + 0.03);
+    group.add(door);
 
-      const textTex = makeTextTex(data.label, data.sub, data.color);
-      const textGeo = new THREE.PlaneGeometry(2.4, 0.9);
-      const textMat = new THREE.MeshBasicMaterial({
-        map: textTex,
-        transparent: true,
-        side: THREE.DoubleSide,
-      });
-      const textMesh = new THREE.Mesh(textGeo, textMat);
-      textMesh.position.z = 0.01;
-      textMesh.position.y = -0.25;
-      group.add(textMesh);
-
-      // Position
-      group.position.copy(data.position);
-
-      // User data
-      group.userData = {
-        originalPos: data.position.clone(),
-        link: data.link,
-        color: data.color,
-        floatOffset: Math.random() * Math.PI * 2,
-        card: card,
-        edges: edges,
-        iconMesh: iconMesh,
-      };
-
-      scene.add(group);
-      billboards.push(group);
+    // Windows ring
+    for (let i = 0; i < 3; i++) {
+      const angle = (i / 3) * Math.PI * 2;
+      const win = new THREE.Mesh(new THREE.BoxGeometry(w * 0.12, h * 0.1, 0.05), flatMat(C.lamp));
+      win.position.set(Math.sin(angle) * w * 0.48, h * 0.5, Math.cos(angle) * w * 0.48);
+      win.lookAt(Math.sin(angle) * 10, win.position.y, Math.cos(angle) * 10);
+      group.add(win);
     }
 
-    billboardData.forEach(createBillboard);
+  } else if (shape === 'big') {
+    // Large main building — multi-level
+    body = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.5, d), baseMat);
+    body.position.y = h * 0.25;
+    body.castShadow = true;
+    group.add(body);
 
-    // === Floating Particles ===
-    const particleCount = 200;
-    const particleGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const particleColors = new Float32Array(particleCount * 3);
+    // Second level (smaller)
+    const top = new THREE.Mesh(new THREE.BoxGeometry(w * 0.75, h * 0.25, d * 0.75), flatMat(accent || C.dark));
+    top.position.y = h * 0.5 + h * 0.125;
+    top.castShadow = true;
+    group.add(top);
 
-    const colors = [
-      new THREE.Color(0xFF8FA3),
-      new THREE.Color(0xA8D8FF),
-      new THREE.Color(0xFFB3C6),
-    ];
+    // Pentagonal prism / stylized roof
+    const roof = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.4, w * 0.5, h * 0.3, 5), flatMat(C.peach));
+    roof.position.y = h * 0.5 + h * 0.25 + h * 0.15;
+    roof.rotation.y = Math.PI / 5;
+    roof.castShadow = true;
+    group.add(roof);
 
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 30;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
-      const c = colors[Math.floor(Math.random() * colors.length)];
-      particleColors[i * 3] = c.r;
-      particleColors[i * 3 + 1] = c.g;
-      particleColors[i * 3 + 2] = c.b;
+    // Grand door
+    const gdoor = new THREE.Mesh(new THREE.BoxGeometry(w * 0.3, h * 0.18, 0.06), doorMat);
+    gdoor.position.set(0, h * 0.09 + h * 0.09, d / 2 + 0.04);
+    group.add(gdoor);
+
+    // Big windows
+    const bw = w * 0.18;
+    const bh = h * 0.12;
+    [[-bw*1.5, h*0.35, d/2+0.03], [0, h*0.35, d/2+0.03], [bw*1.5, h*0.35, d/2+0.03]].forEach(pos => {
+      const win = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.05), flatMat(C.lamp));
+      win.position.set(...pos);
+      group.add(win);
+    });
+
+  } else if (shape === 'shop') {
+    // Wide shopfront
+    body = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.55, d), baseMat);
+    body.position.y = h * 0.275;
+    body.castShadow = true;
+    group.add(body);
+
+    // Flat awning (box)
+    const awning = new THREE.Mesh(new THREE.BoxGeometry(w * 1.1, h * 0.06, d * 0.6), flatMat(accent || C.dark));
+    awning.position.set(0, h * 0.55, d * 0.2);
+    awning.castShadow = true;
+    group.add(awning);
+
+    // Showroom window (large front)
+    const shopWin = new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, h * 0.28, 0.04), flatMat(C.skyblue));
+    shopWin.position.set(0, h * 0.28, d / 2 + 0.03);
+    group.add(shopWin);
+
+    // Door
+    const door = new THREE.Mesh(new THREE.BoxGeometry(w * 0.2, h * 0.22, 0.05), doorMat);
+    door.position.set(w * 0.35, h * 0.11 + h * 0.11, d / 2 + 0.03);
+    group.add(door);
+
+  } else if (shape === 'dome') {
+    // Dome building
+    body = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.6, w * 0.7, h * 0.5, 8), baseMat);
+    body.position.y = h * 0.25;
+    body.castShadow = true;
+    group.add(body);
+
+    // Half-sphere dome
+    const domeGeo = new THREE.SphereGeometry(w * 0.62, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2);
+    const dome = new THREE.Mesh(domeGeo, flatMat(accent || C.dark));
+    dome.position.y = h * 0.5;
+    dome.castShadow = true;
+    group.add(dome);
+
+    // Door
+    const door = new THREE.Mesh(new THREE.BoxGeometry(w * 0.2, h * 0.2, 0.05), doorMat);
+    door.position.set(0, h * 0.1 + h * 0.1, w * 0.65);
+    group.add(door);
+
+  } else {
+    // Default box
+    body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), baseMat);
+    body.position.y = h / 2;
+    body.castShadow = true;
+    group.add(body);
+  }
+
+  // ─ Emoji sprite ─
+  const canvas = document.createElement('canvas');
+  canvas.width = 128; canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.font = '72px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, 64, 64);
+  const tex = new THREE.CanvasTexture(canvas);
+  const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+  const sprite = new THREE.Sprite(spriteMat);
+  const bodyH = body.geometry.parameters ? body.geometry.parameters.height * (body.geometry.parameters.height || 1) : h;
+  sprite.scale.set(2.2, 2.2, 1);
+  sprite.position.y = (body ? body.position.y + body.geometry.parameters.height / 2 : h/2) + (shape === 'big' ? h * 0.95 : h * 0.65);
+  if (shape === 'tower') sprite.position.y = h + h * 0.5;
+  if (shape === 'dome') sprite.position.y = h * 0.5 + w * 0.8;
+  group.add(sprite);
+
+  // Sub-label below
+  const labelCanvas = document.createElement('canvas');
+  labelCanvas.width = 256; labelCanvas.height = 64;
+  const lctx = labelCanvas.getContext('2d');
+  lctx.font = 'bold 28px -apple-system, sans-serif';
+  lctx.fillStyle = 'rgba(61,42,53,0.85)';
+  lctx.textAlign = 'center';
+  lctx.textBaseline = 'middle';
+  const subLabels = { '🏠': 'Lob 首页', '📝': 'Blog', '🎮': 'Games', '🎭': 'SBTI', '🧩': '工具', '🌊': 'About' };
+  lctx.fillText(subLabels[label] || label, 128, 32);
+  const ltex = new THREE.CanvasTexture(labelCanvas);
+  const lSpriteMat = new THREE.SpriteMaterial({ map: ltex, transparent: true });
+  const lSprite = new THREE.Sprite(lSpriteMat);
+  lSprite.scale.set(2.8, 0.7, 1);
+  lSprite.position.y = sprite.position.y - 1.5;
+  group.add(lSprite);
+
+  group.userData = { phase, link, baseY: 0 };
+  scene.add(group);
+  return group;
+}
+
+// ─── Ground ────────────────────────────────────────────────
+function buildGround() {
+  // Main ground
+  const groundGeo = new THREE.PlaneGeometry(80, 40);
+  const groundMat = flatMat(C.ground);
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.05;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Road
+  const roadGeo = new THREE.PlaneGeometry(60, 4);
+  const roadMat = flatMat(C.road);
+  const road = new THREE.Mesh(roadGeo, roadMat);
+  road.rotation.x = -Math.PI / 2;
+  road.position.y = 0;
+  road.receiveShadow = true;
+  scene.add(road);
+
+  // Road dashes
+  for (let x = -25; x <= 25; x += 4) {
+    const dash = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.15), flatMat(0xFFFFFF));
+    dash.rotation.x = -Math.PI / 2;
+    dash.position.set(x, 0.01, 0);
+    scene.add(dash);
+  }
+
+  // Sidewalks
+  [-2.8, 2.8].forEach(z => {
+    const sw = new THREE.Mesh(new THREE.PlaneGeometry(60, 1.5), flatMat(0xEAD9C8));
+    sw.rotation.x = -Math.PI / 2;
+    sw.position.set(0, 0.02, z);
+    sw.receiveShadow = true;
+    scene.add(sw);
+  });
+
+  // Grid lines on ground (subtle)
+  const grid = new THREE.GridHelper(60, 30, 0xE8D5C4, 0xE8D5C4);
+  grid.position.y = 0.01;
+  grid.material.opacity = 0.3;
+  grid.material.transparent = true;
+  scene.add(grid);
+}
+buildGround();
+
+// ─── Buildings ─────────────────────────────────────────────
+const buildings = [];
+
+// Big center — Lob 首页
+buildings.push(makeBuilding({
+  x: 0, z: -7, color: C.pink, accent: C.peach, shape: 'big',
+  w: 4, h: 3.5, d: 3,
+  label: '🏠', link: '/lob/', phase: 0
+}));
+
+// Left side buildings
+buildings.push(makeBuilding({
+  x: -10, z: -7, color: C.skyblue, accent: C.lavender, shape: 'house',
+  w: 2.5, h: 2.8, d: 2.5,
+  label: '📝', link: '/lob/blog/', phase: 1.2
+}));
+
+buildings.push(makeBuilding({
+  x: -16, z: -7, color: C.lavender, accent: C.dark, shape: 'tower',
+  w: 1.6, h: 4.5, d: 1.6,
+  label: '🎭', link: '/lob/sbti/', phase: 2.5
+}));
+
+// Right side buildings
+buildings.push(makeBuilding({
+  x: 10, z: -7, color: C.mint, accent: C.skyblue, shape: 'shop',
+  w: 3, h: 2.2, d: 2.5,
+  label: '🎮', link: '/lob/games/', phase: 0.7
+}));
+
+buildings.push(makeBuilding({
+  x: 16, z: -7, color: C.peach, accent: C.dark, shape: 'dome',
+  w: 2.2, h: 2.8, d: 2.2,
+  label: '🧩', link: '/gear.hermygong.com/collection/', phase: 1.8
+}));
+
+// Small shop between center and right
+buildings.push(makeBuilding({
+  x: 5.5, z: -7, color: C.yellow, accent: C.dark, shape: 'shop',
+  w: 2.2, h: 1.8, d: 2,
+  label: '🌊', link: '#', phase: 3.2
+}));
+
+// Far left shop
+buildings.push(makeBuilding({
+  x: -5.5, z: -7, color: C.coral, accent: C.dark, shape: 'shop',
+  w: 2.2, h: 1.8, d: 2,
+  label: '🌊', link: '#', phase: 0.4
+}));
+
+// ─── Trees ─────────────────────────────────────────────────
+function makeTree(x, z) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+
+  // Trunk
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.18, 1.2, 5),
+    flatMat(0x8B6347)
+  );
+  trunk.position.y = 0.6;
+  trunk.castShadow = true;
+  g.add(trunk);
+
+  // Foliage layers (cones stacked)
+  const colors = [0x7EC87A, 0x5FBF6A, 0x4CAF50];
+  const sizes = [[1.1, 0.9], [0.8, 0.85], [0.5, 0.8]];
+  sizes.forEach(([r, h], i) => {
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 6), flatMat(colors[i]));
+    cone.position.y = 1.2 + i * 0.5;
+    cone.rotation.y = Math.random() * Math.PI;
+    cone.castShadow = true;
+    g.add(cone);
+  });
+
+  scene.add(g);
+}
+
+// Trees on both sides of street
+[[-8,-3.5],[-14,-3],[-20,-3.5],[8,-3.5],[14,-3],[20,-3.5],
+ [-8,-11],[-14,-11],[14,-11],[20,-11]].forEach(([x,z]) => makeTree(x, z));
+
+// ─── Street Lamps ──────────────────────────────────────────
+const lampLights = [];
+function makeLamp(x, z) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+
+  // Pole
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 4, 5), flatMat(0x7A7A8A));
+  pole.position.y = 2;
+  pole.castShadow = true;
+  g.add(pole);
+
+  // Arm
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.08), flatMat(0x7A7A8A));
+  arm.position.set(0.3, 3.9, 0);
+  g.add(arm);
+
+  // Lamp head
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.35), flatMat(C.lamp));
+  head.position.set(0.6, 3.8, 0);
+  g.add(head);
+
+  // Actual point light (shared)
+  const pl = new THREE.PointLight(0xFFE8B0, 0.5, 8);
+  pl.position.set(x + 0.6, 3.7, z);
+  scene.add(pl);
+  lampLights.push(pl);
+
+  scene.add(g);
+}
+
+[[-7,-3],[-13,-3],[-19,-3],[7,-3],[13,-3],[19,-3]].forEach(([x,z]) => makeLamp(x, z));
+
+// ─── Small decorations ─────────────────────────────────────
+// Low-poly benches, bushes, etc.
+function makeBush(x, z) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+  [[0,0,0,0.5],[0.4,0,0.1,0.4],[-0.3,0,0.15,0.35]].forEach(([dx,dy,dz,r]) => {
+    const m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), flatMat(0x6BBF59));
+    m.position.set(dx, r * 0.7, dz);
+    m.rotation.set(Math.random(), Math.random(), Math.random());
+    m.castShadow = true;
+    g.add(m);
+  });
+  scene.add(g);
+}
+
+[[-4,-4.5],[-9,-4.5],[4,-4.5],[9,-4.5],[-22,-4.5],[22,-4.5]].forEach(([x,z]) => makeBush(x,z));
+
+function makeBench(x, z, ry) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+  g.rotation.y = ry;
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.5), flatMat(0xA0714F));
+  seat.position.y = 0.5;
+  g.add(seat);
+  const legGeo = new THREE.BoxGeometry(0.08, 0.5, 0.5);
+  [-0.5, 0.5].forEach(dx => {
+    const leg = new THREE.Mesh(legGeo, flatMat(0x7A5430));
+    leg.position.set(dx, 0.25, 0);
+    g.add(leg);
+  });
+  scene.add(g);
+}
+
+[[-6,-4.5,0],[6,-4.5,0],[-18,-4.5,Math.PI/2],[18,-4.5,Math.PI/2]].forEach(([x,z,ry]) => makeBench(x,z,ry));
+
+// ─── Sky floating particles ─────────────────────────────────
+const pCount = 120;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(pCount * 3);
+for (let i = 0; i < pCount; i++) {
+  pPos[i*3]   = (Math.random()-0.5)*60;
+  pPos[i*3+1] = 2 + Math.random()*15;
+  pPos[i*3+2] = (Math.random()-0.5)*30 - 5;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({ color: 0xFFE8D0, size: 0.08, transparent: true, opacity: 0.5 });
+scene.add(new THREE.Points(pGeo, pMat));
+
+// ─── Raycaster / Interaction ────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hovered = null;
+
+addEventListener('mousemove', e => {
+  mouse.x =  (e.clientX/innerWidth)*2 - 1;
+  mouse.y = -(e.clientY/innerHeight)*2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(buildings, true);
+
+  let found = null;
+  for (const h of hits) {
+    let obj = h.object;
+    while (obj.parent && !buildings.includes(obj)) obj = obj.parent;
+    if (buildings.includes(obj)) { found = obj; break; }
+  }
+
+  if (found !== hovered) {
+    hovered = found;
+    document.body.style.cursor = hovered ? 'pointer' : 'default';
+  }
+});
+
+addEventListener('click', () => {
+  if (hovered && hovered.userData.link) {
+    window.location.href = hovered.userData.link;
+  }
+});
+
+// Touch
+addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  mouse.x =  (t.clientX/innerWidth)*2 - 1;
+  mouse.y = -(t.clientY/innerHeight)*2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(buildings, true);
+  for (const h of hits) {
+    let obj = h.object;
+    while (obj.parent && !buildings.includes(obj)) obj = obj.parent;
+    if (buildings.includes(obj) && obj.userData.link) {
+      window.location.href = obj.userData.link;
+      return;
     }
+  }
+}, { passive: true });
 
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    particleGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+// ─── Animation ─────────────────────────────────────────────
+const clock = new THREE.Clock();
 
-    const particleMat = new THREE.PointsMaterial({
-      size: 0.06,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.6,
-      sizeAttenuation: true,
-    });
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
 
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
+  // Bob buildings
+  buildings.forEach(b => {
+    b.position.y = b.userData.baseY + Math.sin(t * 0.9 + b.userData.phase) * 0.18;
+  });
 
-    // === Floating Shapes (background) ===
-    const bgShapes = [];
+  // Twinkle lamp lights
+  lampLights.forEach((l, i) => {
+    l.intensity = 0.35 + Math.sin(t * 2.5 + i * 1.2) * 0.2;
+  });
 
-    function createBgShape() {
-      const types = ['octahedron', 'icosahedron', 'tetrahedron', 'dodecahedron'];
-      const type = types[Math.floor(Math.random() * types.length)];
-      let geo;
-      switch(type) {
-        case 'octahedron': geo = new THREE.OctahedronGeometry(0.4 + Math.random() * 0.5); break;
-        case 'icosahedron': geo = new THREE.IcosahedronGeometry(0.3 + Math.random() * 0.4); break;
-        case 'tetrahedron': geo = new THREE.TetrahedronGeometry(0.4 + Math.random() * 0.5); break;
-        case 'dodecahedron': geo = new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.4); break;
-      }
+  // Gentle camera sway
+  camera.position.x = Math.sin(t * 0.08) * 0.8;
+  camera.position.y = 12 + Math.sin(t * 0.06) * 0.3;
+  camera.lookAt(0, 1, 0);
 
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const mat = new THREE.MeshStandardMaterial({
-        color: color,
-        transparent: true,
-        opacity: 0.25,
-        roughness: 0.5,
-        metalness: 0.5,
-        wireframe: Math.random() > 0.5,
-      });
+  renderer.render(scene, camera);
+}
 
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(
-        (Math.random() - 0.5) * 25,
-        (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 10 - 5
-      );
-      mesh.userData = {
-        rotSpeed: {
-          x: (Math.random() - 0.5) * 0.01,
-          y: (Math.random() - 0.5) * 0.01,
-          z: (Math.random() - 0.5) * 0.01,
-        },
-        floatSpeed: 0.3 + Math.random() * 0.5,
-        floatOffset: Math.random() * Math.PI * 2,
-        originalY: mesh.position.y,
-      };
+// Hide loading
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loading').classList.add('hidden'), 600);
+});
 
-      scene.add(mesh);
-      bgShapes.push(mesh);
-    }
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
 
-    for (let i = 0; i < 30; i++) createBgShape();
-
-    // === Mouse Interaction ===
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    let hoveredBillboard = null;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
-    let isDragging = false;
-    let previousMouse = { x: 0, y: 0 };
-    let autoRotate = true;
-
-    document.addEventListener('mousemove', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      if (isDragging) {
-        const dx = e.clientX - previousMouse.x;
-        const dy = e.clientY - previousMouse.y;
-        targetRotationY += dx * 0.005;
-        targetRotationX += dy * 0.005;
-        targetRotationX = Math.max(-0.5, Math.min(0.5, targetRotationX));
-        previousMouse = { x: e.clientX, y: e.clientY };
-        autoRotate = false;
-      }
-
-      // Raycast
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(scene.children, true);
-
-      let found = null;
-      for (const hit of intersects) {
-        const obj = hit.object.parent;
-        if (billboards.includes(obj)) {
-          found = obj;
-          break;
-        }
-      }
-
-      if (found !== hoveredBillboard) {
-        if (hoveredBillboard) {
-          hoveredBillboard.userData.card.material.opacity = 0.85;
-          hoveredBillboard.userData.edges.material.opacity = 0.6;
-        }
-        hoveredBillboard = found;
-        document.body.style.cursor = hoveredBillboard ? 'pointer' : 'default';
-        if (hoveredBillboard) {
-          hoveredBillboard.userData.card.material.opacity = 1;
-          hoveredBillboard.userData.edges.material.opacity = 1;
-        }
-      }
-    });
-
-    document.addEventListener('mousedown', (e) => {
-      if (hoveredBillboard) {
-        window.location.href = hoveredBillboard.userData.link;
-      } else {
-        isDragging = true;
-        previousMouse = { x: e.clientX, y: e.clientY };
-      }
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-      setTimeout(() => { autoRotate = true; }, 3000);
-    });
-
-    // Touch support
-    document.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(scene.children, true);
-
-      for (const hit of intersects) {
-        const obj = hit.object.parent;
-        if (billboards.includes(obj)) {
-          window.location.href = obj.userData.link;
-          return;
-        }
-      }
-
-      isDragging = true;
-      previousMouse = { x: touch.clientX, y: touch.clientY };
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      const touch = e.touches[0];
-      const dx = touch.clientX - previousMouse.x;
-      const dy = touch.clientY - previousMouse.y;
-      targetRotationY += dx * 0.005;
-      targetRotationX += dy * 0.005;
-      targetRotationX = Math.max(-0.5, Math.min(0.5, targetRotationX));
-      previousMouse = { x: touch.clientX, y: touch.clientY };
-    });
-
-    document.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-
-    // === Animation ===
-    const clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-
-      // Billboard float & interaction
-      billboards.forEach((bb) => {
-        const ud = bb.userData;
-        const baseY = ud.originalPos.y;
-        bb.position.y = baseY + Math.sin(t * 0.8 + ud.floatOffset) * 0.2;
-
-        if (bb === hoveredBillboard) {
-          bb.rotation.z = Math.sin(t * 2) * 0.03;
-          bb.scale.setScalar(1 + Math.sin(t * 3) * 0.02);
-        } else {
-          bb.rotation.z *= 0.95;
-          bb.scale.setScalar(1);
-        }
-      });
-
-      // Background shapes
-      bgShapes.forEach((shape) => {
-        shape.rotation.x += shape.userData.rotSpeed.x;
-        shape.rotation.y += shape.userData.rotSpeed.y;
-        shape.rotation.z += shape.userData.rotSpeed.z;
-        shape.position.y = shape.userData.originalY +
-          Math.sin(t * shape.userData.floatSpeed + shape.userData.floatOffset) * 0.3;
-      });
-
-      // Particles drift
-      particles.rotation.y = t * 0.02;
-      particles.rotation.x = t * 0.01;
-
-      // Camera orbit
-      if (autoRotate) {
-        targetRotationY = Math.sin(t * 0.15) * 0.3;
-        targetRotationX = Math.sin(t * 0.1) * 0.15;
-      }
-
-      camera.position.x += (targetRotationY * 3 - camera.position.x) * 0.05;
-      camera.position.y += (-targetRotationX * 2 - camera.position.y) * 0.05;
-      camera.lookAt(0, 0, 0);
-
-      // Lights pulse
-      pinkLight.intensity = 1.2 + Math.sin(t * 1.5) * 0.3;
-      blueLight.intensity = 1.0 + Math.sin(t * 1.8 + 1) * 0.2;
-
-      renderer.render(scene, camera);
-    }
-
-    // Hide loading
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('loading').classList.add('hidden');
-      }, 800);
-    });
-
-    // Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    animate();
-
-    // Hide hint after interaction
-    document.addEventListener('mousedown', () => {
-      document.getElementById('hint').style.opacity = '0';
-    }, { once: true });
-  </script>
+animate();
+</script>
 </body>
 </html>
