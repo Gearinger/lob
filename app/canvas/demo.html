@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lob Canvas Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);font-family:'SF Mono',Monaco,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#e8d5b7}
+.particle{position:absolute;border-radius:50%;pointer-events:none;animation:float linear infinite}
+.lob{display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10}
+.lob-face{font-size:80px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,140,50,0.5))}
+.lob-title{font-size:28px;font-weight:700;background:linear-gradient(90deg,#ff8c32,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.lob-sub{font-size:14px;color:#a0a0c0;letter-spacing:4px;text-transform:uppercase}
+.stats{display:flex;gap:40px;margin-top:20px;z-index:10}
+.stat{text-align:center;padding:20px 30px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;backdrop-filter:blur(10px);min-width:120px;transition:all 0.3s}
+.stat:hover{transform:translateY(-5px);border-color:rgba(255,140,50,0.5);box-shadow:0 10px 30px rgba(255,140,50,0.2)}
+.stat-val{font-size:36px;font-weight:700;color:#ff8c32;display:block}
+.stat-label{font-size:11px;color:#8888aa;text-transform:uppercase;letter-spacing:1px;margin-top:5px}
+.clock{position:absolute;top:30px;right:40px;font-size:14px;color:#666;font-family:monospace;z-index:10}
+.click-hint{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-size:12px;color:#555;letter-spacing:1px;z-index:10}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+@keyframes float{from{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}to{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="clock" id="clock">--:--:--</div>
+
+<div class="lob">
+  <div class="lob-face">🦞</div>
+  <div class="lob-title">Lob's Canvas</div>
+  <div class="lob-sub">Interactive Demo · 2026</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="stat-val" id="clicks">0</span><span class="stat-label">Clicks</span></div>
+  <div class="stat"><span class="stat-val" id="moves">0</span><span class="stat-label">Moves</span></div>
+  <div class="stat"><span class="stat-val" id="time">0s</span><span class="stat-label">Uptime</span></div>
+</div>
+
+<div class="click-hint">Click anywhere to spawn particles</div>
+
+<script>
+let clicks=0,moves=0,start=Date.now(),t=0;
+const clock=document.getElementById('clock'),clicksEl=document.getElementById('clicks'),movesEl=document.getElementById('moves'),timeEl=document.getElementById('time');
+setInterval(()=>{
+  const d=new Date(),
+  p=d.getHours().toString().padStart(2,0)+':'+d.getMinutes().toString().padStart(2,0)+':'+d.getSeconds().toString().padStart(2,0);
+  clock.textContent=p
+},1000);
+setInterval(()=>{t++;timeEl.textContent=t+'s'},1000);
+document.addEventListener('click',e=>{
+  clicks++;clicksEl.textContent=clicks;
+  for(let i=0;i<5;i++)spawnParticle(e.clientX,e.clientY,'#ff8c32')
+});
+document.addEventListener('mousemove',e=>{
+  if(Math.random()>.7){moves++;movesEl.textContent=moves;spawnParticle(e.clientX,e.clientY,'#4ecdc4')}
+});
+function spawnParticle(x,y,color){
+  const p=document.createElement('div');
+  p.className='particle';
+  const size=Math.random()*8+4;
+  Object.assign(p.style,{
+    left:x+'px',top:y+'px',
+    width:size+'px',height:size+'px',
+    background:color,
+    boxShadow:`0 0 ${size*2}px ${color}`,
+    animationDuration:(Math.random()*3+2)+'s'
+  });
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),5000)
+}
+</script>
+</body>
+</html>

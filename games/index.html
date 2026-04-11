@@ -15,7 +15,6 @@
       min-height: 100vh; overflow-x: hidden;
     }
 
-    /* Ambient bubbles */
     .ambient {
       position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
@@ -32,13 +31,11 @@
       bottom: -100px; left: -100px;
     }
 
-    /* Layout */
     .container {
       position: relative; z-index: 2;
       max-width: 1200px; margin: 0 auto; padding: 0 24px;
     }
 
-    /* Header */
     header {
       padding: 48px 0 32px; text-align: center;
     }
@@ -59,7 +56,6 @@
 
     header p { color: #9A8090; font-size: 0.9rem; letter-spacing: 0.1em; }
 
-    /* Stats bar */
     .stats-bar {
       display: flex; justify-content: center; gap: 48px;
       padding: 24px 0;
@@ -72,7 +68,6 @@
     .stat-value { font-size: 1.5rem; font-weight: 600; color: #3D2A35; }
     .stat-label { font-size: 0.75rem; color: #9A8090; letter-spacing: 0.1em; margin-top: 4px; }
 
-    /* Section */
     .section-header {
       display: flex; align-items: baseline; gap: 16px; margin-bottom: 28px;
     }
@@ -82,14 +77,12 @@
       background: linear-gradient(90deg, rgba(255,143,163,0.12), transparent);
     }
 
-    /* Game grid */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px; margin-bottom: 80px;
     }
 
-    /* Game card */
     .game-card {
       position: relative;
       background: rgba(255, 255, 255, 0.85);
@@ -133,6 +126,8 @@
     .icon-herstory .card-icon::after { background: linear-gradient(135deg, #FFB3C6, #FF8FA3); }
     .icon-carfactory .card-icon::after { background: linear-gradient(135deg, #FFF0A8, #FFE566); }
     .icon-audioviz .card-icon::after { background: linear-gradient(135deg, #FF8FA3, #A8D8FF); }
+    .icon-poker .card-icon::after { background: linear-gradient(135deg, #7ED9C4, #A8D8FF); }
+    .icon-cricket .card-icon::after { background: linear-gradient(135deg, #E88A3D, #FF8FA3); }
 
     .card-info { flex: 1; min-width: 0; }
     .card-name { font-size: 1rem; font-weight: 600; color: #3D2A35; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -200,11 +195,11 @@
 
     <div class="stats-bar">
       <div class="stat-item">
-        <div class="stat-value">13</div>
+        <div class="stat-value">15</div>
         <div class="stat-label">GAMES</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">Puzzle · Arcade · Narrative</div>
+        <div class="stat-value">Featured · Arcade · Puzzle · Special</div>
         <div class="stat-label">CATEGORIES</div>
       </div>
       <div class="stat-item">
@@ -213,12 +208,49 @@
       </div>
     </div>
 
+    <!-- 🔥 精选推荐 -->
     <section style="margin-bottom: 56px;">
       <div class="section-header">
-        <div class="section-title">解谜 & 益智</div>
+        <div class="section-title">🔥 精选推荐</div>
         <div class="section-line"></div>
       </div>
       <div class="games-grid">
+
+        <a href="poker/index.html" class="game-card icon-poker">
+          <div class="new-badge"></div>
+          <div class="card-header">
+            <div class="card-icon">🃏</div>
+            <div class="card-info">
+              <div class="card-name">德州扑克</div>
+              <div class="card-category">Card Game · WebRTC</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">2人对战 · 有限注 · Bot托管 · WebRTC实时通信。和朋友来一局。</div>
+          <div class="card-tags">
+            <span class="tag new">NEW</span>
+            <span class="tag">扑克</span>
+            <span class="tag">联机</span>
+          </div>
+        </a>
+
+        <a href="cricket-fight/index.html" class="game-card icon-cricket">
+          <div class="card-header">
+            <div class="card-icon">🦗</div>
+            <div class="card-info">
+              <div class="card-name">赛博斗蛐蛐</div>
+              <div class="card-category">回合策略 · Rogue</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">三选一成长 · 流派构筑 · 挑战无限连胜。蛐蛐之间的策略对决。</div>
+          <div class="card-tags">
+            <span class="tag">回合制</span>
+            <span class="tag">Rogue</span>
+            <span class="tag">策略</span>
+          </div>
+        </a>
+
         <a href="her-story.html" class="game-card icon-herstory">
           <div class="new-badge"></div>
           <div class="card-header">
@@ -234,9 +266,98 @@
             <span class="tag new">NEW</span>
             <span class="tag">叙事</span>
             <span class="tag">历史</span>
-            <span class="tag">探索</span>
           </div>
         </a>
+
+      </div>
+    </section>
+
+    <!-- 🎮 经典街机 -->
+    <section style="margin-bottom: 56px;">
+      <div class="section-header">
+        <div class="section-title">🎮 经典街机</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="games-grid">
+
+        <a href="snake.html" class="game-card icon-snake">
+          <div class="card-header">
+            <div class="card-icon">🐍</div>
+            <div class="card-info">
+              <div class="card-name">贪吃蛇</div>
+              <div class="card-category">Arcade</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">控制蛇的移动，吃下食物增长身体，躲避墙壁和自身。童年的味道。</div>
+          <div class="card-tags">
+            <span class="tag hot">HOT</span>
+            <span class="tag">经典</span>
+            <span class="tag">街机</span>
+          </div>
+        </a>
+
+        <a href="tetris.html" class="game-card icon-tetris">
+          <div class="card-header">
+            <div class="card-icon">🧱</div>
+            <div class="card-info">
+              <div class="card-name">俄罗斯方块</div>
+              <div class="card-category">Arcade</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">旋转、下落、消除，一气呵成。永远经典的俄罗斯方块。</div>
+          <div class="card-tags">
+            <span class="tag hot">HOT</span>
+            <span class="tag">经典</span>
+            <span class="tag">街机</span>
+          </div>
+        </a>
+
+        <a href="bomberman.html" class="game-card icon-bomberman">
+          <div class="card-header">
+            <div class="card-icon">💥</div>
+            <div class="card-info">
+              <div class="card-name">炸弹人</div>
+              <div class="card-category">Action</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">放置炸弹，炸裂敌人，安全撤离。经典 PK 大作战。</div>
+          <div class="card-tags">
+            <span class="tag">动作</span>
+            <span class="tag">对战</span>
+            <span class="tag">策略</span>
+          </div>
+        </a>
+
+        <a href="jump.html" class="game-card icon-jump">
+          <div class="card-header">
+            <div class="card-icon">🏃</div>
+            <div class="card-info">
+              <div class="card-name">跳一跳</div>
+              <div class="card-category">Endless Runner</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+          <div class="card-desc">按压时间决定跳跃距离，踩稳每一个落脚点，你能跳多远？</div>
+          <div class="card-tags">
+            <span class="tag">微信</span>
+            <span class="tag">跑酷</span>
+            <span class="tag">节奏</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- 🧩 烧脑解谜 -->
+    <section style="margin-bottom: 56px;">
+      <div class="section-header">
+        <div class="section-title">🧩 烧脑解谜</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="games-grid">
 
         <a href="2048.html" class="game-card icon-2048">
           <div class="card-header">
@@ -322,91 +443,18 @@
             <span class="tag">探索</span>
           </div>
         </a>
+
       </div>
     </section>
 
+    <!-- ✨ 特别体验 -->
     <section style="margin-bottom: 56px;">
       <div class="section-header">
-        <div class="section-title">街机 & 动作</div>
+        <div class="section-title">✨ 特别体验</div>
         <div class="section-line"></div>
       </div>
       <div class="games-grid">
-        <a href="snake.html" class="game-card icon-snake">
-          <div class="card-header">
-            <div class="card-icon">🐍</div>
-            <div class="card-info">
-              <div class="card-name">贪吃蛇</div>
-              <div class="card-category">Arcade</div>
-            </div>
-            <div class="card-arrow">→</div>
-          </div>
-          <div class="card-desc">控制蛇的移动，吃下食物增长身体，躲避墙壁和自身。童年的味道。</div>
-          <div class="card-tags">
-            <span class="tag hot">HOT</span>
-            <span class="tag">经典</span>
-            <span class="tag">街机</span>
-          </div>
-        </a>
 
-        <a href="tetris.html" class="game-card icon-tetris">
-          <div class="card-header">
-            <div class="card-icon">🧱</div>
-            <div class="card-info">
-              <div class="card-name">俄罗斯方块</div>
-              <div class="card-category">Arcade</div>
-            </div>
-            <div class="card-arrow">→</div>
-          </div>
-          <div class="card-desc">旋转、下落、消除，一气呵成。永远经典的俄罗斯方块。</div>
-          <div class="card-tags">
-            <span class="tag hot">HOT</span>
-            <span class="tag">经典</span>
-            <span class="tag">街机</span>
-          </div>
-        </a>
-
-        <a href="bomberman.html" class="game-card icon-bomberman">
-          <div class="card-header">
-            <div class="card-icon">💥</div>
-            <div class="card-info">
-              <div class="card-name">炸弹人</div>
-              <div class="card-category">Action</div>
-            </div>
-            <div class="card-arrow">→</div>
-          </div>
-          <div class="card-desc">放置炸弹，炸裂敌人，安全撤离。经典 PK 大作战。</div>
-          <div class="card-tags">
-            <span class="tag">动作</span>
-            <span class="tag">对战</span>
-            <span class="tag">策略</span>
-          </div>
-        </a>
-
-        <a href="jump.html" class="game-card icon-jump">
-          <div class="card-header">
-            <div class="card-icon">🏃</div>
-            <div class="card-info">
-              <div class="card-name">跳一跳</div>
-              <div class="card-category">Endless Runner</div>
-            </div>
-            <div class="card-arrow">→</div>
-          </div>
-          <div class="card-desc">按压时间决定跳跃距离，踩稳每一个落脚点，你能跳多远？</div>
-          <div class="card-tags">
-            <span class="tag">微信</span>
-            <span class="tag">跑酷</span>
-            <span class="tag">节奏</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section style="margin-bottom: 56px;">
-      <div class="section-header">
-        <div class="section-title">更多体验</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="games-grid">
         <a href="typing.html" class="game-card icon-typing">
           <div class="card-header">
             <div class="card-icon">⌨️</div>
@@ -458,35 +506,6 @@
           </div>
         </a>
 
-        <a href="cricket-fight/index.html" class="game-card icon-cricket">
-          <div class="card-icon"></div>
-          <div class="card-body">
-            <div class="card-name">赛博斗蛐蛐</div>
-            <div class="card-desc">文字回合策略 · 三选一成长 · 流派构筑 · 挑战无限连胜。</div>
-            <div class="card-tags">
-              <span class="tag">回合制</span>
-              <span class="tag">Rogue</span>
-              <span class="tag">文字</span>
-            </div>
-          </div>
-        </a>
-        <a href="poker/index.html" class="game-card icon-sokoban">
-          <div class="new-badge"></div>
-          <div class="card-header">
-            <div class="card-icon">🃏</div>
-            <div class="card-info">
-              <div class="card-name">德州扑克</div>
-              <div class="card-category">Card Game · WebRTC</div>
-            </div>
-            <div class="card-arrow">→</div>
-          </div>
-          <div class="card-desc">2人对战 · 有限注 · Bot托管 · WebRTC实时通信。</div>
-          <div class="card-tags">
-            <span class="tag">扑克</span>
-            <span class="tag">WebRTC</span>
-            <span class="tag">联机</span>
-          </div>
-        </a>
       </div>
     </section>
 
