@@ -629,29 +629,36 @@ export class UI {
   showMatchOver(room) {
     const overlay = document.getElementById('match-overlay');
     const statsEl = document.getElementById('match-stats-details');
-    
-    // Total original capital per player
-    const INITIAL_TOTAL = 11000; 
 
-    let html = '';
+    // 每人初始总资产 = 场上1000 + 场下10000 = 11000
+    // 使用从 poker.js 传入的 room 里的常量，或者直接固定计算
+    // 两人合计 22000，零和游戏，总量守恒
+    const INITIAL_TOTAL = 11000; // 1000 chips + 10000 bankroll
+
+    // 计算全局总资产用于验证
+    const grandTotal = room.players.reduce((s, p) => s + (p.chips || 0) + (p.bankroll || 0), 0);
+
+    let html = `<div style="font-size:0.8rem; color:#8A7065; margin-bottom:12px; text-align:center;">全桌总资产: 💰 ${grandTotal}（守恒校验）</div>`;
     room.players.forEach(p => {
-      const currentTotal = p.chips + p.bankroll;
+      const currentTotal = (p.chips || 0) + (p.bankroll || 0);
       const profit = currentTotal - INITIAL_TOTAL;
-      const profitText = profit > 0 ? `<span style="color:#C44A4A">+${profit}</span>` : `<span style="color:#2A2A4A">${profit}</span>`;
+      // 赢钱显示绿色，输钱显示红色
+      const profitColor = profit > 0 ? '#27AE60' : profit < 0 ? '#C44A4A' : '#8A7065';
+      const profitText = `<span style="color:${profitColor}; font-weight:700;">${profit > 0 ? '+' : ''}${profit}</span>`;
       const isBankrupt = currentTotal === 0;
-      
+
       html += `
-        <div style="background:rgba(0,0,0,0.03); padding:12px; border-radius:8px; margin-bottom:10px; border-left:4px solid ${isBankrupt ? '#8A7065' : '#E88A3D'}">
-          <div style="font-weight:700; margin-bottom:6px;">${p.name} ${isBankrupt ? '💸 (破产)' : ''}</div>
+        <div style="background:rgba(0,0,0,0.03); padding:12px; border-radius:8px; margin-bottom:10px; border-left:4px solid ${isBankrupt ? '#C44A4A' : '#E88A3D'}">
+          <div style="font-weight:700; margin-bottom:6px;">${p.name} ${isBankrupt ? '💸 (破产)' : '✅'}</div>
           <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
-             <span>剩余总资金: 💰 ${currentTotal}</span>
+             <span>剩余: 💰 ${currentTotal}</span>
              <span>输赢: ${profitText}</span>
           </div>
-          <div style="font-size:0.85rem; color:#8A7065; margin-top:4px;">参与 ${p.handsPlayed} 局 | 获胜 ${p.handsWon} 局</div>
+          <div style="font-size:0.85rem; color:#8A7065; margin-top:4px;">参与 ${p.handsPlayed || 0} 局 | 获胜 ${p.handsWon || 0} 局</div>
         </div>
       `;
     });
-    
+
     statsEl.innerHTML = html;
     overlay.classList.add('show');
   }
