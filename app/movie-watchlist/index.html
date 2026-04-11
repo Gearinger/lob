@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文艺片补片计划 🎬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:#faf8f5;min-height:100vh;padding:40px 20px 80px}
+.lob-header{text-align:center;margin-bottom:32px}
+.lob-title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;color:#2c2c2c;letter-spacing:4px;text-shadow:2px 2px 0 #d4c4a8}
+.lob-sub{font-size:.85em;color:#888;margin-top:6px;letter-spacing:1px}
+.search-wrap{text-align:center;margin-bottom:36px;max-width:560px;margin-left:auto;margin-right:auto;position:relative}
+.search-input{
+  width:100%;padding:14px 20px;border:2px solid #2c2c2c;border-radius:12px;
+  font-family:inherit;font-size:1em;background:#fff;outline:none;
+  box-shadow:3px 4px 0 #2c2c2c;transition:box-shadow .2s;
+}
+.search-input:focus{box-shadow:2px 2px 0 #2c2c2c}
+.search-count{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:.78em;color:#aaa;pointer-events:none}
+.director-group{margin-bottom:36px}
+.director-name{font-family:'Ma Shan Zheng',cursive;font-size:1.5em;color:#8B5A2B;letter-spacing:2px;margin-bottom:12px;padding-bottom:6px;border-bottom:2px dashed #d4c4a8;cursor:pointer;display:flex;align-items:center;gap:8px}
+.director-name:hover{color:#C47F17}
+.director-name .toggle{font-size:.7em;transition:transform .2s;margin-right:8px}
+.director-name.collapsed .toggle{transform:rotate(-90deg)}
+.director-count{font-size:.6em;color:#aaa;font-family:'PingFang SC',sans-serif;font-weight:400;letter-spacing:0}
+.movie-list{display:grid;gap:8px}
+.movie-list.hidden{display:none}
+.movie-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .15s,box-shadow .15s;cursor:pointer}
+.movie-item:hover{transform:translateX(4px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.movie-item.watched{opacity:.45}
+.movie-item.watched .movie-title{text-decoration:line-through}
+.movie-checkbox{width:20px;height:20px;border:2px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:12px;color:#fff}
+.movie-item.watched .movie-checkbox{background:#27AE60;border-color:#27AE60}
+.movie-title{font-size:.95em;color:#2c2c2c;flex:1}
+.movie-director{font-size:.78em;color:#999;flex-shrink:0}
+.watched-badge{display:none;background:#27AE60;color:#fff;font-size:.7em;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,#FF8FA3,#27AE60);z-index:100;transition:width .3s}
+.progress-label{position:fixed;top:12px;right:16px;background:rgba(255,255,255,.9);border:1.5px solid #2c2c2c;border-radius:20px;padding:6px 14px;font-size:.8em;color:#2c2c2c;box-shadow:2px 2px 0 #2c2c2c;z-index:100}
+.back{position:fixed;top:16px;left:16px;background:rgba(255,255,255,.9);border:1.5px solid #2c2c2c;border-radius:20px;padding:6px 14px;font-size:.8em;color:#2c2c2c;text-decoration:none;box-shadow:2px 2px 0 #2c2c2c}
+.back:hover{box-shadow:1px 1px 0 #2c2c2c}
+@media(max-width:600px){
+  body{padding:60px 12px 60px}
+  .movie-director{display:none}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="progress-label" id="progressLabel"></div>
+<a class="back" href="/lob/">← 回到首页</a>
+
+<div class="lob-header">
+  <div class="lob-title">🎬 文艺片补片计划</div>
+  <div class="lob-sub">共 248 部 · 117 位导演 · 数据来源：豆瓣四叔片单</div>
+</div>
+
+<div class="search-wrap">
+  <input class="search-input" id="searchInput" type="text" placeholder="搜索电影或导演...">
+  <span class="search-count" id="searchCount"></span>
+</div>
+
+<div id="movieList"></div>
+
+<script>
+const movies = [
+  {idx: 0, title: "一一", director: "杨德昌"},
+  {idx: 1, title: "麻将", director: "杨德昌"},
+  {idx: 2, title: "生命是个奇迹", director: "埃米尔·库斯图里卡"},
+  {idx: 3, title: "罗马风情画", director: "费里尼"},
+  {idx: 4, title: "以藏", director: "北野武"},
+  {idx: 5, title: "安娜的情欲", director: "拉斯·冯·提尔"},
+  {idx: 6, title: "镜子", director: "塔可夫斯基"},
+  {idx: 7, title: "破碎之花", director: "大卫·林奇"},
+  {idx: 8, title: "毕业生", director: "迈克·尼科尔斯"},
+  {idx: 9, title: "大象", director: "格斯·范·桑特"},
+  {idx: 10, title: "大门", director: "吉姆·贾木许"},
+  {idx: 11, title: "极恶非道", director: "北野武"},
+  {idx: 12, title: "极恶非道2", director: "北野武"},
+  {idx: 13, title: "牯岭街少年杀人事件", director: "杨德昌"},
+  {idx: 14, title: "神游天地", director: "费里尼"},
+  {idx: 15, title: "第九道门", director: "罗曼·波兰斯基"},
+  {idx: 16, title: "后革命时代", director: "格斯·范·桑特"},
+  {idx: 17, title: "破碎的拥抱", director: "佩德罗·阿莫多瓦"},
+  {idx: 18, title: "猜火车", director: "丹尼·博伊尔"},
+  {idx: 19, title: "北京杂种", director: "张元"},
+  {idx: 20, title: "活着", director: "张艺谋"},
+  {idx: 21, title: "那年夏天，宁静的海", director: "北野武"},
+  {idx: 22, title: "红胡子", director: "黑泽明"},
+  {idx: 23, title: "阿玛柯德", director: "费里尼"},
+  {idx: 24, title: "蓝白红三部曲之白", director: "基耶斯洛夫斯基"},
+  {idx: 25, title: "蓝白红三部曲之红", director: "基耶斯洛夫斯基"},
+  {idx: 26, title: "蓝白红三部曲之蓝", director: "基耶斯洛夫斯基"},
+  {idx: 27, title: "两生花", director: "基耶斯洛夫斯基"},
+  {idx: 28, title: "出租车司机", director: "马丁·斯科塞斯"},
+  {idx: 29, title: "好家伙", director: "马丁·斯科塞斯"},
+  {idx: 30, title: "艺术家", director: "米歇尔·阿扎纳维西于斯"},
+  {idx: 31, title: "随风而逝", director: "阿巴斯·基亚罗斯塔米"},
+  {idx: 32, title: "蓝莓之夜", director: "王家卫"},
+  {idx: 33, title: "东邪西毒：终极版", director: "王家卫"},
+  {idx: 34, title: "东邪西毒", director: "王家卫"},
+  {idx: 35, title: "2046", director: "王家卫"},
+  {idx: 36, title: "花样年华", director: "王家卫"},
+  {idx: 37, title: "射雕英雄传之东成西就", director: "刘镇伟"},
+  {idx: 38, title: "春光乍泄", director: "王家卫"},
+  {idx: 39, title: "堕落天使", director: "王家卫"},
+  {idx: 40, title: "旺角卡门", director: "王家卫"},
+  {idx: 41, title: "阿飞正传", director: "王家卫"},
+  {idx: 42, title: "红磨坊", director: "巴兹·鲁赫曼"},
+  {idx: 43, title: "情迷高跟鞋", director: "佩德罗·阿莫多瓦"},
+  {idx: 44, title: "心灵捕手", director: "格斯·范·桑特"},
+  {idx: 45, title: "史崔特先生的故事", director: "大卫·林奇"},
+  {idx: 46, title: "终结暴力", director: "维姆·文德斯"},
+  {idx: 47, title: "棕兔", director: "约翰·沃特斯"},
+  {idx: 48, title: "爱与希望之街", director: "市川昆"},
+  {idx: 49, title: "歌剧魅影", director: "乔·舒马赫"},
+  {idx: 50, title: "烈女传", director: "肯·洛奇"},
+  {idx: 51, title: "吸烟/不吸烟", director: "迈克·尼科尔斯"},
+  {idx: 52, title: "爱的亡灵", director: "大岛渚"},
+  {idx: 53, title: "御法度", director: "大岛渚"},
+  {idx: 54, title: "爸爸去出差", director: "黑泽明"},
+  {idx: 55, title: "弓", director: "金基德"},
+  {idx: 56, title: "爱比死更冷", director: "维姆·文德斯"},
+  {idx: 57, title: "破浪", director: "拉斯·冯·提尔"},
+  {idx: 58, title: "双面北野武", director: "北野武"},
+  {idx: 59, title: "2001太空漫游", director: "斯坦利·库布里克"},
+  {idx: 60, title: "发条橙", director: "斯坦利·库布里克"},
+  {idx: 61, title: "闪灵", director: "斯坦利·库布里克"},
+  {idx: 62, title: "洛丽塔", director: "斯坦利·库布里克"},
+  {idx: 63, title: "穷街陋巷", director: "马丁·斯科塞斯"},
+  {idx: 64, title: "教父", director: "弗朗西斯·福特·科波拉"},
+  {idx: 65, title: "教父2", director: "弗朗西斯·福特·科波拉"},
+  {idx: 66, title: "教父3", director: "弗朗西斯·福特·科波拉"},
+  {idx: 67, title: "大开眼戒", director: "斯坦利·库布里克"},
+  {idx: 68, title: "雨人", director: "巴瑞·莱文森"},
+  {idx: 69, title: "海上钢琴师", director: "朱塞佩·托纳多雷"},
+  {idx: 70, title: "一代宗师", director: "王家卫"},
+  {idx: 71, title: "重庆森林", director: "王家卫"},
+  {idx: 72, title: "索拉里斯", director: "安德烈·塔可夫斯基"},
+  {idx: 73, title: "贝隆夫人", director: "艾伦·帕克"},
+  {idx: 74, title: "裸岛", director: "新藤兼人"},
+  {idx: 75, title: "寻找小津", director: "文德斯"},
+  {idx: 76, title: "千禧曼波", director: "侯孝贤"},
+  {idx: 77, title: "空房间", director: "金基德"},
+  {idx: 78, title: "一切安好", director: "戈达尔"},
+  {idx: 79, title: "新浪潮", director: "戈达尔"},
+  {idx: 80, title: "七宗罪", director: "大卫·芬奇"},
+  {idx: 81, title: "法外之徒", director: "戈达尔"},
+  {idx: 82, title: "樱桃的滋味", director: "阿巴斯·基亚罗斯塔米"},
+  {idx: 83, title: "海上花", director: "侯孝贤"},
+  {idx: 84, title: "冬冬的假期", director: "侯孝贤"},
+  {idx: 85, title: "悲情城市", director: "侯孝贤"},
+  {idx: 86, title: "七武士", director: "黑泽明"},
+  {idx: 87, title: "大逃杀", director: "深作欣二"},
+  {idx: 88, title: "大鸟和小鸟", director: "戈达尔"},
+  {idx: 89, title: "党同伐异", director: "D·W·格里菲斯"},
+  {idx: 90, title: "愤怒的公牛", director: "马丁·斯科塞斯"},
+  {idx: 91, title: "旅客", director: "安东尼奥尼"},
+  {idx: 92, title: "我是山姆", director: "杰茜·尼尔森"},
+  {idx: 93, title: "最好的时光", director: "侯孝贤"},
+  {idx: 94, title: "童年往事", director: "侯孝贤"},
+  {idx: 95, title: "看上去很美", director: "张元"},
+  {idx: 96, title: "座头市", director: "北野武"},
+  {idx: 97, title: "坏孩子的天空", director: "北野武"},
+  {idx: 98, title: "梦旅人", director: "岩井俊二"},
+  {idx: 99, title: "女人城", director: "费里尼"},
+  {idx: 100, title: "放大", director: "安东尼奥尼"},
+  {idx: 101, title: "美国制造", director: "沃纳·赫尔佐格"},
+  {idx: 102, title: "人民公厕", director: "陈果"},
+  {idx: 103, title: "青少年哪吒", director: "蔡明亮"},
+  {idx: 104, title: "恐怖分子", director: "杨德昌"},
+  {idx: 105, title: "光阴的故事", director: "杨德昌"},
+  {idx: 106, title: "舞国", director: "费里尼"},
+  {idx: 107, title: "精疲力尽", director: "戈达尔"},
+  {idx: 108, title: "香港制造", director: "陈果"},
+  {idx: 109, title: "柏林苍穹下", director: "维姆·文德斯"},
+  {idx: 110, title: "萨拉邦德", director: "伯格曼"},
+  {idx: 111, title: "离魂异客", director: "吉姆·贾木许"},
+  {idx: 112, title: "杀手阿一", director: "三池崇史"},
+  {idx: 113, title: "杀人短片", director: "拉斯·冯·提尔"},
+  {idx: 114, title: "狗镇", director: "拉斯·冯·提尔"},
+  {idx: 115, title: "巴尔扎克与小裁缝", director: "戴思杰"},
+  {idx: 116, title: "心理游戏", director: "大卫·芬奇"},
+  {idx: 117, title: "我自己的爱达荷", director: "格斯·范·桑特"},
+  {idx: 118, title: "海滩", director: "丹尼·博伊尔"},
+  {idx: 119, title: "午夜巴塞罗那", director: "伍迪·艾伦"},
+  {idx: 120, title: "香港有个荷里活", director: "陈果"},
+  {idx: 121, title: "盛夏光年", director: "蔡明亮"},
+  {idx: 122, title: "云上的日子", director: "安东尼奥尼"},
+  {idx: 123, title: "苏州河", director: "娄烨"},
+  {idx: 124, title: "豺狼时刻", director: "拉斯·冯·提尔"},
+  {idx: 125, title: "谁在敲我的门", director: "弗朗西斯·福特·科波拉"},
+  {idx: 126, title: "牛棚", director: "皮埃尔·保罗·帕索里尼"},
+  {idx: 127, title: "卡波特", director: "贝尼特·米勒"},
+  {idx: 128, title: "一条安达鲁狗", director: "路易斯·布努埃尔"},
+  {idx: 129, title: "马克斯我的爱", director: "大岛渚"},
+  {idx: 130, title: "流浪者之歌", director: "埃米尔·库斯图里卡"},
+  {idx: 131, title: "收件人不详", director: "金基德"},
+  {idx: 132, title: "海岸线", director: "金基德"},
+  {idx: 133, title: "莫比乌斯", director: "金基德"},
+  {idx: 134, title: "情书", director: "岩井俊二"},
+  {idx: 135, title: "燕尾蝶", director: "岩井俊二"},
+  {idx: 136, title: "花与爱丽丝", director: "岩井俊二"},
+  {idx: 137, title: "黑暗之光", director: "蔡明亮"},
+  {idx: 138, title: "渣", director: "金基德"},
+  {idx: 139, title: "卖艺春秋", director: "费里尼"},
+  {idx: 140, title: "地球之夜", director: "吉姆·贾木许"},
+  {idx: 141, title: "帕特森", director: "吉姆·贾木许"},
+  {idx: 142, title: "天堂陌影", director: "吉姆·贾木许"},
+  {idx: 143, title: "史特拉莫：未来尚未命定", director: "乔纳森·戴米"},
+  {idx: 144, title: "印第安画卷", director: "路易·马勒"},
+  {idx: 145, title: "朋克：态度", director: "朱利安·邓波"},
+  {idx: 146, title: "给我危险", director: "乔·斯特鲁姆"},
+  {idx: 147, title: "细路祥", director: "陈果"},
+  {idx: 148, title: "去年烟花特别多", director: "陈果"},
+  {idx: 149, title: "桂河大桥", director: "大卫·里恩"},
+  {idx: 150, title: "大鱼", director: "蒂姆·波顿"},
+  {idx: 151, title: "墨西哥往事", director: "罗伯特·罗德里格兹"},
+  {idx: 152, title: "风柜来的人", director: "侯孝贤"},
+  {idx: 153, title: "罗拉快跑", director: "汤姆·提克威"},
+  {idx: 154, title: "铁皮鼓", director: "沃尔克·施隆多夫"},
+  {idx: 155, title: "天水围的日与夜", director: "许鞍华"},
+  {idx: 156, title: "面孔", director: "约翰·卡索维茨"},
+  {idx: 157, title: "恶汉甜梦", director: "黑泽明"},
+  {idx: 158, title: "十三个月亮", director: "维托里奥·德·西卡"},
+  {idx: 159, title: "你还好吗？", director: "侯孝贤"},
+  {idx: 160, title: "西伯利亚的理发师", director: "尼基塔·米哈尔科夫"},
+  {idx: 161, title: "第五元素", director: "吕克·贝松"},
+  {idx: 162, title: "白日美人", director: "路易斯·布努埃尔"},
+  {idx: 163, title: "罗马妈妈", director: "皮埃尔·保罗·帕索里尼"},
+  {idx: 164, title: "独家新闻", director: "伍迪·艾伦"},
+  {idx: 165, title: "内心的伤痕", director: "菲利普·考夫曼"},
+  {idx: 166, title: "不能没有你", director: "戴立忍"},
+  {idx: 167, title: "简爱", director: "罗伯特·史蒂文森"},
+  {idx: 168, title: "处女泉", director: "伯格曼"},
+  {idx: 169, title: "色，戒", director: "李安"},
+  {idx: 170, title: "水中刀", director: "罗曼·波兰斯基"},
+  {idx: 171, title: "国王的演讲", director: "汤姆·霍伯"},
+  {idx: 172, title: "濑户内月光小夜曲", director: "路易斯·布努埃尔"},
+  {idx: 173, title: "独生子", director: "黑泽明"},
+  {idx: 174, title: "美丽人生", director: "罗伯托·贝尼尼"},
+  {idx: 175, title: "黄昏的清兵卫", director: "山田洋次"},
+  {idx: 176, title: "巴黎，我爱你", director: "群戏"},
+  {idx: 177, title: "火车怪客", director: "阿尔弗雷德·希区柯克"},
+  {idx: 178, title: "雨月物语", director: "沟口健二"},
+  {idx: 179, title: "卢米埃尔！冒险开始", director: "伊桑·科恩"},
+  {idx: 180, title: "黑暗中的舞者", director: "拉斯·冯·提尔"},
+  {idx: 181, title: "罗马，不设防的城市", director: "罗伯托·罗西里尼"},
+  {idx: 182, title: "晚春", director: "小津安二郎"},
+  {idx: 183, title: "吴清源", director: "田壮壮"},
+  {idx: 184, title: "我要复仇", director: "朴赞郁"},
+  {idx: 185, title: "谋杀地下老板", director: "弗朗西斯·福特·科波拉"},
+  {idx: 186, title: "阿拉伯的劳伦斯", director: "大卫·里恩"},
+  {idx: 187, title: "宾虚", director: "威廉·惠勒"},
+  {idx: 188, title: "爱在罗马", director: "伍迪·艾伦"},
+  {idx: 189, title: "午夜巴黎", director: "伍迪·艾伦"},
+  {idx: 190, title: "周渔的火车", director: "孙周"},
+  {idx: 191, title: "布拉格之恋", director: "菲利普·考夫曼"},
+  {idx: 192, title: "小武", director: "贾樟柯"},
+  {idx: 193, title: "去年在马里昂巴德", director: "阿伦·雷奈"},
+  {idx: 194, title: "十三罗汉", director: "史蒂文·索德伯格"},
+  {idx: 195, title: "穆赫兰道", director: "大卫·林奇"},
+  {idx: 196, title: "蜘蛛巢城", director: "黑泽明"},
+  {idx: 197, title: "低俗小说", director: "昆汀·塔伦蒂诺"},
+  {idx: 198, title: "通天塔", director: "亚利桑德罗·冈萨雷斯·伊尼亚里图"},
+  {idx: 199, title: "英国病人", director: "安东尼·明格拉"},
+  {idx: 200, title: "四百击", director: "弗朗索瓦·特吕弗"},
+  {idx: 201, title: "浪荡儿", director: "费里尼"},
+  {idx: 202, title: "静夜之决斗", director: "黑泽明"},
+  {idx: 203, title: "迷墙", director: "艾伦·帕克"},
+  {idx: 204, title: "世界", director: "贾樟柯"},
+  {idx: 205, title: "让子弹飞", director: "姜文"},
+  {idx: 206, title: "太阳照常升起", director: "姜文"},
+  {idx: 207, title: "天使爱美丽", director: "让-皮埃尔·热内"},
+  {idx: 208, title: "步履不停", director: "是枝裕和"},
+  {idx: 209, title: "潘神的迷宫", director: "吉尔莫·德尔·托罗"},
+  {idx: 210, title: "德州巴黎", director: "维姆·文德斯"},
+  {idx: 211, title: "楢山节考", director: "今村昌平"},
+  {idx: 212, title: "鳗鱼", director: "今村昌平"},
+  {idx: 213, title: "赤桥下的暖流", director: "西河克己"},
+  {idx: 214, title: "永恒和一日", director: "西奥·安哲罗普洛斯"},
+  {idx: 215, title: "鹳鸟踟蹰", director: "西奥·安哲罗普洛斯"},
+  {idx: 216, title: "亚历山大大帝", director: "奥利弗·斯通"},
+  {idx: 217, title: "哭泣的草原", director: "西奥·安哲罗普洛斯"},
+  {idx: 218, title: "塞瑟岛之旅", director: "西奥·安哲罗普洛斯"},
+  {idx: 219, title: "尤里西斯的凝视", director: "西奥·安哲罗普洛斯"},
+  {idx: 220, title: "站台", director: "贾樟柯"},
+  {idx: 221, title: "桃姐", director: "许鞍华"},
+  {idx: 222, title: "西北偏北", director: "阿尔弗雷德·希区柯克"},
+  {idx: 223, title: "春风沉醉的夜晚", director: "娄烨"},
+  {idx: 224, title: "花火", director: "北野武"},
+  {idx: 225, title: "沉默的羔羊", director: "乔纳森·戴米"},
+  {idx: 226, title: "卢旺达饭店", director: "特瑞·乔治"},
+  {idx: 227, title: "名扬四海", director: "艾伦·帕克"},
+  {idx: 228, title: "小城之春", director: "费穆"},
+  {idx: 229, title: "大篷车", director: "孙仲"},
+  {idx: 230, title: "伊豆的舞女", director: "西河克己"},
+  {idx: 231, title: "罗生门", director: "黑泽明"},
+  {idx: 232, title: "肖申克的救赎", director: "弗兰克·德拉邦特"},
+  {idx: 233, title: "鹿苑长春", director: "克拉伦斯·布朗"},
+  {idx: 234, title: "入殓师", director: "泷田洋二郎"},
+  {idx: 235, title: "乱", director: "黑泽明"},
+  {idx: 236, title: "偷自行车的人", director: "维托里奥·德·西卡"},
+  {idx: 237, title: "绿野仙踪", director: "维克多·弗莱明"},
+  {idx: 238, title: "马路天使", director: "袁牧之"},
+  {idx: 239, title: "西西里的美丽传说", director: "朱塞佩·托纳多雷"},
+  {idx: 240, title: "罗马假日", director: "威廉·惠勒"},
+  {idx: 241, title: "泥醉天使", director: "山本萨夫"},
+  {idx: 242, title: "父后七日", director: "刘国昌"},
+  {idx: 243, title: "阿甘正传", director: "罗伯特·泽米吉斯"},
+  {idx: 244, title: "一个陌生女人的来信", director: "马克斯·奥菲尔斯"},
+  {idx: 245, title: "野草莓", director: "伯格曼"},
+  {idx: 246, title: "上帝之城", director: "费尔南多·梅里尔斯"},
+  {idx: 247, title: "丁度·巴拉斯", director: "丁度·巴拉斯"},
+];
+
+const container = document.getElementById('movieList');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+const progressBar = document.getElementById('progressBar');
+const progressLabel = document.getElementById('progressLabel');
+
+let watched = {};
+try { watched = JSON.parse(localStorage.getItem('hermy-movies-watched') || '{}'); } catch(e) {}
+
+// Group by director
+const byDirector = {};
+movies.forEach((film, i) => {
+  const d = film.director;
+  if (!byDirector[d]) byDirector[d] = [];
+  film._idx = i;
+  byDirector[d].push(film);
+});
+
+// Render
+function render(list) {
+  container.innerHTML = '';
+  list.forEach(([director, films]) => {
+    const group = document.createElement('div');
+    group.className = 'director-group';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'director-name';
+    nameEl.innerHTML = `<span class="toggle">▼</span> ${director} <span class="director-count">(${films.length}部)</span>`;
+    nameEl.addEventListener('click', () => {
+      nameEl.classList.toggle('collapsed');
+      listEl.classList.toggle('hidden');
+    });
+
+    const listEl = document.createElement('div');
+    listEl.className = 'movie-list';
+
+    films.forEach((film, fi) => {
+      const item = document.createElement('div');
+      item.className = 'movie-item' + (watched[film._idx] ? ' watched' : '');
+      item.dataset.idx = film._idx;
+      item.innerHTML = `
+        <div class="movie-checkbox">${watched[film._idx] ? '✓' : ''}</div>
+        <span class="movie-title">${film.title}</span>
+        <span class="movie-director">${film.director}</span>
+      `;
+      item.addEventListener('click', () => {
+        watched[film._idx] = !watched[film._idx];
+        localStorage.setItem('hermy-movies-watched', JSON.stringify(watched));
+        item.classList.toggle('watched', watched[film._idx]);
+        item.querySelector('.movie-checkbox').textContent = watched[film._idx] ? '✓' : '';
+        updateProgress();
+      });
+      listEl.appendChild(item);
+    });
+
+    group.appendChild(nameEl);
+    group.appendChild(listEl);
+    container.appendChild(group);
+  });
+}
+
+// Search
+function doSearch(q) {
+  if (!q) {
+    render(Object.entries(byDirector).sort());
+    searchCount.textContent = '';
+    return;
+  }
+  q = q.toLowerCase();
+  const results = [];
+  Object.entries(byDirector).forEach(([director, films]) => {
+    films.forEach(film => {
+      if (film.title.toLowerCase().includes(q) || film.director.toLowerCase().includes(q)) {
+        results.push([director, [film]]);
+      }
+    });
+  });
+  render(results);
+  searchCount.textContent = `${results.reduce((s,[,f]) => s + f.length, 0)} 部`;
+}
+
+searchInput.addEventListener('input', (e) => doSearch(e.target.value.trim()));
+
+// Progress
+function updateProgress() {
+  const watchedCount = Object.values(watched).filter(Boolean).length;
+  const pct = total ? Math.round(watchedCount / total * 100) : 0;
+  progressBar.style.width = pct + '%';
+  progressLabel.textContent = `${watchedCount}/${total} (${pct}%)`;
+}
+
+updateProgress();
+
+// Initial render
+render(Object.entries(byDirector).sort());
+</script>
+</body>
+</html>
