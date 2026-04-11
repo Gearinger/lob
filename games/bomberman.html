@@ -362,8 +362,7 @@
             },
             
             canMove(x, y) {
-                const R = 0.86; // player visual radius in grid units
-                // Check all grid cells that the player circle overlaps
+                const R = 0.38; // player visual radius in grid units (14px / 40px per tile, + small buffer)
                 const rMin = Math.floor(y - R);
                 const rMax = Math.ceil(y + R);
                 const cMin = Math.floor(x - R);
@@ -376,7 +375,6 @@
                 }
                 for (const b of state.bombs) {
                     const bc = b.x, br = b.y;
-                    // Circle-rect collision: bomb occupies [bc-0.5, bc+0.5] x [br-0.5, br+0.5]
                     const overlapX = Math.max(0, Math.min(x + R, bc + 0.5) - Math.max(x - R, bc - 0.5));
                     const overlapY = Math.max(0, Math.min(y + R, br + 0.5) - Math.max(y - R, br - 0.5));
                     if (overlapX > 0 && overlapY > 0) {
