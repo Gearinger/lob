@@ -153,10 +153,9 @@
                 const cfg = DIFFICULTY[diff];
                 state = {
                     score: 0,
-                    lives: 3,
                     difficulty: diff,
                     map: [],
-                    player: { x: 1, y: 1, maxBombs: 1, bombPower: 1, speed: 0.08, activeBombs: 0, lives: 3 },
+                    player: { x: 1, y: 1, maxBombs: 1, bombPower: 1, speed: 0.08, activeBombs: 0, lives: 3, invincible: 0 },
                     enemies: [],
                     bombs: [],
                     explosions: [],
@@ -454,8 +453,7 @@
                     ctx.lineWidth = 3;
                     ctx.stroke();
                 }
-                ctx.stroke();
-                
+
                 // 敌人
                 for (const e of state.enemies) {
                     if (!e.alive) continue;
@@ -485,8 +483,11 @@
             
             gameOver() {
                 state.running = false;
+                // Freeze canvas
+                ctx.fillStyle = COLORS.floor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 document.getElementById('final-score').textContent = state.score;
-                document.getElementById('game-over-title').textContent = 
+                document.getElementById('game-over-title').textContent =
                     state.player.lives > 0 ? '🎉 胜利！' : '💀 游戏结束';
                 document.getElementById('game-over-screen').classList.remove('hidden');
             }
