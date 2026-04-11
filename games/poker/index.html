@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>德州扑克 — Lob Games</title>
 <link rel="icon" type="image/x-icon" href="../../favicon.ico">
@@ -62,6 +62,7 @@
   <div class="game-header">
     <div class="room-info">房间: <span class="code" id="game-room-code">----</span></div>
     <div class="header-btns">
+      <button class="header-btn" id="btn-toggle-chat">💬 聊天</button>
       <button class="header-btn" id="btn-leave-game">离开</button>
     </div>
   </div>
@@ -70,12 +71,12 @@
     <div class="table-area">
       <div class="pot-display">
         <div class="pot-section">
-          <div class="pot-label">本轮下注</div>
+          <div class="pot-label">📊 本轮</div>
           <div class="pot-amount" id="cur-phase-pot">0</div>
         </div>
         <div class="pot-divider"></div>
         <div class="pot-section">
-          <div class="pot-label">当前总计</div>
+          <div class="pot-label">💰 底池</div>
           <div class="pot-amount" id="total-game-pot">0</div>
         </div>
       </div>
@@ -96,7 +97,10 @@
     <div class="phase-info" id="action-info">等待中...</div>
     <div class="action-buttons" id="action-buttons"></div>
     <div class="raise-panel" id="raise-panel">
-      <input type="number" id="raise-amount-input" placeholder="输入加注金额" min="0">
+      <div class="slider-container">
+        <label id="raise-amount-label">加注到: 0</label>
+        <input type="range" id="raise-amount-input" min="0" max="1000" step="10" value="0">
+      </div>
       <div class="raise-btns">
         <button class="btn btn-secondary" id="btn-raise-cancel">取消</button>
         <button class="btn btn-primary" id="btn-raise-confirm">确认加注</button>
@@ -105,6 +109,10 @@
   </div>
 
   <div class="chat-panel" id="chat-panel">
+    <div class="chat-header-mobile">
+      <span>💬 房间聊天</span>
+      <button id="btn-close-chat">✕</button>
+    </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input-row">
       <input type="text" id="chat-input" placeholder="说点什么..." maxlength="200">
@@ -116,10 +124,22 @@
 <!-- ===== RESULT ===== -->
 <div class="result-overlay" id="result-overlay">
   <div class="result-box">
-    <h2 id="result-title">本局结束</h2>
+    <h2 id="result-title">单局结算</h2>
     <div class="winner-name" id="result-winner">winner</div>
     <div class="win-hand" id="result-hand">获胜手牌</div>
     <button class="btn btn-primary" id="btn-next-round">下一局</button>
+  </div>
+</div>
+
+<!-- ===== MATCH RESULT ===== -->
+<div class="result-overlay" id="match-overlay" style="z-index: 2500;">
+  <div class="result-box" style="border: 2px solid #E88A3D;">
+    <h2 id="match-title">游戏宣告结束</h2>
+    <div class="winner-name" style="color: #3D2A35;" id="match-stats-title">破产出局</div>
+    <div class="result-details" id="match-stats-details" style="text-align: left; margin: 20px 0; font-size: 1.1rem; line-height: 1.6; color: #3D2A35;">
+      <!-- Stats will be injected here -->
+    </div>
+    <button class="btn btn-primary" id="btn-restart-match" style="width:100%;">重新开局</button>
   </div>
 </div>
 

@@ -5,7 +5,7 @@
 'use strict';
 
 import { Network } from './net.js';
-import { GameRoom, INITIAL_CHIPS, SMALL_BLIND, BIG_BLIND, MIN_RAISE, botDecide, PHASE_LABELS, COUNTDOWN_SECONDS } from './poker.js';
+import { GameRoom, INITIAL_BANKROLL, INITIAL_TABLE_CHIPS, SMALL_BLIND, BIG_BLIND, MIN_RAISE, botDecide, PHASE_LABELS, COUNTDOWN_SECONDS } from './poker.js';
 import { UI } from './ui.js';
 
 export class App {
@@ -46,7 +46,11 @@ export class App {
       await this.net.createRoom(name, code);
       this.isHost = true;
       this.myId = this.net.myId;
-      this.room = new GameRoom(code, this.myId, name, this.myUuid);
+      
+      let saved = localStorage.getItem('lob_poker_networth');
+      const nw = saved ? parseInt(saved, 10) : null;
+      
+      this.room = new GameRoom(code, this.myId, name, this.myUuid, nw);
       this._lastPhase = 'lobby';
       this.ui.showLobby();
       this.ui.addChatMessage('', `🏠 房间 ${code} 已创建，等待玩家加入...`, true);
@@ -64,7 +68,10 @@ export class App {
     console.info('[APP] Joining room:', code, 'as guest:', name);
     try {
       this.myName = name;
-      await this.net.joinRoom(name, code, this.myUuid);
+      let saved = localStorage.getItem('lob_poker_networth');
+      const nw = saved ? parseInt(saved, 10) : null;
+      
+      await this.net.joinRoom(name, code, this.myUuid, nw);
       this.isHost = false;
       this.myId = this.net.myId;
       this._lastPhase = 'lobby';
@@ -99,7 +106,7 @@ export class App {
           p.connected = true;
           if (data.ready !== undefined) p.isReady = !!data.ready;
         } else {
-          p = this.room.addPlayer(sender, data.name, data.uuid);
+          p = this.room.addPlayer(sender, data.name, data.uuid, data.netWorth);
           if (p) {
             p.isReady = !!data.ready;
             this.ui.addChatMessage('', `👤 ${data.name} 加入了房间`, true);
@@ -126,6 +133,7 @@ export class App {
         const wasGameOver = this.room && this.room.phase === 'gameover';
         this._deserializeRoom(data);
         this._checkPhaseChange();
+        this._saveProgress();
         
         if (this.room.phase === 'lobby') {
           this.ui.showLobby();
@@ -153,6 +161,13 @@ export class App {
       case 'ACTION_LOG': {
         if (this.isHost) break;
         this.ui.addChatMessage(data.name, data.desc, true);
+        break;
+      }
+
+      case 'RESTART_MATCH': {
+        if (!this.isHost) break;
+        this.ui.addChatMessage(data.name, '请求重新开局...', true);
+        this._restartMatch();
         break;
       }
 
@@ -340,42 +355,52 @@ export class App {
 
   _handleGameOver() {
     this.clearBotTimeout();
-    if (this._autoNextRoundTimeout) clearInterval(this._autoNextRoundTimeout);
+    if (this._autoNextRoundTimeout) {
+      clearInterval(this._autoNextRoundTimeout);
+      this._autoNextRoundTimeout = null;
+    }
 
     const winner = this.room.winner || '?';
     const hand   = this.room.winHand || '';
     
-    this.ui.showResult(winner, hand, this.room.showdownResults);
-    this.ui.addChatMessage('', `🏆 ${winner} 获胜！${hand}`, true);
-    
     if (this.isHost) {
       this._broadcastState();
     }
-    
-    const alive = this.room.players.filter(p => p.chips > 0);
-    const nextBtn = document.getElementById('btn-next-round');
-    
-    if (alive.length < 2) {
-      nextBtn.textContent = '游戏宣告结束';
-      nextBtn.style.pointerEvents = 'none';
-      nextBtn.style.opacity = '0.7';
-    } else {
-      let timeLeft = 7;
-      const getBtnText = (t) => this.isHost ? `下一局 (${t}s)` : `等待房主 (${t}s)`;
-      nextBtn.textContent = getBtnText(timeLeft);
-      nextBtn.style.pointerEvents = this.isHost ? 'auto' : 'none';
-      nextBtn.style.opacity = this.isHost ? '1' : '0.6';
 
-      this._autoNextRoundTimeout = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(this._autoNextRoundTimeout);
-          this._autoNextRoundTimeout = null;
-          this._nextRound();
-        } else {
-          nextBtn.textContent = getBtnText(timeLeft);
-        }
-      }, 1000);
+    // 判断是否真正破产：chips+bankroll 全为0才算破产
+    // 注意：此时 chips 可能因为 all-in 为0，但 bankroll 还有钱，不算破产
+    const isTrulyGameOver = this.room.players.some(
+      p => (p.chips + (p.bankroll || 0)) <= 0
+    );
+
+    if (isTrulyGameOver) {
+      // 真正破产，显示结算界面（不自动进入下一局）
+      this.ui.showResult(winner, hand, this.room.showdownResults, true);
+      this.ui.addChatMessage('', `🏆 ${winner} 获胜！${hand} · 有玩家破产`, true);
+    } else {
+      // 正常结束，自动倒计时进入下一局
+      this.ui.showResult(winner, hand, this.room.showdownResults, false);
+      this.ui.addChatMessage('', `🏆 ${winner} 获胜！${hand}`, true);
+
+      if (this.isHost) {
+        const nextBtn = document.getElementById('btn-next-round');
+        let timeLeft = 7;
+        const getBtnText = (t) => `下一局 (${t}s)`;
+        nextBtn.textContent = getBtnText(timeLeft);
+        nextBtn.style.pointerEvents = 'auto';
+        nextBtn.style.opacity = '1';
+
+        this._autoNextRoundTimeout = setInterval(() => {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            clearInterval(this._autoNextRoundTimeout);
+            this._autoNextRoundTimeout = null;
+            this._nextRound();
+          } else {
+            nextBtn.textContent = getBtnText(timeLeft);
+          }
+        }, 1000);
+      }
     }
   }
 
@@ -416,7 +441,56 @@ export class App {
   }
 
   _broadcastState() {
+    this._saveProgress();
     this.net.send({ type: 'ROOM_STATE', data: this._serializeRoom() });
+  }
+
+  requestRestartMatch() {
+    this.ui.hideResult();
+    const matchOverlay = document.getElementById('match-overlay');
+    if (matchOverlay) matchOverlay.classList.remove('show');
+
+    if (this.isHost) {
+      this._restartMatch();
+    } else {
+      this.ui.addChatMessage('', '正在等待房主重新开局...', true);
+      this.net.send({ type: 'RESTART_MATCH', data: { name: this.myName } });
+    }
+  }
+
+  _restartMatch() {
+    if (!this.isHost || !this.room) return;
+    
+    this.room.players.forEach(p => {
+       p.chips = Math.min(INITIAL_TABLE_CHIPS, INITIAL_BANKROLL + INITIAL_TABLE_CHIPS); 
+       p.bankroll = Math.max(0, (INITIAL_BANKROLL + INITIAL_TABLE_CHIPS) - p.chips);
+       p.isReady = false;
+       p.folded = false;
+       p.currentBet = 0;
+       p.hand = [];
+       p.handsPlayed = 0;
+       p.handsWon = 0;
+    });
+    this.room.phase = 'lobby';
+    this.room.publicCards = [];
+    this.room.pot = 0;
+    this.room.currentBet = 0;
+    
+    this._saveProgress();
+    this._broadcastState();
+    
+    this.ui.showLobby();
+    this.ui.updateLobby(this.room, this.myId, true);
+    this.ui.addChatMessage('', '🔄 房主已重新开局，请准备！', true);
+  }
+
+  _saveProgress() {
+    if (!this.room) return;
+    const me = this.room.players.find(p => p.id === this.myId);
+    if (me && typeof me.bankroll === 'number') {
+      const netWorth = me.chips + me.bankroll;
+      localStorage.setItem('lob_poker_networth', netWorth.toString());
+    }
   }
 
   _serializeRoom() {

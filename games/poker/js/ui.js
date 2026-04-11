@@ -95,6 +95,15 @@ export class UI {
   }
 
   init() {
+    // Raise Slider
+    const inputAmount = document.getElementById('raise-amount-input');
+    const labelAmount = document.getElementById('raise-amount-label');
+    if (inputAmount && labelAmount) {
+      inputAmount.oninput = () => {
+        labelAmount.textContent = `加注到: ${inputAmount.value}`;
+      };
+    }
+
     // Action Panel: Raise Confirm
     const btnConfirm = document.getElementById('btn-raise-confirm');
     if (btnConfirm) {
@@ -128,6 +137,15 @@ export class UI {
       };
     }
 
+    // Match Result: Restart Game
+    const btnRestart = document.getElementById('btn-restart-match');
+    if (btnRestart) {
+      btnRestart.onclick = () => {
+        this.playSFX('click');
+        if (window.app) window.app.requestRestartMatch();
+      };
+    }
+
     // Game Header: Leave
     const btnLeave = document.getElementById('btn-leave-game');
     if (btnLeave) {
@@ -149,6 +167,25 @@ export class UI {
     if (chatInput) {
       chatInput.onkeypress = (e) => {
         if (e.key === 'Enter') this.app._sendChat();
+      };
+    }
+
+    // Chat: Mobile Toggle
+    const btnToggleChat = document.getElementById('btn-toggle-chat');
+    const btnCloseChat = document.getElementById('btn-close-chat');
+    const chatPanel = document.getElementById('chat-panel');
+
+    if (btnToggleChat && chatPanel) {
+      btnToggleChat.onclick = () => {
+        this.playSFX('click');
+        chatPanel.classList.add('open');
+      };
+    }
+    if (btnCloseChat && chatPanel) {
+      btnCloseChat.onclick = () => {
+        this.playSFX('click');
+        chatPanel.classList.add('closing'); // Option for animation
+        chatPanel.classList.remove('open');
       };
     }
   }
@@ -284,7 +321,7 @@ export class UI {
     if (phaseEl) phaseEl.textContent = PHASE_LABELS[room.phase] || room.phase.toUpperCase();
 
     const currentPhaseTotal = (room.players || []).reduce((s, p) => s + (p.currentBet || 0), 0);
-    const totalGamePot = (room.pot || 0) + currentPhaseTotal;
+    const totalGamePot = room.pot || 0;
 
     const curLabel = document.getElementById('cur-phase-pot');
     if (curLabel) curLabel.textContent = currentPhaseTotal;
@@ -359,7 +396,7 @@ export class UI {
         ? `<div class="bet-indicator anim-pop">
             <div class="bet-part">本轮 ${p.currentBet || 0}</div>
             <div class="bet-sep"></div>
-            <div class="bet-part">总计 ${(p.handTotal || 0) + (p.currentBet || 0)}</div>
+            <div class="bet-part">累计 ${(p.handTotal || 0) + (p.currentBet || 0)}</div>
            </div>` : '';
 
       let labels = '';
@@ -377,6 +414,7 @@ export class UI {
           <div class="seat-info ${isTurn ? 'is-turn' : ''} ${isWinner ? 'is-winner' : ''}">
             <div class="seat-name">${p.name}${p.isBot ? ' 🤖' : ''}</div>
             <div class="seat-chips">💰 ${p.chips}</div>
+            <div class="seat-bankroll" style="font-size:0.75rem; color:#DFD6D3; margin-top:2px;">🏦 ${p.bankroll !== undefined ? p.bankroll : 0}</div>
             <div class="seat-roles">${labels}</div>
             ${p.folded ? '<div class="action-status folded">已弃牌</div>' : ''}
           </div>
@@ -421,8 +459,8 @@ export class UI {
     }
 
     info.textContent = isMyTurn
-      ? (toCall > 0 ? `当前到你行动 · 需要跟注: ${toCall}` : '当前到你行动 · 请选择')
-      : `等待 ${room.players[room.currentTurn]?.name || '对手'} 行动...`;
+      ? (toCall > 0 ? `👉 你的回合 · 需跟注: ${toCall}` : '👉 你的回合 · 请行动')
+      : `⏳ 等待 ${room.players[room.currentTurn]?.name || '对手'} 行动...`;
 
     if (!isMyTurn || (me && me.folded)) return;
 
@@ -463,13 +501,18 @@ export class UI {
         this.playSFX('click');
         raisePanel.classList.add('show');
         const input = document.getElementById('raise-amount-input');
+        const label = document.getElementById('raise-amount-label');
+        
         // totalBet semantics: minimum is currentBet + MIN_RAISE
         const minTotal = (room.currentBet || 0) + MIN_RAISE;
-        const maxTotal = me.chips + (me.currentBet || 0);
+        // Raise amount they can add is limited by their table chips
+        const maxAdd = me.chips;
+        const maxTotal = (me.currentBet || 0) + maxAdd;
+        
         input.min = minTotal;
-        input.max = maxTotal;
-        input.placeholder = `最小加注到 ${minTotal}`;
-        input.value = Math.min(minTotal, maxTotal);
+        input.max = Math.max(minTotal, maxTotal);
+        input.value = minTotal;
+        if (label) label.textContent = `加注到: ${minTotal}`;
         input.focus();
       };
       btns.appendChild(raiseBtn);
@@ -518,7 +561,7 @@ export class UI {
     document.getElementById('countdown-overlay').classList.remove('show');
   }
 
-  showResult(winner, winHand, showdownResults) {
+  showResult(winner, winHand, showdownResults, isGameOver = false) {
     const overlay = document.getElementById('result-overlay');
     const winnerEl = document.getElementById('result-winner');
     const handEl = document.getElementById('result-hand');
@@ -559,6 +602,57 @@ export class UI {
     if (oldDetails) oldDetails.remove();
     content.insertAdjacentHTML('beforeend', detailHtml);
 
+    // 使用 app.js 传入的 isGameOver 参数（基于 chips+bankroll 综合判断）
+    // 避免在 rebuy 执行前就错误地判定为破产
+    const btnNext = document.getElementById('btn-next-round');
+    btnNext.style.pointerEvents = 'auto';
+    btnNext.style.opacity = '1';
+
+    if (isGameOver) {
+      btnNext.textContent = '查看总结算';
+      btnNext.onclick = () => {
+        this.playSFX('click');
+        this.hideResult();
+        this.showMatchOver(this.room);
+      };
+    } else {
+      btnNext.textContent = '下一局';
+      btnNext.onclick = () => {
+        this.playSFX('click');
+        if (window.app) window.app._nextRound();
+      };
+    }
+
+    overlay.classList.add('show');
+  }
+
+  showMatchOver(room) {
+    const overlay = document.getElementById('match-overlay');
+    const statsEl = document.getElementById('match-stats-details');
+    
+    // Total original capital per player
+    const INITIAL_TOTAL = 11000; 
+
+    let html = '';
+    room.players.forEach(p => {
+      const currentTotal = p.chips + p.bankroll;
+      const profit = currentTotal - INITIAL_TOTAL;
+      const profitText = profit > 0 ? `<span style="color:#C44A4A">+${profit}</span>` : `<span style="color:#2A2A4A">${profit}</span>`;
+      const isBankrupt = currentTotal === 0;
+      
+      html += `
+        <div style="background:rgba(0,0,0,0.03); padding:12px; border-radius:8px; margin-bottom:10px; border-left:4px solid ${isBankrupt ? '#8A7065' : '#E88A3D'}">
+          <div style="font-weight:700; margin-bottom:6px;">${p.name} ${isBankrupt ? '💸 (破产)' : ''}</div>
+          <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+             <span>剩余总资金: 💰 ${currentTotal}</span>
+             <span>输赢: ${profitText}</span>
+          </div>
+          <div style="font-size:0.85rem; color:#8A7065; margin-top:4px;">参与 ${p.handsPlayed} 局 | 获胜 ${p.handsWon} 局</div>
+        </div>
+      `;
+    });
+    
+    statsEl.innerHTML = html;
     overlay.classList.add('show');
   }
 

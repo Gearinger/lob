@@ -5,7 +5,8 @@
 'use strict';
 
 // ==================== CONSTANTS ====================
-export const INITIAL_CHIPS = 10000;
+export const INITIAL_BANKROLL = 10000;
+export const INITIAL_TABLE_CHIPS = 1000;
 export const SMALL_BLIND = 5;
 export const BIG_BLIND = 10;
 export const MIN_RAISE = 5;
@@ -132,10 +133,16 @@ export function estimateHandStrength(state, playerIdx) {
 
 // ==================== GAME STATE ====================
 export class GameRoom {
-  constructor(roomCode, hostId, hostName, hostUuid = '') {
+  constructor(roomCode, hostId, hostName, hostUuid = '', hostNetWorth = null) {
     this.roomCode = roomCode;
     this.hostId = hostId;
-    this.players = [{ id: hostId, uuid: hostUuid, name: hostName, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, folded: false, actedThisRound: false, connected: true, hand: [] }];
+    
+    const defaultNetWorth = INITIAL_BANKROLL + INITIAL_TABLE_CHIPS;
+    const nw = typeof hostNetWorth === 'number' ? hostNetWorth : defaultNetWorth;
+    const c = Math.min(nw, INITIAL_TABLE_CHIPS);
+    const b = Math.max(0, nw - c);
+    
+    this.players = [{ id: hostId, uuid: hostUuid, name: hostName, isBot: false, isReady: false, chips: c, bankroll: b, currentBet: 0, folded: false, actedThisRound: false, connected: true, hand: [], handsPlayed: 0, handsWon: 0 }];
     this.phase = 'lobby';
     this.publicCards = [];
     this.pot = 0;
@@ -148,9 +155,15 @@ export class GameRoom {
     this.showdownResults = [];
   }
 
-  addPlayer(id, name, uuid = '') {
+  addPlayer(id, name, uuid = '', netWorth = null) {
     if (this.players.length >= 6) return null;
-    const p = { id, uuid, name, isBot: false, isReady: false, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
+    
+    const defaultNetWorth = INITIAL_BANKROLL + INITIAL_TABLE_CHIPS;
+    const nw = typeof netWorth === 'number' ? netWorth : defaultNetWorth;
+    const c = Math.min(nw, INITIAL_TABLE_CHIPS);
+    const b = Math.max(0, nw - c);
+    
+    const p = { id, uuid, name, isBot: false, isReady: false, chips: c, bankroll: b, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [], handsPlayed: 0, handsWon: 0 };
     this.players.push(p);
     return p;
   }
@@ -158,7 +171,7 @@ export class GameRoom {
   addBot(name) {
     if (this.players.length >= 6) return null;
     const botId = 'bot_' + Date.now();
-    const p = { id: botId, uuid: botId, name: name || 'Bot-' + (this.players.length + 1), isBot: true, isReady: true, chips: INITIAL_CHIPS, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [] };
+    const p = { id: botId, uuid: botId, name: name || 'Bot-' + (this.players.length + 1), isBot: true, isReady: true, chips: INITIAL_TABLE_CHIPS, bankroll: INITIAL_BANKROLL, currentBet: 0, handTotal: 0, folded: false, actedThisRound: false, connected: true, hand: [], handsPlayed: 0, handsWon: 0 };
     this.players.push(p);
     return p;
   }
@@ -202,11 +215,21 @@ export class GameRoom {
     this.deck = makeDeck();
 
     this.players.forEach(p => {
+      // 场上资金花完后，自动从场下资金里取1000补充
+      if (p.chips === 0 && p.bankroll >= INITIAL_TABLE_CHIPS) {
+        p.bankroll -= INITIAL_TABLE_CHIPS;
+        p.chips = INITIAL_TABLE_CHIPS;
+      } else if (p.chips === 0 && p.bankroll > 0) {
+        // 如果不足1000，则把剩下的都搬上来
+        p.chips = p.bankroll;
+        p.bankroll = 0;
+      }
       p.currentBet = 0;
       p.handTotal = 0;
       p.folded = false;
       p.actedThisRound = false;
       p.hand = [this.deck.pop(), this.deck.pop()];
+      p.handsPlayed++;
     });
 
     this.dealerIdx = (this.dealerIdx + 1) % this.players.length;
@@ -269,7 +292,8 @@ export class GameRoom {
       case 'raise': {
         const targetAmount = Math.max(amount || (this.currentBet + MIN_RAISE), this.currentBet + MIN_RAISE);
         const totalBet = Math.min(targetAmount, p.chips + (p.currentBet || 0));
-        const raiseAmt = totalBet - (p.currentBet || 0);
+        let raiseAmt = totalBet - (p.currentBet || 0);
+        
         if (raiseAmt > 0 && raiseAmt >= toCall) {
           p.chips -= raiseAmt;
           p.currentBet = (p.currentBet || 0) + raiseAmt;
@@ -285,7 +309,7 @@ export class GameRoom {
       case 'allin': {
         const allInAmt = p.chips;
         if (allInAmt >= 0) {
-          p.chips = 0;
+          p.chips -= allInAmt;
           p.currentBet = (p.currentBet || 0) + allInAmt;
           this.pot += allInAmt;
           if (p.currentBet > this.currentBet) {
@@ -395,6 +419,7 @@ export class GameRoom {
 
     if (active.length === 1) {
       active[0].chips += this.pot;
+      active[0].handsWon++;
       this.winner = active[0].name;
       this.winHand = '对手弃牌';
       this.showdownResults.push({ name: active[0].name, desc: '赢（对手弃牌）', cards: '' });
@@ -422,6 +447,7 @@ export class GameRoom {
 
     if (bestPlayer) {
       bestPlayer.chips += this.pot;
+      bestPlayer.handsWon++;
       this.winner = bestPlayer.name;
       this.winHand = describeHand(bestHand);
     }

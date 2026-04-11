@@ -63,7 +63,7 @@ export class Network {
     });
   }
 
-  async joinRoom(playerName, roomCode, uuid) {
+  async joinRoom(playerName, roomCode, uuid, netWorth = null) {
     const peerId = 'lobpoker_' + this._hashCode(roomCode) + '_' + Date.now().toString(36) + '_j';
     console.info('[NET] Attempting to join room:', roomCode, 'as', peerId);
     return new Promise((resolve, reject) => {
@@ -88,7 +88,7 @@ export class Network {
         this.conn.on('open', () => {
           console.info('[NET] Connection to host established!');
           this._updateStatus('已连接房主!');
-          this.send({ type: 'JOIN', data: { name: playerName, uuid } });
+          this.send({ type: 'JOIN', data: { name: playerName, uuid, netWorth } });
           resolve(id);
         });
         this.conn.on('error', err => {

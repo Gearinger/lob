@@ -411,11 +411,11 @@ a {
 }
 
 .pot-label {
-  font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.01em;
-  margin-bottom: 1px;
-  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+  font-weight: 600;
 }
 
 .pot-amount {
@@ -626,17 +626,17 @@ a {
 }
 
 .seat-name {
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  margin-bottom: 1px;
-  font-size: 0.85rem;
-  opacity: 0.9;
+  margin-bottom: 2px;
+  font-size: 0.9rem;
+  opacity: 1;
 }
 
 .seat-chips {
-  color: #E88A3D;
-  font-size: 0.8rem;
-  font-weight: 600;
+  color: #FFDEB3;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .seat-info.is-turn {
@@ -830,7 +830,7 @@ a {
   }
 }
 
-.raise-panel input {
+.raise-panel input[type="number"] {
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
@@ -844,8 +844,53 @@ a {
   outline: none;
 }
 
-.raise-panel input:focus {
+.raise-panel input[type="number"]:focus {
   border-color: #E88A3D;
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+#raise-amount-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #E88A3D;
+}
+
+input[type="range"] {
+  width: 100%;
+  max-width: 300px;
+  -webkit-appearance: none;
+  background: transparent;
+  padding: 10px 0; /* Increase touch target area */
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  background: rgba(200, 140, 80, 0.25);
+  border-radius: 6px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  background: #E88A3D;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .raise-panel .raise-btns {
@@ -858,6 +903,10 @@ a {
 .raise-btns .btn {
   padding: 8px 18px;
   font-size: 0.82rem;
+}
+
+#btn-toggle-chat, .chat-header-mobile {
+  display: none;
 }
 
 /* ===== CHAT PANEL (LEFT SIDEBAR) ===== */
@@ -1029,29 +1078,6 @@ a {
   padding-left: 240px;
 }
 
-@media (max-width: 800px) {
-  .chat-panel {
-    width: 100%;
-    height: 160px;
-    bottom: 0;
-    top: auto;
-    border-right: none;
-    border-top: 1px solid rgba(200, 140, 80, 0.15);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.03);
-  }
-
-  .game-screen {
-    padding-left: 0;
-    padding-bottom: 160px;
-  }
-
-  .action-bar {
-    width: 100%;
-    margin-left: 0;
-    bottom: 160px;
-  }
-}
-
 /* ===== WAITING ===== */
 .waiting-msg {
   font-size: 0.85rem;
@@ -1102,35 +1128,199 @@ a {
   }
 }
 
+/* ===== MOBILE ADAPTATION ===== */
 @media (max-width: 800px) {
+  #btn-toggle-chat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chat-header-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px 10px 5px;
+    border-bottom: 1px solid rgba(200, 140, 80, 0.1);
+    margin-bottom: 15px;
+  }
+
+  .chat-header-mobile span {
+    font-weight: 700;
+    color: #E88A3D;
+    font-size: 0.95rem;
+  }
+
+  #btn-close-chat {
+    background: rgba(200, 140, 80, 0.08);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #8A7065;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
   .chat-panel {
     width: 100%;
-    height: 160px;
+    height: 75vh;
     bottom: 0;
     top: auto;
+    left: 0;
+    right: 0;
     border-right: none;
     border-top: 1px solid rgba(200, 140, 80, 0.15);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.03);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transform: translateY(105%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex !important;
+  }
+
+  .chat-panel.open {
+    transform: translateY(0);
   }
 
   .game-screen {
     padding-left: 0;
-    padding-bottom: 160px;
+    padding-bottom: 110px;
   }
 
   .action-bar {
     width: 100%;
     margin-left: 0;
-    bottom: 160px;
+    bottom: 0;
+    padding: 12px 10px 20px 10px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
   }
-}
+  
+  .action-buttons {
+    gap: 8px;
+  }
+  
+  .action-btn {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
 
-/* ===== WAITING ===== */
-.waiting-msg {
-  font-size: 0.85rem;
-  color: #9A8070;
-  text-align: center;
-  padding: 10px;
+  .lobby-box {
+    padding: 24px 20px;
+  }
+  
+  .game-table {
+    padding: 10px;
+    margin-top: 20px;
+  }
+
+  .table-area {
+    width: 96vw;
+    height: 85vw;
+    border-width: 4px;
+  }
+
+  .pot-display {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: row;
+    padding: 4px 10px;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.7);
+  }
+  
+  .pot-section {
+    min-width: unset;
+  }
+
+  .public-cards {
+    transform: none;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .card-slot, .card, .card-back {
+    width: 48px !important;
+    height: 68px !important;
+  }
+  
+  .card .rank {
+    font-size: 1.1rem;
+  }
+
+  .card .suit {
+    font-size: 0.85rem;
+  }
+
+  .dealer-btn {
+    bottom: auto;
+    top: 55%;
+    right: 5%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+  }
+
+  .player-seat {
+    min-width: auto;
+  }
+
+  .player-seat.pos-self {
+    bottom: -15px;
+  }
+
+  .player-seat.pos-opp {
+    top: -15px;
+  }
+  
+  .seat-info {
+    min-width: 100px;
+    padding: 6px 12px;
+  }
+  
+  .seat-name {
+    font-size: 0.75rem;
+  }
+  
+  .seat-chips {
+    font-size: 0.75rem;
+  }
+  
+  .bet-indicator {
+    padding: 2px 8px;
+    font-size: 0.65rem;
+  }
+
+  .pos-self .bet-indicator {
+    bottom: 95px;
+  }
+
+  .pos-opp .bet-indicator {
+    top: 95px;
+  }
+
+  .raise-panel input {
+    max-width: 100%;
+  }
+
+  .result-box {
+    padding: 30px 24px;
+    width: 90%;
+    max-width: 340px;
+  }
+
+  .player-list {
+    margin: 10px 0;
+  }
+  
+  .room-code-display .code {
+    font-size: 1.6rem;
+  }
 }
 
 /* ===== FOOTER ===== */
