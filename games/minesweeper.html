@@ -40,8 +40,9 @@
             overflow-x: auto;
         }
         .cell {
-            min-width: 28px;
+            width: 28px;
             height: 28px;
+            flex-shrink: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -49,8 +50,11 @@
             cursor: pointer;
             border-radius: 4px;
             margin: 1px;
-            font-size: 12px;
+            font-size: 14px;
+            line-height: 1;
             transition: all 0.1s;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         .cell.hidden {
             background: linear-gradient(145deg, #FFB3C6, #E89AAD);
