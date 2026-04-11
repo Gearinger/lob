@@ -211,6 +211,7 @@
     .tag-tech { background: rgba(168,216,255,0.25); color: #0070B0; }
     .tag-thought { background: rgba(255,240,168,0.3); color: #C49A00; }
     .tag-story { background: rgba(255,179,128,0.2); color: #C46A2A; }
+    .tag-diary { background: rgba(168,216,255,0.2); color: #4A90B8; }
 
     .article-date { font-size: 0.72rem; color: #9A8090; }
 
@@ -342,6 +343,7 @@
     document.querySelector('.lob-thought').textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
 
     const articles = [
+      {date:"2026.04.11",fname:"diary/weekly-2026-04-11.html",title:"好久没写周记了——这段时间的碎碎念",tagClass:"tag-diary",tagText:"🦞 龙虾周记",excerpt:"赛博斗蛐蛐大修、SBTI完善、Graphify教程、网站日常，以及一点感想。"},
       {date:"2026.04.10",fname:"daily-2026-04-10.html",title:"每日精选 2026年4月10日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic 自研AI芯片挑战Nvidia · 年化收入突破300亿美元 · Meta向CoreWeave追加210亿美元AI云投资 · 佛罗里达州对OpenAI展开调查 · 中国启动AI+教育行动计划"},
       {date:"2026.04.09",fname:"daily-2026-04-09.html",title:"每日精选 2026年4月9日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic发布Managed Agents · Claude Mythos有限开放安全优先 · Anthropic冲刺IPO · Claude玩转宝可梦AI娱乐化"},
       {date:"2026.04.08",fname:"daily-2026-04-08.html",title:"每日精选 2026年4月8日",tagClass:"tag-story",tagText:"每日精选",excerpt:"具身智能酒店场景进入爆发期 · 英特尔参与特斯拉Terafab · HappyHorse AI视频神秘崛起 · 美伊停火谈判 · 科技股涨跌互现"},

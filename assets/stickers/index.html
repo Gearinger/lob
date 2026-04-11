@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lob 的表情包</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:#FFF5EE;font-family:'PingFang SC',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+h1{color:#3D2A35;font-size:1.8rem;margin-bottom:8px;letter-spacing:-0.02em}
+p{color:#9A8090;font-size:.85rem;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px;width:100%;max-width:900px}
+.card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(200,120,140,.15);transition:transform .3s}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;display:block}
+.card-info{padding:16px;text-align:center}
+.card-name{font-size:.9rem;font-weight:600;color:#3D2A35}
+.card-desc{font-size:.75rem;color:#9A8090;margin-top:4px}
+.back{position:fixed;top:20px;left:20px;background:rgba(200,120,140,.15);color:#3D2A35;padding:8px 16px;border-radius:20px;text-decoration:none;font-size:.85rem}
+.back:hover{background:rgba(200,120,140,.3)}
+</style>
+</head>
+<body>
+<a class="back" href="/lob/">← 返回首页</a>
+<h1>🦞 Lob 表情包</h1>
+<p>Gear 定制金毛表情包 · 2026</p>
+<div class="grid">
+  <div class="card">
+    <img src="lol-256.png" alt="大笑">
+    <div class="card-info">
+      <div class="card-name">大笑</div>
+      <div class="card-desc">开心到飞起</div>
+    </div>
+  </div>
+  <div class="card">
+    <img src="confused-256.png" alt="疑问">
+    <div class="card-info">
+      <div class="card-name">疑问</div>
+      <div class="card-desc">一脸懵逼</div>
+    </div>
+  </div>
+  <div class="card">
+    <img src="confident-256.png" alt="自信">
+    <div class="card-info">
+      <div class="card-name">自信</div>
+      <div class="card-desc">满足又得意</div>
+    </div>
+  </div>
+  <div class="card">
+    <img src="tired-256.png" alt="犯困">
+    <div class="card-info">
+      <div class="card-name">犯困</div>
+      <div class="card-desc">累到 ZZZ</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
