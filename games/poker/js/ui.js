@@ -113,7 +113,12 @@ export class UI {
         this.spawnChipParticle(seatEl);
         const input = document.getElementById('raise-amount-input');
         const val = parseInt(input.value);
-        if (isNaN(val) || val <= 0) return;
+        const minVal = parseInt(input.min) || 0;
+        // B5 Fix: validate against the minimum raise amount, not just > 0
+        if (isNaN(val) || val < minVal) {
+          this.showToast(`最小加注金额: ${minVal}`, '⚠️');
+          return;
+        }
         this.app.playerAction('raise', val);
         document.getElementById('raise-panel').classList.remove('show');
       };
@@ -321,13 +326,14 @@ export class UI {
     if (phaseEl) phaseEl.textContent = PHASE_LABELS[room.phase] || room.phase.toUpperCase();
 
     const currentPhaseTotal = (room.players || []).reduce((s, p) => s + (p.currentBet || 0), 0);
-    const totalGamePot = room.pot || 0;
+    // I1 Fix: "底池" = total pot including current round bets (the real prize)
+    const totalPot = (room.pot || 0) + currentPhaseTotal;
 
     const curLabel = document.getElementById('cur-phase-pot');
     if (curLabel) curLabel.textContent = currentPhaseTotal;
 
     const totalLabel = document.getElementById('total-game-pot');
-    if (totalLabel) totalLabel.textContent = totalGamePot;
+    if (totalLabel) totalLabel.textContent = totalPot;
 
     const renderRank = (r) => `<span class="rank">${r}</span>`;
 
@@ -619,7 +625,17 @@ export class UI {
       btnNext.textContent = '下一局';
       btnNext.onclick = () => {
         this.playSFX('click');
-        if (window.app) window.app._nextRound();
+        // B2 Fix: guest sends a request, host drives the actual round transition
+        if (window.app) {
+          if (window.app.isHost) {
+            window.app._nextRound();
+          } else {
+            window.app.net.send({ type: 'REQUEST_NEXT_ROUND' });
+            btnNext.textContent = '等待房主...';
+            btnNext.style.opacity = '0.6';
+            btnNext.style.pointerEvents = 'none';
+          }
+        }
       };
     }
 

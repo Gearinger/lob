@@ -48,7 +48,12 @@ export function handRank(hand) {
   const uniqueRanks = Object.keys(rankCounts);
 
   if (isStraightFlush || isLowStraightFlush) return [8, ...(isLowStraightFlush ? [5] : [values[0]]), ...values];
-  if (counts[0] === 4) return [7, ...values.slice(0, 1), ...values]; // Four of a kind
+  if (counts[0] === 4) {
+    // B6 Fix: correctly identify the quad rank and the kicker
+    const quadRank = parseInt(Object.keys(rankCounts).find(r => rankCounts[r] === 4));
+    const kicker = values.find(v => v !== quadRank) || 0;
+    return [7, quadRank, kicker];
+  } // Four of a kind
   if (counts[0] === 3 && counts[1] === 2) return [6, ...values.slice(0, 1), ...values]; // Full house
   if (isFlush) return [5, ...values]; // Flush
   if (isStraight || isLowStraight) return [4, isLowStraight ? 5 : values[0]]; // Straight
@@ -120,14 +125,33 @@ export function botDecide(state, playerIdx) {
 }
 
 export function estimateHandStrength(state, playerIdx) {
+  // I2 Fix: consider community cards when available
   const p = state.players[playerIdx];
   if (!p.hand || p.hand.length < 2) return 0;
+
+  const publicCards = state.publicCards || [];
+
+  // Base score from hole cards
   const [r1, r2] = [RANK_VALUES[p.hand[0].rank], RANK_VALUES[p.hand[1].rank]];
   let score = (r1 + r2) / 28;
   const isPair = p.hand[0].rank === p.hand[1].rank;
   if (isPair) score = (r1 - 2) / 13 * 0.5 + 0.5;
   const isSuited = p.hand[0].suit === p.hand[1].suit;
   if (isSuited) score = Math.min(1, score + 0.1);
+
+  // If we have community cards, evaluate actual best hand
+  if (publicCards.length >= 3) {
+    const allCards = [...p.hand, ...publicCards];
+    const best = bestHandFrom7(allCards);
+    if (best) {
+      const rank = handRank(best);
+      // rank[0] is hand type 0-8; normalize to 0-1
+      const handTypeScore = rank[0] / 8;
+      // Weight: 60% hand type, 40% hole card strength
+      score = handTypeScore * 0.6 + score * 0.4;
+    }
+  }
+
   return Math.min(1, score);
 }
 
@@ -256,6 +280,12 @@ export class GameRoom {
     bb.chips -= bbAmt; bb.currentBet = bbAmt;
     this.currentBet = Math.max(sbAmt, bbAmt);
     this.pot = sbAmt + bbAmt;
+
+    // B3 Fix: SB has "acted" by posting blind.
+    // BB is NOT marked as acted so they get a chance to re-raise preflop.
+    // SB IS marked so if BB just calls (heads-up), SB doesn't get another action.
+    sb.actedThisRound = true;
+    // bb.actedThisRound stays false — BB retains option (can raise after a call)
 
     this.currentTurn = firstActorIdx;
     console.info('[GAME] Round start. Turn:', this.players[this.currentTurn].name, 'SB:', sb.name, 'BB:', bb.name);

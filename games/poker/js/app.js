@@ -171,6 +171,13 @@ export class App {
         break;
       }
 
+      case 'REQUEST_NEXT_ROUND': {
+        // B2 Fix: guest can ask host to advance to the next round
+        if (!this.isHost) break;
+        this._nextRound();
+        break;
+      }
+
       case 'CHAT': {
         this.ui.addChatMessage(data.name, data.text);
         break;
@@ -367,9 +374,11 @@ export class App {
       this._broadcastState();
     }
 
-    // 判断是否真正破产：chips+bankroll 全为0才算破产
-    // 注意：此时 chips 可能因为 all-in 为0，但 bankroll 还有钱，不算破产
-    const isTrulyGameOver = this.room.players.some(
+    // B4 Fix: isTrulyGameOver should only consider human players (not bots),
+    // because bots go bankrupt normally but game should continue until all
+    // human players are bankrupt. Also: chips+bankroll must BOTH be zero.
+    const humanPlayers = this.room.players.filter(p => !p.isBot);
+    const isTrulyGameOver = humanPlayers.some(
       p => (p.chips + (p.bankroll || 0)) <= 0
     );
 
@@ -498,7 +507,23 @@ export class App {
   }
 
   _deserializeRoom(data) {
-    this.room = Object.assign(new GameRoom(data.roomCode, data.hostId, ''), data);
+    // B1 Fix: create a proper GameRoom instance to preserve prototype methods,
+    // then copy only data fields (not constructor-initialized ones that would
+    // conflict). This ensures allReady(), startGame(), etc. all remain callable.
+    const room = new GameRoom(data.roomCode, data.hostId, '');
+    // Overwrite all enumerable data fields from the serialized snapshot
+    room.players = data.players || room.players;
+    room.phase = data.phase || room.phase;
+    room.publicCards = data.publicCards || [];
+    room.pot = data.pot || 0;
+    room.currentBet = data.currentBet || 0;
+    room.currentTurn = data.currentTurn ?? 0;
+    room.dealerIdx = data.dealerIdx ?? 0;
+    room.deck = data.deck || [];
+    room.winner = data.winner || null;
+    room.winHand = data.winHand || null;
+    room.showdownResults = data.showdownResults || [];
+    this.room = room;
   }
 
   _sendChat() {
