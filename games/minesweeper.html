@@ -85,6 +85,7 @@
             justify-content: center;
             z-index: 100;
         }
+        #help-overlay { display: none; }
         .message {
             background: white;
             padding: 40px;
@@ -132,6 +133,23 @@
             <button class="btn-secondary" onclick="setDifficulty('hard')">困难</button>
         </div>
         <button class="btn-primary" onclick="initGame()">🔄 重置</button>
+        <button class="btn-secondary" onclick="toggleHelp()">❓ 帮助</button>
+    </div>
+
+    <div class="overlay" id="help-overlay" style="background:rgba(200,120,140,0.3);">
+        <div class="message" style="max-width:400px;">
+            <h2 style="font-size:24px;margin-bottom:16px;">💣 扫雷规则</h2>
+            <div style="text-align:left;font-size:14px;color:#3D2A35;line-height:1.8;">
+                <p>• <strong>左键点击</strong>：翻开格子</p>
+                <p>• <strong>右键点击</strong>：标记地雷 🚩</p>
+                <p>• <strong>长按</strong>（手机）：标记地雷</p>
+                <p>• <strong>数字</strong>：周围8格中的地雷数量</p>
+                <p>• <strong>空白格</strong>：周围没有雷，自动展开</p>
+                <p>• <strong>胜利</strong>：翻开所有安全格子</p>
+                <p>• <strong>失败</strong>：踩到地雷</p>
+            </div>
+            <button class="btn-primary" style="margin-top:20px;" onclick="toggleHelp()">明白了！</button>
+        </div>
     </div>
     <div class="info">
         <span>💣 剩余: <span id="mines-left">0</span></span>
@@ -374,6 +392,11 @@
 
         function closeOverlay() {
             document.getElementById('overlay').style.display = 'none';
+        }
+
+        function toggleHelp() {
+            const el = document.getElementById('help-overlay');
+            el.style.display = el.style.display === 'none' ? 'flex' : 'none';
         }
 
         initGame();
