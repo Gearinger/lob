@@ -362,13 +362,27 @@
             },
             
             canMove(x, y) {
-                const r = Math.round(y);
-                const c = Math.round(x);
-                if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
-                if (state.map[r][c] !== 0) return false;
+                const R = 0.86; // player visual radius in grid units
+                // Check all grid cells that the player circle overlaps
+                const rMin = Math.floor(y - R);
+                const rMax = Math.ceil(y + R);
+                const cMin = Math.floor(x - R);
+                const cMax = Math.ceil(x + R);
+                for (let r = rMin; r <= rMax; r++) {
+                    for (let c = cMin; c <= cMax; c++) {
+                        if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+                        if (state.map[r][c] !== 0) return false;
+                    }
+                }
                 for (const b of state.bombs) {
-                    // Allow walking OFF your own bomb, but not onto other bombs
-                    if (b.x === c && b.y === r && !(Math.round(state.player.x) === c && Math.round(state.player.y) === r)) return false;
+                    const bc = b.x, br = b.y;
+                    // Circle-rect collision: bomb occupies [bc-0.5, bc+0.5] x [br-0.5, br+0.5]
+                    const overlapX = Math.max(0, Math.min(x + R, bc + 0.5) - Math.max(x - R, bc - 0.5));
+                    const overlapY = Math.max(0, Math.min(y + R, br + 0.5) - Math.max(y - R, br - 0.5));
+                    if (overlapX > 0 && overlapY > 0) {
+                        const standingOnBomb = (Math.round(state.player.x) === bc && Math.round(state.player.y) === br);
+                        if (!standingOnBomb) return false;
+                    }
                 }
                 return true;
             },
