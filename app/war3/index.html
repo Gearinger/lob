@@ -33,7 +33,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .general-card:hover{border-color:rgba(201,169,110,.5);transform:translateY(-2px)}
 .general-card.selected{border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)}
 .general-card.selected::after{content:'✓';position:absolute;top:4px;right:6px;font-size:.8em;color:#ffd700}
-.general-card.deployed{opacity:.35;pointer-events:none}
+.general-card.deployed{opacity:.55}
 .general-avatar{font-size:2.2em;margin-bottom:6px}
 .general-name{font-size:.85em;margin-bottom:3px}
 .general-job{font-size:.68em;color:rgba(245,230,200,.5);margin-bottom:6px}
@@ -189,8 +189,8 @@ function renderGeneralPick() {
     var g = myGen[i];
     var isDep = myIds.indexOf(g.id) >= 0;
     var card = document.createElement('div');
-    card.className = 'general-card' + (isDep ? ' deployed' : '');
-    if (!isDep) card.onclick = (function(gg){return function(){toggleGeneral(gg);};})(g);
+    card.className = 'general-card' + (isDep ? ' selected deployed' : '');
+    card.onclick = (function(gg){return function(){toggleGeneral(gg);};})(g);
     card.innerHTML = '<div class="general-avatar" style="color:'+g.color+'">'+g.avatar+'</div><div class="general-name">'+g.name+'</div><div class="general-job">'+g.job+'</div><div class="general-skill">'+g.skill+'</div>';
     list.appendChild(card);
   }
