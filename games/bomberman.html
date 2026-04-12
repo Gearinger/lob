@@ -35,8 +35,8 @@
         .game-wrapper {
             position: relative;
         }
-        canvas { 
-            display: block; 
+        canvas {
+            display: block;
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(200,120,140,0.2);
         }
@@ -132,7 +132,7 @@
             <button class="btn btn-medium" onclick="game.start('medium')">⚙️ 中等</button>
             <button class="btn btn-hard" onclick="game.start('hard')">🔥 困难</button>
         </div>
-        
+
         <!-- 游戏结束 -->
         <div id="game-over-screen" class="start-screen hidden">
             <h2 id="game-over-title">游戏结束</h2>
@@ -149,13 +149,13 @@
     <script>
     (function() {
         'use strict';
-        
+
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const TILE = 40;
         const ROWS = 13;
         const COLS = 13;
-        
+
         const COLORS = {
             wall: '#DDD0DC',
             brick: '#F5E6D3',
@@ -166,47 +166,38 @@
             fire: '#FFD6E0',
             power: { speed: '#FFB3C6', bomb: '#A8D8FF', fire: '#FFD6E0', lives: '#FFB3C6' }
         };
-        
+
         let state = null;
-        window._getState = () => state; // for debugging
         let animationId = null;
         let animTime = 0;
-        
+
         const DIFFICULTY = {
             easy: { enemyCount: 2, enemySpeed: 0.02, bombTimer: 180 },
             medium: { enemyCount: 4, enemySpeed: 0.03, bombTimer: 150 },
             hard: { enemyCount: 6, enemySpeed: 0.04, bombTimer: 120 }
         };
-        
+
         const keys = {};
         window.keys = keys;
-        window._game = null; // will be set after game is created
 
-        // Debug: if ?debug in URL, auto-test movement
-        if (location.search.includes('debug')) {
-            window._debugMode = true;
-        }
         document.addEventListener('keydown', e => {
-            console.log('KEYDOWN', e.key);
             keys[e.key] = true;
             if (e.key === ' ' && state) game.placeBomb();
             if (e.key.toLowerCase() === 'r' && state) game.restart();
             e.preventDefault();
         });
         document.addEventListener('keyup', e => keys[e.key] = false);
-        
+
         const game = {
             start(diff) {
                 document.getElementById('start-screen').classList.add('hidden');
                 document.getElementById('game-over-screen').classList.add('hidden');
                 this.restart(diff);
             },
-            
+
             restart(diff) {
-                console.log('RESTART CALLED, diff=' + diff);
                 animTime = 0;
                 const cfg = DIFFICULTY[diff];
-                console.log('cfg=', cfg);
                 state = {
                     score: 0,
                     difficulty: diff,
@@ -218,7 +209,6 @@
                     items: [],
                     running: true
                 };
-                console.log('STATE SET, player=' + state.player.x + ',' + state.player.y);
 
                 // 生成地图
                 for (let r = 0; r < ROWS; r++) {
@@ -235,60 +225,58 @@
                         }
                     }
                 }
-                
+
                 // 敌人
                 const positions = [[1,COLS-2], [ROWS-2,1], [ROWS-2,COLS-2], [ROWS-2,COLS-2], [1,COLS-2], [ROWS-2,1]];
                 for (let i = 0; i < cfg.enemyCount; i++) {
                     let pos = positions[i % positions.length];
-                    state.enemies.push({ 
-                        x: pos[0], y: pos[1], 
-                        vx: 0, vy: 0, 
+                    state.enemies.push({
+                        x: pos[0], y: pos[1],
+                        vx: 0, vy: 0,
                         speed: cfg.enemySpeed,
-                        alive: true 
+                        alive: true
                     });
                 }
-                
+
                 this.updateUI();
                 if (animationId) cancelAnimationFrame(animationId);
                 this.loop();
             },
-            
+
             showStart() {
                 document.getElementById('start-screen').classList.remove('hidden');
                 document.getElementById('game-over-screen').classList.add('hidden');
             },
-            
+
             placeBomb() {
                 if (!state || state.player.activeBombs >= state.player.maxBombs) return;
                 const bx = Math.round(state.player.x);
                 const by = Math.round(state.player.y);
                 if (state.map[by][bx] !== 0) return;
-                
-                state.bombs.push({ 
-                    x: bx, y: by, 
-                    timer: DIFFICULTY[state.difficulty].bombTimer 
+
+                state.bombs.push({
+                    x: bx, y: by,
+                    timer: DIFFICULTY[state.difficulty].bombTimer
                 });
                 state.player.activeBombs++;
             },
-            
+
             update() {
                 if (!state || !state.running) return;
-                
+
                 // 无敌时间减少
                 if (state.player.invincible > 0) state.player.invincible--;
-                
+
                 // 玩家移动
                 let vx = 0, vy = 0;
                 if (keys['ArrowLeft'] || keys['a'] || keys['A']) vx = -state.player.speed;
                 if (keys['ArrowRight'] || keys['d'] || keys['D']) vx = state.player.speed;
                 if (keys['ArrowUp'] || keys['w'] || keys['W']) vy = -state.player.speed;
                 if (keys['ArrowDown'] || keys['s'] || keys['S']) vy = state.player.speed;
-                
+
                 this.movePlayer(vx, 0);
                 this.movePlayer(0, vy);
-                // Debug: show player position + keys in draw (after clear)
-                // (moved to draw)
-                
+
                 // 敌人AI
                 for (const e of state.enemies) {
                     if (!e.alive) continue;
@@ -300,7 +288,7 @@
                     }
                     this.moveEnemy(e);
                 }
-                
+
                 // 炸弹倒计时
                 for (let i = state.bombs.length - 1; i >= 0; i--) {
                     state.bombs[i].timer--;
@@ -309,7 +297,7 @@
                         state.bombs.splice(i, 1);
                     }
                 }
-                
+
                 // 爆炸消失
                 for (let i = state.explosions.length - 1; i >= 0; i--) {
                     state.explosions[i].timer--;
@@ -317,7 +305,7 @@
                         state.explosions.splice(i, 1);
                     }
                 }
-                
+
                 // 敌人碰到爆炸
                 for (const e of state.enemies) {
                     if (!e.alive) continue;
@@ -328,7 +316,7 @@
                         }
                     }
                 }
-                
+
                 // 吃道具
                 const px = Math.round(state.player.x);
                 const py = Math.round(state.player.y);
@@ -343,12 +331,12 @@
                         state.score += 50;
                     }
                 }
-                
+
                 // 玩家碰到敌人
                 for (const e of state.enemies) {
                     if (!e.alive) continue;
                     const dist = Math.sqrt(Math.pow(e.x - state.player.x, 2) + Math.pow(e.y - state.player.y, 2));
-                    // 碰撞阈值 = 2 × 视觉半径(14px) / TILE(32.5) ≈ 0.86，让碰撞盒匹配对象轮廓
+                    // 碰撞阈值 = 2 × 视觉半径(14px) / TILE(32.5) ≈ 0.86,让碰撞盒匹配对象轮廓
                     if (dist < 0.85) {
                         console.log('Hit enemy! Lives:', state.player.lives - 1);
                         state.player.lives--;
@@ -363,15 +351,15 @@
                         }
                     }
                 }
-                
+
                 // 胜利检测
                 if (state.enemies.every(e => !e.alive)) {
                     this.gameOver();
                 }
-                
+
                 this.updateUI();
             },
-            
+
             movePlayer(vx, vy) {
                 if (vx === 0 && vy === 0) return;
                 const newX = state.player.x + vx;
@@ -379,18 +367,18 @@
                 if (this.canMove(newX, state.player.y)) state.player.x = newX;
                 if (this.canMove(state.player.x, newY)) state.player.y = newY;
             },
-            
+
             moveEnemy(e) {
                 const newX = e.x + e.vx;
                 const newY = e.y + e.vy;
-                
+
                 if (this.canMove(newX, e.y)) e.x = newX;
                 else e.vx = 0;
-                
+
                 if (this.canMove(e.x, newY)) e.y = newY;
                 else e.vy = 0;
             },
-            
+
             canMove(x, y) {
                 // Only check the grid cell the player's CENTER is in (not extended box)
                 const r = Math.round(y);
@@ -418,23 +406,23 @@
                 }
                 return true;
             },
-            
+
             explode(bomb) {
                 state.player.activeBombs--;
                 const dirs = [[0,0],[1,0],[-1,0],[0,1],[0,-1]];
-                
+
                 for (let d = 0; d < dirs.length; d++) {
                     const dir = dirs[d];
                     for (let i = 0; i <= state.player.bombPower; i++) {
                         if (i === 0 && d > 0) continue;
                         const tx = bomb.x + dir[0] * i;
                         const ty = bomb.y + dir[1] * i;
-                        
+
                         if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS) break;
                         if (state.map[ty][tx] === 1) break;
-                        
+
                         state.explosions.push({ x: tx, y: ty, timer: 20 });
-                        
+
                         if (state.map[ty][tx] === 2) {
                             state.map[ty][tx] = 0;
                             state.score += 10;
@@ -446,23 +434,13 @@
                     }
                 }
             },
-            
+
             draw() {
                 // 清空
                 ctx.fillStyle = COLORS.floor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 if (!state) return;
-
-                // Debug: show player position
-                ctx.fillStyle = '#ff0';
-                ctx.font = 'bold 12px monospace';
-                ctx.fillText(`P(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)})`, 4, 14);
-                
-                // Debug: show player position (draw ON TOP of everything)
-                ctx.fillStyle = '#ff0';
-                ctx.font = 'bold 11px monospace';
-                ctx.fillText(`P(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)})`, 4, 14);
 
                 // 地图
                 for (let r = 0; r < ROWS; r++) {
@@ -480,8 +458,8 @@
                         }
                     }
                 }
-                
-                // 道具（带光晕动画）
+
+                // 道具(带光晕动画)
                 for (const item of state.items) {
                     const x = item.x * TILE + TILE/2;
                     const y = item.y * TILE + TILE/2;
@@ -507,8 +485,8 @@
                     ctx.textBaseline = 'middle';
                     ctx.fillText(item.type === 'speed' ? 'S' : item.type === 'bomb' ? 'B' : item.type === 'fire' ? 'F' : '❤', x, y);
                 }
-                
-                // 炸弹（带呼吸动画）
+
+                // 炸弹(带呼吸动画)
                 for (const b of state.bombs) {
                     const x = b.x * TILE + TILE/2;
                     const y = b.y * TILE + TILE/2;
@@ -542,7 +520,7 @@
                     }
                 }
 
-                // 爆炸（带火焰效果）
+                // 爆炸(带火焰效果)
                 for (const e of state.explosions) {
                     const cx = e.x * TILE + TILE/2;
                     const cy = e.y * TILE + TILE/2;
@@ -564,8 +542,8 @@
                     ctx.fillStyle = `rgba(255,255,200,${alpha})`;
                     ctx.fill();
                 }
-                
-                // 玩家（无敌时闪烁 + 阴影）
+
+                // 玩家(无敌时闪烁 + 阴影)
                 if (!state.player.invincible || Math.floor(state.player.invincible / 5) % 2 === 0) {
                     const px = state.player.x * TILE + TILE/2;
                     const py = state.player.y * TILE + TILE/2;
@@ -589,7 +567,7 @@
                     ctx.fill();
                 }
 
-                // 敌人（带阴影）
+                // 敌人(带阴影)
                 for (const e of state.enemies) {
                     if (!e.alive) continue;
                     const ex = e.x * TILE + TILE/2;
@@ -617,7 +595,7 @@
                     ctx.fill();
                 }
             },
-            
+
             loop() {
                 if (!state || !state.running) return;
                 animTime++;
@@ -625,7 +603,7 @@
                 this.draw();
                 animationId = requestAnimationFrame(() => this.loop());
             },
-            
+
             updateUI() {
                 if (!state) return;
                 document.getElementById('score').textContent = state.score;
@@ -633,7 +611,7 @@
                 document.getElementById('bombs').textContent = state.player.maxBombs;
                 document.getElementById('power').textContent = state.player.bombPower;
             },
-            
+
             gameOver() {
                 state.running = false;
                 // Freeze canvas
@@ -641,11 +619,11 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 document.getElementById('final-score').textContent = state.score;
                 document.getElementById('game-over-title').textContent =
-                    state.player.lives > 0 ? '🎉 胜利！' : '💀 游戏结束';
+                    state.player.lives > 0 ? '🎉 胜利!' : '💀 游戏结束';
                 document.getElementById('game-over-screen').classList.remove('hidden');
             }
         };
-        
+
         window.game = game;
         game.showStart();
     })();
