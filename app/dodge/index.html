@@ -161,16 +161,17 @@ let spawnTimer = 0;
 let spawnInterval = 60;
 
 function spawnWave() {
-  const nBullets = 3 + wave * 2;
+  const nBullets = 3 + Math.floor(wave * 1.5);
   const angleStep = (Math.PI * 2) / nBullets;
   const baseAngle = (tick * 0.02) + wave * 0.3;
-  const spd = 2 + wave * 0.3 + Math.random() * 1.5;
-  const R = Math.max(W, H) * 0.7;
+  const spd = 1.5 + wave * 0.2 + Math.random() * 1;
+  const R = Math.max(W, H) * 0.8;
 
   for (let i = 0; i < nBullets; i++) {
     const a = baseAngle + angleStep * i + (Math.random() - 0.5) * 0.3;
-    const bx = cx + Math.cos(a) * R;
-    const by = cy + Math.sin(a) * R;
+    // Spawn at screen edge, fly toward player's current position
+    const bx = player.x + Math.cos(a) * (Math.max(W, H) * 0.9);
+    const by = player.y + Math.sin(a) * (Math.max(W, H) * 0.9);
     spawnEnemyBullet(bx, by,
       -Math.cos(a) * spd,
       -Math.sin(a) * spd,
@@ -223,7 +224,8 @@ function init() {
   wave = 1;
   tick = 0;
   spawnTimer = 0;
-  spawnInterval = 30;
+  autoShootTimer = 0;
+  spawnInterval = 90;
   updateUI();
 }
 
@@ -277,9 +279,9 @@ function update() {
     }
   }
 
-  // Spawn enemy bullets
-  const interval = Math.max(15, spawnInterval - wave * 2);
-  if (spawnTimer >= interval) {
+  // Spawn enemy bullets (grace period: first 90 frames = 1.5 seconds)
+  const interval = Math.max(50, 90 - wave * 5);
+  if (tick > 90 && spawnTimer >= interval) {
     spawnTimer = 0;
     spawnWave();
     if (tick % 300 === 0) wave++;
