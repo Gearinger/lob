@@ -202,8 +202,10 @@
             },
             
             restart(diff) {
+                console.log('RESTART CALLED, diff=' + diff);
                 animTime = 0;
                 const cfg = DIFFICULTY[diff];
+                console.log('cfg=', cfg);
                 state = {
                     score: 0,
                     difficulty: diff,
@@ -215,7 +217,8 @@
                     items: [],
                     running: true
                 };
-                
+                console.log('STATE SET, player=' + state.player.x + ',' + state.player.y);
+
                 // 生成地图
                 for (let r = 0; r < ROWS; r++) {
                     state.map[r] = [];
