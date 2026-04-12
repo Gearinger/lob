@@ -244,6 +244,12 @@
                 
                 this.movePlayer(vx, 0);
                 this.movePlayer(0, vy);
+                // Debug: show player position on canvas
+                if (vx !== 0 || vy !== 0) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px monospace';
+                    ctx.fillText('vx:' + vx.toFixed(2) + ' vy:' + vy.toFixed(2) + ' px:' + state.player.x.toFixed(2) + ' py:' + state.player.y.toFixed(2), 10, 20);
+                }
                 
                 // 敌人AI
                 for (const e of state.enemies) {
