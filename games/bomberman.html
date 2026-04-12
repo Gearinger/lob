@@ -180,6 +180,11 @@
         const keys = {};
         window.keys = keys;
         window._game = null; // will be set after game is created
+
+        // Debug: if ?debug in URL, auto-test movement
+        if (location.search.includes('debug')) {
+            window._debugMode = true;
+        }
         document.addEventListener('keydown', e => {
             console.log('KEYDOWN', e.key);
             keys[e.key] = true;
@@ -442,8 +447,13 @@
                 // 清空
                 ctx.fillStyle = COLORS.floor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 if (!state) return;
+
+                // Debug: show player position
+                ctx.fillStyle = '#ff0';
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText(`P(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)})`, 4, 14);
                 
                 // 地图
                 for (let r = 0; r < ROWS; r++) {
