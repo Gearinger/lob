@@ -144,7 +144,7 @@ function shoot(angle, spd, color) {
 }
 
 function spawnEnemyBullet(x, y, vx, vy, color) {
-  bullets.push({ x, y, vx, vy, size: 4, color, power: 1, fromPlayer: false });
+  bullets.push({ x, y, vx, vy, size: 7, color, power: 1, fromPlayer: false });
 }
 
 // Particles
@@ -175,7 +175,7 @@ function spawnWave() {
     spawnEnemyBullet(bx, by,
       -Math.cos(a) * spd,
       -Math.sin(a) * spd,
-      `hsl(${30 + wave * 10}, 80%, ${50 + wave * 3}%)`
+      `hsl(${(wave * 40) % 360}, 100%, 65%)`
     );
   }
 
@@ -380,25 +380,21 @@ function draw() {
 
   // Bullets
   bullets.forEach(b => {
-    ctx.shadowColor = b.color;
-    ctx.shadowBlur = 10;
+    // Outer glow
+    ctx.globalAlpha = 0.3;
     ctx.fillStyle = b.color;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, b.size * 1.8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0;
+    // Inner solid
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = b.fromPlayer ? '#4af' : '#fff';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.fromPlayer ? b.size : b.size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
   });
 
-  // Debug: always draw test dots
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#f00';
-  ctx.beginPath();
-  ctx.arc(cx, cy, 10, 0, Math.PI * 2);
-  ctx.fill(); // red dot at center
-  ctx.fillStyle = '#0f0';
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, 6, 0, Math.PI * 2);
-  ctx.fill(); // green dot at player
+
 
   // Player trail
   player.trail.forEach((t, i) => {
