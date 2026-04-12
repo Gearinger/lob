@@ -10,7 +10,7 @@ body{font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;background:#1a1208;color:
 canvas{position:fixed;inset:0;width:100%;height:100%}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
 
-#pick-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:40px}
+#pick-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:40px;position:relative;z-index:10}
 .faction-title{font-size:2em;letter-spacing:.2em;color:#c9a96e;text-shadow:0 2px 12px rgba(0,0,0,.5)}
 .faction-choice{display:flex;gap:60px}
 .faction-btn{width:200px;height:260px;border-radius:12px;cursor:pointer;border:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:inherit}
@@ -21,7 +21,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .faction-name{font-size:1.4em;letter-spacing:.15em}
 .faction-desc{font-size:.75em;color:rgba(245,230,200,.6);text-align:center;line-height:1.6}
 
-#general-pick{display:none;flex-direction:column;height:100%}
+#general-pick{display:none;flex-direction:column;height:100%;position:relative;z-index:10}
 .pick-header{padding:16px 24px;border-bottom:1px solid rgba(201,169,110,.15);display:flex;align-items:center;gap:20px}
 .back-btn{color:#c9a96e;font-size:.85em;cursor:pointer;padding:6px 12px;border:1px solid rgba(201,169,110,.3);border-radius:4px;background:none;font-family:inherit}
 .back-btn:hover{background:rgba(201,169,110,.1)}
@@ -61,9 +61,9 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .hud-controls button{background:none;border:1px solid rgba(201,169,110,.3);color:#c9a96e;padding:5px 14px;border-radius:4px;font-family:inherit;font-size:.78em;cursor:pointer}
 .hud-controls button:hover{background:rgba(201,169,110,.1)}
 
-#result{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;text-align:center}
-.result-overlay{display:flex;position:fixed;inset:0;z-index:30;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .5s;pointer-events:none}
-.result-overlay.show{opacity:1;pointer-events:all}
+#result{position:fixed;inset:0;z-index:0;display:none;align-items:center;justify-content:center;text-align:center}
+.result-overlay{display:flex;position:fixed;inset:0;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .5s;pointer-events:none}
+.result-overlay.show{opacity:1;pointer-events:all;z-index:30}
 .result-box{padding:48px 80px;border-radius:16px;background:rgba(26,18,8,.95);border:2px solid #c9a96e;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .result-title{font-size:2.4em;letter-spacing:.2em;margin-bottom:12px}
 .result-title.win{color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.5)}
@@ -192,7 +192,9 @@ function renderGeneralPick() {
     card.className = 'general-card' + (isDep ? ' selected' : '');
     (function(gg, el){
       el.addEventListener('click', function(){ toggleGeneral(gg); });
+      el.setAttribute('data-gid', gg.id);
     })(g, card);
+    card.setAttribute('onclick', 'toggleGeneral(GENERALS["' + playerFaction + '"].find(function(x){return x.id=="' + g.id + '"}))');
     card.innerHTML = '<div class="general-avatar" style="color:'+g.color+'">'+g.avatar+'</div><div class="general-name">'+g.name+'</div><div class="general-job">'+g.job+'</div><div class="general-skill">'+g.skill+'</div>';
     list.appendChild(card);
   }
