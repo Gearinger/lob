@@ -102,9 +102,9 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 </div>
 
 <div class="filters">
-  <button class="filter-btn active" data-filter="all">全部</button>
-  <button class="filter-btn" data-filter="unwatched">只看未看</button>
-  <button class="filter-btn" data-filter="watched">只看已看</button>
+  <button class="filter-btn active" data-filter="all">全部 <span class="filter-count" id="countAll">248</span></button>
+  <button class="filter-btn" data-filter="unwatched">只看未看 <span class="filter-count" id="countUnwatched">248</span></button>
+  <button class="filter-btn" data-filter="watched">只看已看 <span class="filter-count" id="countWatched">0</span></button>
 </div>
 
 <div id="movieList"></div>
@@ -545,6 +545,13 @@ const movies = [
     var pct = 248 ? Math.round(watchedCount / 248 * 100) : 0;
     progressBar.style.width = pct + '%';
     progressLabel.textContent = watchedCount + '/' + 248 + ' (' + pct + '%)';
+    var unwatchedCount = 248 - watchedCount;
+    var allEl = document.getElementById('countAll');
+    var unwatchedEl = document.getElementById('countUnwatched');
+    var watchedEl = document.getElementById('countWatched');
+    if (allEl) allEl.textContent = 248;
+    if (unwatchedEl) unwatchedEl.textContent = unwatchedCount;
+    if (watchedEl) watchedEl.textContent = watchedCount;
   }
 
   // Search
