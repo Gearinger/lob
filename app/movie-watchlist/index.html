@@ -62,7 +62,6 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 .nav-back{background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;font-size:.82em;color:var(--text);text-decoration:none;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0}
 .nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 .nav-progress{font-size:.8em;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;box-shadow:2px 2px 0 var(--text);white-space:nowrap}
-#syncIndicator{cursor:default;font-size:.88em;background:var(--card);border:1.5px solid var(--text);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 var(--text)}
 .nav-theme{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--text);background:var(--card);color:var(--text);font-size:1.1em;cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .nav-theme:hover,.nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 @media(max-width:600px){
@@ -81,7 +80,6 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
     <span class="nav-progress" id="progressLabel"></span>
   </div>
   <div class="nav-right">
-    <span id="syncIndicator" title="云端同步状态">☁️</span>
     <button class="nav-theme" id="themeBtn" title="切换主题">🌙</button>
   </div>
 </div>
@@ -368,7 +366,7 @@ const movies = [
   var progressBar = document.getElementById('progressBar');
   var progressLabel = document.getElementById('progressLabel');
   var themeBtn = document.getElementById('themeBtn');
-  var syncIndicator = document.getElementById('syncIndicator');
+
   var randomBtn = document.getElementById('randomBtn');
   var unwatchedBtn = document.getElementById('unwatchedBtn');
   var filterBtns = document.querySelectorAll('.filter-btn');
@@ -381,7 +379,6 @@ const movies = [
   var SB_URL = 'https://biehvpylfhoespllmija.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpZWh2cHlsZmhvZXNwbGxtaWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzQ0MzQsImV4cCI6MjA5MTUxMDQzNH0.B3kjktOGp7YT-ZwIRRP3IHLPKBIo1UawJdCJlkWsbf4';
   var SB_USER = 'hermy';
-  var syncStatus = null; // null=unknown, 'syncing', 'ok', 'error'
 
   function sbFetch(path, method, body) {
     return fetch(SB_URL + '/rest/v1/' + path, {
@@ -397,20 +394,14 @@ const movies = [
   }
 
   async function syncToCloud() {
-    syncStatus = 'syncing';
-    updateSyncIndicator();
     try {
-      var payload = { user_id: SB_USER, watched_map: watched, last_synced_at: new Date().toISOString() };
-      var res = await sbFetch('rpc?on_conflict=user_id', 'POST', payload);
-      // Upsert via RPC or direct upsert
       var up = await fetch(SB_URL + '/rest/v1/movie_watch_progress', {
         method: 'POST',
         headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify([{ user_id: SB_USER, watched_map: watched, last_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
       });
-      if (up.ok) { syncStatus = 'ok'; } else { syncStatus = 'error'; console.error('sync error', await up.text()); }
-    } catch(e) { syncStatus = 'error'; console.error('sync exception', e); }
-    updateSyncIndicator();
+      if (!up.ok) { console.error('sync error', await up.text()); }
+    } catch(e) { console.error('sync exception', e); }
   }
 
   async function loadFromCloud() {
@@ -428,14 +419,7 @@ const movies = [
     return false;
   }
 
-  function updateSyncIndicator() {
-    var el = document.getElementById('syncIndicator');
-    if (!el) return;
-    if (syncStatus === 'syncing') el.textContent = '⏳';
-    else if (syncStatus === 'ok') el.textContent = '☁️';
-    else if (syncStatus === 'error') el.textContent = '⚠️';
-    else el.textContent = '☁️';
-  }
+
 
   var currentFilter = 'all';
   var expandedIdx = null;
