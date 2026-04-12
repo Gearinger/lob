@@ -362,25 +362,29 @@
             },
             
             canMove(x, y) {
-                const R = 0.38; // player visual radius in grid units (14px / 40px per tile, + small buffer)
-                const rMin = Math.floor(y - R);
-                const rMax = Math.ceil(y + R);
-                const cMin = Math.floor(x - R);
-                const cMax = Math.ceil(x + R);
-                for (let r = rMin; r <= rMax; r++) {
-                    for (let c = cMin; c <= cMax; c++) {
-                        if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
-                        if (state.map[r][c] !== 0) return false;
+                // Only check the grid cell the player's CENTER is in (not extended box)
+                const r = Math.round(y);
+                const c = Math.round(x);
+                if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+                if (state.map[r][c] !== 0) return false;
+                // Also check adjacent cells to prevent clipping into walls
+                const R = 0.25;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr, nc = c + dc;
+                        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+                        // Check if wall cell overlaps player circle
+                        if (state.map[nr][nc] !== 0) {
+                            // Distance from player center to wall cell center
+                            const dx = Math.abs(x - nc), dy = Math.abs(y - nr);
+                            if (dx < R && dy < R) return false;
+                        }
                     }
                 }
                 for (const b of state.bombs) {
                     const bc = b.x, br = b.y;
-                    const overlapX = Math.max(0, Math.min(x + R, bc + 0.5) - Math.max(x - R, bc - 0.5));
-                    const overlapY = Math.max(0, Math.min(y + R, br + 0.5) - Math.max(y - R, br - 0.5));
-                    if (overlapX > 0 && overlapY > 0) {
-                        const standingOnBomb = (Math.round(state.player.x) === bc && Math.round(state.player.y) === br);
-                        if (!standingOnBomb) return false;
-                    }
+                    const dist = Math.sqrt((x - bc) ** 2 + (y - br) ** 2);
+                    if (dist < 0.4) return false;
                 }
                 return true;
             },
