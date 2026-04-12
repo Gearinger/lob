@@ -72,6 +72,7 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 <body>
 <div class="progress-bar" id="progressBar"></div>
 <div class="progress-label" id="progressLabel"></div>
+<span id="syncIndicator" title="云端同步状态" style="position:fixed;top:12px;right:70px;z-index:100;cursor:default;font-size:.9em;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:6px 10px;box-shadow:2px 2px 0 var(--text)">☁️</span>
 <a class="back" href="/lob/app/">← 应用</a>
 <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
 
@@ -364,6 +365,66 @@ const movies = [
   var watched = {};
   try { watched = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
 
+  // Supabase sync
+  var SB_URL = 'https://biehvpylfhoespllmija.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpZWh2cHlsZmhvZXNwbGxtaWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzQ0MzQsImV4cCI6MjA5MTUxMDQzNH0.B3kjktOGp7YT-ZwIRRP3IHLPKBIo1UawJdCJlkWsbf4';
+  var SB_USER = 'hermy';
+  var syncStatus = null; // null=unknown, 'syncing', 'ok', 'error'
+
+  function sbFetch(path, method, body) {
+    return fetch(SB_URL + '/rest/v1/' + path, {
+      method: method || 'GET',
+      headers: {
+        'apikey': SB_ANON,
+        'Authorization': 'Bearer ' + SB_ANON,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  }
+
+  async function syncToCloud() {
+    syncStatus = 'syncing';
+    updateSyncIndicator();
+    try {
+      var payload = { user_id: SB_USER, watched_map: watched, last_synced_at: new Date().toISOString() };
+      var res = await sbFetch('rpc?on_conflict=user_id', 'POST', payload);
+      // Upsert via RPC or direct upsert
+      var up = await fetch(SB_URL + '/rest/v1/movie_watch_progress', {
+        method: 'POST',
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify([{ user_id: SB_USER, watched_map: watched, last_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
+      });
+      if (up.ok) { syncStatus = 'ok'; } else { syncStatus = 'error'; console.error('sync error', await up.text()); }
+    } catch(e) { syncStatus = 'error'; console.error('sync exception', e); }
+    updateSyncIndicator();
+  }
+
+  async function loadFromCloud() {
+    try {
+      var res = await sbFetch('movie_watch_progress?user_id=eq.' + SB_USER + '&select=*', 'GET');
+      if (res.ok) {
+        var data = await res.json();
+        if (data && data.length > 0 && data[0].watched_map) {
+          watched = data[0].watched_map;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(watched));
+          return true;
+        }
+      }
+    } catch(e) { console.error('loadFromCloud error', e); }
+    return false;
+  }
+
+  function updateSyncIndicator() {
+    var el = document.getElementById('syncIndicator');
+    if (!el) return;
+    if (syncStatus === 'syncing') el.textContent = '⏳';
+    else if (syncStatus === 'ok') el.textContent = '☁️';
+    else if (syncStatus === 'error') el.textContent = '⚠️';
+    else el.textContent = '☁️';
+  }
+
   var currentFilter = 'all';
   var expandedIdx = null;
 
@@ -439,6 +500,7 @@ const movies = [
             item.classList.toggle('watched', watched[film._idx]);
             item.querySelector('.movie-checkbox').textContent = watched[film._idx] ? '✓' : '';
             updateProgress();
+            syncToCloud();
             return;
           }
           // Toggle expand on title click
@@ -531,6 +593,10 @@ const movies = [
 
   updateProgress();
   render(getFilteredList());
+  // Load from cloud on startup (localStorage already has data, cloud will override if newer)
+  loadFromCloud().then(function(loaded) {
+    if (loaded) { updateProgress(); render(getFilteredList()); }
+  });
 })();
 </script>
 </body>
