@@ -455,6 +455,11 @@
                 ctx.font = 'bold 12px monospace';
                 ctx.fillText(`P(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)})`, 4, 14);
                 
+                // Debug: show player position (draw ON TOP of everything)
+                ctx.fillStyle = '#ff0';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText(`P(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)})`, 4, 14);
+
                 // 地图
                 for (let r = 0; r < ROWS; r++) {
                     for (let c = 0; c < COLS; c++) {
