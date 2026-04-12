@@ -190,14 +190,16 @@ function renderGeneralPick() {
     var isDep = myIds.indexOf(g.id) >= 0;
     var card = document.createElement('div');
     card.className = 'general-card' + (isDep ? ' selected' : '');
-    (function(gg, el){
-      el.addEventListener('click', function(){ toggleGeneral(gg); });
-      el.setAttribute('data-gid', gg.id);
-    })(g, card);
-    card.setAttribute('onclick', 'toggleGeneral(GENERALS["' + playerFaction + '"].find(function(x){return x.id=="' + g.id + '"}))');
+    card.dataset.gid = g.id;
     card.innerHTML = '<div class="general-avatar" style="color:'+g.color+'">'+g.avatar+'</div><div class="general-name">'+g.name+'</div><div class="general-job">'+g.job+'</div><div class="general-skill">'+g.skill+'</div>';
     list.appendChild(card);
   }
+  list.onclick = function(e) {
+    var card = e.target.closest('.general-card');
+    if (!card) return;
+    var gen = GENERALS[playerFaction].find(function(x){ return x.id === card.dataset.gid; });
+    if (gen) toggleGeneral(gen);
+  };
   renderDeployed();
 }
 
