@@ -6,405 +6,593 @@
 <title>战三国</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:#1a1208;color:#f5e6c8;min-height:100vh;overflow:hidden;user-select:none}
+body{font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;background:#1a1208;color:#f5e6c8;min-height:100vh;overflow:hidden}
 canvas{position:fixed;inset:0;width:100%;height:100%}
-#hud{position:fixed;top:0;left:0;right:0;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent);z-index:10;pointer-events:none}
-.title{font-size:1.2em;letter-spacing:.2em;color:#c9a96e;text-shadow:0 2px 8px rgba(0,0,0,.5)}
-.score{display:flex;gap:24px;font-size:.9em}
-.score span{color:#c9a96e}
-#bottom{position:fixed;bottom:0;left:0;right:0;padding:12px 20px;display:flex;justify-content:center;gap:16px;z-index:10;background:linear-gradient(0deg,rgba(0,0,0,.6),transparent)}
-.btn{padding:10px 28px;border:1.5px solid #c9a96e;background:rgba(201,169,110,.1);color:#c9a96e;border-radius:4px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em;transition:all .2s}
-.btn:hover{background:rgba(201,169,110,.25)}
-.btn:active{transform:scale(.97)}
-#status{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4em;color:#c9a96e;letter-spacing:.2em;text-shadow:0 2px 12px rgba(0,0,0,.8);pointer-events:none;z-index:20;opacity:0;transition:opacity .5s}
-#status.show{opacity:1}
-#info{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);font-size:.72em;color:rgba(201,169,110,.5);letter-spacing:.05em;pointer-events:none;z-index:10}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+
+#pick-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:40px}
+.faction-title{font-size:2em;letter-spacing:.2em;color:#c9a96e;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.faction-choice{display:flex;gap:60px}
+.faction-btn{width:200px;height:260px;border-radius:12px;cursor:pointer;border:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:inherit}
+.faction-btn:hover{border-color:#c9a96e;transform:translateY(-4px)}
+.faction-btn.wei{background:linear-gradient(135deg,#1a2a5a,#2a3a8a);box-shadow:0 8px 32px rgba(60,80,200,.2)}
+.faction-btn.shu{background:linear-gradient(135deg,#3a2a0a,#5a4a1a);box-shadow:0 8px 32px rgba(200,150,50,.2)}
+.faction-icon{font-size:3em}
+.faction-name{font-size:1.4em;letter-spacing:.15em}
+.faction-desc{font-size:.75em;color:rgba(245,230,200,.6);text-align:center;line-height:1.6}
+
+#general-pick{display:none;flex-direction:column;height:100%}
+.pick-header{padding:16px 24px;border-bottom:1px solid rgba(201,169,110,.15);display:flex;align-items:center;gap:20px}
+.back-btn{color:#c9a96e;font-size:.85em;cursor:pointer;padding:6px 12px;border:1px solid rgba(201,169,110,.3);border-radius:4px;background:none;font-family:inherit}
+.back-btn:hover{background:rgba(201,169,110,.1)}
+.pick-title{font-size:1em;color:#c9a96e;letter-spacing:.1em}
+.pick-sub{font-size:.72em;color:rgba(245,230,200,.4);margin-left:auto}
+.pick-body{display:flex;flex:1;overflow:hidden}
+.general-list{flex:1;padding:16px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
+.general-card{padding:12px;border-radius:8px;border:2px solid rgba(201,169,110,.15);cursor:pointer;transition:all .2s;text-align:center;position:relative}
+.general-card:hover{border-color:rgba(201,169,110,.5);transform:translateY(-2px)}
+.general-card.selected{border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)}
+.general-card.selected::after{content:'✓';position:absolute;top:4px;right:6px;font-size:.8em;color:#ffd700}
+.general-card.deployed{opacity:.35;pointer-events:none}
+.general-avatar{font-size:2.2em;margin-bottom:6px}
+.general-name{font-size:.85em;margin-bottom:3px}
+.general-job{font-size:.68em;color:rgba(245,230,200,.5);margin-bottom:6px}
+.general-skill{font-size:.65em;color:rgba(245,230,200,.4);line-height:1.4}
+
+.pick-sidebar{width:220px;border-left:1px solid rgba(201,169,110,.1);padding:16px;display:flex;flex-direction:column;gap:12px}
+.sidebar-title{font-size:.78em;color:#c9a96e;letter-spacing:.08em}
+.deployed-list{display:flex;flex-direction:column;gap:6px;flex:1}
+.deployed-slot{height:48px;border:1px dashed rgba(201,169,110,.2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.72em;color:rgba(201,169,110,.25)}
+.deployed-unit{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid rgba(201,169,110,.2)}
+.deployed-unit .u-avatar{font-size:1.4em}
+.deployed-unit .u-name{flex:1;font-size:.8em}
+.deployed-unit .u-remove{font-size:.7em;color:rgba(245,230,200,.4);cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(245,230,200,.05)}
+.deployed-unit .u-remove:hover{background:rgba(245,230,200,.15)}
+.start-btn{margin-top:auto;padding:12px;background:#c9a96e;color:#1a1208;border:none;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em;transition:opacity .2s}
+.start-btn:disabled{opacity:.3;cursor:not-allowed}
+.start-btn:hover:not(:disabled){opacity:.85}
+
+#battle{display:none;flex-direction:column;height:100%}
+#battle canvas{flex:1}
+.battle-ui{position:absolute;top:0;left:0;right:0;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent);z-index:5;pointer-events:none}
+.hud-title{font-size:1.1em;letter-spacing:.15em;color:#c9a96e}
+.hud-timer{font-size:.85em;color:rgba(245,230,200,.5)}
+.hud-controls{pointer-events:all;display:flex;gap:8px}
+.hud-controls button{background:none;border:1px solid rgba(201,169,110,.3);color:#c9a96e;padding:5px 14px;border-radius:4px;font-family:inherit;font-size:.78em;cursor:pointer}
+.hud-controls button:hover{background:rgba(201,169,110,.1)}
+
+#result{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;text-align:center}
+.result-overlay{display:flex;position:fixed;inset:0;z-index:30;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .5s;pointer-events:none}
+.result-overlay.show{opacity:1;pointer-events:all}
+.result-box{padding:48px 80px;border-radius:16px;background:rgba(26,18,8,.95);border:2px solid #c9a96e;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.result-title{font-size:2.4em;letter-spacing:.2em;margin-bottom:12px}
+.result-title.win{color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.5)}
+.result-title.lose{color:#888}
+.result-sub{font-size:.85em;color:rgba(245,230,200,.5);margin-bottom:32px;letter-spacing:.08em}
+.result-btn{padding:12px 36px;background:#c9a96e;color:#1a1208;border:none;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em}
+.result-btn:hover{opacity:.85}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<div id="hud">
-  <div class="title">战三国</div>
-  <div class="score">
-    <span>魏 <b id="scoreL">0</b></span>
-    <span>蜀 <b id="scoreR">0</b></span>
+
+<div id="pick-screen">
+  <div class="faction-title">战 三 国</div>
+  <div class="faction-choice">
+    <div class="faction-btn wei" onclick="selectFaction('wei')">
+      <div class="faction-icon">魏</div>
+      <div class="faction-name">魏国</div>
+      <div class="faction-desc">冰蓝铁骑<br>司马懿 · 曹操 · 夏侯惇</div>
+    </div>
+    <div class="faction-btn shu" onclick="selectFaction('shu')">
+      <div class="faction-icon">蜀</div>
+      <div class="faction-name">蜀国</div>
+      <div class="faction-desc">金甲忠魂<br>诸葛亮 · 赵云 · 关羽</div>
+    </div>
+  </div>
+  <div style="font-size:.75em;color:rgba(245,230,200,.3);letter-spacing:.08em">选择阵营 · 部署武将 · 开战</div>
+</div>
+
+<div id="general-pick">
+  <div class="pick-header">
+    <button class="back-btn" onclick="showScreen('pick')">← 重选阵营</button>
+    <div class="pick-title" id="pickTitle">— · 选择武将</div>
+    <div class="pick-sub">最多选5人，已选 <b id="deployedCount">0</b>/5</div>
+  </div>
+  <div class="pick-body">
+    <div class="general-list" id="generalList"></div>
+    <div class="pick-sidebar">
+      <div class="sidebar-title">已选武将</div>
+      <div class="deployed-list" id="deployedListInner"></div>
+      <button class="start-btn" id="startBtn" disabled onclick="startBattle()">布阵完成 · 开战</button>
+    </div>
   </div>
 </div>
-<div id="status" id="status"></div>
-<div id="info">点击开战 · 兵种相克：枪克骑、骑克步、步克枪</div>
-<div id="bottom">
-  <button class="btn" onclick="reset()">重置阵型</button>
-  <button class="btn" onclick="startBattle()">开战</button>
+
+<div id="battle">
+  <canvas id="c"></canvas>
+  <div class="battle-ui">
+    <div class="hud-title" id="hudTitle">— vs —</div>
+    <div class="hud-timer" id="hudTimer"></div>
+    <div class="hud-controls">
+      <button onclick="resetBattle()">重置</button>
+    </div>
+  </div>
+</div>
+
+<div id="result">
+  <div class="result-overlay" id="resultOverlay">
+    <div class="result-box">
+      <div class="result-title" id="resultTitle">—</div>
+      <div class="result-sub" id="resultSub"></div>
+      <button class="result-btn" onclick="showScreen('pick')">再来一局</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-let W, H;
-
-const TROOP_TYPES = {
-  SPEAR:  { name:'枪兵', color:'#5b9bd5', atk:35, hp:180, speed:1.2, atkSpeed:1.0, range:28, size:9,  icon:'戈', advantage:'CAV' },
-  CAV:    { name:'骑兵', color:'#c9522a', atk:28, hp:140, speed:2.2, atkSpeed:0.9, range:22, size:11, icon:'骑', advantage:'INF' },
-  INF:    { name:'步兵', color:'#70ad47', atk:22, hp:220, speed:1.0, atkSpeed:1.1, range:24, size:9,  icon:'步', advantage:'SPEAR' },
-  ARCHER: { name:'弓兵', color:'#9e6ab8', atk:40, hp:90,  speed:0.8, atkSpeed:1.2, range:120,size:8,  icon:'弓', advantage:null },
-  GENERAL:{ name:'主将', color:'#ffd700', atk:45, hp:600, speed:1.5, atkSpeed:0.8, range:30, size:14, icon:'将', advantage:null }
+var GENERALS = {
+  shu: [
+    {id:'zhaoyun',    name:'赵云',    job:'猛将',avatar:'赵',color:'#5b9bd5',atk:45,hp:320,speed:2.2,atkSpeed:1.1,range:30,size:16,skill:'龙胆突刺',skillDesc:'对最近敌人150%伤害',skillType:'single',skillDmg:1.5},
+    {id:'zhugeliang',name:'诸葛亮',job:'鬼谋',avatar:'葛',color:'#9e6ab8',atk:28,hp:200,speed:0.8,atkSpeed:0.9,range:140,size:14,skill:'火计',skillDesc:'对全体敌人80%AOE',skillType:'aoe',skillDmg:0.8},
+    {id:'zhangfei',  name:'张飞',    job:'猛将',avatar:'飞',color:'#c9522a',atk:50,hp:380,speed:1.3,atkSpeed:0.85,range:28,size:17,skill:'燕人咆哮',skillDesc:'周围敌人攻击-30%',skillType:'debuff',skillDmg:0},
+    {id:'machao',    name:'马超',    job:'豪杰',avatar:'超',color:'#e8c547',atk:42,hp:280,speed:2.5,atkSpeed:1.0,range:25,size:15,skill:'铁骑冲锋',skillDesc:'突进，路径敌人受伤',skillType:'charge',skillDmg:1.2},
+    {id:'huangzhong',name:'黄忠',    job:'神射',avatar:'忠',color:'#70ad47',atk:55,hp:200,speed:0.9,atkSpeed:1.3,range:160,size:13,skill:'百步穿杨',skillDesc:'对单体200%伤害',skillType:'execute',skillDmg:2.0},
+    {id:'guanyu',    name:'关羽',    job:'猛将',avatar:'羽',color:'#4caf50',atk:48,hp:400,speed:1.4,atkSpeed:0.9,range:32,size:18,skill:'拖刀计',skillDesc:'血量低于30%时250%伤害',skillType:'execute',skillDmg:2.5},
+  ],
+  wei: [
+    {id:'caocao',    name:'曹操',    job:'鬼谋',avatar:'曹',color:'#5b6dd4',atk:35,hp:260,speed:1.0,atkSpeed:1.0,range:130,size:14,skill:'天下归心',skillDesc:'全体友军攻击+20%',skillType:'buff',skillDmg:0},
+    {id:'simayi',   name:'司马懿',  job:'鬼谋',avatar:'马',color:'#9e6ab8',atk:32,hp:220,speed:0.9,atkSpeed:1.0,range:120,size:13,skill:'忍辱负重',skillDesc:'沉默最近敌人3秒',skillType:'silence',skillDmg:0},
+    {id:'xiahoudun', name:'夏侯惇', job:'猛将',avatar:'惇',color:'#c9522a',atk:52,hp:350,speed:1.5,atkSpeed:0.85,range:28,size:17,skill:'拔矢啖睛',skillDesc:'牺牲30%血对单体400%',skillType:'execute',skillDmg:4.0},
+    {id:'zhangliao', name:'张辽',    job:'豪杰',avatar:'辽',color:'#e8c547',atk:40,hp:300,speed:2.3,atkSpeed:1.0,range:26,size:15,skill:'威震逍遥',skillDesc:'冲锋路径上敌人受伤',skillType:'charge',skillDmg:1.3},
+    {id:'caoren',    name:'曹仁',    job:'猛将',avatar:'仁',color:'#5b9bd5',atk:30,hp:450,speed:0.8,atkSpeed:0.8,range:28,size:18,skill:'固守',skillDesc:'8秒内免疫伤害',skillType:'shield',skillDmg:0},
+    {id:'xuchu',     name:'许褚',    job:'豪杰',avatar:'褚',color:'#c9522a',atk:55,hp:320,speed:1.8,atkSpeed:1.2,range:24,size:16,skill:'裸衣斗杀',skillDesc:'接下来3次攻击无间隔',skillType:'burst',skillDmg:1.0},
+  ]
 };
 
-const MATCHUP = { SPEAR:'CAV', CAV:'INF', INF:'SPEAR' };
-const MATCHUP_NAMES = { SPEAR:'枪克骑', CAV:'骑克步', INF:'步克枪' };
+var screen = 'pick';
+var playerFaction = null;
+var deployedGenerals = [];
+var battleUnits = [];
+var particles = [];
+var battleState = 'idle';
+var battleTime = 0;
+var lastTime = 0;
+var canvas, ctx, W, H;
+var skillQueue = [];
+var buffState = {L:{atkBoost:0,ends:0},R:{atkBoost:0,ends:0}};
+var _enemyGen = [];
 
-let units = [];
-let battleState = 'idle'; // idle | running | over
-let scores = { L: 0, R: 0 };
-let battleTime = 0;
-let particles = [];
-let lastTime = 0;
+function showScreen(s) {
+  screen = s;
+  document.getElementById('pick-screen').style.display = s === 'pick' ? 'flex' : 'none';
+  document.getElementById('general-pick').style.display = s === 'generals' ? 'flex' : 'none';
+  document.getElementById('battle').style.display = s === 'battle' ? 'flex' : 'none';
+  document.getElementById('result').style.display = 'flex';
+  if (s === 'generals') renderGeneralPick();
+  if (s === 'battle') initBattle();
+}
 
-const CONFIG = {
-  spawnY: 0.25,
-  spacingX: 45,
-  spacingY: 40,
-  cols: 4,
-  rows: 4,
-};
+function selectFaction(f) {
+  playerFaction = f;
+  var fName = f === 'shu' ? '蜀国' : '魏国';
+  document.getElementById('pickTitle').textContent = fName + ' · 选择武将';
+  deployedGenerals = [];
+  showScreen('generals');
+}
 
-function resize() {
+function renderGeneralPick() {
+  var list = document.getElementById('generalList');
+  var myGen = GENERALS[playerFaction];
+  var myIds = deployedGenerals.map(function(dg){return dg.general.id;});
+  list.innerHTML = '';
+  for (var i = 0; i < myGen.length; i++) {
+    var g = myGen[i];
+    var isDep = myIds.indexOf(g.id) >= 0;
+    var card = document.createElement('div');
+    card.className = 'general-card' + (isDep ? ' deployed' : '');
+    if (!isDep) card.onclick = (function(gg){return function(){toggleGeneral(gg);};})(g);
+    card.innerHTML = '<div class="general-avatar" style="color:'+g.color+'">'+g.avatar+'</div><div class="general-name">'+g.name+'</div><div class="general-job">'+g.job+'</div><div class="general-skill">'+g.skill+'</div>';
+    list.appendChild(card);
+  }
+  renderDeployed();
+}
+
+function toggleGeneral(g) {
+  var idx = -1;
+  for (var i = 0; i < deployedGenerals.length; i++) {
+    if (deployedGenerals[i].general.id === g.id) { idx = i; break; }
+  }
+  if (idx >= 0) {
+    deployedGenerals.splice(idx, 1);
+  } else if (deployedGenerals.length < 5) {
+    deployedGenerals.push({general: g});
+  }
+  renderGeneralPick();
+}
+
+function renderDeployed() {
+  var list = document.getElementById('deployedListInner');
+  document.getElementById('deployedCount').textContent = deployedGenerals.length;
+  document.getElementById('startBtn').disabled = deployedGenerals.length === 0;
+  list.innerHTML = '';
+  for (var i = 0; i < 5; i++) {
+    if (i < deployedGenerals.length) {
+      var dg = deployedGenerals[i];
+      var slot = document.createElement('div');
+      slot.className = 'deployed-unit';
+      slot.style.borderColor = dg.general.color + '55';
+      slot.innerHTML = '<div class="u-avatar" style="color:'+dg.general.color+'">'+dg.general.avatar+'</div><div class="u-name">'+dg.general.name+'</div><div class="u-remove" onclick="removeDeployed('+i+')">✕</div>';
+      list.appendChild(slot);
+    } else {
+      var s2 = document.createElement('div');
+      s2.className = 'deployed-slot';
+      s2.textContent = '空';
+      list.appendChild(s2);
+    }
+  }
+}
+
+function removeDeployed(idx) {
+  deployedGenerals.splice(idx, 1);
+  renderGeneralPick();
+}
+
+function getEnemyGenerals() {
+  var pool = GENERALS[playerFaction === 'shu' ? 'wei' : 'shu'];
+  var count = 3 + Math.floor(Math.random() * 2);
+  var shuffled = pool.slice().sort(function(){return Math.random() - 0.5;});
+  return shuffled.slice(0, count);
+}
+
+function initBattle() {
+  canvas = document.getElementById('c');
+  ctx = canvas.getContext('2d');
+  resizeBattle();
+  battleUnits = [];
+  particles = [];
+  skillQueue = [];
+  battleState = 'idle';
+  battleTime = 0;
+  buffState = {L:{atkBoost:0,ends:0},R:{atkBoost:0,ends:0}};
+  _enemyGen = getEnemyGenerals();
+
+  var pSide = 'L', eSide = 'R';
+  var pGen = deployedGenerals.map(function(dg){return JSON.parse(JSON.stringify(dg.general));});
+  var eGen = _enemyGen.map(function(g){return JSON.parse(JSON.stringify(g));});
+
+  for (var i = 0; i < pGen.length; i++) {
+    pGen[i].side = pSide;
+    battleUnits.push(createUnit(pGen[i]));
+  }
+  for (var j = 0; j < eGen.length; j++) {
+    eGen[j].side = eSide;
+    battleUnits.push(createUnit(eGen[j]));
+  }
+
+  var fName = playerFaction === 'shu' ? '蜀' : '魏';
+  var eName = playerFaction === 'shu' ? '魏' : '蜀';
+  document.getElementById('hudTitle').textContent = fName + ' vs ' + eName;
+  document.getElementById('resultOverlay').classList.remove('show');
+
+  setTimeout(function(){ battleState = 'running'; }, 800);
+  lastTime = performance.now();
+  requestAnimationFrame(battleLoop);
+}
+
+function resizeBattle() {
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
 }
-resize();
-window.addEventListener('resize', resize);
 
-// Unit class
-class Unit {
-  constructor(side, type, col, row) {
-    this.side = side; // 'L' or 'R'
-    this.type = type;
-    const cfg = TROOP_TYPES[type];
-    this.hp = cfg.hp;
-    this.maxHp = cfg.hp;
-    this.atk = cfg.atk;
-    this.speed = cfg.speed;
-    this.atkSpeed = cfg.atkSpeed;
-    this.range = cfg.range;
-    this.size = cfg.size;
-    this.color = cfg.color;
-    this.icon = cfg.icon;
+function createUnit(g) {
+  var cw = Math.min(W * 0.1, 70);
+  var ch = Math.min(H * 0.17, 55);
+  var x0 = g.side === 'L' ? W * 0.05 : W * 0.58;
+  var y0 = H * 0.32;
+  var col = g.side === 'L'
+    ? deployedGenerals.findIndex(function(dg){return dg.general.id === g.id;})
+    : _enemyGen.findIndex(function(eg){return eg.id === g.id;});
+  var col2 = g.side === 'L' ? col : (_enemyGen.length - 1 - col);
+  var x = x0 + col2 * cw + cw / 2;
+  var y = y0 + Math.floor(col / 5) * ch + ch / 2;
+  return {
+    general:g, side:g.side, type:g.id, name:g.name, job:g.job,
+    color:g.color, avatar:g.avatar,
+    hp:g.hp, maxHp:g.hp, atk:g.atk, baseAtk:g.atk,
+    speed:g.speed, atkSpeed:g.atkSpeed, range:g.range, size:g.size,
+    skill:g.skill, skillDesc:g.skillDesc, skillType:g.skillType, skillDmg:g.skillDmg,
+    x:x, y:y, vx:0, vy:0,
+    atkCd:0, shield:0, silenceCd:0, debuffCd:0, burst:0,
+    dead:false, anim:Math.random()*Math.PI*2, hitFlash:0, target:null
+  };
+}
 
-    this.x = 0;
-    this.y = 0;
-    this.target = null;
-    this.atkCooldown = 0;
-    this.dead = false;
-    this.col = col;
-    this.row = row;
-    this.vx = 0;
-    this.vy = 0;
-    this.anim = Math.random() * Math.PI * 2;
-    this.hitFlash = 0;
+function battleLoop(ts) {
+  if (screen !== 'battle') return;
+  var dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  battleUpdate(dt);
+  battleDraw();
+  if (battleState === 'running') requestAnimationFrame(battleLoop);
+}
 
-    this._setPos(col, row);
+function battleUpdate(dt) {
+  if (battleState !== 'running') return;
+  battleTime += dt;
+
+  if (buffState.L.ends > 0 && battleTime > buffState.L.ends) buffState.L.atkBoost = 0;
+  if (buffState.R.ends > 0 && battleTime > buffState.R.ends) buffState.R.atkBoost = 0;
+
+  for (var i = skillQueue.length - 1; i >= 0; i--) {
+    skillQueue[i].delay -= dt;
+    if (skillQueue[i].delay <= 0) {
+      executeSkill(skillQueue[i].unit);
+      skillQueue.splice(i, 1);
+    }
   }
 
-  _setPos(col, row) {
-    const battleCenterX = W * 0.5;
-    const spawnY = H * CONFIG.spawnY;
-    if (this.side === 'L') {
-      this.x = battleCenterX - (CONFIG.cols - col) * CONFIG.spacingX;
-    } else {
-      this.x = battleCenterX + (col + 1) * CONFIG.spacingX;
-    }
-    this.y = spawnY + (row - CONFIG.rows / 2 + 0.5) * CONFIG.spacingY;
-  }
+  var living = {L:0, R:0};
+  for (var j = 0; j < battleUnits.length; j++) {
+    var u = battleUnits[j];
+    if (u.dead) continue;
+    u.anim += dt * 3;
+    if (u.hitFlash > 0) u.hitFlash -= dt * 5;
+    if (u.atkCd > 0) u.atkCd -= dt;
+    if (u.silenceCd > 0) u.silenceCd -= dt;
+    if (u.debuffCd > 0) u.debuffCd -= dt;
+    if (u.shield > 0) u.shield -= dt;
+    if (u.burst > 0) u.burst -= dt;
 
-  update(dt) {
-    if (this.dead) return;
-    this.anim += dt * 3;
-    if (this.hitFlash > 0) this.hitFlash -= dt * 5;
-    if (this.atkCooldown > 0) this.atkCooldown -= dt;
+    if (!u.target || u.target.dead) u.target = findTarget(u);
 
-    // Find target
-    if (!this.target || this.target.dead) {
-      this.target = this._findTarget();
-    }
-
-    if (this.target) {
-      const dx = this.target.x - this.x;
-      const dy = this.target.y - this.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist <= this.range) {
-        // In range: attack
-        this.vx *= 0.8;
-        this.vy *= 0.8;
-        if (this.atkCooldown <= 0) {
-          this._attack(this.target);
-          this.atkCooldown = 1 / this.atkSpeed;
+    if (u.target) {
+      var dx = u.target.x - u.x, dy = u.target.y - u.y;
+      var dist = Math.hypot(dx, dy);
+      if (dist <= u.range) {
+        u.vx *= 0.7; u.vy *= 0.7;
+        if (u.silenceCd <= 0 && u.atkCd <= 0) {
+          var cd = u.burst > 0 ? 0 : 1 / u.atkSpeed;
+          doAttack(u, u.target);
+          u.atkCd = cd;
         }
       } else {
-        // Move toward target
-        const spd = this.speed * 60 * dt;
-        this.vx = (dx / dist) * spd;
-        this.vy = (dy / dist) * spd;
-        this.x += this.vx;
-        this.y += this.vy;
+        var spd = u.speed * 55 * dt;
+        u.x += (dx / dist) * spd;
+        u.y += (dy / dist) * spd;
       }
     } else {
-      // No target: move forward
-      const spd = this.speed * 50 * dt;
-      this.vx = this.side === 'L' ? spd : -spd;
-      this.vy *= 0.9;
-      this.x += this.vx;
-      this.y += this.vy;
+      var spd2 = u.speed * 40 * dt;
+      u.x += u.side === 'L' ? spd2 : -spd2;
+      u.vy *= 0.9;
     }
-  }
-
-  _findTarget() {
-    let best = null;
-    let bestScore = Infinity;
-    for (const u of units) {
-      if (u.side === this.side || u.dead) continue;
-      // Matchup bonus
-      let score = Math.hypot(u.x - this.x, u.y - this.y);
-      if (MATCHUP[this.type] === u.type) score *= 0.5;
-      if (score < bestScore) { bestScore = score; best = u; }
-    }
-    return best;
-  }
-
-  _attack(target) {
-    // Calculate damage
-    let dmg = this.atk;
-    if (MATCHUP[this.type] === target.type) dmg *= 1.5;
-    dmg = Math.round(dmg * (0.85 + Math.random() * 0.3));
-    target.hp -= dmg;
-    target.hitFlash = 1;
-
-    // Hit effect
-    spawnHit(target.x, target.y, dmg, this.side === 'L');
-
-    // Knockback
-    const angle = Math.atan2(target.y - this.y, target.x - this.x);
-    target.x += Math.cos(angle) * 3;
-    target.y += Math.sin(angle) * 3;
-
-    if (target.hp <= 0) {
-      target.dead = true;
-      spawnDeath(target.x, target.y, target.color);
-      spawnHit(target.x, target.y, '击杀!', this.side === 'L');
-    }
-  }
-
-  draw() {
-    if (this.dead) return;
-    const pulse = 1 + Math.sin(this.anim) * 0.05;
-    const s = this.size * pulse;
-
-    // Glow
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 8;
-
-    // Body
-    ctx.fillStyle = this.hitFlash > 0 ? '#fff' : this.color;
-    ctx.beginPath();
-    if (this.side === 'L') {
-      ctx.moveTo(this.x + s, this.y);
-      ctx.lineTo(this.x - s * 0.6, this.y - s * 0.8);
-      ctx.lineTo(this.x - s * 0.6, this.y + s * 0.8);
-    } else {
-      ctx.moveTo(this.x - s, this.y);
-      ctx.lineTo(this.x + s * 0.6, this.y - s * 0.8);
-      ctx.lineTo(this.x + s * 0.6, this.y + s * 0.8);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // HP bar
-    const barW = 24;
-    const barH = 3;
-    const hpPct = Math.max(0, this.hp / this.maxHp);
-    ctx.fillStyle = 'rgba(0,0,0,.5)';
-    ctx.fillRect(this.x - barW/2, this.y - s - 8, barW, barH);
-    ctx.fillStyle = hpPct > 0.5 ? '#4caf50' : hpPct > 0.25 ? '#ff9800' : '#f44336';
-    ctx.fillRect(this.x - barW/2, this.y - s - 8, barW * hpPct, barH);
-
-    // Label
-    ctx.fillStyle = 'rgba(201,169,110,.6)';
-    ctx.font = '9px system-ui';
-    ctx.textAlign = 'center';
-    ctx.fillText(TROOP_TYPES[this.type].name, this.x, this.y + s + 10);
-  }
-}
-
-// Particles
-function spawnHit(x, y, text, isLeft) {
-  particles.push({
-    x, y, vy: -1.5, life: 1,
-    text: String(text),
-    color: isLeft ? '#5b9bd5' : '#c9522a',
-    size: text === '击杀!' ? 14 : 11
-  });
-}
-
-function spawnDeath(x, y, color) {
-  for (let i = 0; i < 8; i++) {
-    const a = (Math.PI * 2 * i) / 8;
-    particles.push({
-      x, y,
-      vx: Math.cos(a) * (2 + Math.random() * 2),
-      vy: Math.sin(a) * (2 + Math.random() * 2),
-      life: 1, color, size: 3 + Math.random() * 3
-    });
-  }
-}
-
-// Formation presets
-const FORMATIONS = {
-  standard: [
-    ['GENERAL','INF','SPEAR','ARCHER'],
-    ['INF','CAV','INF','ARCHER'],
-    ['SPEAR','INF','CAV',null],
-    [null,'SPEAR','INF',null],
-  ],
-  rush: [
-    ['CAV','CAV','CAV','CAV'],
-    ['INF','CAV','CAV',null],
-    [null,'INF','INF',null],
-    [null,null,'SPEAR',null],
-  ],
-  archer: [
-    ['ARCHER','ARCHER','ARCHER','ARCHER'],
-    ['INF','INF','INF','INF'],
-    ['SPEAR','SPEAR','SPEAR','SPEAR'],
-    [null,null,null,null],
-  ],
-};
-
-function spawnArmy(side, formation) {
-  const keys = Object.keys(FORMATIONS);
-  const f = FORMATION_TYPES[formation] || FORMATIONS[keys[Math.floor(Math.random() * keys.length)]];
-  const rows = f.length;
-  const cols = f[0].length;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const t = f[r][c];
-      if (t) units.push(new Unit(side, t, c, r));
-    }
-  }
-}
-
-function startBattle() {
-  if (battleState === 'running') return;
-  battleState = 'running';
-  showStatus('开战');
-  setTimeout(() => hideStatus(), 1500);
-}
-
-function reset() {
-  battleState = 'idle';
-  units = [];
-  particles = [];
-  scores = { L: 0, R: 0 };
-  document.getElementById('scoreL').textContent = '0';
-  document.getElementById('scoreR').textContent = '0';
-  spawnArmy('L', 'standard');
-  spawnArmy('R', 'standard');
-  updateCount();
-}
-
-function showStatus(msg) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.classList.add('show');
-}
-function hideStatus() {
-  document.getElementById('status').classList.remove('show');
-}
-
-function updateCount() {
-  const lAlive = units.filter(u => u.side === 'L' && !u.dead).length;
-  const rAlive = units.filter(u => u.side === 'R' && !u.dead).length;
-  document.getElementById('scoreL').textContent = lAlive;
-  document.getElementById('scoreR').textContent = rAlive;
-}
-
-// Draw background
-function drawBG() {
-  ctx.fillStyle = '#0d0a05';
-  ctx.fillRect(0, 0, W, H);
-
-  // Ground gradient
-  const gy = H * 0.3;
-  const gh = H * 0.4;
-  const grd = ctx.createLinearGradient(0, gy, 0, gy + gh);
-  grd.addColorStop(0, 'rgba(60,40,20,0)');
-  grd.addColorStop(0.3, 'rgba(80,55,25,0.15)');
-  grd.addColorStop(1, 'rgba(60,40,20,0)');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, gy, W, gh);
-
-  // Center line
-  ctx.strokeStyle = 'rgba(201,169,110,.08)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 8]);
-  ctx.beginPath();
-  ctx.moveTo(W/2, H * 0.15);
-  ctx.lineTo(W/2, H * 0.85);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Labels
-  ctx.fillStyle = 'rgba(201,169,110,.12)';
-  ctx.font = `${Math.min(W, H) * 0.08}px serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText('魏', W * 0.2, H * 0.15);
-  ctx.fillText('蜀', W * 0.8, H * 0.15);
-}
-
-// Main loop
-function update(dt) {
-  if (battleState !== 'running') return;
-
-  battleTime += dt;
-  const living = { L: 0, R: 0 };
-
-  for (const u of units) {
-    u.update(dt);
     if (!u.dead) living[u.side]++;
   }
 
-  // Update particles
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += (p.vx || 0);
-    p.y += p.vy;
-    if (p.vy !== undefined) p.vy += 0.05;
-    p.life -= dt * 1.5;
-    if (p.life <= 0) particles.splice(i, 1);
+  for (var k = particles.length - 1; k >= 0; k--) {
+    var p = particles[k];
+    p.x += p.vx || 0; p.y += p.vy || 0;
+    if (p.vy !== undefined) p.vy += 0.04;
+    p.life -= dt * 1.2;
+    if (p.life <= 0) particles.splice(k, 1);
   }
 
-  updateCount();
+  document.getElementById('hudTimer').textContent = battleTime.toFixed(1) + 's';
 
-  // Check win
   if (living.L === 0 || living.R === 0) {
     battleState = 'over';
-    const winner = living.L > 0 ? '魏军获胜' : '蜀军获胜';
-    showStatus(winner);
+    showResult(living.L > 0);
   }
 }
 
-function draw() {
-  drawBG();
+function findTarget(u) {
+  var best = null, bestScore = Infinity;
+  for (var i = 0; i < battleUnits.length; i++) {
+    var o = battleUnits[i];
+    if (o.side === u.side || o.dead) continue;
+    var s = Math.hypot(o.x - u.x, o.y - u.y);
+    if (s < bestScore) { bestScore = s; best = o; }
+  }
+  return best;
+}
 
-  // Particles
-  for (const p of particles) {
+function doAttack(u, target) {
+  var dmg = u.atk;
+  var buff = buffState[u.side];
+  if (buff.atkBoost > 0) dmg *= (1 + buff.atkBoost);
+  if (u.debuffCd > 0) dmg *= 0.7;
+  if (u.skillType === 'execute' && u.hp / u.maxHp < 0.3) dmg *= u.skillDmg;
+  dmg = Math.round(dmg * (0.85 + Math.random() * 0.3));
+  if (u.shield <= 0) target.hp -= dmg;
+  target.hitFlash = 1;
+
+  var angle = Math.atan2(target.y - u.y, target.x - u.x);
+  target.x += Math.cos(angle) * 4;
+  target.y += Math.sin(angle) * 4;
+
+  spawnDmg(target.x, target.y, dmg, u.side === 'L');
+
+  if (u.skillType === 'aoe' || u.skillType === 'single' || u.skillType === 'execute' || u.skillType === 'charge') {
+    skillQueue.push({unit:u, delay:0.25});
+  }
+
+  if (target.hp <= 0) {
+    target.dead = true;
+    spawnSkillText(target.x, target.y, '击杀!', '#ffd700');
+    for (var m = 0; m < 8; m++) {
+      var a = Math.random() * Math.PI * 2;
+      particles.push({x:target.x, y:target.y, vx:Math.cos(a)*(1+Math.random()*3), vy:Math.sin(a)*(1+Math.random()*3), life:1, color:target.color, size:3+Math.random()*4});
+    }
+  }
+}
+
+function executeSkill(u) {
+  switch (u.skillType) {
+    case 'aoe': {
+      var dmg = Math.round(u.atk * u.skillDmg * (buffState[u.side].atkBoost > 0 ? 1.2 : 1));
+      for (var i = 0; i < battleUnits.length; i++) {
+        var o = battleUnits[i];
+        if (o.side !== u.side && !o.dead) {
+          if (o.shield <= 0) o.hp -= dmg;
+          o.hitFlash = 1;
+          spawnDmg(o.x, o.y, dmg, u.side === 'L');
+          if (o.hp <= 0) o.dead = true;
+        }
+      }
+      spawnSkillText(u.x, u.y, u.skill, '#ff9f43');
+      spawnAOE(u.x, u.y, 80, '#ff9f43');
+      break;
+    }
+    case 'single': {
+      if (u.target && !u.target.dead) {
+        var d = Math.round(u.atk * 2.0 * (0.85 + Math.random() * 0.3));
+        if (u.target.shield <= 0) u.target.hp -= d;
+        u.target.hitFlash = 1;
+        spawnDmg(u.target.x, u.target.y, d, u.side === 'L');
+        spawnSkillText(u.target.x, u.target.y - u.size - 12, u.skill, '#ff6b6b');
+        if (u.target.hp <= 0) u.target.dead = true;
+      }
+      break;
+    }
+    case 'execute': {
+      if (u.target && !u.target.dead) {
+        var mult = (u.hp / u.maxHp < 0.3) ? u.skillDmg * 2.5 : u.skillDmg;
+        var d2 = Math.round(u.atk * mult * (0.85 + Math.random() * 0.3));
+        if (u.target.shield <= 0) u.target.hp -= d2;
+        u.target.hitFlash = 1;
+        spawnDmg(u.target.x, u.target.y, d2, u.side === 'L');
+        spawnSkillText(u.target.x, u.target.y - u.size - 12, u.skill, '#ff6b6b');
+        if (u.target.hp <= 0) u.target.dead = true;
+      }
+      break;
+    }
+    case 'charge': {
+      if (u.target && !u.target.dead) {
+        var dc = Math.round(u.atk * u.skillDmg * (0.85 + Math.random() * 0.3));
+        for (var k = 0; k < battleUnits.length; k++) {
+          var b = battleUnits[k];
+          if (b.side !== u.side && !b.dead && pointToLineDist(b.x, b.y, u.x, u.y, u.target.x, u.target.y) < 40) {
+            if (b.shield <= 0) b.hp -= dc;
+            b.hitFlash = 1;
+            spawnDmg(b.x, b.y, dc, u.side === 'L');
+            if (b.hp <= 0) b.dead = true;
+          }
+        }
+        u.x = u.target.x; u.y = u.target.y;
+        spawnSkillText(u.x, u.y, u.skill, '#4ecdc4');
+      }
+      break;
+    }
+    case 'buff': {
+      var bb = buffState[u.side];
+      bb.atkBoost = 0.2; bb.ends = battleTime + 8;
+      spawnSkillText(u.x, u.y, u.skill, '#4ecdc4');
+      break;
+    }
+    case 'debuff': {
+      for (var n = 0; n < battleUnits.length; n++) {
+        var bo = battleUnits[n];
+        if (bo.side !== u.side && !bo.dead) bo.debuffCd = 5;
+      }
+      spawnSkillText(u.x, u.y - u.size - 12, u.skill, '#a29bfe');
+      spawnAOE(u.x, u.y, 70, '#a29bfe');
+      break;
+    }
+    case 'silence': {
+      if (u.target && !u.target.dead) { u.target.silenceCd = 3; spawnSkillText(u.target.x, u.target.y, '沉默', '#74b9ff'); }
+      break;
+    }
+    case 'shield': {
+      u.shield = 8;
+      spawnSkillText(u.x, u.y - u.size - 12, u.skill, '#55a3ff');
+      break;
+    }
+    case 'burst': {
+      u.burst = 3;
+      spawnSkillText(u.x, u.y - u.size - 12, u.skill, '#ff4757');
+      break;
+    }
+  }
+}
+
+function pointToLineDist(px, py, x1, y1, x2, y2) {
+  var A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+  var dot = A * C + B * D;
+  var lenSq = C * C + D * D;
+  var param = lenSq !== 0 ? dot / lenSq : -1;
+  var xx, yy;
+  if (param < 0) { xx = x1; yy = y1; } else if (param > 1) { xx = x2; yy = y2; } else { xx = x1 + param * C; yy = y1 + param * D; }
+  return Math.hypot(px - xx, py - yy);
+}
+
+function spawnDmg(x, y, text, isLeft) {
+  particles.push({x:x, y:y, vy:-2, life:1, text:String(text), color:isLeft?'#5b9bd5':'#c9522a', size:13});
+}
+
+function spawnSkillText(x, y, text, color) {
+  particles.push({x:x, y:y-5, vy:-1.2, life:1.5, text:text, color:color, size:14, bold:true});
+}
+
+function spawnAOE(x, y, radius, color) {
+  particles.push({x:x, y:y, life:1, effect:'aoe', radius:radius, color:color});
+}
+
+function battleDraw() {
+  ctx.fillStyle = '#0d0a05';
+  ctx.fillRect(0, 0, W, H);
+
+  var gy = H * 0.25, gh = H * 0.5;
+  var grd = ctx.createLinearGradient(0, gy, 0, gy + gh);
+  grd.addColorStop(0, 'rgba(40,25,10,0)');
+  grd.addColorStop(0.5, 'rgba(50,35,15,0.15)');
+  grd.addColorStop(1, 'rgba(40,25,10,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, gy, W, gh);
+
+  var cw = Math.min(W * 0.1, 70), ch = Math.min(H * 0.17, 55);
+  var x0L = W * 0.05, x0R = W * 0.58, y0 = H * 0.32;
+  for (var c = 0; c < 7; c++) {
+    for (var r = 0; r < 3; r++) {
+      ctx.strokeStyle = 'rgba(91,155,213,.1)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x0L + c * cw, y0 + r * ch, cw, ch);
+      ctx.strokeStyle = 'rgba(201,82,42,.1)';
+      ctx.strokeRect(x0R + c * cw, y0 + r * ch, cw, ch);
+    }
+  }
+
+  ctx.strokeStyle = 'rgba(201,169,110,.12)';
+  ctx.setLineDash([6, 10]);
+  ctx.beginPath();
+  ctx.moveTo(W / 2, H * 0.2);
+  ctx.lineTo(W / 2, H * 0.8);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = 'rgba(201,169,110,.12)';
+  ctx.font = Math.min(W, H) * 0.05 + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(playerFaction === 'shu' ? '蜀' : '魏', W * 0.28, H * 0.22);
+  ctx.fillText(playerFaction === 'shu' ? '魏' : '蜀', W * 0.72, H * 0.22);
+
+  for (var i = 0; i < battleUnits.length; i++) {
+    if (!battleUnits[i].dead) drawUnit(battleUnits[i]);
+  }
+
+  for (var j = 0; j < particles.length; j++) {
+    var p = particles[j];
     ctx.globalAlpha = Math.max(0, p.life);
     if (p.text !== undefined) {
       ctx.fillStyle = p.color;
-      ctx.font = `bold ${p.size}px system-ui`;
+      ctx.font = (p.bold ? 'bold ' : '') + p.size + 'px system-ui';
       ctx.textAlign = 'center';
       ctx.fillText(p.text, p.x, p.y);
+    } else if (p.effect === 'aoe') {
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 2 * p.life;
+      ctx.globalAlpha *= 0.5 * p.life;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius * (2 - p.life), 0, Math.PI * 2);
+      ctx.stroke();
     } else {
       ctx.fillStyle = p.color;
       ctx.beginPath();
@@ -413,49 +601,85 @@ function draw() {
     }
   }
   ctx.globalAlpha = 1;
-
-  // Units
-  for (const u of units) u.draw();
 }
 
-function loop(ts) {
-  const dt = Math.min((ts - lastTime) / 1000, 0.05);
-  lastTime = ts;
-  update(dt);
-  draw();
-  requestAnimationFrame(loop);
+function drawUnit(u) {
+  var s = u.size * (1 + Math.sin(u.anim) * 0.03);
+
+  if (u.shield > 0) {
+    ctx.strokeStyle = '#55a3ff';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = Math.min(1, u.shield / 2) * 0.5;
+    ctx.beginPath();
+    ctx.arc(u.x, u.y, s + 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.fillStyle = 'rgba(0,0,0,.2)';
+  ctx.beginPath();
+  ctx.ellipse(u.x, u.y + s * 0.8, s * 0.8, s * 0.3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = u.color;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = u.hitFlash > 0 ? '#fff' : u.color;
+  ctx.beginPath();
+  if (u.side === 'L') {
+    ctx.moveTo(u.x + s, u.y);
+    ctx.lineTo(u.x - s * 0.5, u.y - s * 0.9);
+    ctx.lineTo(u.x - s * 0.5, u.y + s * 0.9);
+  } else {
+    ctx.moveTo(u.x - s, u.y);
+    ctx.lineTo(u.x + s * 0.5, u.y - s * 0.9);
+    ctx.lineTo(u.x + s * 0.5, u.y + s * 0.9);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold ' + s * 0.9 + 'px system-ui';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(u.avatar, u.x, u.y);
+  ctx.textBaseline = 'alphabetic';
+
+  var bw = 30, bh = 3;
+  var hpPct = Math.max(0, u.hp / u.maxHp);
+  ctx.fillStyle = 'rgba(0,0,0,.5)';
+  ctx.fillRect(u.x - bw / 2, u.y - s - 12, bw, bh);
+  ctx.fillStyle = hpPct > 0.5 ? '#4caf50' : hpPct > 0.25 ? '#ff9800' : '#f44336';
+  ctx.fillRect(u.x - bw / 2, u.y - s - 12, bw * hpPct, bh);
+
+  if (u.silenceCd > 0) {
+    ctx.fillStyle = 'rgba(116,185,255,.7)';
+    ctx.font = '9px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('SIL', u.x, u.y + s + 11);
+  }
 }
 
-// Matchup legend
-const FORMATION_TYPES = {
-  standard: [
-    ['GENERAL','INF','SPEAR','ARCHER'],
-    ['INF','CAV','INF','ARCHER'],
-    ['SPEAR','INF','CAV',null],
-    [null,'SPEAR','INF',null],
-  ],
-  rush: [
-    ['CAV','CAV','CAV','CAV'],
-    ['INF','CAV','CAV',null],
-    [null,'INF','INF',null],
-    [null,null,'SPEAR',null],
-  ],
-  archer: [
-    ['ARCHER','ARCHER','ARCHER','ARCHER'],
-    ['INF','INF','INF','INF'],
-    ['SPEAR','SPEAR','SPEAR','SPEAR'],
-    [null,null,null,null],
-  ],
-  mixed: [
-    ['GENERAL','ARCHER','ARCHER','CAV'],
-    ['INF','CAV','INF','SPEAR'],
-    ['SPEAR','INF','CAV',null],
-    [null,null,null,null],
-  ],
-};
+function showResult(won) {
+  var el = document.getElementById('resultOverlay');
+  var title = document.getElementById('resultTitle');
+  var sub = document.getElementById('resultSub');
+  var fName = playerFaction === 'shu' ? '蜀' : '魏';
+  var eName = playerFaction === 'shu' ? '魏' : '蜀';
+  title.textContent = won ? fName + '军获胜' : eName + '军获胜';
+  title.className = 'result-title ' + (won ? 'win' : 'lose');
+  sub.textContent = '战斗用时 ' + battleTime.toFixed(1) + ' 秒';
+  setTimeout(function(){ el.classList.add('show'); }, 400);
+}
 
-reset();
-requestAnimationFrame(ts => { lastTime = ts; requestAnimationFrame(loop); });
+function resetBattle() {
+  battleState = 'over';
+  showScreen('generals');
+}
+
+window.addEventListener('resize', function() {
+  if (screen === 'battle') resizeBattle();
+});
 </script>
 </body>
 </html>
