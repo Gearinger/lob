@@ -165,14 +165,15 @@ function spawnWave() {
   const angleStep = (Math.PI * 2) / nBullets;
   const baseAngle = (tick * 0.02) + wave * 0.3;
   const spd = 2 + wave * 0.3 + Math.random() * 1.5;
+  const R = Math.max(W, H) * 0.7;
 
   for (let i = 0; i < nBullets; i++) {
     const a = baseAngle + angleStep * i + (Math.random() - 0.5) * 0.3;
-    const bx = cx + Math.cos(a) * (Math.max(W, H) * 0.7);
-    const by = cy + Math.sin(a) * (Math.max(W, H) * 0.7);
+    const bx = cx + Math.cos(a) * R;
+    const by = cy + Math.sin(a) * R;
     spawnEnemyBullet(bx, by,
-      -(bx - cx) / Math.max(10, Math.hypot(bx - cx, by - cy) / spd),
-      -(by - cy) / Math.max(10, Math.hypot(bx - cx, by - cy) / spd),
+      -Math.cos(a) * spd,
+      -Math.sin(a) * spd,
       `hsl(${30 + wave * 10}, 80%, ${50 + wave * 3}%)`
     );
   }
@@ -196,14 +197,9 @@ function autoShoot() {
     player.bullets.forEach(b => shoot(b.angle, 7, '#4af'));
     player.bullets = [];
   } else {
-    // Default: shoot in nearest enemy direction
-    const nearest = bullets.filter(b => !b.fromPlayer).sort((a, b) =>
-      Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y)
-    )[0];
-    if (nearest && Math.hypot(nearest.x - player.x, nearest.y - player.y) < 250) {
-      const angle = Math.atan2(nearest.y - player.y, nearest.x - player.x);
-      shoot(angle, 8, '#4af');
-    }
+    // Shoot in 4 directions always
+    const dirs = [0, Math.PI/2, Math.PI, Math.PI*1.5];
+    dirs.forEach(a => shoot(a, 6, '#4af'));
   }
 }
 
@@ -216,7 +212,7 @@ function checkCollision(ax, ay, ar, bx, by, br) {
 function init() {
   player.x = cx;
   player.y = cy;
-  player.power = 1;
+  player.power = 3;
   player.bullets = [];
   player.invTimer = 0;
   player.trail = [];
@@ -241,7 +237,7 @@ function update() {
 
   // Auto shoot
   autoShootTimer++;
-  if (autoShootTimer > 20) {
+  if (autoShootTimer > 30) {
     autoShootTimer = 0;
     autoShoot();
   }
@@ -318,6 +314,17 @@ function update() {
 
 function applyPowerup(type) {
   if (type === 'heal') player.power = Math.min(player.power + 1, 5);
+  if (type === 'power') {
+    for (let i = 0; i < 8; i++) player.bullets.push({ angle: (Math.PI * 2 / 8) * i });
+  }
+  if (type === 'speed') player.invTimer = Math.max(player.invTimer, 120);
+  if (type === 'multishot') {
+    for (let i = 0; i < 4; i++) player.bullets.push({ angle: (Math.PI * 2 / 4) * i });
+  }
+}
+
+function applyPowerup(type) {
+  if (type === 'heal') player.power = Math.min(player.power + 1, 5);
   if (type === 'power') player.bullets.push({ angle: Math.random() * Math.PI * 2 });
   if (type === 'speed') player.invTimer = Math.max(player.invTimer, 120);
   if (type === 'multishot') {
@@ -330,8 +337,8 @@ function applyPowerup(type) {
 function draw() {
   ctx.fillStyle = '#0a0a0f';
   ctx.fillRect(0, 0, W, H);
-
   if (state === 'menu') return;
+  if (state === 'gameover') return;
 
   // Grid
   ctx.strokeStyle = 'rgba(255,255,255,.03)';
