@@ -330,14 +330,12 @@
             
             movePlayer(vx, vy) {
                 if (vx === 0 && vy === 0) return;
-                
                 const newX = state.player.x + vx;
                 const newY = state.player.y + vy;
-                
-                // Check horizontal movement (use current Y position)
-                if (this.canMove(newX, state.player.y)) state.player.x = newX;
-                // Check vertical movement (use NEW X position after horizontal move)
-                if (this.canMove(state.player.x, newY)) state.player.y = newY;
+                const h = this.canMove(newX, state.player.y);
+                if (h) state.player.x = newX; else console.log('H blocked at', newX, state.player.y, 'map cell:', Math.round(state.player.y));
+                const v = this.canMove(state.player.x, newY);
+                if (v) state.player.y = newY; else console.log('V blocked at', state.player.x, newY, 'map cell:', Math.round(state.player.x));
             },
             
             moveEnemy(e) {
