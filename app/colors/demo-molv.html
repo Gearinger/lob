@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>暮紫 — 配色 Demo</title>
+<style>
+:root{--primary:#6b4c7a;--bg:#f5f0fa;--card:#fff;--text:#2a1a2a;--sub:#7a6a8a;--accent:#9a7b8e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Serif SC',serif;background:var(--bg);color:var(--text);min-height:100vh}
+.nav{background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:18px 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-brand{font-size:1em;color:var(--primary);font-weight:600;letter-spacing:.1em}
+.nav-link{font-size:.8em;color:var(--sub);text-decoration:none}
+.hero{padding:80px 32px;text-align:center}
+.hero-title{font-size:clamp(1.8em,5vw,2.8em);font-weight:300;letter-spacing:.12em;margin-bottom:16px;line-height:1.6}
+.hero-sub{font-size:.82em;color:var(--sub);font-weight:300;letter-spacing:.06em;line-height:2;max-width:300px;margin:0 auto}
+.gallery{padding:40px 20px 80px;max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gallery-item{aspect-ratio:3/4;border-radius:10px;overflow:hidden;position:relative}
+.gallery-item:first-child{grid-column:span 2;aspect-ratio:16/9}
+.gallery-label{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(0,0,0,.4));color:#fff;font-size:.78em;letter-spacing:.05em}
+.footer{padding:40px;text-align:center;font-size:.75em;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-brand">暮紫</div>
+  <a href="index.html" class="nav-link">← 返回</a>
+</div>
+<div class="hero">
+  <h1 class="hero-title">黄昏之下<br>光影交织</h1>
+  <p class="hero-sub">时尚艺术摄影作品集，记录光与影的对话</p>
+</div>
+<div class="gallery">
+  <div class="gallery-item" style="background:linear-gradient(135deg,#6b4c7a,#9a7b8e)"><div class="gallery-label">城市黄昏</div></div>
+  <div class="gallery-item" style="background:linear-gradient(135deg,#4a2a5a,#d8d5dc)"><div class="gallery-label">暮色</div></div>
+  <div class="gallery-item" style="background:linear-gradient(135deg,#8a6a9a,#d8d5dc)"><div class="gallery-label">梦境</div></div>
+</div>
+<div class="footer">配色方案 · 暮紫</div>
+</body>
+</html>

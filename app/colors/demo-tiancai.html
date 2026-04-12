@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天青色 — 配色 Demo</title>
+<style>
+:root{--primary:#89c4c8;--bg:#e8ece6;--card:#fff;--text:#2a3a3c;--sub:#6a8a8c;--accent:#a8c4b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Serif SC',serif;background:var(--bg);color:var(--text);min-height:100vh}
+.nav{background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:20px 32px;display:flex;justify-content:space-between;align-items:center}
+.nav-brand{font-size:1em;font-weight:600;color:var(--text);letter-spacing:.15em}
+.nav-link{font-size:.8em;color:var(--sub);text-decoration:none}
+.hero{padding:100px 32px;text-align:center}
+.hero-title{font-size:clamp(2em,6vw,3.2em);font-weight:300;letter-spacing:.2em;margin-bottom:24px;color:var(--text)}
+.hero-divider{width:32px;height:1px;background:var(--primary);margin:0 auto 24px}
+.hero-sub{font-size:.85em;color:var(--sub);font-weight:300;letter-spacing:.08em;line-height:2;max-width:380px;margin:0 auto}
+.grid{padding:60px 24px;max-width:700px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--text);border-radius:16px;overflow:hidden}
+.grid-item{padding:32px 24px;background:var(--bg)}
+.grid-num{font-size:2.5em;font-weight:300;color:var(--primary);margin-bottom:8px}
+.grid-title{font-size:.88em;font-weight:600;margin-bottom:8px}
+.grid-desc{font-size:.75em;color:var(--sub);line-height:1.7}
+.footer{padding:40px;text-align:center;font-size:.75em;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-brand">天青色</div>
+  <a href="index.html" class="nav-link">← 返回</a>
+</div>
+<div class="hero">
+  <h1 class="hero-title">清冷之韵</h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">汝窑天青，如雨过天青<br>温润如玉，清冷自持</p>
+</div>
+<div class="grid">
+  <div class="grid-item">
+    <div class="grid-num">壹</div>
+    <div class="grid-title">静水深流</div>
+    <div class="grid-desc">以静制动，以淡写浓</div>
+  </div>
+  <div class="grid-item">
+    <div class="grid-num">贰</div>
+    <div class="grid-title">留白之境</div>
+    <div class="grid-desc">此处无物胜有物</div>
+  </div>
+  <div class="grid-item">
+    <div class="grid-num">叁</div>
+    <div class="grid-title">文人风骨</div>
+    <div class="grid-desc">骨清神秀，格调高远</div>
+  </div>
+  <div class="grid-item">
+    <div class="grid-num">肆</div>
+    <div class="grid-title">东方美学</div>
+    <div class="grid-desc">取法自然，道法天成</div>
+  </div>
+</div>
+<div class="footer">配色方案 · 天青色</div>
+</body>
+</html>

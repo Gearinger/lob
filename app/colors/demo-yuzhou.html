@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙色 — 配色 Demo</title>
+<style>
+:root{--bg:#0d1117;--card:#1a2840;--text:#e8edf5;--sub:#6a8aaa;--primary:#7eb8f7;--accent:#4ecdc4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.nav{background:rgba(13,17,23,.8);backdrop-filter:blur(10px);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-brand{font-size:.9em;color:var(--primary);font-weight:600;letter-spacing:.1em}
+.nav-link{font-size:.8em;color:var(--sub);text-decoration:none}
+.hero{padding:80px 32px;text-align:center}
+.hero-title{font-size:clamp(2.2em,6vw,3.4em);font-weight:700;letter-spacing:-.02em;margin-bottom:16px;background:linear-gradient(135deg,#e8edf5,#7eb8f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:.9em;color:var(--sub);max-width:380px;margin:0 auto;line-height:1.8}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:48px}
+.stat{text-align:center}
+.stat-num{font-size:2em;font-weight:700;color:var(--primary)}
+.stat-label{font-size:.72em;color:var(--sub);margin-top:4px;letter-spacing:.05em}
+.cards{padding:40px 24px 80px;max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{background:var(--card);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,.04)}
+.card-tag{font-size:.65em;color:var(--accent);letter-spacing:.1em;margin-bottom:10px;text-transform:uppercase}
+.card-title{font-size:.9em;font-weight:600;margin-bottom:8px}
+.card-desc{font-size:.75em;color:var(--sub);line-height:1.6}
+.footer{padding:32px;text-align:center;font-size:.72em;color:var(--sub);border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-brand">深空</div>
+  <a href="index.html" class="nav-link">← 返回</a>
+</div>
+<div class="hero">
+  <h1 class="hero-title">探索未知的边界</h1>
+  <p class="hero-sub">为创新者打造的工具，让复杂的任务变得简单</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">12K+</div><div class="stat-label">活跃用户</div></div>
+    <div class="stat"><div class="stat-num">99.9%</div><div class="stat-label">可用率</div></div>
+    <div class="stat"><div class="stat-num">50ms</div><div class="stat-label">平均延迟</div></div>
+  </div>
+</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-tag">实时</div>
+    <div class="card-title">数据分析</div>
+    <div class="card-desc">毫秒级延迟，实时监控每一项指标</div>
+  </div>
+  <div class="card">
+    <div class="card-tag">安全</div>
+    <div class="card-title">端到端加密</div>
+    <div class="card-desc">军事级加密标准，数据零泄露</div>
+  </div>
+  <div class="card">
+    <div class="card-tag">智能</div>
+    <div class="card-title">AI 助手</div>
+    <div class="card-desc">内置 AI，自动识别异常并预警</div>
+  </div>
+</div>
+<div class="footer">配色方案 · 宇宙色</div>
+</body>
+</html>
