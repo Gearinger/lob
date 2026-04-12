@@ -244,12 +244,10 @@
                 
                 this.movePlayer(vx, 0);
                 this.movePlayer(0, vy);
-                // Debug: show player position on canvas
-                if (vx !== 0 || vy !== 0) {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '12px monospace';
-                    ctx.fillText('vx:' + vx.toFixed(2) + ' vy:' + vy.toFixed(2) + ' px:' + state.player.x.toFixed(2) + ' py:' + state.player.y.toFixed(2), 10, 20);
-                }
+                // Debug: always show player position
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px monospace';
+                ctx.fillText(`p(${state.player.x.toFixed(2)},${state.player.y.toFixed(2)}) vx=${vx} vy=${vy}`, 4, 14);
                 
                 // 敌人AI
                 for (const e of state.enemies) {
@@ -338,10 +336,8 @@
                 if (vx === 0 && vy === 0) return;
                 const newX = state.player.x + vx;
                 const newY = state.player.y + vy;
-                const h = this.canMove(newX, state.player.y);
-                if (h) state.player.x = newX; else console.log('H blocked at', newX, state.player.y, 'map cell:', Math.round(state.player.y));
-                const v = this.canMove(state.player.x, newY);
-                if (v) state.player.y = newY; else console.log('V blocked at', state.player.x, newY, 'map cell:', Math.round(state.player.x));
+                if (this.canMove(newX, state.player.y)) state.player.x = newX;
+                if (this.canMove(state.player.x, newY)) state.player.y = newY;
             },
             
             moveEnemy(e) {
