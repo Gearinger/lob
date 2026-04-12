@@ -14,13 +14,44 @@
   --unit:8px;
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 80px}
-.header{padding:48px 32px 32px;text-align:center}
-.header h1{font-size:clamp(1.8em,5vw,2.8em);font-weight:300;letter-spacing:.15em;margin-bottom:8px}
-.header p{font-size:.85em;color:var(--sub);font-weight:300;letter-spacing:.08em}
-.header .divider{width:40px;height:1px;background:var(--border);margin:20px auto}
+.header-accent{
+  height:3px;background:linear-gradient(90deg,#8b7355 0%,#c9a96e 25%,#e8d4b0 50%,#c9a96e 75%,#8b7355 100%);
+  opacity:.4
+}
+.header{
+  padding:64px 32px 56px;text-align:center;
+  position:relative;overflow:hidden
+}
+.header::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:min(600px,90vw);height:200px;
+  background:linear-gradient(180deg,rgba(215,205,195,.4) 0%,transparent 100%);
+  pointer-events:none
+}
+.header-eyebrow{
+  font-size:.7em;letter-spacing:.25em;color:var(--sub);margin-bottom:16px;
+  text-transform:uppercase;opacity:.7
+}
+.header h1{
+  font-size:clamp(2.2em,6vw,3.4em);font-weight:300;
+  letter-spacing:.2em;margin-bottom:12px;
+  position:relative;display:inline-block
+}
+.header h1::after{
+  content:'';display:block;width:32px;height:2px;
+  background:linear-gradient(90deg,#c9a96e,#8b7355);margin:18px auto 0;
+}
+.header p{
+  font-size:.85em;color:var(--sub);font-weight:300;
+  letter-spacing:.06em;line-height:2;margin-top:12px;max-width:420px;margin-left:auto;margin-right:auto
+}
+.header-meta{
+  display:flex;justify-content:center;gap:24px;margin-top:20px;font-size:.7em;color:var(--sub);letter-spacing:.08em
+}
 
-.palettes{display:grid;gap:40px;padding:0 24px 40px;max-width:900px;margin:0 auto}
-.palette-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.palettes{display:grid;gap:40px;padding:0 24px 60px;max-width:900px;margin:0 auto}
+.palette-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,.06);transition:box-shadow .3s,transform .3s}
+.palette-card:hover{box-shadow:0 8px 40px rgba(0,0,0,.1);transform:translateY(-2px)}
 .palette-header{padding:28px 28px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .palette-title{font-size:1.1em;font-weight:600;letter-spacing:.05em;margin-bottom:4px}
 .palette-desc{font-size:.78em;color:var(--sub);font-weight:300;line-height:1.7}
@@ -72,10 +103,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </head>
 <body>
 
+<div class="header-accent"></div>
 <div class="header">
+  <div class="header-eyebrow">Color Palette</div>
   <h1>配色方案</h1>
-  <div class="divider"></div>
-  <p>八个经过精心挑选的色彩组合，适用于不同的设计场景</p>
+  <p>八个经过精心挑选的色彩组合<br>每个方案适配不同的设计场景</p>
+  <div class="header-meta">
+    <span>8 套方案</span>
+    <span>·</span>
+    <span>点击色块查看详情</span>
+  </div>
 </div>
 
 <div class="palettes" id="palettes"></div>
@@ -308,6 +345,6 @@ document.addEventListener('keydown', e => {
 renderPalettes();
 </script>
 
-<div class="footer">点击色块查看详情与复制</div>
+<div class="footer">点击色块查看详情 · 复制色值</div>
 </body>
 </html>
