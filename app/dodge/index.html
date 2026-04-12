@@ -227,7 +227,7 @@ function init() {
   wave = 1;
   tick = 0;
   spawnTimer = 0;
-  spawnInterval = 60;
+  spawnInterval = 30;
   updateUI();
 }
 
@@ -235,6 +235,7 @@ function init() {
 function update() {
   if (state !== 'playing') return;
   tick++;
+  spawnTimer++;
 
   movePlayer();
 
@@ -281,7 +282,6 @@ function update() {
   }
 
   // Spawn enemy bullets
-  spawnTimer++;
   const interval = Math.max(15, spawnInterval - wave * 2);
   if (spawnTimer >= interval) {
     spawnTimer = 0;
