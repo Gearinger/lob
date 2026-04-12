@@ -232,6 +232,7 @@ function init() {
 // Update
 function update() {
   if (state !== 'playing') return;
+  if (tick === 1) console.log('UPDATE START player=(' + Math.round(player.x) + ',' + Math.round(player.y) + ') W=' + W + ' H=' + H);
   tick++;
   spawnTimer++;
 
@@ -283,7 +284,9 @@ function update() {
   const interval = Math.max(50, 90 - wave * 5);
   if (tick > 90 && spawnTimer >= interval) {
     spawnTimer = 0;
+    console.log('SPAWN WAVE tick=' + tick + ' wave=' + wave + ' bullets.len=' + bullets.length + ' player=(' + Math.round(player.x) + ',' + Math.round(player.y) + ')');
     spawnWave();
+    console.log('AFTER SPAWN bullets.len=' + bullets.length);
     if (tick % 300 === 0) wave++;
   }
 
@@ -341,6 +344,13 @@ function draw() {
   ctx.fillRect(0, 0, W, H);
   if (state === 'menu') return;
   if (state === 'gameover') return;
+
+  // Debug info
+  ctx.fillStyle = '#555';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('bullets:' + bullets.length + ' tick:' + tick + ' wave:' + wave, 10, H - 10);
+  ctx.textAlign = 'start';
 
   // Grid
   ctx.strokeStyle = 'rgba(255,255,255,.03)';
