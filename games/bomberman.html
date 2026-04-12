@@ -331,23 +331,13 @@
             movePlayer(vx, vy) {
                 if (vx === 0 && vy === 0) return;
                 
-                // 简单的网格吸附
-                const snap = 0.15;
-                let targetX = state.player.x;
-                let targetY = state.player.y;
-                
-                if (Math.abs(state.player.x - Math.round(state.player.x)) < snap) {
-                    targetX = Math.round(state.player.x);
-                }
-                if (Math.abs(state.player.y - Math.round(state.player.y)) < snap) {
-                    targetY = Math.round(state.player.y);
-                }
-                
                 const newX = state.player.x + vx;
                 const newY = state.player.y + vy;
                 
-                if (this.canMove(newX, targetY)) state.player.x = newX;
-                if (this.canMove(targetX, newY)) state.player.y = newY;
+                // Check horizontal movement (use current Y position)
+                if (this.canMove(newX, state.player.y)) state.player.x = newX;
+                // Check vertical movement (use NEW X position after horizontal move)
+                if (this.canMove(state.player.x, newY)) state.player.y = newY;
             },
             
             moveEnemy(e) {
