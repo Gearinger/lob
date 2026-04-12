@@ -15,14 +15,13 @@
   --border:#d4c4a8;--shadow:rgba(0,0,0,.06);--progress:#27AE60;--tag:#FF8FA3;
 }
 .dark{--bg:#1a1a1a;--card:#2d2d2d;--text:#e0e0e0;--sub:#888;--accent:#C47F17;--border:#444;--shadow:rgba(0,0,0,.3)}
-body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:40px 20px 80px;transition:background .3s,color .3s}
+body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:60px 20px 80px;transition:background .3s,color .3s}
 .header{text-align:center;margin-bottom:24px;position:relative}
 .title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 var(--border)}
 .actions{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .btn{padding:8px 16px;border:2px solid var(--text);border-radius:20px;background:var(--card);color:var(--text);font-family:inherit;font-size:.82em;cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 .btn.active{background:var(--text);color:var(--bg)}
-.theme-btn{position:fixed;top:16px;right:16px;z-index:200;width:40px;height:40px;border-radius:50%;border:2px solid var(--text);background:var(--card);color:var(--text);font-size:1.2em;cursor:pointer;box-shadow:2px 2px 0 var(--text)}
 .search-wrap{text-align:center;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto;position:relative}
 .search-input{width:100%;padding:12px 20px;border:2px solid var(--text);border-radius:12px;font-family:inherit;font-size:1em;background:var(--card);color:var(--text);outline:none;box-shadow:3px 4px 0 var(--text);transition:box-shadow .2s}
 .search-input:focus{box-shadow:2px 2px 0 var(--text)}
@@ -56,25 +55,37 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 .youtube{background:#FF0000;color:#fff}
 .netflix{background:#E50914;color:#fff}
 .douban{background:#07C160;color:#fff}
-.progress-bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--tag),var(--progress));z-index:100;transition:width .3s}
-.progress-label{position:fixed;top:12px;left:16px;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:6px 14px;font-size:.8em;box-shadow:2px 2px 0 var(--text);z-index:100}
-.back{position:fixed;top:52px;left:16px;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:6px 14px;font-size:.8em;color:var(--text);text-decoration:none;box-shadow:2px 2px 0 var(--text);z-index:99}
-.back:hover,.theme-btn:hover{box-shadow:1px 1px 0 var(--text)}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--tag),var(--progress));z-index:101;transition:width .3s}
+.topnav{position:fixed;top:0;left:0;right:0;height:48px;background:var(--card);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100;box-shadow:0 2px 8px var(--shadow)}
+.nav-left{display:flex;align-items:center;gap:10px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-back{background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;font-size:.82em;color:var(--text);text-decoration:none;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0}
+.nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
+.nav-progress{font-size:.8em;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;box-shadow:2px 2px 0 var(--text);white-space:nowrap}
+#syncIndicator{cursor:default;font-size:.88em;background:var(--card);border:1.5px solid var(--text);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 var(--text)}
+.nav-theme{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--text);background:var(--card);color:var(--text);font-size:1.1em;cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-theme:hover,.nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 @media(max-width:600px){
   body{padding:60px 12px 60px}
   .movie-director{display:none}
-  .back{left:12px;top:100px}
-  .progress-label{left:12px;top:60px}
-  .theme-btn{right:12px;top:60px}
+  .topnav{padding:0 12px}
+  .nav-progress{font-size:.72em;padding:4px 10px}
+  .nav-back{font-size:.75em;padding:4px 10px}
 }
 </style>
 </head>
 <body>
+<div class="topnav" id="topNav">
+  <div class="nav-left">
+    <a class="nav-back" href="/lob/app/">← 应用</a>
+    <span class="nav-progress" id="progressLabel"></span>
+  </div>
+  <div class="nav-right">
+    <span id="syncIndicator" title="云端同步状态">☁️</span>
+    <button class="nav-theme" id="themeBtn" title="切换主题">🌙</button>
+  </div>
+</div>
 <div class="progress-bar" id="progressBar"></div>
-<div class="progress-label" id="progressLabel"></div>
-<span id="syncIndicator" title="云端同步状态" style="position:fixed;top:12px;right:70px;z-index:100;cursor:default;font-size:.9em;background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:6px 10px;box-shadow:2px 2px 0 var(--text)">☁️</span>
-<a class="back" href="/lob/app/">← 应用</a>
-<button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
 
 <div class="header">
   <div class="title">🎬 文艺片补片计划</div>
@@ -357,6 +368,7 @@ const movies = [
   var progressBar = document.getElementById('progressBar');
   var progressLabel = document.getElementById('progressLabel');
   var themeBtn = document.getElementById('themeBtn');
+  var syncIndicator = document.getElementById('syncIndicator');
   var randomBtn = document.getElementById('randomBtn');
   var unwatchedBtn = document.getElementById('unwatchedBtn');
   var filterBtns = document.querySelectorAll('.filter-btn');
