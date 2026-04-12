@@ -307,7 +307,7 @@ function createUnit(g) {
     general:g, side:g.side, type:g.id, name:g.name, job:g.job,
     color:g.color, avatar:g.avatar,
     hp:g.hp, maxHp:g.hp, atk:g.atk, baseAtk:g.atk,
-    speed:g.speed, atkSpeed:g.atkSpeed, range:g.range, size:g.size,
+    speed:g.speed, atkSpeed:g.atkSpeed, range:g.range * W / 10, size:g.size,
     skill:g.skill, skillDesc:g.skillDesc, skillType:g.skillType, skillDmg:g.skillDmg,
     x:x, y:y, vx:0, vy:0,
     atkCd:0, shield:0, silenceCd:0, debuffCd:0, burst:0,
@@ -365,12 +365,12 @@ function battleUpdate(dt) {
           u.atkCd = cd;
         }
       } else {
-        var spd = u.speed * 55 * dt;
+        var spd = u.speed * 300 * dt;
         u.x += (dx / dist) * spd;
         u.y += (dy / dist) * spd;
       }
     } else {
-      var spd2 = u.speed * 40 * dt;
+      var spd2 = u.speed * 200 * dt;
       u.x += u.side === 'L' ? spd2 : -spd2;
       u.vy *= 0.9;
     }
