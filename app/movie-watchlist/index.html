@@ -339,6 +339,7 @@ movies.forEach((film, i) => {
 // Render
 function render(list) {
   container.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   list.forEach(([director, films]) => {
     const group = document.createElement('div');
     group.className = 'director-group';
@@ -354,29 +355,30 @@ function render(list) {
     const listEl = document.createElement('div');
     listEl.className = 'movie-list';
 
-    films.forEach((film, fi) => {
+    films.forEach((film) => {
       const item = document.createElement('div');
-      item.className = 'movie-item' + (watched[film._idx] ? ' watched' : '');
+      const isWatched = !!watched[film._idx];
+      item.className = 'movie-item' + (isWatched ? ' watched' : '');
       item.dataset.idx = film._idx;
-      item.innerHTML = `
-        <div class="movie-checkbox">${watched[film._idx] ? '✓' : ''}</div>
-        <span class="movie-title">${film.title}</span>
-        <span class="movie-director">${film.director}</span>
-      `;
-      item.addEventListener('click', () => {
-        watched[film._idx] = !watched[film._idx];
-        localStorage.setItem('hermy-movies-watched', JSON.stringify(watched));
-        item.classList.toggle('watched', watched[film._idx]);
-        item.querySelector('.movie-checkbox').textContent = watched[film._idx] ? '✓' : '';
-        updateProgress();
-      });
+      item.innerHTML = `<div class="movie-checkbox">${isWatched?'✓':''}</div><span class="movie-title">${film.title}</span><span class="movie-director">${film.director}</span>`;
+      item.addEventListener('click', toggleWatched);
       listEl.appendChild(item);
     });
 
     group.appendChild(nameEl);
     group.appendChild(listEl);
-    container.appendChild(group);
+    fragment.appendChild(group);
   });
+  container.appendChild(fragment);
+}
+
+function toggleWatched() {
+  const idx = this.dataset.idx;
+  watched[idx] = !watched[idx];
+  localStorage.setItem('hermy-movies-watched', JSON.stringify(watched));
+  this.classList.toggle('watched', watched[idx]);
+  this.querySelector('.movie-checkbox').textContent = watched[idx] ? '✓' : '';
+  updateProgress();
 }
 
 // Search
