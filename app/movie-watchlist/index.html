@@ -59,6 +59,10 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 .topnav{position:fixed;top:0;left:0;right:0;height:48px;background:var(--card);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100;box-shadow:0 2px 8px var(--shadow)}
 .nav-left{display:flex;align-items:center;gap:10px}
 .nav-right{display:flex;align-items:center;gap:8px}
+.sync-dot{font-size:.82em;cursor:default;transition:color .3s}
+.sync-ok{color:#27AE60}
+.sync-err{color:#E74C3C}
+.sync-syncing{color:#27AE60;opacity:.5}
 .nav-back{background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;font-size:.82em;color:var(--text);text-decoration:none;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0}
 .nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 .nav-progress{font-size:.82em;color:var(--sub);white-space:nowrap}
@@ -80,6 +84,7 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
     <span class="nav-progress" id="progressLabel"></span>
   </div>
   <div class="nav-right">
+    <span id="syncDot" title="云端同步" class="sync-dot sync-ok">☁️</span>
     <button class="nav-theme" id="themeBtn" title="切换主题">🌙</button>
   </div>
 </div>
@@ -379,6 +384,7 @@ const movies = [
   var SB_URL = 'https://biehvpylfhoespllmija.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpZWh2cHlsZmhvZXNwbGxtaWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzQ0MzQsImV4cCI6MjA5MTUxMDQzNH0.B3kjktOGp7YT-ZwIRRP3IHLPKBIo1UawJdCJlkWsbf4';
   var SB_USER = 'hermy';
+  var syncStatus = 'ok'; // 'ok' | 'syncing' | 'err'
 
   function sbFetch(path, method, body) {
     return fetch(SB_URL + '/rest/v1/' + path, {
@@ -394,14 +400,28 @@ const movies = [
   }
 
   async function syncToCloud() {
+    var dot = document.getElementById('syncDot');
+    syncStatus = 'syncing';
+    dot.className = 'sync-dot sync-syncing';
     try {
       var up = await fetch(SB_URL + '/rest/v1/movie_watch_progress', {
         method: 'POST',
         headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify([{ user_id: SB_USER, watched_map: watched, last_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
       });
-      if (!up.ok) { console.error('sync error', await up.text()); }
-    } catch(e) { console.error('sync exception', e); }
+      if (up.ok) {
+        syncStatus = 'ok';
+        dot.className = 'sync-dot sync-ok';
+      } else {
+        syncStatus = 'err';
+        dot.className = 'sync-dot sync-err';
+        console.error('sync error', await up.text());
+      }
+    } catch(e) {
+      syncStatus = 'err';
+      dot.className = 'sync-dot sync-err';
+      console.error('sync exception', e);
+    }
   }
 
   async function loadFromCloud() {
