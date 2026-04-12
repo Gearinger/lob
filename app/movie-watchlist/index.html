@@ -18,7 +18,6 @@
 body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:60px 20px 80px;transition:background .3s,color .3s}
 .header{text-align:center;margin-bottom:24px;position:relative}
 .title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 var(--border)}
-.actions{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .btn{padding:8px 16px;border:2px solid var(--text);border-radius:20px;background:var(--card);color:var(--text);font-family:inherit;font-size:.82em;cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 .btn.active{background:var(--text);color:var(--bg)}
@@ -68,6 +67,8 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 .nav-progress{font-size:.82em;color:var(--sub);white-space:nowrap}
 .nav-theme{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--text);background:var(--card);color:var(--text);font-size:1.1em;cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .nav-theme:hover,.nav-back:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
+.nav-btn{background:var(--card);border:1.5px solid var(--text);border-radius:20px;padding:5px 14px;font-size:.82em;color:var(--text);cursor:pointer;box-shadow:2px 2px 0 var(--text);transition:all .15s;flex-shrink:0}
+.nav-btn:hover{box-shadow:1px 1px 0 var(--text);transform:translateY(-1px)}
 @media(max-width:600px){
   body{padding:60px 12px 60px}
   .movie-director{display:none}
@@ -81,6 +82,7 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 <div class="topnav" id="topNav">
   <div class="nav-left">
     <a class="nav-back" href="/lob/app/">← 应用</a>
+    <button class="nav-btn" id="randomBtn">🎲 随机推荐</button>
   </div>
   <span class="nav-progress" id="progressLabel"></span>
   <div class="nav-right">
@@ -92,10 +94,6 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 
 <div class="header">
   <div class="title">🎬 文艺片补片计划</div>
-  <div class="actions">
-    <button class="btn" id="randomBtn">🎲 随机推荐</button>
-    <button class="btn" id="unwatchedBtn">📺 未看片 (248部)</button>
-  </div>
 </div>
 
 <div class="search-wrap">
@@ -373,7 +371,6 @@ const movies = [
   var themeBtn = document.getElementById('themeBtn');
 
   var randomBtn = document.getElementById('randomBtn');
-  var unwatchedBtn = document.getElementById('unwatchedBtn');
   var filterBtns = document.querySelectorAll('.filter-btn');
 
   var STORAGE_KEY = 'hermy-movies-v2';
@@ -548,7 +545,6 @@ const movies = [
     var pct = 248 ? Math.round(watchedCount / 248 * 100) : 0;
     progressBar.style.width = pct + '%';
     progressLabel.textContent = watchedCount + '/' + 248 + ' (' + pct + '%)';
-    unwatchedBtn.textContent = '📺 未看片 (' + (248 - watchedCount) + '部)';
   }
 
   // Search
@@ -597,14 +593,6 @@ const movies = [
     // Scroll to it
     var el = container.querySelector('[data-idx="' + pick._idx + '"]');
     if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('expanded'); expandedIdx = pick._idx; }
-  };
-
-  // Unwatched button
-  unwatchedBtn.onclick = function() {
-    filterBtns.forEach(function(b) { b.classList.remove('active'); });
-    document.querySelector('[data-filter="unwatched"]').classList.add('active');
-    currentFilter = 'unwatched';
-    render(getFilteredList());
   };
 
   updateProgress();
