@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配色方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f2ee;--card:#fff;--text:#2a2520;--sub:#8a7f72;--border:#ddd5c8;
+  --font:'Noto Serif SC',serif;
+  --unit:8px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 80px}
+.header{padding:48px 32px 32px;text-align:center}
+.header h1{font-size:clamp(1.8em,5vw,2.8em);font-weight:300;letter-spacing:.15em;margin-bottom:8px}
+.header p{font-size:.85em;color:var(--sub);font-weight:300;letter-spacing:.08em}
+.header .divider{width:40px;height:1px;background:var(--border);margin:20px auto}
+
+.palettes{display:grid;gap:40px;padding:0 24px 40px;max-width:900px;margin:0 auto}
+.palette-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.palette-header{padding:28px 28px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.palette-title{font-size:1.1em;font-weight:600;letter-spacing:.05em;margin-bottom:4px}
+.palette-desc{font-size:.78em;color:var(--sub);font-weight:300;line-height:1.7}
+
+.palette-tags{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.tag{padding:3px 10px;border-radius:20px;font-size:.68em;color:var(--sub);background:var(--bg);border:1px solid var(--border);white-space:nowrap}
+
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.swatch{aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;cursor:pointer;transition:transform .2s}
+.swatch:hover{transform:scale(1.02)}
+.swatch:first-child{aspect-ratio:4/3;grid-column:span 2}
+.swatch-label{font-size:.7em;letter-spacing:.05em;opacity:.9;line-height:1.4}
+.swatch-hex{font-family:monospace;font-size:.75em;opacity:.7;margin-top:3px}
+
+.footer{padding:40px;text-align:center;font-size:.75em;color:var(--sub);letter-spacing:.05em}
+
+.contrast{font-size:.68em;padding:2px 7px;border-radius:4px;margin-top:4px;display:inline-block}
+.contrast.pass{background:#d4edda;color:#155724}
+.contrast.fail{background:#f8d7da;color:#721c24}
+.contrast.aa{background:#fff3cd;color:#856404}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-content{background:var(--card);border-radius:16px;max-width:480px;width:100%;padding:32px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2em;cursor:pointer;color:var(--sub);padding:4px}
+.modal h3{font-size:1.1em;margin-bottom:16px;font-weight:600}
+.modal-swatch{width:100%;aspect-ratio:3/1;border-radius:8px;margin-bottom:16px}
+.modal-colors{display:grid;gap:8px}
+.modal-color{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px}
+.modal-color-dot{width:32px;height:32px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+.modal-color-info{flex:1}
+.modal-color-name{font-size:.82em;font-weight:600}
+.modal-color-hex{font-family:monospace;font-size:.72em;opacity:.6}
+.modal-copy{background:none;border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:.7em;cursor:pointer;color:var(--sub);transition:all .2s}
+.modal-copy:hover{background:var(--bg);color:var(--text)}
+
+.palette-card[data-id="tiancai"]{--accent:#e8c547;--sub:#8a7f72;--border:#ddd5c8}
+.palette-card[data-id="deepnight"]{--accent:#7eb8f7;--sub:#8a9aaa;--border:#3a4a5a;--bg:#0e1117;--card:#1a1f2e;--text:#e8edf2}
+
+@media(max-width:600px){
+  .header{padding:32px 20px 24px}
+  .palettes{padding:0 12px 40px}
+  .palette-header{flex-direction:column;padding:20px 20px 16px}
+  .swatches{grid-template-columns:repeat(3,1fr)}
+  .swatch:first-child{grid-column:span 3}
+  .tag{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>配色方案</h1>
+  <div class="divider"></div>
+  <p>八个经过精心挑选的色彩组合，适用于不同的设计场景</p>
+</div>
+
+<div class="palettes" id="palettes"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const palettes = [
+  {
+    id: "chahong",
+    name: "茶花红",
+    desc: "东方古典韵味与现代时尚感的结合。粉调的红既有热情又有克制，适合精致生活类设计。",
+    tags: ["女性", "精致", "东方"],
+    colors: [
+      { name: "茶花红", hex: "#e72d48", text: "#fff", role: "主色" },
+      { name: "无白色", hex: "#f1dddf", text: "#2a2520", role: "背景" },
+      { name: "深棕", hex: "#5a3e36", text: "#fff", role: "文字" },
+      { name: "藕粉", hex: "#e8c4c0", text: "#2a2520", role: "辅助" }
+    ]
+  },
+  {
+    id: "tiancai",
+    name: "天青色",
+    desc: "汝窑的颜色，温润如玉。介于青与蓝之间的清冷感，搭配米白极尽东方美学。",
+    tags: ["清冷", "东方", "文人"],
+    colors: [
+      { name: "天青", hex: "#89c4c8", text: "#1a3a3c", role: "主色" },
+      { name: "月白", hex: "#e8ece6", text: "#2a2520", role: "背景" },
+      { name: "黛色", hex: "#2a3a3c", text: "#e8ece6", role: "文字" },
+      { name: "青瓷", hex: "#a8c4b8", text: "#1a3a3c", role: "辅助" }
+    ]
+  },
+  {
+    id: "yuzhou",
+    name: "宇宙色",
+    desc: "深邃太空感配色。明度极低的主色配合冷调高光，营造神秘与高级感。适合科技或高端品牌。",
+    tags: ["科技", "深邃", "冷调"],
+    colors: [
+      { name: "深空", hex: "#0d1117", text: "#e8edf5", role: "背景" },
+      { name: "星云蓝", hex: "#1a2840", text: "#7eb8f7", role: "主色" },
+      { name: "极光青", hex: "#4ecdc4", text: "#0d1117", role: "强调" },
+      { name: "星光白", hex: "#e8edf5", text: "#0d1117", role: "文字" }
+    ]
+  },
+  {
+    id: "tang",
+    name: "大唐",
+    desc: "盛唐气韵。金与赭的搭配庄重而不沉闷，是文化类设计的上品之选。",
+    tags: ["文化", "庄重", "传统"],
+    colors: [
+      { name: "赭石", hex: "#8b4513", text: "#fff8e7", role: "主色" },
+      { name: "象牙白", hex: "#fff8e7", text: "#2a2520", role: "背景" },
+      { name: "鎏金", hex: "#c9a96e", text: "#2a2520", role: "强调" },
+      { name: "土黄", hex: "#6b5344", text: "#fff8e7", role: "辅助" }
+    ]
+  },
+  {
+    id: "sennong",
+    name: "森浓",
+    desc: "森林深处的色调。墨绿与暖棕的组合，既有自然感又不失现代气质。适合户外或生活方式品牌。",
+    tags: ["自然", "温暖", "生活"],
+    colors: [
+      { name: "苔绿", hex: "#3d5a45", text: "#e8f0e5", role: "主色" },
+      { name: "暖米", hex: "#e8e0d0", text: "#2a2520", role: "背景" },
+      { name: "暖棕", hex: "#8b6f5a", text: "#fff8f5", role: "辅助" },
+      { name: "深苔", hex: "#2a3f30", text: "#e8f0e5", role: "强调" }
+    ]
+  },
+  {
+    id: "molv",
+    name: "暮紫",
+    desc: "黄昏时刻的紫与灰。日落余晖的色调叠加在沉稳的灰调上，适合时尚或艺术类项目。",
+    tags: ["时尚", "艺术", "黄昏"],
+    colors: [
+      { name: "暮紫", hex: "#6b4c7a", text: "#f5f0fa", role: "主色" },
+      { name: "雾灰", hex: "#d8d5dc", text: "#2a2520", role: "背景" },
+      { name: "玫瑰灰", hex: "#9a7b8e", text: "#f5f0fa", role: "辅助" },
+      { name: "深紫", hex: "#3d2a45", text: "#f5f0fa", role: "强调" }
+    ]
+  },
+  {
+    id: "deepnight",
+    name: "深夜",
+    desc: "午夜深蓝与冷光白。城市夜景的配色，极低的明度但通过冷暖对比保持呼吸感。适合工具或夜间模式。",
+    tags: ["工具", "夜间", "冷静"],
+    dark: true,
+    colors: [
+      { name: "夜蓝", hex: "#0f1923", text: "#e8f0f5", role: "背景" },
+      { name: "月白", hex: "#a8c8d8", text: "#0f1923", role: "主色" },
+      { name: "暖橘", hex: "#e8885c", text: "#0f1923", role: "强调" },
+      { name: "冷灰", hex: "#4a5a6a", text: "#e8f0f5", role: "辅助" }
+    ]
+  },
+  {
+    id: "wuxi",
+    name: "无色",
+    desc: "纯粹黑白灰。不用任何色彩，靠明度对比和比例关系建立视觉层次。最考验设计师的留白与节奏感。",
+    tags: ["极简", "留白", "经典"],
+    colors: [
+      { name: "纸白", hex: "#f5f5f3", text: "#1a1a1a", role: "背景" },
+      { name: "墨", hex: "#1a1a1a", text: "#f5f5f3", role: "主色" },
+      { name: "灰", hex: "#8a8a8a", text: "#1a1a1a", role: "辅助" },
+      { name: "淡灰", hex: "#e8e8e6", text: "#1a1a1a", role: "分割" }
+    ]
+  }
+];
+
+function getLuminance(hex) {
+  const rgb = hex.replace('#','').match(/.{2}/g).map(v => {
+    let n = parseInt(v, 16) / 255;
+    return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+}
+
+function getContrast(fg, bg) {
+  const l1 = getLuminance(fg);
+  const l2 = getLuminance(bg);
+  const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  if (ratio >= 7) return { label: "AAA", cls: "pass" };
+  if (ratio >= 4.5) return { label: "AA", cls: "aa" };
+  return { label: "FAIL", cls: "fail" };
+}
+
+function wcagColor(hex) {
+  return hex.replace('#','').match(/.{2}/g).map(v => parseInt(v, 16));
+}
+
+function renderPalettes() {
+  const container = document.getElementById('palettes');
+  palettes.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'palette-card';
+    card.dataset.id = p.id;
+
+    // Determine if dark theme needed
+    const isDark = p.dark || false;
+
+    let tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    let swatchesHtml = p.colors.map(c => {
+      const textColor = c.text || '#fff';
+      return `<div class="swatch" style="background:${c.hex};color:${textColor}" onclick="openModal('${p.id}')">
+        <div class="swatch-label">${c.name}</div>
+        <div class="swatch-hex">${c.hex}</div>
+      </div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="palette-header">
+        <div>
+          <div class="palette-title">${p.name}</div>
+          <div class="palette-desc">${p.desc}</div>
+        </div>
+        <div class="palette-tags">${tagsHtml}</div>
+      </div>
+      <div class="swatches">${swatchesHtml}</div>
+    `;
+
+    if (isDark) {
+      card.style.setProperty('--bg', '#0e1117');
+      card.style.setProperty('--card', '#1a1f2e');
+      card.style.setProperty('--text', '#e8edf5');
+      card.style.setProperty('--sub', '#8a9aaa');
+      card.style.setProperty('--border', '#2a3a4a');
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function openModal(id) {
+  const p = palettes.find(x => x.id === id);
+  if (!p) return;
+
+  const swatchesSmall = p.colors.slice(0, 2).map(c =>
+    `<div class="modal-color" style="background:${c.hex};color:${c.text}">
+      <div class="modal-color-dot" style="background:${c.hex};border-color:${c.text}20"></div>
+      <div class="modal-color-info">
+        <div class="modal-color-name">${c.name}</div>
+        <div class="modal-color-hex">${c.hex} · ${c.role}</div>
+      </div>
+      <button class="modal-copy" onclick="copyColor('${c.hex}')">复制</button>
+    </div>`
+  ).join('');
+
+  const swatchesLarge = p.colors.slice(2).map(c =>
+    `<div class="modal-color" style="background:${c.hex};color:${c.text}">
+      <div class="modal-color-dot" style="background:${c.hex};border-color:${c.text}20"></div>
+      <div class="modal-color-info">
+        <div class="modal-color-name">${c.name}</div>
+        <div class="modal-color-hex">${c.hex} · ${c.role}</div>
+      </div>
+      <button class="modal-copy" onclick="copyColor('${c.hex}')">复制</button>
+    </div>`
+  ).join('');
+
+  const swatchColors = p.colors.map(c => c.hex).join(',');
+  document.getElementById('modalBody').innerHTML = `
+    <h3>${p.name}</h3>
+    <div class="modal-swatch" style="background:linear-gradient(135deg,${swatchColors})"></div>
+    <div class="modal-colors">${swatchesSmall}${swatchesLarge}</div>
+  `;
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function copyColor(hex) {
+  navigator.clipboard.writeText(hex).then(() => {
+    // silent
+  });
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+renderPalettes();
+</script>
+
+<div class="footer">点击色块查看详情与复制</div>
+</body>
+</html>
