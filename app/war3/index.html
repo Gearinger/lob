@@ -261,10 +261,12 @@ function initBattle() {
   battleTime = 0;
   buffState = {L:{atkBoost:0,ends:0},R:{atkBoost:0,ends:0}};
   _enemyGen = getEnemyGenerals();
+  console.log('initBattle:', deployedGenerals.length, 'players,', _enemyGen.length, 'enemies');
 
   var pSide = 'L', eSide = 'R';
   var pGen = deployedGenerals.map(function(dg){return JSON.parse(JSON.stringify(dg.general));});
   var eGen = _enemyGen.map(function(g){return JSON.parse(JSON.stringify(g));});
+  console.log('pGen:', pGen.map(function(x){return x.name;}), 'eGen:', eGen.map(function(x){return x.name;}));
 
   for (var i = 0; i < pGen.length; i++) {
     pGen[i].side = pSide;
@@ -315,6 +317,7 @@ function createUnit(g) {
 
 function battleLoop(ts) {
   if (screen !== 'battle') return;
+  if (battleTime < 1 && battleUnits.length > 0) console.log('battleLoop first frame, units:', battleUnits.length);
   var dt = Math.min((ts - lastTime) / 1000, 0.05);
   lastTime = ts;
   battleUpdate(dt);
