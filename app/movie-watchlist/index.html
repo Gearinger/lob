@@ -102,8 +102,8 @@ body{font-family:'ZCOOL XiaoWei','PingFang SC',serif;background:var(--bg);color:
 </div>
 
 <div class="filters">
-  <button class="filter-btn active" data-filter="all">全部 <span class="filter-count" id="countAll">248</span></button>
-  <button class="filter-btn" data-filter="unwatched">只看未看 <span class="filter-count" id="countUnwatched">248</span></button>
+  <button class="filter-btn active" data-filter="all">全部 <span class="filter-count" id="countAll">254</span></button>
+  <button class="filter-btn" data-filter="unwatched">只看未看 <span class="filter-count" id="countUnwatched">254</span></button>
   <button class="filter-btn" data-filter="watched">只看已看 <span class="filter-count" id="countWatched">0</span></button>
 </div>
 
@@ -363,6 +363,9 @@ const movies = [
   {idx:249,title:"沙丘",director:"丹尼斯·维伦纽瓦"},
   {idx:250,title:"降临",director:"丹尼斯·维伦纽瓦"},
   {idx:251,title:"银翼杀手2049",director:"丹尼斯·维伦纽瓦"},
+  {idx:252,title:"黑水仙",director:"迈克尔·鲍威尔 / 埃默里克·普雷斯伯格"},
+  {idx:253,title:"秘密会议",director:"爱德华·贝尔格"},
+  {idx:254,title:"城市广场",director:"亚历桑德罗·阿曼巴"},
 ];
 </script>
 <script>
@@ -504,7 +507,7 @@ const movies = [
           '<span class="movie-title">' + film.title + '</span>' +
           '<span class="movie-director">' + film.director + '</span>' +
           '<div class="movie-detail">' +
-            '<div>📅 数据来源：豆瓣四叔片单 · 248部导演系必看</div>' +
+            '<div>📅 数据来源：豆瓣四叔片单 · 254部导演系必看</div>' +
             '<div>🎭 导演：' + film.director + '</div>' +
             getVideoLinks(film.title, film.director) +
           '</div>';
@@ -546,14 +549,14 @@ const movies = [
 
   function updateProgress() {
     var watchedCount = Object.values(watched).filter(Boolean).length;
-    var pct = 248 ? Math.round(watchedCount / 248 * 100) : 0;
+    var pct = Math.round(watchedCount / 254 * 100);
     progressBar.style.width = pct + '%';
-    progressLabel.textContent = watchedCount + '/' + 248 + ' (' + pct + '%)';
-    var unwatchedCount = 248 - watchedCount;
+    progressLabel.textContent = watchedCount + '/' + 254 + ' (' + pct + '%)';
+    var unwatchedCount = 254 - watchedCount;
     var allEl = document.getElementById('countAll');
     var unwatchedEl = document.getElementById('countUnwatched');
     var watchedEl = document.getElementById('countWatched');
-    if (allEl) allEl.textContent = 248;
+    if (allEl) allEl.textContent = 254;
     if (unwatchedEl) unwatchedEl.textContent = unwatchedCount;
     if (watchedEl) watchedEl.textContent = watchedCount;
   }
