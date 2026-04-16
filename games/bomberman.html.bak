@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💣 炸弹人 - Bomberman</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #FFF5EE 0%, #FFE4EC 50%, #FFD6E0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        h1 { color: #3D2A35; font-size: 36px; margin: 0; white-space: nowrap; }
+        .score-board {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            background: rgba(255,255,255,0.85);
+            padding: 8px 18px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(200,120,140,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,143,163,0.2);
+        }
+        .score-board div { display: flex; align-items: center; gap: 5px; }
+        .score-board .label { color: #9A8090; font-size: 11px; letter-spacing: 0.05em; }
+        .score-board .value { font-weight: 700; font-size: 16px; color: #3D2A35; }
+        .game-wrapper {
+            position: relative;
+        }
+        canvas { 
+            display: block; 
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(200,120,140,0.2);
+        }
+        .controls {
+            color: #aaa;
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            background: rgba(255,255,255,0.6);
+            padding: 12px 24px;
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .controls span { color: #E88A3D; font-weight: bold; }
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,245,240,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            backdrop-filter: blur(12px);
+        }
+        .hidden { display: none !important; }
+        .btn {
+            background: linear-gradient(135deg, #E88A3D 0%, #FF8FA3 100%);
+            border: none;
+            color: white;
+            padding: 14px 36px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(232,138,61,0.3);
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(232,138,61,0.4); }
+        .btn-easy { background: linear-gradient(135deg, #FFD6E0 0%, #FFB3C6 100%); color: #3D2A35; box-shadow: 0 4px 15px rgba(255,179,198,0.3); }
+        .btn-medium { background: linear-gradient(135deg, #A8D8FF 0%, #D4E8FF 100%); color: #3D2A35; box-shadow: 0 4px 15px rgba(168,216,255,0.3); }
+        .btn-hard { background: linear-gradient(135deg, #FFB3C6 0%, #E88A3D 100%); }
+        h2 { color: #3D2A35; font-size: 28px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>💣 炸弹人</h1>
+        <div class="score-board" id="score-board">
+            <div><span class="label">得分</span><span class="value" id="score">0</span></div>
+            <div><span class="label">生命</span><span class="value" id="lives">3</span></div>
+            <div><span class="label">炸弹</span><span class="value" id="bombs">1</span></div>
+            <div><span class="label">火力</span><span class="value" id="power">1</span></div>
+        </div>
+    </div>
+    <div class="game-wrapper">
+        <canvas id="game" width="520" height="520"></canvas>
+        
+        <!-- 开始界面 -->
+        <div id="start-screen" class="start-screen">
+            <h2>💣 炸弹人</h2>
+            <button class="btn btn-easy" onclick="game.start('easy')">🌱 简单</button>
+            <button class="btn btn-medium" onclick="game.start('medium')">⚙️ 中等</button>
+            <button class="btn btn-hard" onclick="game.start('hard')">🔥 困难</button>
+        </div>
+        
+        <!-- 游戏结束 -->
+        <div id="game-over-screen" class="start-screen hidden">
+            <h2 id="game-over-title">游戏结束</h2>
+            <p style="color:#fff;font-size:20px;margin-bottom:20px">最终得分: <span id="final-score">0</span></p>
+            <button class="btn" onclick="game.showStart()">再来一局</button>
+        </div>
+    </div>
+    <div class="controls" style="display:flex;align-items:center;gap:16px;justify-content:center;">
+        <a href="index.html" style="color:#9A8090;text-decoration:none;font-size:13px;padding:8px 16px;background:rgba(255,255,255,0.6);border-radius:20px;backdrop-filter:blur(8px);">← 游戏大厅</a>
+        <span style="color:#ccc;">|</span>
+        <span><span style="color:#E88A3D;">方向键/WASD</span> 移动 | <span style="color:#E88A3D;">空格</span> 放炸弹 | <span style="color:#E88A3D;">R</span> 重开</span>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+        
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const TILE = 40;
+        const ROWS = 13;
+        const COLS = 13;
+        
+        const COLORS = {
+            wall: '#DDD0DC',
+            brick: '#F5E6D3',
+            floor: '#D4F0D4',
+            player: '#A8D8FF',
+            enemy: '#E88A3D',
+            bomb: '#D4C4D4',
+            fire: '#FFD6E0',
+            power: { speed: '#FFB3C6', bomb: '#A8D8FF', fire: '#FFD6E0', lives: '#FFB3C6' }
+        };
+        
+        let state = null;
+        let animationId = null;
+        let animTime = 0;
+        
+        const DIFFICULTY = {
+            easy: { enemyCount: 2, enemySpeed: 0.02, bombTimer: 180 },
+            medium: { enemyCount: 4, enemySpeed: 0.03, bombTimer: 150 },
+            hard: { enemyCount: 6, enemySpeed: 0.04, bombTimer: 120 }
+        };
+        
+        const keys = {};
+        document.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            if (e.key === ' ' && state) game.placeBomb();
+            if (e.key.toLowerCase() === 'r' && state) game.restart();
+            e.preventDefault();
+        });
+        document.addEventListener('keyup', e => keys[e.key] = false);
+        
+        const game = {
+            start(diff) {
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-over-screen').classList.add('hidden');
+                this.restart(diff);
+            },
+            
+            restart(diff) {
+                animTime = 0;
+                const cfg = DIFFICULTY[diff];
+                state = {
+                    score: 0,
+                    difficulty: diff,
+                    map: [],
+                    player: { x: 1, y: 1, maxBombs: 1, bombPower: 1, speed: 0.08, activeBombs: 0, lives: 3, invincible: 0 },
+                    enemies: [],
+                    bombs: [],
+                    explosions: [],
+                    items: [],
+                    running: true
+                };
+                
+                // 生成地图
+                for (let r = 0; r < ROWS; r++) {
+                    state.map[r] = [];
+                    for (let c = 0; c < COLS; c++) {
+                        if (r === 0 || r === ROWS-1 || c === 0 || c === COLS-1 || (r%2===0 && c%2===0)) {
+                            state.map[r][c] = 1; // 墙
+                        } else if (r < 3 && c < 3) {
+                            state.map[r][c] = 0;
+                        } else if (Math.random() < 0.35) {
+                            state.map[r][c] = 2; // 砖块
+                        } else {
+                            state.map[r][c] = 0;
+                        }
+                    }
+                }
+                
+                // 敌人
+                const positions = [[1,COLS-2], [ROWS-2,1], [ROWS-2,COLS-2], [ROWS-2,COLS-2], [1,COLS-2], [ROWS-2,1]];
+                for (let i = 0; i < cfg.enemyCount; i++) {
+                    let pos = positions[i % positions.length];
+                    state.enemies.push({ 
+                        x: pos[0], y: pos[1], 
+                        vx: 0, vy: 0, 
+                        speed: cfg.enemySpeed,
+                        alive: true 
+                    });
+                }
+                
+                this.updateUI();
+                if (animationId) cancelAnimationFrame(animationId);
+                this.loop();
+            },
+            
+            showStart() {
+                document.getElementById('start-screen').classList.remove('hidden');
+                document.getElementById('game-over-screen').classList.add('hidden');
+            },
+            
+            placeBomb() {
+                if (!state || state.player.activeBombs >= state.player.maxBombs) return;
+                const bx = Math.round(state.player.x);
+                const by = Math.round(state.player.y);
+                if (state.map[by][bx] !== 0) return;
+                
+                state.bombs.push({ 
+                    x: bx, y: by, 
+                    timer: DIFFICULTY[state.difficulty].bombTimer 
+                });
+                state.player.activeBombs++;
+            },
+            
+            update() {
+                if (!state || !state.running) return;
+                
+                // 无敌时间减少
+                if (state.player.invincible > 0) state.player.invincible--;
+                
+                // 玩家移动
+                let vx = 0, vy = 0;
+                if (keys['ArrowLeft'] || keys['a'] || keys['A']) vx = -state.player.speed;
+                if (keys['ArrowRight'] || keys['d'] || keys['D']) vx = state.player.speed;
+                if (keys['ArrowUp'] || keys['w'] || keys['W']) vy = -state.player.speed;
+                if (keys['ArrowDown'] || keys['s'] || keys['S']) vy = state.player.speed;
+                
+                this.movePlayer(vx, 0);
+                this.movePlayer(0, vy);
+                
+                // 敌人AI
+                for (const e of state.enemies) {
+                    if (!e.alive) continue;
+                    if (Math.random() < 0.03) {
+                        const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+                        const d = dirs[Math.floor(Math.random() * 4)];
+                        e.vx = d[0] * e.speed;
+                        e.vy = d[1] * e.speed;
+                    }
+                    this.moveEnemy(e);
+                }
+                
+                // 炸弹倒计时
+                for (let i = state.bombs.length - 1; i >= 0; i--) {
+                    state.bombs[i].timer--;
+                    if (state.bombs[i].timer <= 0) {
+                        this.explode(state.bombs[i]);
+                        state.bombs.splice(i, 1);
+                    }
+                }
+                
+                // 爆炸消失
+                for (let i = state.explosions.length - 1; i >= 0; i--) {
+                    state.explosions[i].timer--;
+                    if (state.explosions[i].timer <= 0) {
+                        state.explosions.splice(i, 1);
+                    }
+                }
+                
+                // 敌人碰到爆炸
+                for (const e of state.enemies) {
+                    if (!e.alive) continue;
+                    for (const ex of state.explosions) {
+                        if (Math.abs(e.x - ex.x) < 0.8 && Math.abs(e.y - ex.y) < 0.8) {
+                            e.alive = false;
+                            state.score += 100;
+                        }
+                    }
+                }
+                
+                // 吃道具
+                const px = Math.round(state.player.x);
+                const py = Math.round(state.player.y);
+                for (let i = state.items.length - 1; i >= 0; i--) {
+                    if (state.items[i].x === px && state.items[i].y === py) {
+                        const type = state.items[i].type;
+                        if (type === 'speed') state.player.speed += 0.02;
+                        if (type === 'bomb') state.player.maxBombs++;
+                        if (type === 'fire') state.player.bombPower++;
+                        if (type === 'lives') state.player.lives = Math.min(5, state.player.lives + 1);
+                        state.items.splice(i, 1);
+                        state.score += 50;
+                    }
+                }
+                
+                // 玩家碰到敌人
+                for (const e of state.enemies) {
+                    if (!e.alive) continue;
+                    const dist = Math.sqrt(Math.pow(e.x - state.player.x, 2) + Math.pow(e.y - state.player.y, 2));
+                    // 碰撞阈值 = 2 × 视觉半径(14px) / TILE(32.5) ≈ 0.86，让碰撞盒匹配对象轮廓
+                    if (dist < 0.85) {
+                        console.log('Hit enemy! Lives:', state.player.lives - 1);
+                        state.player.lives--;
+                        this.updateUI();
+                        if (state.player.lives <= 0) {
+                            this.gameOver();
+                        } else {
+                            // 短暂无敌
+                            state.player.invincible = 60;
+                            state.player.x = 1;
+                            state.player.y = 1;
+                        }
+                    }
+                }
+                
+                // 胜利检测
+                if (state.enemies.every(e => !e.alive)) {
+                    this.gameOver();
+                }
+                
+                this.updateUI();
+            },
+            
+            movePlayer(vx, vy) {
+                if (vx === 0 && vy === 0) return;
+                
+                // 简单的网格吸附
+                const snap = 0.15;
+                let targetX = state.player.x;
+                let targetY = state.player.y;
+                
+                if (Math.abs(state.player.x - Math.round(state.player.x)) < snap) {
+                    targetX = Math.round(state.player.x);
+                }
+                if (Math.abs(state.player.y - Math.round(state.player.y)) < snap) {
+                    targetY = Math.round(state.player.y);
+                }
+                
+                const newX = state.player.x + vx;
+                const newY = state.player.y + vy;
+                
+                if (this.canMove(newX, targetY)) state.player.x = newX;
+                if (this.canMove(targetX, newY)) state.player.y = newY;
+            },
+            
+            moveEnemy(e) {
+                const newX = e.x + e.vx;
+                const newY = e.y + e.vy;
+                
+                if (this.canMove(newX, e.y)) e.x = newX;
+                else e.vx = 0;
+                
+                if (this.canMove(e.x, newY)) e.y = newY;
+                else e.vy = 0;
+            },
+            
+            canMove(x, y) {
+                // Only check the grid cell the player's CENTER is in (not extended box)
+                const r = Math.round(y);
+                const c = Math.round(x);
+                if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+                if (state.map[r][c] !== 0) return false;
+                // Also check adjacent cells to prevent clipping into walls
+                const R = 0.25;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr, nc = c + dc;
+                        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+                        // Check if wall cell overlaps player circle
+                        if (state.map[nr][nc] !== 0) {
+                            // Distance from player center to wall cell center
+                            const dx = Math.abs(x - nc), dy = Math.abs(y - nr);
+                            if (dx < R && dy < R) return false;
+                        }
+                    }
+                }
+                for (const b of state.bombs) {
+                    const bc = b.x, br = b.y;
+                    const dist = Math.sqrt((x - bc) ** 2 + (y - br) ** 2);
+                    if (dist < 0.4) return false;
+                }
+                return true;
+            },
+            
+            explode(bomb) {
+                state.player.activeBombs--;
+                const dirs = [[0,0],[1,0],[-1,0],[0,1],[0,-1]];
+                
+                for (let d = 0; d < dirs.length; d++) {
+                    const dir = dirs[d];
+                    for (let i = 0; i <= state.player.bombPower; i++) {
+                        if (i === 0 && d > 0) continue;
+                        const tx = bomb.x + dir[0] * i;
+                        const ty = bomb.y + dir[1] * i;
+                        
+                        if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS) break;
+                        if (state.map[ty][tx] === 1) break;
+                        
+                        state.explosions.push({ x: tx, y: ty, timer: 20 });
+                        
+                        if (state.map[ty][tx] === 2) {
+                            state.map[ty][tx] = 0;
+                            state.score += 10;
+                            if (Math.random() < 0.25) {
+                                const types = ['speed', 'bomb', 'fire', 'lives'];
+                                state.items.push({ x: tx, y: ty, type: types[Math.floor(Math.random() * types.length)] });
+                            }
+                        }
+                    }
+                }
+            },
+            
+            draw() {
+                // 清空
+                ctx.fillStyle = COLORS.floor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                if (!state) return;
+                
+                // 地图
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const x = c * TILE;
+                        const y = r * TILE;
+                        if (state.map[r][c] === 1) {
+                            ctx.fillStyle = COLORS.wall;
+                            ctx.fillRect(x, y, TILE, TILE);
+                            ctx.strokeStyle = '#C8A8B8';
+                            ctx.strokeRect(x, y, TILE, TILE);
+                        } else if (state.map[r][c] === 2) {
+                            ctx.fillStyle = COLORS.brick;
+                            ctx.fillRect(x+2, y+2, TILE-4, TILE-4);
+                        }
+                    }
+                }
+                
+                // 道具（带光晕动画）
+                for (const item of state.items) {
+                    const x = item.x * TILE + TILE/2;
+                    const y = item.y * TILE + TILE/2;
+                    const glow = 8 + Math.sin(animTime * 0.1) * 4;
+                    const color = COLORS.power[item.type];
+                    // 光晕
+                    ctx.beginPath();
+                    ctx.arc(x, y, 12 + glow, 0, Math.PI * 2);
+                    ctx.fillStyle = color.replace(')', ',0.2)').replace('rgb', 'rgba');
+                    ctx.fill();
+                    // 本体
+                    ctx.beginPath();
+                    ctx.arc(x, y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // 道具符号
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.type === 'speed' ? 'S' : item.type === 'bomb' ? 'B' : item.type === 'fire' ? 'F' : '❤', x, y);
+                }
+                
+                // 炸弹（带呼吸动画）
+                for (const b of state.bombs) {
+                    const x = b.x * TILE + TILE/2;
+                    const y = b.y * TILE + TILE/2;
+                    const pulse = 12 + Math.sin(animTime * 0.15) * 3;
+                    // 炸弹阴影
+                    ctx.beginPath();
+                    ctx.arc(x, y + 2, pulse, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                    ctx.fill();
+                    // 炸弹本体
+                    ctx.beginPath();
+                    ctx.arc(x, y, pulse, 0, Math.PI * 2);
+                    ctx.fillStyle = '#4A3A4A';
+                    ctx.fill();
+                    ctx.strokeStyle = '#2A1A2A';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // 炸弹引线
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - pulse);
+                    ctx.lineTo(x + 4, y - pulse - 6);
+                    ctx.strokeStyle = '#E88A3D';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // 引线火花
+                    if (animTime % 10 < 5) {
+                        ctx.beginPath();
+                        ctx.arc(x + 4, y - pulse - 8, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fill();
+                    }
+                }
+
+                // 爆炸（带火焰效果）
+                for (const e of state.explosions) {
+                    const cx = e.x * TILE + TILE/2;
+                    const cy = e.y * TILE + TILE/2;
+                    const alpha = e.timer / 20;
+                    const radius = TILE/2 * (0.5 + alpha * 0.5);
+                    // 外焰
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius + 4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,100,50,${alpha * 0.3})`;
+                    ctx.fill();
+                    // 内焰
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,200,50,${alpha * 0.7})`;
+                    ctx.fill();
+                    // 中心
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius * 0.5, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,200,${alpha})`;
+                    ctx.fill();
+                }
+                
+                // 玩家（无敌时闪烁 + 阴影）
+                if (!state.player.invincible || Math.floor(state.player.invincible / 5) % 2 === 0) {
+                    const px = state.player.x * TILE + TILE/2;
+                    const py = state.player.y * TILE + TILE/2;
+                    // 阴影
+                    ctx.beginPath();
+                    ctx.ellipse(px, py + 12, 10, 5, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                    ctx.fill();
+                    // 身体
+                    ctx.beginPath();
+                    ctx.arc(px, py, 14, 0, Math.PI * 2);
+                    ctx.fillStyle = COLORS.player;
+                    ctx.fill();
+                    ctx.strokeStyle = '#8BC8EF';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    // 高光
+                    ctx.beginPath();
+                    ctx.arc(px - 4, py - 4, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.fill();
+                }
+
+                // 敌人（带阴影）
+                for (const e of state.enemies) {
+                    if (!e.alive) continue;
+                    const ex = e.x * TILE + TILE/2;
+                    const ey = e.y * TILE + TILE/2;
+                    // 阴影
+                    ctx.beginPath();
+                    ctx.ellipse(ex, ey + 12, 10, 5, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                    ctx.fill();
+                    // 身体
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, 14, 0, Math.PI * 2);
+                    ctx.fillStyle = COLORS.enemy;
+                    ctx.fill();
+                    // 眼睛
+                    ctx.beginPath();
+                    ctx.arc(ex - 4, ey - 2, 3, 0, Math.PI * 2);
+                    ctx.arc(ex + 4, ey - 2, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(ex - 3, ey - 2, 1.5, 0, Math.PI * 2);
+                    ctx.arc(ex + 5, ey - 2, 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#3D2A35';
+                    ctx.fill();
+                }
+            },
+            
+            loop() {
+                if (!state || !state.running) return;
+                animTime++;
+                this.update();
+                this.draw();
+                animationId = requestAnimationFrame(() => this.loop());
+            },
+            
+            updateUI() {
+                if (!state) return;
+                document.getElementById('score').textContent = state.score;
+                document.getElementById('lives').textContent = state.player.lives;
+                document.getElementById('bombs').textContent = state.player.maxBombs;
+                document.getElementById('power').textContent = state.player.bombPower;
+            },
+            
+            gameOver() {
+                state.running = false;
+                // Freeze canvas
+                ctx.fillStyle = COLORS.floor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                document.getElementById('final-score').textContent = state.score;
+                document.getElementById('game-over-title').textContent =
+                    state.player.lives > 0 ? '🎉 胜利！' : '💀 游戏结束';
+                document.getElementById('game-over-screen').classList.remove('hidden');
+            }
+        };
+        
+        window.game = game;
+        game.showStart();
+    })();
+    </script>
+</body>
+</html>

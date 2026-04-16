@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黑胶唱片机</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Noto+Serif+SC:wght@300;400;600&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #080808;
+  --surface: #0e0e0e;
+  --surface2: #141414;
+  --border: #1c1c1c;
+  --text: #c4b8a0;
+  --text-dim: #5a5040;
+  --text-mute: #2a2420;
+  --gold: #c8a060;
+  --gold-dim: #6a5030;
+  --gold-glow: rgba(200,160,96,0.15);
+  --vinyl-groove: #181818;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Serif SC', 'Cormorant Garamond', serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ========== HEADER ========== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.logo-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6em;
+  font-weight: 300;
+  letter-spacing: 8px;
+  color: var(--gold);
+}
+
+.logo-sub {
+  font-size: 0.65em;
+  letter-spacing: 5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+}
+
+.header-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.72em;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.25s;
+  position: relative;
+}
+
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active {
+  color: var(--gold);
+}
+.nav-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 1px;
+  background: var(--gold);
+}
+
+/* ========== MAIN LAYOUT ========== */
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Left: turntable */
+.turntable-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 20px;
+  min-width: 0;
+}
+
+/* Right: side panel */
+.side-panel {
+  width: 340px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  background: var(--surface);
+}
+.side-panel::-webkit-scrollbar { width: 2px; }
+.side-panel::-webkit-scrollbar-track { background: transparent; }
+.side-panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* ========== VINYL PLAYER ========== */
+.vinyl-stage {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+}
+
+.platter-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #1a1a1a 0%, #090909 100%);
+  box-shadow:
+    0 0 0 4px #1c1c1c,
+    0 0 0 5px #111,
+    0 30px 80px rgba(0,0,0,0.9),
+    inset 0 0 80px rgba(0,0,0,0.6);
+}
+
+.vinyl-disc {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #0a0a0a 0%, #0a0a0a 16%, transparent 16.5%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 3px, #111 3px, #131313 4px, #111 5px),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 7px, #101010 7px, #141414 8px),
+    radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 55%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vinyl-disc.spinning { animation: spin 2.8s linear infinite; }
+.vinyl-disc.paused { animation-play-state: paused; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Light reflection streak */
+.vinyl-disc::after {
+  content: '';
+  position: absolute;
+  top: 5%;
+  left: 10%;
+  width: 28%;
+  height: 12%;
+  background: linear-gradient(125deg, rgba(255,255,255,0.07) 0%, transparent 100%);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+  pointer-events: none;
+}
+
+.record-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c8a060 0%, #8a6830 45%, #c8a060 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 6px rgba(255,255,255,0.12), 0 0 25px rgba(200,160,96,0.15);
+  z-index: 2;
+}
+
+.label-title {
+  font-size: 0.46em;
+  color: #2a1a08;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.35;
+  padding: 0 8px;
+  max-width: 84px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.label-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.3em;
+  color: rgba(42, 26, 8, 0.5);
+  letter-spacing: 1px;
+  margin-top: 3px;
+}
+
+.record-spindle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #555, #222);
+  border-radius: 50%;
+  z-index: 3;
+  box-shadow: 0 0 4px rgba(0,0,0,0.9);
+}
+
+/* Tonearm */
+.tonearm-assembly {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tonearm-pivot {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #d0c090, #706040);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.2);
+  z-index: 5;
+}
+
+.tonearm-arm {
+  position: absolute;
+  top: 26px;
+  right: 21px;
+  width: 4px;
+  height: 175px;
+  background: linear-gradient(90deg, #c0b080, #908060, #c0b080);
+  border-radius: 2px;
+  transform-origin: top center;
+  transform: rotate(-38deg);
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.6);
+  z-index: 4;
+}
+
+.tonearm-arm.on-record { transform: rotate(-16deg); }
+
+.tonearm-arm::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #e0d0a0, #a09060);
+  border-radius: 50%;
+}
+
+.tonearm-arm::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 16px;
+  background: linear-gradient(180deg, #b0a070, #504030);
+  border-radius: 1px;
+}
+
+/* ========== PLAYBACK CONTROLS ========== */
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ctrl-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.ctrl-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+.ctrl-play {
+  width: 52px;
+  height: 52px;
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #0a0a0a;
+  font-size: 1.1em;
+}
+.ctrl-play:hover {
+  background: #d4b070;
+  border-color: #d4b070;
+  box-shadow: 0 0 24px rgba(200,160,96,0.3);
+}
+
+/* ========== PROGRESS ========== */
+.progress-section {
+  width: 360px;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.prog-time {
+  font-size: 0.65em;
+  color: var(--text-mute);
+  font-family: 'Cormorant Garamond', monospace;
+  min-width: 34px;
+  letter-spacing: 1px;
+}
+.prog-time.current { color: var(--text-dim); }
+
+.progress-track {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  cursor: pointer;
+  position: relative;
+  transition: height 0.15s;
+}
+.progress-track:hover { height: 4px; }
+
+.progress-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.15s;
+  box-shadow: 0 0 8px rgba(200,160,96,0.4);
+}
+.progress-track:hover .progress-thumb { opacity: 1; }
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 1px;
+  width: 0%;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+/* ========== VOLUME ========== */
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.vol-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8em;
+  padding: 2px;
+  transition: color 0.2s;
+}
+.vol-btn:hover { color: var(--gold); }
+
+.vol-track {
+  flex: 1;
+  max-width: 120px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  cursor: pointer;
+  position: relative;
+}
+
+.vol-fill {
+  height: 100%;
+  background: var(--text-dim);
+  border-radius: 1px;
+  width: 80%;
+  transition: width 0.05s;
+}
+.volume-row:hover .vol-fill { background: var(--gold); }
+
+/* ========== NOW PLAYING INFO ========== */
+.now-playing {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.now-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05em;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.now-artist {
+  font-size: 0.65em;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* ========== PANEL SHARED ========== */
+.panel-section-title {
+  font-size: 0.6em;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+}
+
+/* ========== PLAYLIST ========== */
+.playlist-section {
+  padding: 16px 20px;
+}
+
+.playlist-count {
+  float: right;
+  font-size: 0.6em;
+  color: var(--text-mute);
+  letter-spacing: 1px;
+}
+
+.track-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+.track-item:hover { background: var(--surface2); }
+.track-item.playing {
+  background: var(--gold-glow);
+  border-color: rgba(200,160,96,0.15);
+}
+
+.track-title {
+  font-size: 0.82em;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.track-item.playing .track-title { color: var(--gold); }
+
+.track-info {
+  font-size: 0.62em;
+  color: var(--text-mute);
+  letter-spacing: 1px;
+}
+
+.track-dur {
+  float: right;
+  font-size: 0.62em;
+  color: var(--text-mute);
+  font-family: monospace;
+  margin-top: -16px;
+}
+
+/* Playing indicator */
+.track-item.playing .track-title::before {
+  content: '▶ ';
+  font-size: 0.6em;
+  color: var(--gold);
+}
+
+/* ========== LYRICS ========== */
+.lyrics-section {
+  padding: 16px 20px;
+  display: none;
+}
+
+.lyrics-section.show { display: block; }
+
+.lyrics-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.lyric-line {
+  font-size: 0.85em;
+  color: var(--text-mute);
+  line-height: 2.2;
+  transition: color 0.3s;
+  cursor: default;
+  text-align: center;
+  padding: 2px 8px;
+}
+.lyric-line.lit { color: var(--gold); font-weight: 400; }
+.lyric-line.past { color: var(--text-dim); }
+
+.no-lyric {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 0.8em;
+  color: var(--text-mute);
+  line-height: 2;
+}
+
+/* ========== SONG INFO (in panel) ========== */
+.info-section {
+  padding: 16px 20px;
+  display: none;
+}
+.info-section.show { display: block; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78em;
+  gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+
+.info-key { color: var(--text-mute); letter-spacing: 1px; flex-shrink: 0; }
+.info-val { color: var(--text-dim); text-align: right; word-break: break-all; }
+.info-val.accent { color: var(--gold); }
+.info-val.prompt-val {
+  font-size: 0.72em;
+  color: var(--text-mute);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  background: var(--bg);
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.72em;
+  padding: 10px 28px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  z-index: 300;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .main { flex-direction: column; overflow-y: auto; }
+  .turntable-section { padding: 30px 20px 20px; gap: 28px; align-items: center; }
+  .vinyl-stage { width: min(280px, 80vw) !important; height: min(280px, 80vw) !important; flex-shrink: 0; }
+  .platter-bg { width: 100% !important; height: 100% !important; }
+  .vinyl-disc { inset: 12px !important; }
+  .record-label { width: 30% !important; height: 30% !important; }
+  .record-spindle { width: 2% !important; height: 2% !important; }
+  .side-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+  .progress-section { width: 100%; max-width: 320px; }
+  .header { padding: 16px 20px; }
+  .logo-title { font-size: 1.3em; letter-spacing: 5px; }
+  .tonearm-assembly { transform: scale(0.8); transform-origin: top right; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-title">VINYL</span>
+    <span class="logo-sub">Lob's Music</span>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" id="navPlaylist" onclick="switchView('playlist')">曲目</button>
+    <button class="nav-btn" id="navLyrics" onclick="switchView('lyrics')">歌词</button>
+    <button class="nav-btn" id="navInfo" onclick="switchView('info')">信息</button>
+  </nav>
+</header>
+
+<div class="main">
+  <!-- Turntable -->
+  <div class="turntable-section">
+    <div class="now-playing">
+      <div class="now-title" id="nowTitle">战三国 · 开场</div>
+      <div class="now-artist" id="nowArtist">MiniMax AI</div>
+    </div>
+
+    <div class="vinyl-stage">
+      <div class="platter-bg">
+        <div class="vinyl-disc" id="vinyl"></div>
+        <div class="record-label">
+          <div class="label-title" id="labelTitle">战三国</div>
+          <div class="label-logo">MiniMax</div>
+        </div>
+        <div class="record-spindle"></div>
+      </div>
+      <div class="tonearm-assembly">
+        <div class="tonearm-pivot"></div>
+        <div class="tonearm-arm" id="tonearm"></div>
+      </div>
+    </div>
+
+    <div class="playback-controls">
+      <button class="ctrl-btn" onclick="prevTrack()" title="上一曲">⏮</button>
+      <button class="ctrl-btn ctrl-play" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="ctrl-btn" onclick="nextTrack()" title="下一曲">⏭</button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-row">
+        <span class="prog-time current" id="curTime">0:00</span>
+        <div class="progress-track" id="progTrack">
+          <div class="progress-fill" id="progFill"></div>
+          <div class="progress-thumb" id="progThumb" style="left:0%"></div>
+        </div>
+        <span class="prog-time" id="totTime">0:00</span>
+      </div>
+      <div class="volume-row">
+        <button class="vol-btn" onclick="toggleMute()">🔊</button>
+        <div class="vol-track" id="volTrack">
+          <div class="vol-fill" id="volFillEl" style="width:80%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Side panel -->
+  <div class="side-panel">
+    <div id="panelPlaylist" class="playlist-section">
+      <div class="panel-section-title">
+        曲目列表
+        <span class="playlist-count" id="trackCount">3 首</span>
+      </div>
+      <div id="trackList"></div>
+    </div>
+
+    <div id="panelLyrics" class="lyrics-section">
+      <div class="panel-section-title">歌词</div>
+      <div class="lyrics-scroll" id="lyricsScroll">
+        <div class="no-lyric">暂无歌词<br><br>♪ 这是一首器乐曲</div>
+      </div>
+    </div>
+
+    <div id="panelInfo" class="info-section">
+      <div class="panel-section-title">歌曲信息</div>
+      <div id="infoContent"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+// ===== TRACKS =====
+const tracks = [
+  {id:1,title:'战三国 · 开场',artist:'MiniMax AI',album:'战三国 OST',src:'https://lob.hermygong.com/lob/app/music/war3-bgm.mp3',duration:'1:30',style:'Epic Chinese Three Kingdoms orchestral',prompt:'Epic Chinese Three Kingdoms orchestral, war drums, erhu'},
+  {id:2,title:'战三国 · 备战',artist:'MiniMax AI',album:'战三国 OST',src:'https://lob.hermygong.com/lob/app/music/war3-prepare.mp3',duration:'1:30',style:'Calm Chinese instrumental, bamboo flute, guqin',prompt:'Calm contemplative Chinese instrumental, bamboo flute, guqin'},
+  {id:3,title:'战三国 · 战斗',artist:'MiniMax AI',album:'战三国 OST',src:'https://lob.hermygong.com/lob/app/music/war3-battle.mp3',duration:'2:00',style:'Intense Chinese war music',prompt:'Intense Chinese war drums, erhu, epic battle'},
+  {id:4,title:'敦煌梦',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/01-dunhuang-dream.mp3',duration:'1:30',style:'Ancient Chinese ambient',prompt:'Dunhuang cave echoes, bansuri flute, meditative'},
+  {id:5,title:'竹林',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/02-bamboo-forest.mp3',duration:'1:30',style:'Solo bamboo flute in nature',prompt:'Bamboo flute, birds chirping, peaceful morning mist'},
+  {id:6,title:'午夜古琴',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/03-midnight-guqin.mp3',duration:'1:30',style:'Solo guqin',prompt:'Solo guqin, moonlit night, classical literati atmosphere'},
+  {id:7,title:' Warrior进行曲',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/04-warriors-march.mp3',duration:'1:30',style:'Epic Chinese war drums',prompt:'Epic war drums, erhu, heroic march'},
+  {id:8,title:'山西戏曲',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/05-shanxi-opera.mp3',duration:'1:30',style:'Traditional Chinese opera',prompt:'Chinese opera, erhu, suona, lively folk'},
+  {id:9,title:'江南水乡',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/06-jiangnan-water-town.mp3',duration:'1:30',style:'Gentle pipa',prompt:'Gentle pipa, rain on stone bridge, serene Jiangnan'},
+  {id:10,title:'茶道',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/07-tea-ceremony.mp3',duration:'1:30',style:'Zen tea house',prompt:'Zen tea house, bell, qin, mindfulness'},
+  {id:11,title:'武侠对决',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/08-wuxia-duel.mp3',duration:'1:30',style:'Martial arts',prompt:'Two swords crossing, guqin tension, bamboo flute, wuxia climax'},
+  {id:12,title:'灯笼节',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/09-lantern-festival.mp3',duration:'1:30',style:'Chinese festival',prompt:'Chinese New Year, erhu, gongs and drums, festive'},
+  {id:13,title:'深夜爵士钢琴',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/10-late-night-jazz.mp3',duration:'1:30',style:'Jazz piano',prompt:'Jazz piano, smoky bar, melancholy blue notes'},
+  {id:14,title:'波萨诺瓦早晨',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/11-bossa-nova-morning.mp3',duration:'1:30',style:'Bossa nova',prompt:'Brazilian guitar, sunny beach morning, relaxed groove'},
+  {id:15,title:'Delta布鲁斯',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/12-delta-blues.mp3',duration:'1:30',style:'Delta blues',prompt:'Slide guitar, raw emotional, Mississippi delta folk'},
+  {id:16,title:'肖邦夜曲',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/13-chopin-nocturne.mp3',duration:'1:30',style:'Classical piano',prompt:'Classical piano, romantic, rainy night in Paris'},
+  {id:17,title:'弦乐四重奏浪漫',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/14-string-quartet-romance.mp3',duration:'1:30',style:'String quartet',prompt:'Violin cello duet, tender love, wedding'},
+  {id:18,title:'巴洛克早晨',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/15-baroque-morning.mp3',duration:'1:30',style:'Baroque',prompt:'Harpsichord, court dance, 18th century elegance'},
+  {id:19,title:'海洋氛围',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/16-ocean-ambient.mp3',duration:'1:30',style:'Ambient synth',prompt:'Synth pads, waves, whale sounds, underwater meditation'},
+  {id:20,title:'Lo-fi学习节拍',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/17-lofi-study.mp3',duration:'1:30',style:'Lo-fi beats',prompt:'Lo-fi piano loop, vinyl crackle, rain, focus beats'},
+  {id:21,title:'暗黑魂Boss',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/18-dark-souls-boss.mp3',duration:'1:30',style:'Dark fantasy',prompt:'Orchestral percussion, cello drones, ominous, dark fantasy battle'},
+  {id:22,title:'胜利号角',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/19-victory-fanfare.mp3',duration:'1:30',style:'Triumphant fanfare',prompt:'Triumphant brass fanfare, orchestra crescendo, heroic celebration'},
+  {id:23,title:'鬼屋',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/20-haunted-mansion.mp3',duration:'1:30',style:'Horror',prompt:'Pipe organ drones, eerie piano, horror atmosphere'},
+  {id:24,title:'凯尔特黄昏',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/21-celtic-twilight.mp3',duration:'1:30',style:'Celtic',prompt:'Tin whistle, fiddle, Irish reel, Celtic folklore'},
+  {id:25,title:'Synthwave飞车',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/22-synthwave-drive.mp3',duration:'1:30',style:'Synthwave',prompt:'Retro synth, 80s neon, outrun aesthetic'},
+  {id:26,title:'EDM音乐节',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/23-edm-festival.mp3',duration:'1:30',style:'EDM',prompt:'Electronic bass drop, festival energy, crowd cheering'},
+  {id:27,title:'赛博朋克巷',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/24-cyberpunk-alley.mp3',duration:'1:30',style:'Cyberpunk',prompt:'Glitchy synth, rain on metal, futuristic noir'},
+  {id:28,title:'西藏颂钵',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/25-tibetan-bowls.mp3',duration:'1:30',style:'Meditation',prompt:'Tibetan singing bowls, chimes, spiritual healing'},
+  {id:29,title:'宇宙虚空',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/26-cosmic-void.mp3',duration:'1:30',style:'Space ambient',prompt:'Space ambient, evolving drones, interstellar journey'},
+  {id:30,title:'日本樱花',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/27-japanese-sakura.mp3',duration:'1:30',style:'Japanese traditional',prompt:'Shakuhachi, koto, cherry blossom, hanami'},
+  {id:31,title:'K-pop抒情',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/28-kpop-ballad.mp3',duration:'1:30',style:'K-pop ballad',prompt:'K-pop synth pads, emotional male vocal, Seoul love song'},
+  {id:32,title:'R&B深夜',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/29-rnb-late-night.mp3',duration:'1:30',style:'R&B',prompt:'Smooth bass groove, soulful vocal, bedroom late night'},
+  {id:33,title:'极简雨',artist:'MiniMax AI',album:'Generated',src:'https://lob.hermygong.com/lob/app/music/30-minimalist-rain.mp3',duration:'1:30',style:'Minimalist',prompt:'Prepared piano, single rain drops, avant-garde contemporary'}
+];
+
+// ===== STATE =====
+let current = 0;
+let isPlaying = false;
+let audioEl = document.getElementById('audio');
+let currentView = 'playlist';
+let lyricLines = [];
+let lyricIdx = 0;
+
+// ===== PLAYBACK =====
+function togglePlay() {
+  if (isPlaying) { audioEl.pause(); }
+  else { audioEl.play().catch(() => {}); }
+  isPlaying = !isPlaying;
+  updatePlayUI();
+}
+
+function updatePlayUI() {
+  document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
+  document.getElementById('vinyl').classList.toggle('spinning', isPlaying);
+  document.getElementById('vinyl').classList.toggle('paused', !isPlaying);
+  document.getElementById('tonearm').classList.toggle('on-record', isPlaying);
+  // Update playlist active
+  document.querySelectorAll('.track-item').forEach((el, i) => {
+    el.classList.toggle('playing', i === current);
+  });
+}
+
+function loadTrack(idx) {
+  current = idx;
+  const t = tracks[idx];
+  audioEl.src = t.src;
+  document.getElementById('nowTitle').textContent = t.title;
+  document.getElementById('nowArtist').textContent = t.artist;
+  document.getElementById('labelTitle').textContent = t.title.split('·').pop().trim() || t.title;
+  document.getElementById('curTime').textContent = '0:00';
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('progThumb').style.left = '0%';
+  document.getElementById('totTime').textContent = t.duration;
+  lyricIdx = 0;
+  buildTrackList();
+  updatePlayUI();
+  closeInfo();
+}
+
+function prevTrack() {
+  if (audioEl.currentTime > 4) { audioEl.currentTime = 0; return; }
+  loadTrack((current - 1 + tracks.length) % tracks.length);
+  if (isPlaying) audioEl.play().catch(() => {});
+}
+function nextTrack() {
+  loadTrack((current + 1) % tracks.length);
+  if (isPlaying) audioEl.play().catch(() => {});
+}
+
+function toggleMute() {
+  if (audioEl.volume > 0) {
+    audioEl.dataset.lastVol = audioEl.volume;
+    audioEl.volume = 0;
+  } else {
+    audioEl.volume = parseFloat(audioEl.dataset.lastVol) || 0.8;
+  }
+  document.getElementById('volFillEl').style.width = (audioEl.volume * 100) + '%';
+  document.querySelector('.vol-btn').textContent = audioEl.volume === 0 ? '🔇' : '🔊';
+}
+
+// ===== AUDIO EVENTS =====
+audioEl.addEventListener('timeupdate', () => {
+  if (!audioEl.duration) return;
+  const pct = (audioEl.currentTime / audioEl.duration) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progThumb').style.left = pct + '%';
+  document.getElementById('curTime').textContent = fmt(audioEl.currentTime);
+  updateLyricHighlight(audioEl.currentTime);
+});
+
+audioEl.addEventListener('loadedmetadata', () => {
+  document.getElementById('totTime').textContent = fmt(audioEl.duration);
+});
+
+audioEl.addEventListener('ended', () => {
+  isPlaying = false; updatePlayUI();
+  if (current < tracks.length - 1) { loadTrack(current + 1); audioEl.play().catch(() => {}); isPlaying = true; updatePlayUI(); }
+});
+audioEl.addEventListener('play', () => { isPlaying = true; updatePlayUI(); });
+audioEl.addEventListener('pause', () => { isPlaying = false; updatePlayUI(); });
+
+// Progress seek
+document.getElementById('progTrack').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  audioEl.currentTime = (e.clientX - rect.left) / rect.width * audioEl.duration;
+});
+
+// Volume
+audioEl.volume = 0.8;
+document.getElementById('volTrack').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  audioEl.volume = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  document.getElementById('volFillEl').style.width = (audioEl.volume * 100) + '%';
+  document.querySelector('.vol-btn').textContent = audioEl.volume === 0 ? '🔇' : '🔊';
+});
+
+// ===== TRACK LIST =====
+function buildTrackList() {
+  const list = document.getElementById('trackList');
+  list.innerHTML = '';
+  tracks.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'track-item' + (i === current ? ' playing' : '');
+    div.innerHTML = `
+      <div class="track-title">${t.title}</div>
+      <div class="track-info">${t.artist} · ${t.album}</div>
+      <span class="track-dur">${t.duration}</span>
+    `;
+    div.onclick = () => { loadTrack(i); audioEl.play().catch(() => {}); isPlaying = true; updatePlayUI(); };
+    list.appendChild(div);
+  });
+  document.getElementById('trackCount').textContent = tracks.length + ' 首';
+}
+
+// ===== LYRICS (mock) =====
+const lyricsData = [
+  {time:0, text:'♪'},
+  {time:12, text:'战鼓鸣'},
+  {time:24, text:'风云起'},
+  {time:36, text:'魏武挥鞭'},
+  {time:48, text:'蜀道难行'},
+  {time:60, text:'三分天下'},
+  {time:75, text:'♪'},
+];
+
+function buildLyrics() {
+  const scroll = document.getElementById('lyricsScroll');
+  scroll.innerHTML = lyricsData.map(l => `<div class="lyric-line" data-t="${l.time}">${l.text}</div>`).join('');
+  lyricLines = scroll.querySelectorAll('.lyric-line');
+}
+
+function updateLyricHighlight(ct) {
+  let active = 0;
+  for (let i = lyricLines.length - 1; i >= 0; i--) {
+    if (ct >= parseFloat(lyricLines[i].dataset.t)) { active = i; break; }
+  }
+  lyricLines.forEach((l, i) => {
+    l.classList.toggle('lit', i === active);
+    l.classList.toggle('past', i < active);
+  });
+}
+
+// ===== INFO =====
+function closeInfo() {
+  document.querySelectorAll('.info-section').forEach(s => s.classList.remove('show'));
+}
+
+function showInfo() {
+  closeInfo();
+  const t = tracks[current];
+  document.getElementById('panelInfo').classList.add('show');
+  document.getElementById('infoContent').innerHTML = `
+    <div class="info-row"><span class="info-key">标题</span><span class="info-val accent">${t.title}</span></div>
+    <div class="info-row"><span class="info-key">艺术家</span><span class="info-val">${t.artist}</span></div>
+    <div class="info-row"><span class="info-key">专辑</span><span class="info-val">${t.album}</span></div>
+    <div class="info-row"><span class="info-key">时长</span><span class="info-val">${t.duration}</span></div>
+    <div class="info-row"><span class="info-key">风格</span><span class="info-val">${t.style}</span></div>
+    <div class="info-row" style="flex-direction:column;gap:4px">
+      <span class="info-key">生成 Prompt</span>
+      <span class="info-val prompt-val">${t.prompt}</span>
+    </div>
+  `;
+}
+
+// ===== VIEW SWITCH =====
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav' + capitalize(view)).classList.add('active');
+
+  document.getElementById('panelPlaylist').style.display = view === 'playlist' ? 'block' : '';
+  document.getElementById('panelPlaylist').className = view === 'playlist' ? 'playlist-section' : 'playlist-section';
+  document.getElementById('panelLyrics').className = 'lyrics-section' + (view === 'lyrics' ? ' show' : '');
+  document.getElementById('panelInfo').className = 'info-section' + (view === 'info' ? ' show' : '');
+
+  if (view === 'info') showInfo();
+  if (view === 'lyrics') buildLyrics();
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ===== TOAST =====
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== UTIL =====
+function fmt(s) {
+  if (isNaN(s)) return '0:00';
+  return Math.floor(s/60) + ':' + (Math.floor(s%60) < 10 ? '0' : '') + Math.floor(s%60);
+}
+
+// ===== INIT =====
+buildTrackList();
+loadTrack(0);
+</script>
+</body>
+</html>
