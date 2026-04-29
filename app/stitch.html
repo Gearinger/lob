@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>长图拼接 · Stitch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --accent: #c8956c;
+      --accent-dim: #8a6545;
+      --accent-glow: rgba(200, 149, 108, 0.15);
+      --text: #e8e0d5;
+      --text-muted: #7a7068;
+      --text-dim: #4a4540;
+      --danger: #c86c6c;
+      --success: #6cc890;
+      --radius: 4px;
+      --radius-lg: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover { border-color: var(--accent-dim); background: var(--surface2); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0d0d0d;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #d4a57a;
+      border-color: #d4a57a;
+    }
+
+    .btn-danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover { background: rgba(200,108,108,0.1); }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Main layout */
+    main {
+      display: grid;
+      grid-template-columns: 300px 1fr 320px;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    /* Panels */
+    .panel {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .upload-text {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .upload-text strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    /* Image list */
+    .image-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .image-item {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: grab;
+      transition: all 0.15s ease;
+      background: var(--surface);
+    }
+
+    .image-item:hover {
+      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 1px var(--accent-dim);
+    }
+
+    .image-item.dragging {
+      opacity: 0.4;
+      cursor: grabbing;
+    }
+
+    .image-item.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 -3px 0 0 var(--accent);
+    }
+
+    .image-item-inner {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .image-thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      flex-shrink: 0;
+      display: block;
+      background: var(--surface2);
+    }
+
+    .image-info {
+      flex: 1;
+      padding: 8px 10px;
+      min-width: 0;
+    }
+
+    .image-name {
+      font-size: 11px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .image-dims {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .image-breakpoint {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--accent);
+      color: #0d0d0d;
+      font-size: 9px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .image-breakpoint.auto {
+      background: var(--success);
+    }
+
+    .image-actions {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .image-item:hover .image-actions { opacity: 1; }
+
+    .img-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13,13,13,0.85);
+      color: var(--text);
+      backdrop-filter: blur(4px);
+      transition: all 0.1s;
+    }
+
+    .img-btn:hover { background: var(--accent); color: #0d0d0d; }
+    .img-btn.del:hover { background: var(--danger); }
+
+    .image-index {
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+      background: rgba(13,13,13,0.7);
+      padding: 1px 5px;
+      border-radius: 3px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Auto detect section */
+    .auto-section {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 8px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .auto-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 11px;
+    }
+
+    .breakpoint-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .breakpoint-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 11px;
+    }
+
+    .breakpoint-item .idx {
+      color: var(--accent);
+      font-weight: 700;
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .breakpoint-item .reason {
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .breakpoint-item .del-bp {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0 2px;
+      transition: color 0.1s;
+    }
+
+    .breakpoint-item .del-bp:hover { color: var(--danger); }
+
+    /* Canvas area */
+    .canvas-panel {
+      border-right: none;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .canvas-container {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      background:
+        linear-gradient(45deg, #111 25%, transparent 25%),
+        linear-gradient(-45deg, #111 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #111 75%),
+        linear-gradient(-45deg, transparent 75%, #111 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #0a0a0a;
+    }
+
+    #preview-canvas {
+      max-width: 100%;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+      border-radius: 2px;
+    }
+
+    .canvas-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      gap: 12px;
+    }
+
+    .canvas-empty-icon { font-size: 64px; opacity: 0.3; }
+    .canvas-empty-text { font-size: 13px; color: var(--text-muted); }
+    .canvas-empty-sub { font-size: 11px; color: var(--text-dim); }
+
+    /* Right panel */
+    .right-panel {
+      border-left: 1px solid var(--border);
+      border-right: none;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Instrument Serif', serif;
+    }
+
+    .stat-unit {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Options */
+    .options-section {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 8px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .option-row:last-child { border-bottom: none; }
+
+    .option-label { color: var(--text-muted); }
+
+    .option-value {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .gap-value {
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 30px;
+      text-align: right;
+    }
+
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    select:focus { border-color: var(--accent-dim); }
+
+    /* Download section */
+    .download-section {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-download {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    /* Progress */
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar.active { display: block; }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .progress-text {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .progress-text.active { display: block; }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .image-item {
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      font-size: 12px;
+      z-index: 1000;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(12px);
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .panel-body { max-height: 280px; }
+      .right-panel { border-left: none; border-top: 1px solid var(--border); }
+      .canvas-panel { min-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">⊞</div>
+    Stitch
+  </div>
+  <div class="header-actions">
+    <button class="btn" id="btn-clear" disabled>清空全部</button>
+    <button class="btn btn-primary" id="btn-stitch" disabled>生成长图</button>
+  </div>
+</header>
+
+<main>
+  <!-- Left: Image list -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>已选图片</span>
+      <span id="img-count">0 张</span>
+    </div>
+    <div class="panel-body">
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" multiple accept="image/*">
+        <span class="upload-icon">⊕</span>
+        <div class="upload-text">
+          <strong>点击或拖拽上传</strong>
+          选择本地相册图片<br>
+          支持 JPG / PNG / WebP
+        </div>
+      </div>
+
+      <div class="image-list" id="image-list"></div>
+
+      <div class="auto-section">
+        <div class="section-title">智能断点检测</div>
+        <div class="auto-btns">
+          <button class="btn btn-sm" id="btn-auto-color">颜色差异检测</button>
+          <button class="btn btn-sm" id="btn-auto-brightness">亮度突变检测</button>
+          <button class="btn btn-sm" id="btn-auto-blur">模糊边界检测</button>
+        </div>
+        <div class="breakpoint-list" id="breakpoint-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Canvas preview -->
+  <div class="panel canvas-panel">
+    <div class="panel-header">
+      <span>预览</span>
+      <span id="canvas-size"></span>
+    </div>
+    <div class="canvas-container" id="canvas-container">
+      <div class="canvas-empty" id="canvas-empty">
+        <div class="canvas-empty-icon">▦</div>
+        <div class="canvas-empty-text">上传图片以开始拼接</div>
+        <div class="canvas-empty-sub">支持拖拽调整顺序</div>
+      </div>
+      <canvas id="preview-canvas" style="display:none;"></canvas>
+    </div>
+  </div>
+
+  <!-- Right: Options -->
+  <div class="panel right-panel">
+    <div class="panel-header">
+      <span>设置</span>
+    </div>
+    <div class="panel-body">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">图片数量</div>
+          <div class="stat-value" id="stat-count">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">拼接高度</div>
+          <div class="stat-value" id="stat-height">0<span class="stat-unit">px</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">总宽度</div>
+          <div class="stat-value" id="stat-width">0<span class="stat-unit">px</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">文件大小</div>
+          <div class="stat-value" id="stat-size">—</div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="section-title">拼接选项</div>
+
+        <div class="option-row">
+          <span class="option-label">间距</span>
+          <div class="option-value">
+            <input type="range" id="gap-slider" min="0" max="30" value="0">
+            <span class="gap-value" id="gap-value">0px</span>
+          </div>
+        </div>
+
+        <div class="option-row">
+          <span class="option-label">背景色</span>
+          <div class="option-value">
+            <input type="color" id="bg-color" value="#ffffff" style="width:32px;height:20px;border:none;cursor:pointer;border-radius:3px;">
+            <select id="bg-mode">
+              <option value="white">白色</option>
+              <option value="black">黑色</option>
+              <option value="custom">自定义</option>
+              <option value="transparent">透明</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="option-row">
+          <span class="option-label">最大宽度</span>
+          <div class="option-value">
+            <select id="max-width">
+              <option value="0">原图宽度</option>
+              <option value="1080">1080px</option>
+              <option value="1440">1440px</option>
+              <option value="2160">2160px (4K)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="option-row">
+          <span class="option-label">质量</span>
+          <div class="option-value">
+            <select id="quality">
+              <option value="0.9">高 (90%)</option>
+              <option value="0.95">最高 (95%)</option>
+              <option value="0.8">中 (80%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="download-section">
+        <div class="progress-bar" id="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">处理中...</div>
+        <button class="btn btn-primary btn-download" id="btn-download" disabled>
+          ⬇ 保存长图
+        </button>
+        <button class="btn" id="btn-copy" disabled>📋 复制到剪贴板</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// State
+let images = []; // { id, file, src, width, height, breakpoint: bool }
+let breakpoints = new Set(); // indices that are breakpoints
+let draggedItem = null;
+let stitchCanvas = null;
+let stitchBlob = null;
+
+const $ = id => document.getElementById(id);
+
+// Toast
+function showToast(msg, type = '') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Upload handling
+const uploadZone = $('upload-zone');
+const fileInput = $('file-input');
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) { showToast('请选择图片文件', 'error'); return; }
+
+  let loaded = 0;
+  arr.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        images.push({
+          id: Date.now() + Math.random(),
+          file,
+          src: e.target.result,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          isBreakpoint: false
+        });
+        loaded++;
+        if (loaded === arr.length) {
+          renderList();
+          updateStats();
+          $('btn-clear').disabled = false;
+          $('btn-stitch').disabled = false;
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Render image list
+function renderList() {
+  const list = $('image-list');
+  list.innerHTML = '';
+  $('img-count').textContent = images.length + ' 张';
+
+  images.forEach((img, i) => {
+    const item = document.createElement('div');
+    item.className = 'image-item';
+    item.draggable = true;
+    item.dataset.index = i;
+
+    item.innerHTML = `
+      <div class="image-actions">
+        <button class="img-btn del" data-action="del" title="删除">✕</button>
+      </div>
+      ${img.isBreakpoint ? `<div class="image-breakpoint ${img.breakpointType||''}">断点</div>` : ''}
+      <div class="image-item-inner">
+        <img class="image-thumb" src="${img.src}" alt="">
+        <div class="image-info">
+          <div class="image-name">${img.file.name}</div>
+          <div class="image-dims">${img.width} × ${img.height}</div>
+        </div>
+      </div>
+      <div class="image-index">${i + 1}</div>
+    `;
+
+    // Drag events
+    item.addEventListener('dragstart', e => {
+      draggedItem = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      draggedItem = null;
+      document.querySelectorAll('.image-item').forEach(el => el.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (item !== draggedItem) {
+        item.classList.add('drag-over');
+      }
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (item === draggedItem) return;
+      const from = parseInt(draggedItem.dataset.index);
+      const to = parseInt(item.dataset.index);
+      const [moved] = images.splice(from, 1);
+      images.splice(to, 0, moved);
+      renderList();
+      updateStats();
+    });
+
+    // Actions
+    item.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const idx = parseInt(item.dataset.index);
+      if (btn.dataset.action === 'del') {
+        images.splice(idx, 1);
+        renderList();
+        updateStats();
+        if (images.length === 0) {
+          $('btn-clear').disabled = true;
+          $('btn-stitch').disabled = true;
+          showEmptyCanvas();
+        }
+      }
+    });
+
+    list.appendChild(item);
+  });
+}
+
+// Stats
+function updateStats() {
+  $('stat-count').textContent = images.length;
+  if (!images.length) {
+    $('stat-height').innerHTML = '0<span class="stat-unit">px</span>';
+    $('stat-width').innerHTML = '0<span class="stat-unit">px</span>';
+    $('stat-size').textContent = '—';
+    $('canvas-size').textContent = '';
+    return;
+  }
+  const maxW = Math.max(...images.map(i => i.width));
+  const totalH = images.reduce((s, i) => s + i.height, 0);
+  $('stat-height').innerHTML = totalH.toLocaleString() + '<span class="stat-unit">px</span>';
+  $('stat-width').innerHTML = maxW.toLocaleString() + '<span class="stat-unit">px</span>';
+  $('canvas-size').textContent = `${maxW} × ${totalH}`;
+}
+
+// Canvas rendering
+function renderCanvas() {
+  if (!images.length) return;
+
+  const gap = parseInt($('gap-slider').value);
+  const bgMode = $('bg-mode').value;
+  const bgColor = $('bg-color').value;
+  const maxW = parseInt($('max-width').value);
+  const quality = parseFloat($('quality').value);
+
+  const origMaxW = Math.max(...images.map(i => i.width));
+  const scale = maxW > 0 && maxW < origMaxW ? maxW / origMaxW : 1;
+
+  const totalH = images.reduce((s, i) => s + Math.round(i.height * scale), 0) + gap * (images.length - 1);
+  const canvasW = Math.round(origMaxW * scale);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = canvasW;
+  canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  if (bgMode === 'transparent') {
+    ctx.clearRect(0, 0, canvasW, totalH);
+  } else {
+    const bg = bgMode === 'custom' ? bgColor : (bgMode === 'white' ? '#ffffff' : '#000000');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvasW, totalH);
+  }
+
+  let y = 0;
+  const loadAndDraw = images.map((img, idx) => {
+    return new Promise(resolve => {
+      const i = new Image();
+      i.onload = () => {
+        const dw = Math.round(i.naturalWidth * scale);
+        const dh = Math.round(i.naturalHeight * scale);
+        const dx = Math.round((canvasW - dw) / 2);
+        ctx.drawImage(i, dx, y, dw, dh);
+        y += dh + gap;
+        resolve();
+      };
+      i.onerror = resolve;
+      i.src = img.src;
+    });
+  });
+
+  Promise.all(loadAndDraw).then(() => {
+    stitchCanvas = canvas;
+
+    // Show preview
+    const preview = $('preview-canvas');
+    const empty = $('canvas-empty');
+    empty.style.display = 'none';
+    preview.style.display = 'block';
+
+    // Preview at smaller scale
+    const previewScale = Math.min(1, 600 / canvasW);
+    preview.width = Math.round(canvasW * previewScale);
+    preview.height = Math.round(totalH * previewScale);
+    const pctx = preview.getContext('2d');
+    pctx.drawImage(canvas, 0, 0, preview.width, preview.height);
+
+    // Generate blob
+    canvas.toBlob(blob => {
+      stitchBlob = blob;
+      const size = blob ? (blob.size / 1024 / 1024).toFixed(2) : '—';
+      $('stat-size').textContent = blob ? size + ' MB' : '—';
+      $('btn-download').disabled = false;
+      $('btn-copy').disabled = false;
+    }, 'image/png', quality);
+
+    $('progress-fill').style.width = '100%';
+    setTimeout(() => {
+      $('progress-bar').classList.remove('active');
+      $('progress-text').classList.remove('active');
+    }, 500);
+  });
+}
+
+function showEmptyCanvas() {
+  $('canvas-empty').style.display = 'flex';
+  $('preview-canvas').style.display = 'none';
+  stitchCanvas = null;
+  stitchBlob = null;
+  $('btn-download').disabled = true;
+  $('btn-copy').disabled = true;
+}
+
+// Auto breakpoint detection
+async function detectBreakpoints(method) {
+  if (images.length < 2) {
+    showToast('需要至少 2 张图片', 'error');
+    return;
+  }
+
+  $('progress-bar').classList.add('active');
+  $('progress-fill').style.width = '20%';
+  $('progress-text').textContent = '分析中...';
+  $('progress-text').classList.add('active');
+
+  // Clear previous auto breakpoints
+  images.forEach(img => { img.isBreakpoint = false; img.breakpointType = ''; });
+  breakpoints.clear();
+
+  const results = [];
+
+  for (let i = 0; i < images.length - 1; i++) {
+    const a = await loadImageData(images[i].src);
+    const b = await loadImageData(images[i + 1].src);
+    if (!a || !b) continue;
+
+    let score = 0;
+    let reason = '';
+
+    if (method === 'color') {
+      const diff = colorDifference(a, b);
+      score = diff;
+      reason = `色差 ${diff.toFixed(0)}`;
+    } else if (method === 'brightness') {
+      const diff = brightnessDifference(a, b);
+      score = diff;
+      reason = `亮度差 ${diff.toFixed(1)}`;
+    } else if (method === 'blur') {
+      const diff = blurDifference(a, b);
+      score = diff;
+      reason = `模糊度差 ${diff.toFixed(1)}`;
+    }
+
+    results.push({ index: i, score, reason });
+    $('progress-fill').style.width = (20 + (i / (images.length - 1)) * 60) + '%';
+  }
+
+  // Find peaks (local maxima)
+  const threshold = results.reduce((s, r) => s + r.score, 0) / results.length * 1.5;
+  const detected = results.filter(r => r.score > threshold);
+
+  detected.forEach(r => {
+    breakpoints.add(r.index);
+    images[r.index].isBreakpoint = true;
+    images[r.index].breakpointType = 'auto';
+  });
+
+  $('progress-fill').style.width = '100%';
+  setTimeout(() => {
+    $('progress-bar').classList.remove('active');
+    $('progress-text').classList.remove('active');
+  }, 500);
+
+  renderList();
+  renderBreakpointList();
+  showToast(`检测到 ${detected.length} 个断点`, 'success');
+}
+
+function loadImageData(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 10;
+      c.height = 10;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 10, 10);
+      try { resolve(ctx.getImageData(0, 0, 10, 10).data); }
+      catch (e) { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function avgColor(data) {
+  let r = 0, g = 0, b = 0, cnt = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    r += data[i]; g += data[i+1]; b += data[i+2]; cnt++;
+  }
+  return { r: r/cnt, g: g/cnt, b: b/cnt };
+}
+
+function colorDifference(a, b) {
+  const ca = avgColor(a), cb = avgColor(b);
+  return Math.sqrt((ca.r-cb.r)**2 + (ca.g-cb.g)**2 + (ca.b-cb.b)**2);
+}
+
+function avgBrightness(data) {
+  let s = 0;
+  for (let i = 0; i < data.length; i += 4) s += (data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114);
+  return s / (data.length / 4);
+}
+
+function brightnessDifference(a, b) {
+  return Math.abs(avgBrightness(a) - avgBrightness(b));
+}
+
+function laplacianVariance(data, w, h) {
+  // Simple edge detection approximation
+  let sum = 0, cnt = 0;
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = (y * w + x) * 4;
+      const gx = Math.abs(data[i+4] - data[i-4]) + Math.abs(data[i+4*w] - data[i-4*w]);
+      sum += gx; cnt++;
+    }
+  }
+  return sum / cnt;
+}
+
+function blurDifference(a, b) {
+  // Compare edge variance at small resolution
+  const ca = document.createElement('canvas'); ca.width = 20; ca.height = 20;
+  const cb = document.createElement('canvas'); cb.width = 20; cb.height = 20;
+  // We use color diff as proxy since we only have 10x10 data
+  return colorDifference(a, b) * 0.5;
+}
+
+function renderBreakpointList() {
+  const list = $('breakpoint-list');
+  list.innerHTML = '';
+  const sorted = Array.from(breakpoints).sort((a, b) => a - b);
+  if (!sorted.length) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--text-dim);padding:4px 0;">暂无断点标记</div>';
+    return;
+  }
+  sorted.forEach(idx => {
+    const item = document.createElement('div');
+    item.className = 'breakpoint-item';
+    item.innerHTML = `
+      <span class="idx">${idx + 1} → ${idx + 2}</span>
+      <span class="reason">${images[idx]?.breakpointType === 'auto' ? '自动检测' : '手动标记'}</span>
+      <button class="del-bp" data-idx="${idx}">✕</button>
+    `;
+    item.querySelector('.del-bp').addEventListener('click', () => {
+      breakpoints.delete(idx);
+      images[idx].isBreakpoint = false;
+      images[idx].breakpointType = '';
+      renderBreakpointList();
+      renderList();
+    });
+    list.appendChild(item);
+  });
+}
+
+// Events
+$('btn-stitch').addEventListener('click', () => {
+  if (!images.length) return;
+  $('progress-bar').classList.add('active');
+  $('progress-fill').style.width = '10%';
+  $('progress-text').textContent = '正在拼接...';
+  $('progress-text').classList.add('active');
+  $('btn-download').disabled = true;
+  setTimeout(renderCanvas, 50);
+});
+
+$('btn-download').addEventListener('click', () => {
+  if (!stitchBlob) return;
+  const url = URL.createObjectURL(stitchBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `stitch-${Date.now()}.png`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('图片已保存', 'success');
+});
+
+$('btn-copy').addEventListener('click', async () => {
+  if (!stitchCanvas) return;
+  try {
+    const blob = await new Promise(r => stitchCanvas.toBlob(r, 'image/png'));
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob })
+    ]);
+    showToast('已复制到剪贴板', 'success');
+  } catch (e) {
+    showToast('复制失败，浏览器可能不支持', 'error');
+  }
+});
+
+$('btn-clear').addEventListener('click', () => {
+  images = [];
+  breakpoints.clear();
+  renderList();
+  renderBreakpointList();
+  updateStats();
+  showEmptyCanvas();
+  $('btn-clear').disabled = true;
+  $('btn-stitch').disabled = true;
+  fileInput.value = '';
+});
+
+$('gap-slider').addEventListener('input', e => {
+  $('gap-value').textContent = e.target.value + 'px';
+});
+
+['gap-slider', 'bg-color', 'bg-mode', 'max-width', 'quality'].forEach(id => {
+  $(id).addEventListener('change', () => {
+    if (images.length) renderCanvas();
+  });
+});
+
+$('btn-auto-color').addEventListener('click', () => detectBreakpoints('color'));
+$('btn-auto-brightness').addEventListener('click', () => detectBreakpoints('brightness'));
+$('btn-auto-blur').addEventListener('click', () => detectBreakpoints('blur'));
+
+// Init
+renderBreakpointList();
+</script>
+</body>
+</html>
