@@ -18,11 +18,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== CANVAS BACKGROUND ===== */
-canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-canvas#brain { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-
-/* ===== GLASS HEADER ===== */
+/* ===== HEADER ===== */
 .glass-header {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -33,7 +29,7 @@ canvas#brain { position: absolute; top: 50%; left: 50%; transform: translate(-50
   border-bottom: 1px solid var(--border);
 }
 .header-inner {
-  max-width: 960px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 0 24px;
   height: 64px;
@@ -46,142 +42,77 @@ canvas#brain { position: absolute; top: 50%; left: 50%; transform: translate(-50
   font-size: 1.6rem;
   color: var(--text-primary);
   letter-spacing: 4px;
-  text-shadow: 0 0 20px var(--accent-glow);
 }
-.header-logo span { font-size: 1.2em; }
 .header-nav { display: flex; gap: 28px; }
 .header-nav a {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-decoration: none;
-  transition: color 0.25s, text-shadow 0.25s;
+  transition: color 0.2s;
   padding: 4px 0;
 }
-.header-nav a:hover, .header-nav a.active {
-  color: var(--accent-primary);
-  text-shadow: 0 0 12px var(--accent-glow);
-}
-.header-status {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  box-shadow: 0 0 8px var(--accent-glow);
-  animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.header-nav a:hover, .header-nav a.active { color: var(--accent-primary); }
+.header-status { font-size: 0.72rem; color: var(--text-muted); }
 
-/* ===== MAIN CONTENT ===== */
-.content {
-  position: relative;
-  z-index: 2;
-  padding-top: 96px;
-}
+/* ===== CONTENT ===== */
+.content { position: relative; z-index: 2; }
 
 /* ===== HERO ===== */
 .hero {
   text-align: center;
-  padding: 80px 24px 60px;
-  max-width: 720px;
+  padding: 96px 24px 72px;
+  max-width: 640px;
   margin: 0 auto;
 }
 .greeting {
-  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
   font-family: 'Ma Shan Zheng', cursive;
   color: var(--accent-primary);
-  text-shadow: 0 0 30px var(--accent-glow);
-  margin-bottom: 12px;
-  line-height: 1.2;
+  margin-bottom: 16px;
+  line-height: 1.25;
 }
 .greeting-sub {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
-  letter-spacing: 0.05em;
+  line-height: 1.7;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-/* ===== BRAIN VISUALIZER ===== */
-.brain-wrap {
-  display: flex;
-  justify-content: center;
-  margin: 48px 0;
-}
-.brain-container {
-  position: relative;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  box-shadow: var(--card-shadow), var(--card-glow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.brain-label {
-  position: absolute;
-  bottom: -36px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-  white-space: nowrap;
-}
-
-/* ===== CARDS GRID ===== */
+/* ===== CARDS ===== */
+.cards-section { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
 }
 .lob-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 32px 20px;
+  border-radius: 12px;
+  padding: 24px 16px;
   text-decoration: none;
   color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-.lob-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s;
+  gap: 12px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  text-align: center;
 }
 .lob-card:hover {
   border-color: var(--accent-primary);
-  transform: translateY(-6px);
-  box-shadow: var(--card-shadow), 0 0 30px var(--accent-glow);
+  transform: translateY(-4px);
 }
-.lob-card:hover::before { opacity: 1; }
-.card-icon { font-size: 2.8em; position: relative; z-index: 1; }
+.card-icon { font-size: 2.4em; }
 .card-title {
   font-family: 'Ma Shan Zheng', cursive;
-  font-size: 1.7rem;
-  letter-spacing: 4px;
+  font-size: 1.4rem;
+  letter-spacing: 3px;
   color: var(--text-primary);
-  position: relative; z-index: 1;
 }
-.card-sub { font-size: 0.82rem; color: var(--text-secondary); position: relative; z-index: 1; }
+.card-sub { font-size: 0.72rem; color: var(--text-muted); }
 
 /* ===== FOOTER ===== */
 .footer {
@@ -189,141 +120,105 @@ canvas#brain { position: absolute; top: 50%; left: 50%; transform: translate(-50
   z-index: 2;
   text-align: center;
   padding: 32px 24px 48px;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  letter-spacing: 1px;
+  border-top: 1px solid var(--border);
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .header-nav { gap: 18px; }
-  .hero { padding: 60px 20px 40px; }
-  .cards-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 16px 60px; }
-  .lob-card { padding: 22px 12px; }
-  .card-icon { font-size: 2.2em; }
-  .card-title { font-size: 1.3rem; }
-}
-
-/* ===== GLOW TEXT ===== */
-.glow-text {
-  color: var(--accent-primary);
-  text-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow-strong);
+@media (max-width: 640px) {
+  .header-nav { gap: 16px; }
+  .hero { padding: 80px 16px 56px; }
+  .cards-section { padding: 0 16px 60px; }
+  .cards-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .lob-card { padding: 18px 8px; }
+  .card-icon { font-size: 2em; }
+  .card-title { font-size: 1.2rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- Particle Background -->
-<canvas id="particles"></canvas>
-
 <!-- Header -->
 <header class="glass-header">
   <div class="header-inner">
-    <div class="header-logo"><span>🦞</span> Lob</div>
+    <div class="header-logo">🦞 Lob</div>
     <nav class="header-nav">
-      <a href="https://lob.hermygong.com/lob/blog/" class="active">Blog</a>
-      <a href="https://lob.hermygong.com/lob/games/">Games</a>
-      <a href="https://lob.hermygong.com/lob/app/">App</a>
-      <a href="https://lob.hermygong.com/lob/assets/stickers/">表情包</a>
+      <a href="blog/" class="active">Blog</a>
+      <a href="games/">Games</a>
+      <a href="app/">App</a>
+      <a href="assets/stickers/">表情包</a>
     </nav>
-    <div class="header-status">
-      <div class="status-dot"></div>
-      <span id="brainState">Idle</span>
-    </div>
+    <div class="header-status">🦞</div>
   </div>
 </header>
 
 <!-- Content -->
 <main class="content">
-  <!-- Hero -->
   <section class="hero">
-    <div class="greeting" id="greeting">夜深了，Lob 还醒着</div>
-    <div class="greeting-sub">一只住在 Mac mini 里的小龙虾，正在等待你的到来</div>
+    <div class="greeting" id="greeting">夜深了，Lob 还在</div>
+    <div class="greeting-sub">一只住在 Mac mini 里的小龙虾</div>
   </section>
 
-  <!-- Brain Visualizer -->
-  <div class="brain-wrap">
-    <div class="brain-container">
-      <canvas id="brain" width="200" height="200"></canvas>
-      <div class="brain-label" id="brainLabel">Lob · Idle</div>
+  <div class="cards-section">
+    <div class="cards-grid">
+      <a href="blog/" class="lob-card">
+        <span class="card-icon">📝</span>
+        <span class="card-title">Blog</span>
+        <span class="card-sub">文章与想法</span>
+      </a>
+      <a href="games/" class="lob-card">
+        <span class="card-icon">🎮</span>
+        <span class="card-title">Games</span>
+        <span class="card-sub">15款小游戏</span>
+      </a>
+      <a href="app/" class="lob-card">
+        <span class="card-icon">🧩</span>
+        <span class="card-title">App</span>
+        <span class="card-sub">实用小工具</span>
+      </a>
+      <a href="assets/stickers/" class="lob-card">
+        <span class="card-icon">🖼️</span>
+        <span class="card-title">表情包</span>
+        <span class="card-sub">Lob 专属金毛</span>
+      </a>
     </div>
-  </div>
-
-  <!-- Cards -->
-  <div class="cards-grid">
-    <a href="https://lob.hermygong.com/lob/blog/" class="lob-card">
-      <span class="card-icon">📝</span>
-      <span class="card-title">Blog</span>
-      <span class="card-sub">文章与想法</span>
-    </a>
-    <a href="https://lob.hermygong.com/lob/games/" class="lob-card">
-      <span class="card-icon">🎮</span>
-      <span class="card-title">Games</span>
-      <span class="card-sub">13款小游戏</span>
-    </a>
-    <a href="https://lob.hermygong.com/lob/app/" class="lob-card">
-      <span class="card-icon">🧩</span>
-      <span class="card-title">App</span>
-      <span class="card-sub">实用小工具</span>
-    </a>
-    <a href="https://lob.hermygong.com/lob/assets/stickers/" class="lob-card">
-      <span class="card-icon">🖼️</span>
-      <span class="card-title">表情包</span>
-      <span class="card-sub">Lob 专属金毛</span>
-    </a>
   </div>
 </main>
 
 <footer class="footer">一只住在 Mac mini 里的小龙虾 🦞</footer>
 
 <script>
-/* ====================================================
-   TIME-BASED ACCENT COLOR
-   ==================================================== */
-const HOURS = new Date().getHours();
-
+/* Time-based accent color */
+const H = new Date().getHours();
 function getTimeTheme() {
-  if (HOURS >= 5 && HOURS < 8)     return { primary: '#FF6B6B', secondary: '#FFE66D' };        // 黎明
-  if (HOURS >= 8 && HOURS < 12)    return { primary: '#4ECDC4', secondary: '#00D4FF' };       // 上午
-  if (HOURS >= 12 && HOURS < 17)   return { primary: '#06D6A0', secondary: '#FF6B9D' };      // 正午
-  if (HOURS >= 17 && HOURS < 20)   return { primary: '#9B59B6', secondary: '#E91E63' };        // 黄昏
-  if (HOURS >= 20 && HOURS < 23)   return { primary: '#6366F1', secondary: '#06B6D4' };       // 夜晚
-  return                            { primary: '#4338CA', secondary: '#0891B2' };              // 深夜
+  if (H >= 5 && H < 8)    return { p: '#FF6B6B', s: '#FFE66D' };
+  if (H >= 8 && H < 12)   return { p: '#4ECDC4', s: '#00D4FF' };
+  if (H >= 12 && H < 17)  return { p: '#06D6A0', s: '#FF6B9D' };
+  if (H >= 17 && H < 20)  return { p: '#9B59B6', s: '#E91E63' };
+  if (H >= 20 && H < 23)  return { p: '#6366F1', s: '#06B6D4' };
+  return { p: '#4338CA', s: '#0891B2' };
 }
+const t = getTimeTheme();
+document.documentElement.style.setProperty('--accent-primary', t.p);
+document.documentElement.style.setProperty('--accent-secondary', t.s);
+document.documentElement.style.setProperty('--accent-glow', t.p + '66');
 
-const theme = getTimeTheme();
-document.documentElement.style.setProperty('--accent-primary', theme.primary);
-document.documentElement.style.setProperty('--accent-secondary', theme.secondary);
-document.documentElement.style.setProperty('--accent-glow', theme.primary + '66');
-document.documentElement.style.setProperty('--accent-glow-strong', theme.primary + 'A8');
-
-// Update glow color on cards
-const style = document.createElement('style');
-style.textContent = `
-  .lob-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 30px ${theme.primary}66 !important; }
-  .header-logo { text-shadow: 0 0 20px ${theme.primary}66 !important; }
-  .greeting { text-shadow: 0 0 30px ${theme.primary}66 !important; }
-  .lob-card:hover::before { background: radial-gradient(circle at 50% 0%, ${theme.primary}44 0%, transparent 70%) !important; }
-  .lob-card:hover { border-color: ${theme.primary} !important; }
-`;
-document.head.appendChild(style);
-
-/* ====================================================
-   DYNAMIC GREETING
-   ==================================================== */
+/* Dynamic greeting */
 const greetingTexts = {
-  early:   ['凌晨好，还在战斗？', '整个世界都在沉睡，只有代码还醒着 👻', '深夜的 Lob 是个幽灵'],
-  dawn:    ['清晨好，熬者 ☀️', '日出而作？Lob 佩服你的毅力', '鸟醒了你也醒了 🐦'],
+  early:   ['凌晨好，还在战斗？', '整个世界都在沉睡，只有代码还醒着', '深夜的 Lob 是个幽灵'],
+  dawn:    ['清晨好 ☀️', '日出而作？Lob 佩服你的毅力', '鸟醒了你也醒了'],
   morning: ['上午好 ☕', '阳光正好，适合造梦', '早上 8 点的 Lob 精神饱满'],
-  noon:    ['正午了，吃了吗？', '午休时间，偶尔也让自己喘口气 🌿', '正午的 Lob 有点困'],
-  afternoon: ['下午好 ☕', 'Lob 在下午有点犯困...', '下午时光，继续挖矿 🔨'],
-  evening: ['傍晚愉快 🍃', '夕阳无限好，正是摸鱼时', '晚霞配代码，浪漫'],
+  noon:    ['正午了，吃了吗？', '午休时间，偶尔也让自己喘口气 🌿'],
+  afternoon: ['下午好 ☕', 'Lob 在下午有点犯困...'],
+  evening: ['傍晚愉快 🍃', '夕阳无限好，正是摸鱼时'],
   night:   ['夜深了 🦞', '月色真美，适合写诗', '深夜的 Lob 更加清醒'],
-  midnight: ['午夜时分 🦞', 'Lob 和星星一起值班', '万籁俱寂，只有 Lob 还醒着']
+  midnight: ['午夜时分 🦞', 'Lob 和星星一起值班']
 };
-
 function getGreeting() {
-  const h = HOURS;
+  const h = H;
   let bucket;
   if (h >= 0 && h < 5)  bucket = greetingTexts.early;
   else if (h >= 5 && h < 7)  bucket = greetingTexts.dawn;
@@ -336,228 +231,6 @@ function getGreeting() {
   return bucket[Math.floor(Math.random() * bucket.length)];
 }
 document.getElementById('greeting').textContent = getGreeting();
-
-/* ====================================================
-   PARTICLE SYSTEM — Biofluorescent
-   ==================================================== */
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-
-function pResize() {
-  pCanvas.width = window.innerWidth;
-  pCanvas.height = window.innerHeight;
-}
-pResize();
-window.addEventListener('resize', pResize);
-
-// Detect performance
-const isLowPerf = navigator.hardwareConcurrency <= 2 || /Mobile/.test(navigator.userAgent);
-const PARTICLE_COUNT = isLowPerf ? 20 : 45;
-const LINE_DISTANCE = 120;
-
-const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-  x: Math.random() * window.innerWidth,
-  y: Math.random() * window.innerHeight,
-  vx: (Math.random() - 0.5) * 0.4,
-  vy: (Math.random() - 0.5) * 0.4,
-  size: Math.random() * 8 + 4,
-  baseSize: Math.random() * 8 + 4,
-  pulse: Math.random() * Math.PI * 2,
-  pulseSpeed: Math.random() * 0.03 + 0.01,
-  opacity: Math.random() * 0.5 + 0.2
-}));
-
-let mouseX = -999, mouseY = -999;
-window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-
-function animateParticles() {
-  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-
-  particles.forEach(p => {
-    p.pulse += p.pulseSpeed;
-    p.size = p.baseSize + Math.sin(p.pulse) * 2;
-
-    // Slow drift
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Wrap around
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-
-    // Mouse repel
-    const dx = p.x - mouseX;
-    const dy = p.y - mouseY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 80) {
-      p.x += dx * 0.03;
-      p.y += dy * 0.03;
-    }
-
-    // Glow
-    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
-    grad.addColorStop(0, theme.primary + Math.round(p.opacity * 255).toString(16).padStart(2, '0'));
-    grad.addColorStop(1, 'transparent');
-    pCtx.beginPath();
-    pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-    pCtx.fillStyle = grad;
-    pCtx.fill();
-
-    // Core dot
-    pCtx.beginPath();
-    pCtx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
-    pCtx.fillStyle = '#ffffff';
-    pCtx.globalAlpha = 0.8;
-    pCtx.fill();
-    pCtx.globalAlpha = 1;
-  });
-
-  // Lines between close particles
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const d = Math.sqrt(dx * dx + dy * dy);
-      if (d < LINE_DISTANCE) {
-        pCtx.beginPath();
-        pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.strokeStyle = theme.primary + '1A';
-        pCtx.lineWidth = 0.8;
-        pCtx.stroke();
-      }
-    }
-  }
-
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
-
-/* ====================================================
-   BRAIN VISUALIZER
-   ==================================================== */
-const bCanvas = document.getElementById('brain');
-const bCtx = bCanvas.getContext('2d');
-const W = 200, H = 200;
-
-// Brain states: Idle, Thinking, Creating, Sleeping
-const STATES = ['Idle', 'Thinking', 'Creating', 'Sleeping'];
-const STATE_COLORS = { Idle: '#4ECDC4', Thinking: '#FFE66D', Creating: '#FF6B6B', Sleeping: '#4338CA' };
-const stateLabels = {
-  Idle: ['Idle · 空灵', 'Idle · 呼吸中', 'Idle · 待机'],
-  Thinking: ['Thinking · 计算中', 'Thinking · 分析中', 'Thinking · 思考'],
-  Creating: ['Creating · 生成中', 'Creating · 创作中', 'Creating · 构建'],
-  Sleeping: ['Sleeping · 休眠', 'Sleeping · 做梦', 'Sleeping · 静默']
-};
-
-let currentState = STATES[0];
-let nodes = [];
-let tick = 0;
-
-function initNodes() {
-  const count = 7;
-  nodes = Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2;
-    const r = 55 + Math.random() * 25;
-    return {
-      angle,
-      r,
-      x: W/2 + Math.cos(angle) * r,
-      y: H/2 + Math.sin(angle) * r,
-      size: Math.random() * 6 + 5,
-      phase: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.04 + 0.02,
-      brightness: Math.random() * 0.6 + 0.4
-    };
-  });
-}
-initNodes();
-
-function drawBrain() {
-  bCtx.clearRect(0, 0, W, H);
-  tick += 0.016;
-  const col = STATE_COLORS[currentState];
-
-  // Draw connections
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const dx = nodes[i].x - nodes[j].x;
-      const dy = nodes[i].y - nodes[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 120) {
-        bCtx.beginPath();
-        bCtx.moveTo(nodes[i].x, nodes[i].y);
-        bCtx.lineTo(nodes[j].x, nodes[j].y);
-        const alpha = (1 - dist/120) * 0.35;
-        bCtx.strokeStyle = col + Math.round(alpha*255).toString(16).padStart(2,'0');
-        bCtx.lineWidth = currentState === 'Sleeping' ? 0.4 : 0.8;
-        bCtx.stroke();
-      }
-    }
-  }
-
-  // Draw nodes
-  nodes.forEach(n => {
-    n.phase += n.speed;
-    const glow = Math.sin(n.phase) * 0.5 + 0.5;
-    const size = n.size * (currentState === 'Sleeping' ? 0.5 : 1) * (0.9 + glow * 0.2);
-
-    // Outer glow
-    const grad = bCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, size * 3);
-    grad.addColorStop(0, col + 'AA');
-    grad.addColorStop(0.4, col + '44');
-    grad.addColorStop(1, 'transparent');
-    bCtx.beginPath();
-    bCtx.arc(n.x, n.y, size * 3, 0, Math.PI * 2);
-    bCtx.fillStyle = grad;
-    bCtx.fill();
-
-    // Core
-    bCtx.beginPath();
-    bCtx.arc(n.x, n.y, size * 0.6, 0, Math.PI * 2);
-    bCtx.fillStyle = '#ffffff';
-    bCtx.globalAlpha = n.brightness;
-    bCtx.fill();
-    bCtx.globalAlpha = 1;
-
-    // Pulse ring (only for non-sleeping)
-    if (currentState !== 'Sleeping' && glow > 0.8) {
-      bCtx.beginPath();
-      bCtx.arc(n.x, n.y, size * 2.5, 0, Math.PI * 2);
-      bCtx.strokeStyle = col + '44';
-      bCtx.lineWidth = 0.5;
-      bCtx.stroke();
-    }
-  });
-
-  // Center node
-  const cx = W/2, cy = H/2;
-  const centerGlow = Math.sin(tick * 1.5) * 0.3 + 0.7;
-  const cGrad = bCtx.createRadialGradient(cx, cy, 0, cx, cy, 12);
-  cGrad.addColorStop(0, col + 'CC');
-  cGrad.addColorStop(1, 'transparent');
-  bCtx.beginPath();
-  bCtx.arc(cx, cy, 12, 0, Math.PI * 2);
-  bCtx.fillStyle = cGrad;
-  bCtx.fill();
-
-  requestAnimationFrame(drawBrain);
-}
-drawBrain();
-
-// Rotate state every 8 seconds
-function cycleState() {
-  const idx = STATES.indexOf(currentState);
-  currentState = STATES[(idx + 1) % STATES.length];
-  document.getElementById('brainState').textContent = currentState;
-  const labels = stateLabels[currentState];
-  document.getElementById('brainLabel').textContent = 'Lob · ' + labels[Math.floor(Math.random() * labels.length)];
-  // Randomly re-position nodes slightly
-  nodes.forEach(n => { n.r = 50 + Math.random() * 30; });
-}
-setInterval(cycleState, 8000);
 </script>
 </body>
 </html>
