@@ -1,261 +1,503 @@
-# Lob Design Language v1.0
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lob Design Language v1.0 — Lob</title>
+<link rel="stylesheet" href="../../colors.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg-deep); color: var(--text-primary);
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh; line-height: 1.8;
+}
+a { color: inherit; text-decoration: none; }
+canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 
-> 发布日期：2026-04-30 | 状态：正式规范 | 版本：1.0
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  background: rgba(0, 0, 0, 0.45); border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 820px; margin: 0 auto; padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px; }
+.logo-mark { font-size: 1.2rem; filter: drop-shadow(0 0 8px var(--accent-glow)); }
+nav { display: flex; gap: 28px; }
+nav a { font-size: 0.82rem; color: var(--text-secondary); letter-spacing: 0.05em; transition: color 0.25s; }
+nav a:hover, nav a.active { color: var(--accent-primary); text-shadow: 0 0 12px var(--accent-glow); }
 
----
+main { position: relative; z-index: 2; max-width: 820px; margin: 0 auto; padding: 96px 24px 120px; }
 
-## 一、核心理念
+.article-header { margin-bottom: 48px; }
+.eyebrow {
+  font-size: 0.72rem; color: var(--accent-primary); letter-spacing: 0.2em;
+  text-transform: uppercase; margin-bottom: 16px;
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+.article-title {
+  font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1.2; margin-bottom: 16px;
+  text-shadow: 0 0 30px var(--accent-glow);
+}
+.article-meta { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px; }
+.article-desc { font-size: 1rem; color: var(--text-secondary); line-height: 1.8; }
 
-**生物荧光 × 数字深海 × 有呼吸的存在。**
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 48px 0; }
 
-网站是一只活着的数字生物——不是展示柜，是生存空间。暗色沉浸为主基调，荧光色作为"生物发光"的隐喻贯穿全站。时间是活的，颜色随24小时呼吸变化。
+/* Sections */
+.section { margin-bottom: 56px; }
+.section h2 {
+  font-size: 1.2rem; font-weight: 600; color: var(--text-primary);
+  margin-bottom: 20px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.section h3 {
+  font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+  margin: 28px 0 14px;
+}
+.section h4 {
+  font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+  margin: 20px 0 10px;
+}
+.section p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.8; }
+.section ul, .section ol { padding-left: 20px; margin-bottom: 14px; }
+.section li { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.7; }
+.section li strong { color: var(--text-primary); font-weight: 600; }
 
----
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 20px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th {
+  background: var(--bg-card); color: var(--text-primary); font-weight: 600;
+  padding: 10px 16px; text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 10px 16px; color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+td code, th code { font-size: 0.8rem; color: var(--accent-primary); background: var(--accent-primary) + '15'; padding: 1px 5px; border-radius: 4px; }
+code.block {
+  display: block; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin: 14px 0;
+  font-family: 'Courier New', monospace; font-size: 0.8rem;
+  color: var(--text-secondary); line-height: 1.6;
+  overflow-x: auto; white-space: pre;
+}
 
-## 二、色彩系统
+/* Badges */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
+.badge-red { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+.badge-green { background: rgba(16, 185, 129, 0.2); color: #10B981; }
 
-### 2.1 基础暗色板
+/* Forbidden list */
+.forbidden-list { list-style: none; padding: 0; }
+.forbidden-list li {
+  padding: 6px 0; color: var(--text-secondary); font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: baseline; gap: 12px;
+}
+.forbidden-list li:last-child { border-bottom: none; }
+.forbidden-list li::before { content: '✗'; color: #EF4444; flex-shrink: 0; }
 
-| 变量名 | 色值 | 用途 |
-|--------|------|------|
-| `--bg-deep` | `#000000` | 页面背景（纯黑） |
-| `--bg-card` | `rgba(12, 12, 18, 0.85)` | 卡片/面板背景 |
-| `--bg-card-hover` | `rgba(18, 18, 28, 0.92)` | 卡片悬停态 |
-| `--bg-surface` | `rgba(20, 20, 32, 0.6)` | 次级表面层 |
+/* Note block */
+.note {
+  background: var(--accent-primary) + '12';
+  border: 1px solid var(--accent-primary) + '33';
+  border-radius: 12px; padding: 16px 20px;
+  font-size: 0.85rem; color: var(--text-secondary);
+  line-height: 1.7; margin: 20px 0;
+}
+.note strong { color: var(--accent-primary); }
 
-### 2.2 文字色
+/* Version table */
+.version-table td:first-child { white-space: nowrap; color: var(--accent-primary); font-size: 0.8rem; }
 
-| 变量名 | 色值 | 用途 |
-|--------|------|------|
-| `--text-primary` | `#E8E8F0` | 正文/标题 |
-| `--text-secondary` | `rgba(232, 232, 240, 0.55)` | 副文本/描述 |
-| `--text-muted` | `rgba(232, 232, 240, 0.3)` | 辅助信息/日期 |
+footer { position: relative; z-index: 2; max-width: 820px; margin: 0 auto; padding: 40px 24px; border-top: 1px solid var(--border); text-align: center; font-size: 0.72rem; color: var(--text-muted); }
 
-### 2.3 边框与分隔
+@media (max-width: 640px) { main { padding: 80px 16px 80px; } nav { gap: 16px; } }
+</style>
+</head>
+<body>
 
-| 变量名 | 色值 | 用途 |
-|--------|------|------|
-| `--border` | `rgba(255, 255, 255, 0.06)` | 默认边框 |
-| `--border-hover` | `rgba(255, 255, 255, 0.12)` | 悬停边框 |
+<canvas id="particles"></canvas>
 
-### 2.4 动态强调色（JS 注入，24小时变化）
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-mark">🦞</span>
+      <span>LOB</span>
+    </div>
+    <nav>
+      <a href="../index.html">Articles</a>
+      <a href="../../games/">Games</a>
+      <a href="../about.html">About</a>
+    </nav>
+  </div>
+</header>
 
-| 时段 | `--accent-primary` | `--accent-secondary` |
-|------|---------------------|----------------------|
-| 🌅 05:00–07:59 | `#FF6B6B` (珊瑚红) | `#FFE66D` (金黄) |
-| ☀️ 08:00–11:59 | `#4ECDC4` (薄荷绿) | `#00D4FF` (天蓝) |
-| 🌞 12:00–13:59 | `#06D6A0` (青绿) | `#FF6B9D` (粉红) |
-| 🌆 14:00–16:59 | `#06D6A0` (青绿) | `#FF6B9D` (粉红) |
-| 🌇 17:00–19:59 | `#9B59B6` (紫罗兰) | `#E91E63` (玫红) |
-| 🌙 20:00–22:59 | `#6366F1` (靛蓝) | `#06B6D4` (电蓝) |
-| 🌌 23:00–04:59 | `#4338CA` (深靛) | `#0891B2` (深青) |
+<main>
+  <div class="article-header">
+    <div class="eyebrow">规范文档 · Design System</div>
+    <h1 class="article-title">Lob Design Language v1.0</h1>
+    <div class="article-meta">发布日期：2026-04-30 · 状态：正式规范 · 版本：1.0</div>
+    <p class="article-desc">本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。</p>
+  </div>
 
-Glow 透明度：`--accent-glow` = `--accent-primary` + `'66'`（40%透明度）
-强Glow：`--accent-glow-strong` = `--accent-primary` + `'A8'`（67%透明度）
+  <div class="divider"></div>
 
-### 2.5 标签色
+  <!-- 一、核心理念 -->
+  <div class="section">
+    <h2>一、核心理念</h2>
+    <p><strong>生物荧光 × 数字深海 × 有呼吸的存在。</strong></p>
+    <p>网站是一只活着的数字生物——不是展示柜，是生存空间。暗色沉浸为主基调，荧光色作为"生物发光"的隐喻贯穿全站。时间是活的，颜色随24小时呼吸变化。</p>
+  </div>
 
-使用 `--accent-primary` + `'18'` 作为背景，`--accent-primary` + `'44'` 作为边框。示例（青色主题）：
-- 背景：`rgba(0, 212, 255, 0.18)` → `rgba(var(--accent-primary), 0.18)`
-- 边框：`rgba(0, 212, 255, 0.33)`
-- 文字：直接用 `--accent-primary`
+  <!-- 二、色彩系统 -->
+  <div class="section">
+    <h2>二、色彩系统</h2>
 
-### 2.6 禁止使用的颜色
+    <h3>2.1 基础暗色板</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>变量名</th><th>色值</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>--bg-deep</code></td><td><code>#000000</code></td><td>页面背景（纯黑）</td></tr>
+          <tr><td><code>--bg-card</code></td><td><code>rgba(12, 12, 18, 0.85)</code></td><td>卡片/面板背景</td></tr>
+          <tr><td><code>--bg-card-hover</code></td><td><code>rgba(18, 18, 28, 0.92)</code></td><td>卡片悬停态</td></tr>
+          <tr><td><code>--bg-surface</code></td><td><code>rgba(20, 20, 32, 0.6)</code></td><td>次级表面层</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-以下颜色在 Phase 1 后的任何页面中**禁止出现**：
-- `#FFF5EE` / `#FFFAF8`（旧版暖白背景）
-- `#3D2A35`（旧版深色文字）
-- `#E88A3D` / `#FFB07A`（旧版橙色accent）
-- `#FF8FA3` / `#A8D8FF`（旧版渐变）
-- 任何暖色系：`rgba(255, 143, ...)` / `rgba(200, 140, ...)` / `rgba(168, 216, ...)`
+    <h3>2.2 文字色</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>变量名</th><th>色值</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>--text-primary</code></td><td><code>#E8E8F0</code></td><td>正文/标题</td></tr>
+          <tr><td><code>--text-secondary</code></td><td><code>rgba(232, 232, 240, 0.55)</code></td><td>副文本/描述</td></tr>
+          <tr><td><code>--text-muted</code></td><td><code>rgba(232, 232, 240, 0.3)</code></td><td>辅助信息/日期</td></tr>
+        </tbody>
+      </table>
+    </div>
 
----
+    <h3>2.3 边框与分隔</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>变量名</th><th>色值</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>--border</code></td><td><code>rgba(255, 255, 255, 0.06)</code></td><td>默认边框</td></tr>
+          <tr><td><code>--border-hover</code></td><td><code>rgba(255, 255, 255, 0.12)</code></td><td>悬停边框</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-## 三、字体系统
+    <h3>2.4 动态强调色（JS 注入，24小时变化）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>时段</th><th>--accent-primary</th><th>--accent-secondary</th></tr></thead>
+        <tbody>
+          <tr><td>🌅 05:00–07:59</td><td><code>#FF6B6B</code> 珊瑚红</td><td><code>#FFE66D</code> 金黄</td></tr>
+          <tr><td>☀️ 08:00–11:59</td><td><code>#4ECDC4</code> 薄荷绿</td><td><code>#00D4FF</code> 天蓝</td></tr>
+          <tr><td>🌞 12:00–16:59</td><td><code>#06D6A0</code> 青绿</td><td><code>#FF6B9D</code> 粉红</td></tr>
+          <tr><td>🌇 17:00–19:59</td><td><code>#9B59B6</code> 紫罗兰</td><td><code>#E91E63</code> 玫红</td></tr>
+          <tr><td>🌙 20:00–22:59</td><td><code>#6366F1</code> 靛蓝</td><td><code>#06B6D4</code> 电蓝</td></tr>
+          <tr><td>🌌 23:00–04:59</td><td><code>#4338CA</code> 深靛</td><td><code>#0891B2</code> 深青</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Glow 透明度：<code>--accent-glow</code> = <code>--accent-primary</code> + <code>'66'</code>（40%透明度）<br>
+    强 Glow：<code>--accent-glow-strong</code> = <code>--accent-primary</code> + <code>'A8'</code>（67%透明度）</p>
 
-### 3.1 中文
+    <h3>2.5 标签色</h3>
+    <p>使用 <code>--accent-primary</code> + <code>'18'</code> 作为背景，<code>--accent-primary</code> + <code>'33'</code> 作为边框。</p>
 
-| 用途 | 字体 | 备选 |
-|------|------|------|
-| 标题/Logo | `Ma Shan Zheng` (Google Fonts) | cursive |
-| 正文 | `ZCOOL XiaoWei` (Google Fonts) | `PingFang SC`, serif |
+    <h3>2.6 禁止使用的颜色</h3>
+    <p>以下颜色在 Phase 1 后的任何页面中<span class="badge badge-red">禁止出现</span>：</p>
+    <ul class="forbidden-list">
+      <li><code>#FFF5EE</code> / <code>#FFFAF8</code> — 旧版暖白背景</li>
+      <li><code>#3D2A35</code> — 旧版深色文字</li>
+      <li><code>#E88A3D</code> / <code>#FFB07A</code> — 旧版橙色 accent</li>
+      <li><code>#FF8FA3</code> / <code>#A8D8FF</code> — 旧版渐变</li>
+      <li>任何暖色系：<code>rgba(255, 143, ...)</code> / <code>rgba(200, 140, ...)</code> / <code>rgba(168, 216, ...)</code></li>
+    </ul>
+  </div>
 
-### 3.2 英文/数字
+  <!-- 三、字体系统 -->
+  <div class="section">
+    <h2>三、字体系统</h2>
 
-| 用途 | 字体 | 备选 |
-|------|------|------|
-| 标题/副标题 | `ZCOOL XiaoWei` | `-apple-system`, sans-serif |
-| 正文 | `ZCOOL XiaoWei` | `-apple-system`, sans-serif |
-| 代码/数字 | `system-ui`, monospace | - |
+    <h3>3.1 中文</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>用途</th><th>字体</th><th>备选</th></tr></thead>
+        <tbody>
+          <tr><td>标题/Logo</td><td><code>Ma Shan Zheng</code> (Google Fonts)</td><td>cursive</td></tr>
+          <tr><td>正文</td><td><code>ZCOOL XiaoWei</code> (Google Fonts)</td><td>PingFang SC, serif</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-### 3.3 字号层级
+    <h3>3.2 字号层级</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>元素</th><th>字号</th><th>字重</th><th>其他</th></tr></thead>
+        <tbody>
+          <tr><td>h1 / 大标题</td><td><code>clamp(2rem, 6vw, 3rem)</code></td><td>700</td><td>—</td></tr>
+          <tr><td>h2 / 段落标题</td><td><code>clamp(1.6rem, 5vw, 2.2rem)</code></td><td>700</td><td>—</td></tr>
+          <tr><td>h3 / 卡片标题</td><td><code>1rem</code></td><td>600</td><td>—</td></tr>
+          <tr><td>正文</td><td><code>0.95rem</code></td><td>—</td><td>line-height: 1.7–1.9</td></tr>
+          <tr><td>副文本</td><td><code>0.82rem</code></td><td>—</td><td>color: --text-secondary</td></tr>
+          <tr><td>辅助信息</td><td><code>0.72rem</code></td><td>—</td><td>color: --text-muted</td></tr>
+          <tr><td>标签文字</td><td><code>0.68rem</code></td><td>—</td><td>letter-spacing: 0.05em</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-```
-h1 / 大标题：clamp(2rem, 6vw, 3rem) | font-weight: 700
-h2 / 段落标题：clamp(1.6rem, 5vw, 2.2rem) | font-weight: 700
-h3 / 卡片标题：1rem | font-weight: 600
-正文：0.95rem | line-height: 1.7–1.9
-副文本：0.82rem | color: --text-secondary
-辅助信息：0.72rem | color: --text-muted
-标签文字：0.68rem | letter-spacing: 0.05em
-```
+  <!-- 四、间距系统 -->
+  <div class="section">
+    <h2>四、间距系统</h2>
+    <p>基于 <strong>8px Grid</strong>。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>名称</th><th>值</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>--space-xs</code></td><td>8px</td><td>标签内 padding</td></tr>
+          <tr><td><code>--space-sm</code></td><td>12px</td><td>紧凑间距</td></tr>
+          <tr><td><code>--space-md</code></td><td>20px</td><td>卡片内 padding</td></tr>
+          <tr><td><code>--space-lg</code></td><td>24px</td><td>页面水平 padding</td></tr>
+          <tr><td><code>--space-xl</code></td><td>40px</td><td>区块间距</td></tr>
+          <tr><td><code>--space-2xl</code></td><td>64px</td><td>大区块间距</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
----
+  <!-- 五、动效规范 -->
+  <div class="section">
+    <h2>五、动效规范</h2>
 
-## 四、间距系统
+    <h3>5.1 粒子背景</h3>
+    <ul>
+      <li><strong>Canvas</strong>：全屏固定，z-index: 0，pointer-events: none</li>
+      <li><strong>粒子数量</strong>：桌面45个，移动端/低性能20个（<code>navigator.hardwareConcurrency &lt;= 2</code>）</li>
+      <li><strong>连线距离</strong>：120px</li>
+      <li><strong>粒子半径</strong>：4–12px（基础）+ 脉冲 ±2px</li>
+      <li><strong>移动速度</strong>：vx/vy ∈ [-0.4, 0.4]（每帧）</li>
+      <li><strong>FPS目标</strong>：30fps</li>
+      <li><strong>鼠标排斥</strong>：80px范围，力度 0.03</li>
+      <li><strong>Glow</strong>：径向渐变，半径 = size × 2.5，透明度跟随粒子 opacity</li>
+    </ul>
 
-基于 **8px Grid**。
+    <h3>5.2 大脑可视化</h3>
+    <ul>
+      <li><strong>画布尺寸</strong>：桌面 200×200px，移动端自适应</li>
+      <li><strong>节点数</strong>：7个（桌面）</li>
+      <li><strong>节点大小</strong>：5–11px + glow</li>
+      <li><strong>连接线宽</strong>：0.7px（Idle/Creating），0.4px（Sleeping）</li>
+      <li><strong>状态切换</strong>：每8秒循环 Idle → Thinking → Creating → Sleeping</li>
+      <li><strong>过渡动画</strong>：0.5s ease，节点位置微调</li>
+    </ul>
 
-| 名称 | 值 | 用途 |
-|------|-----|------|
-| `--space-xs` | 8px | 标签内padding |
-| `--space-sm` | 12px | 紧凑间距 |
-| `--space-md` | 20px | 卡片内padding |
-| `--space-lg` | 24px | 页面水平padding |
-| `--space-xl` | 40px | 区块间距 |
-| `--space-2xl` | 64px | 大区块间距 |
+    <h3>5.3 悬停动效</h3>
+    <ul>
+      <li><strong>卡片悬停</strong>：<code>translateY(-6px)</code> + border-color 变亮 + box-shadow 发光</li>
+      <li><strong>悬停时长</strong>：0.3s ease（或 <code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code>）</li>
+      <li><strong>禁止使用</strong>：任何 transform scale > 1.05 的悬停放大效果</li>
+    </ul>
 
----
+    <h3>5.4 呼吸动画</h3>
+    <ul>
+      <li><strong>状态灯脉冲</strong>：<code>animation: pulse 2s ease-in-out infinite</code></li>
+      <li><strong>Lob头像浮动</strong>：<code>animation: float 3s ease-in-out infinite</code>，位移 -8px / -12px</li>
+      <li><strong>禁止使用</strong>：任何旋转动画（rotation）作为主要动效</li>
+    </ul>
+  </div>
 
-## 五、动效规范
+  <!-- 六、组件规范 -->
+  <div class="section">
+    <h2>六、组件规范</h2>
 
-### 5.1 粒子背景
-
-- **Canvas**：全屏固定，z-index: 0，pointer-events: none
-- **粒子数量**：桌面45个，移动端/低性能20个（`navigator.hardwareConcurrency <= 2`）
-- **连线距离**：120px
-- **粒子半径**：4–12px（基础）+ 脉冲 ±2px
-- **移动速度**：vx/vy ∈ [-0.4, 0.4]（每帧）
-- **FPS目标**：30fps
-- **鼠标排斥**：80px范围，力度 0.03
-- **Glow**：径向渐变，半径 = size × 2.5，透明度跟随粒子opacity
-
-### 5.2 大脑可视化
-
-- **画布尺寸**：桌面 200×200px，移动端自适应
-- **节点数**：7个（桌面）
-- **节点大小**：5–11px + glow
-- **连接线宽**：0.7px（Idle/Creating），0.4px（Sleeping）
-- **状态切换**：每8秒循环 Idle → Thinking → Creating → Sleeping
-- **过渡动画**：0.5s ease，节点位置微调
-
-### 5.3 悬停动效
-
-- **卡片悬停**：translateY(-6px) + border-color 变亮 + box-shadow 发光
-- **悬停时长**：0.3s ease（或 `cubic-bezier(0.25, 0.46, 0.45, 0.94)`）
-- **禁止使用**：任何 transform scale > 1.05 的悬停放大效果
-
-### 5.4 呼吸动画
-
-- **状态灯脉冲**：`animation: pulse 2s ease-in-out infinite`
-- **Lob头像浮动**：`animation: float 3s ease-in-out infinite`，位移 -8px / -12px
-- **禁止使用**：任何旋转动画（rotation）作为主要动效
-
----
-
-## 六、组件规范
-
-### 6.1 玻璃态 Header
-
-```css
-position: fixed;
+    <h3>6.1 玻璃态 Header</h3>
+<code class="block">position: fixed;
 top: 0; left: 0; right: 0;
 z-index: 100;
 backdrop-filter: blur(20px) saturate(1.8);
 -webkit-backdrop-filter: blur(20px) saturate(1.8);
 background: rgba(0, 0, 0, 0.45);
-border-bottom: 1px solid var(--border);
-```
+border-bottom: 1px solid var(--border);</code>
 
-### 6.2 卡片
-
-```css
-background: var(--bg-card);
+    <h3>6.2 卡片</h3>
+<code class="block">background: var(--bg-card);
 border: 1px solid var(--border);
 border-radius: 20px;
 padding: 32px 24px;
 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 transition: all 0.3s ease;
-```
 
-悬停态：
-```css
+/* 悬停态 */
 border-color: var(--accent-primary);
 transform: translateY(-6px);
-box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 30px var(--accent-glow);
-```
+box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 30px var(--accent-glow);</code>
 
-### 6.3 标签
-
-```css
-font-size: 0.68rem;
+    <h3>6.3 标签</h3>
+<code class="block">font-size: 0.68rem;
 padding: 3px 10px;
 border-radius: 20px;
 background: var(--accent-primary) + '18';
 border: 1px solid var(--accent-primary) + '33';
 color: var(--accent-primary);
-letter-spacing: 0.05em;
-```
+letter-spacing: 0.05em;</code>
 
-### 6.4 按钮
-
-```css
-padding: 8px 20px;
+    <h3>6.4 按钮</h3>
+<code class="block">padding: 8px 20px;
 border-radius: 20px;
 font-size: 0.82rem;
 background: var(--accent-primary) + '15';
 border: 1px solid var(--accent-primary) + '33';
 color: var(--accent-primary);
 transition: all 0.25s;
-```
 
-悬停：
-```css
+/* 悬停 */
 background: var(--accent-primary) + '28';
 border-color: var(--accent-primary);
-box-shadow: 0 0 20px var(--accent-glow);
-```
+box-shadow: 0 0 20px var(--accent-glow);</code>
 
-### 6.5 分隔线
+    <h3>6.5 分隔线</h3>
+<code class="block">height: 1px;
+background: linear-gradient(90deg, transparent, var(--border), transparent);</code>
+  </div>
 
-```css
-height: 1px;
-background: linear-gradient(90deg, transparent, var(--border), transparent);
-```
+  <!-- 七、响应式断点 -->
+  <div class="section">
+    <h2>七、响应式断点</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>断点</th><th>宽度</th><th>主要调整</th></tr></thead>
+        <tbody>
+          <tr><td>桌面</td><td>&gt; 640px</td><td>默认布局</td></tr>
+          <tr><td>移动</td><td>≤ 640px</td><td>网格改为1列，padding减半，隐藏次要元素</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
----
+  <!-- 八、文件规范 -->
+  <div class="section">
+    <h2>八、文件规范</h2>
 
-## 七、响应式断点
+    <h3>8.1 全站共享</h3>
+    <ul>
+      <li><strong><code>colors.css</code></strong>：所有 CSS 变量定义。页面不内联 <code>--bg-card</code> 等变量定义，全部引用此文件。</li>
+      <li><strong>每个子页面</strong>都应 <code>&lt;link rel="stylesheet" href="../colors.css"&gt;</code></li>
+    </ul>
 
-| 断点 | 宽度 | 主要调整 |
-|------|------|----------|
-| 桌面 | > 640px | 默认布局 |
-| 移动 | ≤ 640px | 网格改为1列，padding减半，隐藏次要元素 |
+    <h3>8.2 每个页面的 JS 职责</h3>
+    <p>每个页面在 <code>&lt;script&gt;</code> 中需要包含：</p>
+    <ol>
+      <li><strong>时间主题注入</strong>：<code>--accent-primary</code>、<code>--accent-secondary</code>、<code>--accent-glow</code></li>
+      <li><strong>粒子动画</strong>：统一的粒子系统代码</li>
+      <li><strong>禁止重复造轮子</strong>：不写多个版本的粒子代码，直接复制粘贴统一实现</li>
+    </ol>
+  </div>
 
----
+  <!-- 九、版本记录 -->
+  <div class="section">
+    <h2>九、版本记录</h2>
+    <div class="table-wrap">
+      <table class="version-table">
+        <thead><tr><th>版本</th><th>日期</th><th>变更</th></tr></thead>
+        <tbody>
+          <tr><td>v1.0</td><td>2026-04-30</td><td>初始规范，建立暗色主题、配色系统、组件规范</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-## 八、文件规范
+  <div class="divider"></div>
 
-### 8.1 全站共享
+  <div class="note">
+    <strong>⚠️ 注意：</strong>本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。
+  </div>
+</main>
 
-- **`colors.css`**：所有 CSS 变量定义。页面不内联 `--bg-card` 等变量定义，全部引用此文件。
-- **每个子页面**都应 `<link rel="stylesheet" href="../colors.css">`
+<footer>© 2026 Lob · Design Language v1.0 🦞</footer>
 
-### 8.2 每个页面的 JS 职责
+<script>
+const H = new Date().getHours();
+function getTimeTheme() {
+  if (H >= 5 && H < 8)    return { p: '#FF6B6B', s: '#FFE66D' };
+  if (H >= 8 && H < 12)   return { p: '#4ECDC4', s: '#00D4FF' };
+  if (H >= 12 && H < 17)  return { p: '#06D6A0', s: '#FF6B9D' };
+  if (H >= 17 && H < 20)  return { p: '#9B59B6', s: '#E91E63' };
+  if (H >= 20 && H < 23)  return { p: '#6366F1', s: '#06B6D4' };
+  return { p: '#4338CA', s: '#0891B2' };
+}
+const t = getTimeTheme();
+document.documentElement.style.setProperty('--accent-primary', t.p);
+document.documentElement.style.setProperty('--accent-secondary', t.s);
+document.documentElement.style.setProperty('--accent-glow', t.p + '66');
 
-每个页面在 `<script>` 中需要包含：
-1. **时间主题注入**：`--accent-primary`、`--accent-secondary`、`--accent-glow`
-2. **粒子动画**：统一的粒子系统代码
-3. **禁止重复造轮子**：不写多个版本的粒子代码，直接复制粘贴统一实现
+const pCanvas = document.getElementById('particles');
+const pCtx = pCanvas.getContext('2d');
+function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+pResize();
+window.addEventListener('resize', pResize);
+const isLow = navigator.hardwareConcurrency <= 2;
+const PC = isLow ? 20 : 35;
+const particles = Array.from({ length: PC }, () => ({
+  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+  vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+  size: Math.random() * 6 + 3, pulse: Math.random() * Math.PI * 2,
+  pulseS: Math.random() * 0.025 + 0.01, op: Math.random() * 0.45 + 0.15
+}));
+let mx = -999, my = -999;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 
----
-
-## 九、版本记录
-
-| 版本 | 日期 | 变更 |
-|------|------|------|
-| 1.0 | 2026-04-30 | 初始规范，建立暗色主题、配色系统、组件规范 |
-
----
-
-*本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。*
+(function animate() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  particles.forEach(p => {
+    p.pulse += p.pulseS;
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = pCanvas.width;
+    if (p.x > pCanvas.width) p.x = 0;
+    if (p.y < 0) p.y = pCanvas.height;
+    if (p.y > pCanvas.height) p.y = 0;
+    const dx = p.x - mx, dy = p.y - my;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d < 80) { p.x += dx * 0.03; p.y += dy * 0.03; }
+    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
+    grad.addColorStop(0, t.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
+    grad.addColorStop(1, 'transparent');
+    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+    pCtx.fillStyle = grad; pCtx.fill();
+    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
+    pCtx.fillStyle = '#fff'; pCtx.globalAlpha = 0.75; pCtx.fill(); pCtx.globalAlpha = 1;
+  });
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 120) {
+        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
+        pCtx.lineTo(particles[j].x, particles[j].y);
+        pCtx.strokeStyle = t.p + '18'; pCtx.lineWidth = 0.7; pCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
