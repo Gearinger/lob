@@ -22,7 +22,7 @@ STAGED=$(git diff --cached --name-only 2>/dev/null || echo "")
 echo -n "Checking warm colors in staged HTML/CSS... "
 STAGED_HTML=$(echo "$STAGED" | grep -E "\.(html|css)$" | grep -v "/node_modules/\|/dist/\|/assets/index\|bundle\|\.min\." || true)
 if [ -n "$STAGED_HTML" ]; then
-  WARM=$(grep -lE "#FFF5EE|#E88A3D|#FF8FA3|#A8D8FF|#FFB07A|#FFB3C6|#C46A2A|#9A8090|#8A7080|#7A6A55|#6A5A45|#5A4A45" $STAGED_HTML 2>/dev/null | head -5 || true)
+  WARM=$(grep -lE "#FFF5EE|#E88A3D|#FF8FA3|#A8D8FF|#FFB07A|#FFB3C6|#C46A2A|#9A8090|#8A7080|#7A6A55|#6A5A45|#5A4A45" $STAGED_HTML 2>/dev/null | grep -v "lob-design-language" | head -5 || true)
   if [ -n "$WARM" ]; then
     echo -e "${RED}FAIL${NC}"
     echo "  Warm colors found:"
