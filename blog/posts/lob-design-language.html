@@ -160,6 +160,30 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
         <div class="principle-desc">全站统一语言。切换页面不感觉跳，像出自同一种审美和思路。</div>
       </div>
     </div>
+
+  <!-- 一、Design Principles (expanded) -->
+  <div class="section">
+    <h2>一、设计原则（Apple HIG 对照）</h2>
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-name">语义化颜色</div>
+        <div class="principle-desc">颜色有含义，不是装饰。强调色用于可交互元素，背景色区分层级。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">内容优先</div>
+        <div class="principle-desc">设计退后，内容前进。界面元素最小化，内容最大化。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">触摸目标 ≥ 44pt</div>
+        <div class="principle-desc">所有可点击元素的最小尺寸为 44×44pt，确保可操作性。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">层级清晰</div>
+        <div class="principle-desc">文字大小、粗细、颜色形成自然层次，用户无需思考即可分辨内容优先级。</div>
+      </div>
+    </div>
+  </div>
+
     <div class="note">
       <strong>动效原则：</strong>动效只服务于反馈，不服务于装饰。用户点击 → 按钮回应；悬停 → 元素回应。轻、准、快。没有目的的动效一律删除。
     </div>
@@ -174,7 +198,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
       <table>
         <thead><tr><th>变量名</th><th>色值</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td><code>--bg-deep</code></td><td><code>#000000</code></td><td>页面背景</td></tr>
+          <tr><td><code>--bg-deep</code></td><td><code>#0a0a0a</code></td><td>页面背景（非纯黑，参考 Apple 暗色）</td></tr>
           <tr><td><code>--bg-card</code></td><td><code>rgba(12, 12, 18, 0.85)</code></td><td>卡片/面板背景</td></tr>
           <tr><td><code>--bg-card-hover</code></td><td><code>rgba(18, 18, 28, 0.92)</code></td><td>卡片悬停</td></tr>
           <tr><td><code>--bg-surface</code></td><td><code>rgba(20, 20, 32, 0.6)</code></td><td>次级表面层</td></tr>
@@ -275,6 +299,30 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
   <!-- 五、动效规范 -->
   <div class="section">
     <h2>五、动效规范</h2>
+
+  <!-- 一、Design Principles (expanded) -->
+  <div class="section">
+    <h2>一、设计原则（Apple HIG 对照）</h2>
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-name">语义化颜色</div>
+        <div class="principle-desc">颜色有含义，不是装饰。强调色用于可交互元素，背景色区分层级。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">内容优先</div>
+        <div class="principle-desc">设计退后，内容前进。界面元素最小化，内容最大化。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">触摸目标 ≥ 44pt</div>
+        <div class="principle-desc">所有可点击元素的最小尺寸为 44×44pt，确保可操作性。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-name">层级清晰</div>
+        <div class="principle-desc">文字大小、粗细、颜色形成自然层次，用户无需思考即可分辨内容优先级。</div>
+      </div>
+    </div>
+  </div>
+
     <div class="note"><strong>核心原则：</strong>动效只出现在用户需要反馈的时刻。轻（opacity 变化小）、准（target 精确）、快（0.2–0.3s）。没有目的的动效一律删除。</div>
 
         <h3>5.1 粒子背景（已弃用）</h3>
@@ -366,10 +414,37 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </ul>
   </div>
 
+
+  <!-- 新增：分组内容规范 -->
+  <div class="section">
+    <h2>六、附录：Apple HIG 对照清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>维度</th><th>Apple HIG 要求</th><th>Lob 当前状态</th><th>行动</th></tr></thead>
+        <tbody>
+          <tr><td>背景色</td><td>#1c1c1e（非纯黑）</td><td>#0a0a0a</td><td>✅ 已对齐</td></tr>
+          <tr><td>触摸目标</td><td>≥ 44pt</td><td>Header 52pt / 卡片 72pt+</td><td>✅ 达标</td></tr>
+          <tr><td>字体</td><td>系统字体 SF Pro</td><td>-apple-system</td><td>✅ 已对齐</td></tr>
+          <tr><td>圆角</td><td>10-12px（小元素）/ 22px（卡片）</td><td>12px</td><td>⚠️ 可微调</td></tr>
+          <tr><td>模糊效果</td><td>blur 20-30px</td><td>blur 20px</td><td>✅ 已对齐</td></tr>
+          <tr><td>标题字间距</td><td>letter-spacing: -0.02em</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>边框</td><td>rgba(255,255,255,0.08)</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>Semantic Color</td><td>按语义命名颜色变量</td><td>已部分实现</td><td>🟡 待完善</td></tr>
+          <tr><td>Focus Indicator</td><td>2px outline, accent 色</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>动效时长</td><td>0.2-0.35s</td><td>0.2s</td><td>✅ 已对齐</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- 版本记录 -->
   <div class="section">
     <h2>版本记录</h2>
     <div class="version-log">
+      <div class="version-item">
+        <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a；bg-card色值对齐Apple风格</div>
+      </div>
       <div class="version-item">
         <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
         <div class="version-changes">accent色降低饱和度（67e8f9→60a5fa）；新增全局滚动条样式；新增文本选中样式；新增focus-visible样式；卡片hover加translateY(-4px)；全站移除Google Fonts多余引用</div>

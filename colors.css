@@ -8,9 +8,9 @@
   --accent-glow-strong: rgba(96, 165, 250, 0.55);
 
   /* Background */
-  --bg-deep: #000000;
-  --bg-card: rgba(18, 18, 24, 0.95);
-  --bg-card-hover: rgba(26, 26, 36, 0.98);
+  --bg-deep: #0a0a0a;
+  --bg-card: rgba(28, 28, 32, 0.95);
+  --bg-card-hover: rgba(38, 38, 44, 0.98);
   --bg-surface: rgba(255, 255, 255, 0.04);
   --bg-hover: rgba(255, 255, 255, 0.06);
 
