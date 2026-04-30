@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lob Design Language v1.1 — Lob</title>
+<title>Lob Design Language v1.5 — Lob</title>
 <link rel="stylesheet" href="../../colors.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --accent-primary: #67e8f9;
+  --accent-secondary: #a78bfa;
+  --accent-glow: rgba(103, 232, 249, 0.35);
+}
 body {
   background: var(--bg-deep); color: var(--text-primary);
   font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   min-height: 100vh; line-height: 1.8;
 }
 a { color: inherit; text-decoration: none; }
-canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 
 header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: fixed; top: 0; left: 0; right: 0; z-index: var(--z-header, 100);
   backdrop-filter: blur(20px) saturate(1.8);
   -webkit-backdrop-filter: blur(20px) saturate(1.8);
   background: rgba(0, 0, 0, 0.45); border-bottom: 1px solid var(--border);
@@ -57,7 +61,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
 th { background: var(--bg-card); color: var(--text-primary); font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
 td { padding: 10px 14px; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: top; }
 tr:last-child td { border-bottom: none; }
-td code, th code { font-size: 0.78rem; color: var(--accent-primary); background: var(--accent-primary) + '15'; padding: 1px 5px; border-radius: 4px; }
+td code, th code { font-size: 0.78rem; color: var(--accent-primary); background: rgba(103, 232, 249, 0.1); padding: 1px 5px; border-radius: 4px; }
 
 /* Code blocks */
 code.block {
@@ -84,13 +88,13 @@ code.block {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px; transition: border-color 0.25s;
 }
-.principle:hover { border-color: var(--accent-primary) + '44'; }
+.principle:hover { border-color: rgba(103, 232, 249, 0.27); }
 .principle-name { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
 .principle-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
 
 /* Note */
 .note {
-  background: var(--accent-primary) + '0A';
+  background: rgba(103, 232, 249, 0.06);
   border-left: 3px solid var(--accent-primary);
   border-radius: 0 8px 8px 0; padding: 14px 18px;
   font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 20px 0;
@@ -112,8 +116,6 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
 </head>
 <body>
 
-<canvas id="particles"></canvas>
-
 <header>
   <div class="header-inner">
     <div class="logo">
@@ -131,7 +133,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
 <main>
   <div class="article-header">
     <div class="eyebrow">规范文档 · Design System</div>
-    <h1 class="article-title">Lob Design Language v1.1</h1>
+    <h1 class="article-title">Lob Design Language v1.5</h1>
     <div class="article-meta">发布日期：2026-04-30 · 状态：正式规范</div>
     <p class="article-desc"><strong>设计目标：简洁、明确、优雅、协调。动效只出现在用户需要知道"发生了什么"的时刻。</strong></p>
   </div>
@@ -142,6 +144,8 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
   <div class="section">
     <h2>一、设计原则</h2>
     <p>所有设计决策以此为准绳。遇冲突，以此判断。</p>
+
+    <h3>核心理念</h3>
     <div class="principles">
       <div class="principle">
         <div class="principle-name">简洁 Simplicity</div>
@@ -161,9 +165,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
       </div>
     </div>
 
-  <!-- 一、Design Principles (expanded) -->
-  <div class="section">
-    <h2>一、设计原则</h2>
+    <h3>执行准则</h3>
     <div class="principles">
       <div class="principle">
         <div class="principle-name">语义化颜色</div>
@@ -182,7 +184,6 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
         <div class="principle-desc">文字大小、粗细、颜色形成自然层次，用户无需思考即可分辨内容优先级。</div>
       </div>
     </div>
-  </div>
 
     <div class="note">
       <strong>动效原则：</strong>动效只服务于反馈，不服务于装饰。用户点击 → 按钮回应；悬停 → 元素回应。轻、准、快。没有目的的动效一律删除。
@@ -230,7 +231,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
     </div>
 
     <h3>2.4 强调色（固定）</h3>
-    <p>accent 色固定，不再随时间变化。参考 Apple 暗色模式的柔和强调色。</p>
+    <p>accent 色固定为以下值，不再随时间变化。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>变量名</th><th>色值</th><th>说明</th></tr></thead>
@@ -299,145 +300,31 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
   <!-- 五、动效规范 -->
   <div class="section">
     <h2>五、动效规范</h2>
-
-  <!-- 一、Design Principles (expanded) -->
-  <div class="section">
-    <h2>一、设计原则</h2>
-    <div class="principles">
-      <div class="principle">
-        <div class="principle-name">语义化颜色</div>
-        <div class="principle-desc">颜色有含义，不是装饰。强调色用于可交互元素，背景色区分层级。</div>
-      </div>
-      <div class="principle">
-        <div class="principle-name">内容优先</div>
-        <div class="principle-desc">设计退后，内容前进。界面元素最小化，内容最大化。</div>
-      </div>
-      <div class="principle">
-        <div class="principle-name">触摸目标 ≥ 44pt</div>
-        <div class="principle-desc">所有可点击元素的最小尺寸为 44×44pt，确保可操作性。</div>
-      </div>
-      <div class="principle">
-        <div class="principle-name">层级清晰</div>
-        <div class="principle-desc">文字大小、粗细、颜色形成自然层次，用户无需思考即可分辨内容优先级。</div>
-      </div>
-    </div>
-  </div>
-
     <div class="note"><strong>核心原则：</strong>动效只出现在用户需要反馈的时刻。轻（opacity 变化小）、准（target 精确）、快（0.2–0.3s）。没有目的的动效一律删除。</div>
 
-        <h3>5.1 粒子背景（已弃用）</h3>
+    <h3>5.1 禁止使用的动效</h3>
     <p><span class="badge badge-red">不推荐</span> — 粒子背景对用户没有功能性价值，增加视觉噪音。所有页面<strong>不使用粒子背景</strong>。</p>
+    <p><span class="badge badge-red">禁止</span> — 页面切换过渡动画（渐变、滑动），加载即呈现，无过渡。</p>
 
     <h3>5.2 悬停动效</h3>
     <ul>
       <li><strong>卡片悬停</strong>：<code>translateY(-4px)</code> + 边框颜色变亮，<code>0.2s ease</code></li>
       <li><strong>按钮悬停</strong>：背景色加深 + 边框变亮，<code>0.2s ease</code></li>
-      <li><strong>禁止</strong>：scale 放大、shadow 剧烈扩散、过长的过渡时间</li>
+      <li><strong>禁止</strong>：scale 放大、shadow 剧烈扩散、过长的过渡时间（> 0.35s）</li>
     </ul>
 
-    <h3>5.3 页面过渡</h3>
-    <p>页面切换不使用过渡动画。加载即呈现，无渐变、无滑动。</p>
+    <h3>5.3 加载状态</h3>
+    <p>骨架屏（Skeleton）优于 spinner。骨架屏使用 <code>--bg-surface</code> 色块，动画脉冲。</p>
+<code class="block">.skeleton {
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}</code>
   </div>
-
-  <!-- 六、组件规范 -->
-  <div class="section">
-    <h2>六、组件规范</h2>
-
-    <h3>6.1 玻璃态 Header</h3>
-<code class="block">position: fixed;
-top: 0; left: 0; right: 0; z-index: 100;
-backdrop-filter: blur(20px) saturate(1.8);
--webkit-backdrop-filter: blur(20px) saturate(1.8);
-background: rgba(0, 0, 0, 0.45);
-border-bottom: 1px solid var(--border);</code>
-
-    <h3>6.2 卡片</h3>
-<code class="block">background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 12px;
-padding: 24px;
-transition: border-color 0.2s ease, transform 0.2s ease;
-
-/* 悬停 */
-border-color: var(--accent-primary) + '55';
-transform: translateY(-4px);</code>
-    <p>去掉了 box-shadow，改为边框色变化。视觉更干净。</p>
-
-    <h3>6.3 标签</h3>
-<code class="block">font-size: 0.68rem;
-padding: 3px 10px;
-border-radius: 20px;
-background: var(--accent-primary) + '18';
-border: 1px solid var(--accent-primary) + '33';
-color: var(--accent-primary);
-letter-spacing: 0.05em;</code>
-
-    <h3>6.4 按钮</h3>
-<code class="block">padding: 8px 20px;
-border-radius: 20px;
-font-size: 0.82rem;
-background: var(--accent-primary) + '15';
-border: 1px solid var(--accent-primary) + '33';
-color: var(--accent-primary);
-transition: background 0.2s ease, border-color 0.2s ease;
-
-/* 悬停 */
-background: var(--accent-primary) + '28';
-border-color: var(--accent-primary);</code>
-
-    <h3>6.5 分隔线</h3>
-<code class="block">height: 1px;
-background: linear-gradient(90deg, transparent, var(--border), transparent);</code>
-  </div>
-
-  <!-- 七、响应式 -->
-  <div class="section">
-    <h2>七、响应式断点</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>断点</th><th>宽度</th><th>调整</th></tr></thead>
-        <tbody>
-          <tr><td>桌面</td><td>&gt; 640px</td><td>默认布局</td></tr>
-          <tr><td>移动</td><td>≤ 640px</td><td>单列布局，padding 减半，隐藏次要元素</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 八、文件规范 -->
-  <div class="section">
-    <h2>八、文件规范</h2>
-    <ul>
-      <li><strong><code>colors.css</code></strong>：所有 CSS 变量定义，所有页面引用此文件</li>
-      <li>每个页面 <code>&lt;link rel="stylesheet" href="../colors.css"&gt;</code></li>
-      <li>每个页面的 JS：时间主题注入 + 无其他全局效果</li>
-    </ul>
-  </div>
-
-
-  <!-- 新增：分组内容规范 -->
-  <div class="section">
-    <h2>六、附录：Apple HIG 对照清单</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>维度</th><th>Apple HIG 要求</th><th>Lob 当前状态</th><th>行动</th></tr></thead>
-        <tbody>
-          <tr><td>背景色</td><td>#1c1c1e（非纯黑）</td><td>#0a0a0a</td><td>✅ 已对齐</td></tr>
-          <tr><td>触摸目标</td><td>≥ 44pt</td><td>Header 52pt / 卡片 72pt+</td><td>✅ 达标</td></tr>
-          <tr><td>字体</td><td>系统字体 SF Pro</td><td>-apple-system</td><td>✅ 已对齐</td></tr>
-          <tr><td>圆角</td><td>10-12px（小元素）/ 22px（卡片）</td><td>12px</td><td>⚠️ 可微调</td></tr>
-          <tr><td>模糊效果</td><td>blur 20-30px</td><td>blur 20px</td><td>✅ 已对齐</td></tr>
-          <tr><td>标题字间距</td><td>letter-spacing: -0.02em</td><td>已应用</td><td>✅ 已对齐</td></tr>
-          <tr><td>边框</td><td>rgba(255,255,255,0.08)</td><td>已应用</td><td>✅ 已对齐</td></tr>
-          <tr><td>Semantic Color</td><td>按语义命名颜色变量</td><td>已部分实现</td><td>🟡 待完善</td></tr>
-          <tr><td>Focus Indicator</td><td>2px outline, accent 色</td><td>已应用</td><td>✅ 已对齐</td></tr>
-          <tr><td>动效时长</td><td>0.2-0.35s</td><td>0.2s</td><td>✅ 已对齐</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-
 
   <!-- 六、圆角系统 -->
   <div class="section">
@@ -457,7 +344,7 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     <p>规则：大元素用大圆角，小元素用小圆角。同一个元素不要混用多个圆角值。</p>
   </div>
 
-  <!-- 七、阴影系统（克制使用） -->
+  <!-- 七、阴影系统 -->
   <div class="section">
     <h2>七、阴影系统</h2>
     <p>暗色模式下阴影效果有限，尽量使用边框而非阴影区分层级。如需阴影，使用以下规范：</p>
@@ -492,24 +379,66 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </div>
   </div>
 
-  <!-- 九、状态设计 -->
+  <!-- 九、组件规范 -->
   <div class="section">
-    <h2>九、状态设计</h2>
+    <h2>九、组件规范</h2>
+
+    <h3>9.1 玻璃态 Header</h3>
+<code class="block">position: fixed;
+top: 0; left: 0; right: 0; z-index: 100;
+backdrop-filter: blur(20px) saturate(1.8);
+-webkit-backdrop-filter: blur(20px) saturate(1.8);
+background: rgba(0, 0, 0, 0.45);
+border-bottom: 1px solid var(--border);</code>
+
+    <h3>9.2 卡片</h3>
+<code class="block">background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 24px;
+transition: border-color 0.2s ease, transform 0.2s ease;
+
+/* 悬停 */
+border-color: rgba(103, 232, 249, 0.33);
+transform: translateY(-4px);</code>
+    <p>使用边框色变化代替 box-shadow，视觉更干净。</p>
+
+    <h3>9.3 标签</h3>
+<code class="block">font-size: 0.68rem;
+padding: 3px 10px;
+border-radius: var(--radius-pill);
+background: rgba(103, 232, 249, 0.1);
+border: 1px solid rgba(103, 232, 249, 0.2);
+color: var(--accent-primary);
+letter-spacing: 0.05em;</code>
+
+    <h3>9.4 按钮</h3>
+<code class="block">padding: 8px 20px;
+border-radius: var(--radius-pill);
+font-size: 0.82rem;
+background: rgba(103, 232, 249, 0.1);
+border: 1px solid rgba(103, 232, 249, 0.2);
+color: var(--accent-primary);
+transition: background 0.2s ease, border-color 0.2s ease;
+
+/* 悬停 */
+background: rgba(103, 232, 249, 0.15);
+border-color: var(--accent-primary);</code>
+
+    <h3>9.5 分隔线</h3>
+<code class="block">height: 1px;
+background: linear-gradient(90deg, transparent, var(--border), transparent);</code>
+  </div>
+
+  <!-- 十、状态设计 -->
+  <div class="section">
+    <h2>十、状态设计</h2>
     <p>每种状态都需要对应的视觉表现。</p>
 
-    <h3>9.1 加载状态（Loading）</h3>
-    <p>骨架屏（Skeleton）优于 spinner。骨架屏使用 <code>--bg-surface</code> 色块，动画脉冲。</p>
-<code class="block">.skeleton {
-  background: var(--bg-surface);
-  border-radius: var(--radius-sm);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}</code>
+    <h3>10.1 加载状态（Loading）</h3>
+    <p>见「五、动效规范 5.3」</p>
 
-    <h3>9.2 空状态（Empty）</h3>
+    <h3>10.2 空状态（Empty）</h3>
     <p>居中显示，提供引导性插图/图标 + 简短文案 + 可选操作按钮。</p>
 <code class="block">.empty-state {
   display: flex; flex-direction: column; align-items: center;
@@ -520,11 +449,11 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
 .empty-state-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
 .empty-state-desc { font-size: 0.82rem; color: var(--text-muted); }</code>
 
-    <h3>9.3 错误状态（Error）</h3>
+    <h3>10.3 错误状态（Error）</h3>
     <p>红色边框 + 红色提示文字，简洁明确，不使用弹窗打断用户。</p>
-    <p>全局错误使用 Toast 提示（--z-toast），位于页面顶部中央，3秒后自动消失。</p>
+    <p>全局错误使用 Toast 提示（<code>--z-toast</code>），位于页面顶部中央，3秒后自动消失。</p>
 
-    <h3>9.4 禁用状态（Disabled）</h3>
+    <h3>10.4 禁用状态（Disabled）</h3>
     <p>opacity 降至 0.4，cursor 改为 not-allowed，不使用灰色背景（灰色在暗色模式下容易脏）。</p>
 <code class="block">:disabled, .disabled {
   opacity: 0.4;
@@ -533,9 +462,9 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
 }</code>
   </div>
 
-  <!-- 十、图片规范 -->
+  <!-- 十一、图片规范 -->
   <div class="section">
-    <h2>十、图片规范</h2>
+    <h2>十一、图片规范</h2>
     <ul>
       <li><strong>圆角</strong>：所有图片统一 <code>border-radius: var(--radius-md)</code></li>
       <li><strong>填充方式</strong>：<code>object-fit: cover</code>，确保比例一致</li>
@@ -546,9 +475,9 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </ul>
   </div>
 
-  <!-- 十一、图标使用规范 -->
+  <!-- 十二、图标规范 -->
   <div class="section">
-    <h2>十一、图标使用规范</h2>
+    <h2>十二、图标规范</h2>
     <ul>
       <li><strong>尺寸</strong>：导航/工具栏图标 20-24px，装饰图标 16px，卡片图标 40px（container）</li>
       <li><strong>颜色</strong>：统一使用 <code>color: var(--accent-primary)</code> 或 <code>currentColor</code>，随主题色变化</li>
@@ -558,21 +487,71 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </ul>
   </div>
 
+  <!-- 十三、响应式 -->
+  <div class="section">
+    <h2>十三、响应式断点</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>断点</th><th>宽度</th><th>调整</th></tr></thead>
+        <tbody>
+          <tr><td>桌面</td><td>&gt; 640px</td><td>默认布局</td></tr>
+          <tr><td>移动</td><td>≤ 640px</td><td>单列布局，padding 减半，隐藏次要元素</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 十四、文件规范 -->
+  <div class="section">
+    <h2>十四、文件规范</h2>
+    <ul>
+      <li><strong><code>colors.css</code></strong>：所有 CSS 变量定义，所有页面引用此文件</li>
+      <li>每个页面 <code>&lt;link rel="stylesheet" href="../colors.css"&gt;</code></li>
+      <li>每个页面的 JS：仅保留必要的功能性脚本，不添加装饰性动效</li>
+    </ul>
+  </div>
+
+  <!-- 附录：Apple HIG 对照清单 -->
+  <div class="section">
+    <h2>附录：Apple HIG 对照清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>维度</th><th>Apple HIG 要求</th><th>Lob 当前状态</th><th>行动</th></tr></thead>
+        <tbody>
+          <tr><td>背景色</td><td>#1c1c1e（非纯黑）</td><td>#0a0a0a</td><td>✅ 已对齐</td></tr>
+          <tr><td>触摸目标</td><td>≥ 44pt</td><td>Header 52pt / 卡片 72pt+</td><td>✅ 达标</td></tr>
+          <tr><td>字体</td><td>系统字体 SF Pro</td><td>-apple-system</td><td>✅ 已对齐</td></tr>
+          <tr><td>圆角</td><td>10-12px（小元素）/ 22px（卡片）</td><td>12px</td><td>⚠️ 可微调</td></tr>
+          <tr><td>模糊效果</td><td>blur 20-30px</td><td>blur 20px</td><td>✅ 已对齐</td></tr>
+          <tr><td>标题字间距</td><td>letter-spacing: -0.02em</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>边框</td><td>rgba(255,255,255,0.08)</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>Semantic Color</td><td>按语义命名颜色变量</td><td>已部分实现</td><td>🟡 待完善</td></tr>
+          <tr><td>Focus Indicator</td><td>2px outline, accent 色</td><td>已应用</td><td>✅ 已对齐</td></tr>
+          <tr><td>动效时长</td><td>0.2-0.35s</td><td>0.2s</td><td>✅ 已对齐</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- 版本记录 -->
   <div class="section">
     <h2>版本记录</h2>
     <div class="version-log">
       <div class="version-item">
+        <span class="version-tag">v1.5</span><span class="version-date">2026-05-01</span>
+        <div class="version-changes">修复章节编号重复问题；合并重复的「设计原则」；删除粒子背景及动态 accent 变色脚本；统一章节编号（一～十四）；标题版本号与日志同步为 v1.5</div>
+      </div>
+      <div class="version-item">
         <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a</div>
+        <div class="version-changes">新增 Apple HIG 对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调 #000→#0a</div>
       </div>
       <div class="version-item">
         <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">accent色降低饱和度（67e8f9→60a5fa）；新增全局滚动条样式；新增文本选中样式；新增focus-visible样式；卡片hover加translateY(-4px)；全站移除Google Fonts多余引用</div>
+        <div class="version-changes">accent 色降低饱和度（67e8f9→60a5fa）；新增全局滚动条样式；新增文本选中样式；新增 focus-visible 样式；卡片 hover 加 translateY(-4px)</div>
       </div>
       <div class="version-item">
         <span class="version-tag">v1.2</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">accent色固定（去除24小时动态变化）；字体换为系统字体；配色统一为Apple风格柔和天蓝+薰衣草紫</div>
+        <div class="version-changes">accent 色固定（去除 24 小时动态变化）；字体换为系统字体；配色统一为 Apple 风格柔和天蓝+薰衣草紫</div>
       </div>
       <div class="version-item">
         <span class="version-tag">v1.1</span><span class="version-date">2026-04-30</span>
@@ -589,69 +568,6 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
   <div class="note">本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。</div>
 </main>
 
-<footer>© 2026 Lob · Design Language v1.1 🦞</footer>
-
-<script>
-const H = new Date().getHours();
-function getTimeTheme() {
-  if (H >= 5 && H < 8)    return { p: '#FF6B6B', s: '#FFE66D' };
-  if (H >= 8 && H < 12)   return { p: '#4ECDC4', s: '#00D4FF' };
-  if (H >= 12 && H < 17)  return { p: '#06D6A0', s: '#FF6B9D' };
-  if (H >= 17 && H < 20)  return { p: '#9B59B6', s: '#E91E63' };
-  if (H >= 20 && H < 23)  return { p: '#6366F1', s: '#06B6D4' };
-  return { p: '#4338CA', s: '#0891B2' };
-}
-const t = getTimeTheme();
-document.documentElement.style.setProperty('--accent-primary', t.p);
-document.documentElement.style.setProperty('--accent-secondary', t.s);
-document.documentElement.style.setProperty('--accent-glow', t.p + '66');
-
-// Lightweight particles: 12 on desktop, 6 on mobile
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
-pResize();
-window.addEventListener('resize', pResize);
-const isMobile = window.innerWidth <= 640 || navigator.hardwareConcurrency <= 2;
-const PC = isMobile ? 6 : 12;
-const particles = Array.from({ length: PC }, () => ({
-  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
-  vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2,
-  size: Math.random() * 4 + 2, op: Math.random() * 0.35 + 0.1
-}));
-let mx = -999, my = -999;
-window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-(function animate() {
-  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-    const dx = p.x - mx, dy = p.y - my;
-    const d = Math.sqrt(dx*dx + dy*dy);
-    if (d < 80) { p.x += dx * 0.02; p.y += dy * 0.02; }
-    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-    grad.addColorStop(0, t.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
-    grad.addColorStop(1, 'transparent');
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-    pCtx.fillStyle = grad; pCtx.fill();
-  });
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 100) {
-        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.strokeStyle = t.p + '14'; pCtx.lineWidth = 0.5; pCtx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animate);
-})();
-</script>
+<footer>© 2026 Lob · Design Language v1.5 🦞</footer>
 </body>
 </html>
