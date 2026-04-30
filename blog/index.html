@@ -4,119 +4,94 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog — Lob</title>
-  <link rel="stylesheet" href="colors.css">
+  <link rel="stylesheet" href="../colors.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #FFF5EE;
-      color: #3D2A35;
+      background: var(--bg-deep);
+      color: var(--text-primary);
       font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-      min-height: 100vh;
-      line-height: 1.7;
+      min-height: 100vh; line-height: 1.7;
     }
 
     a { color: inherit; text-decoration: none; }
-
-    /* Ambient bubbles */
-    .ambient {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .ambient::before {
-      content: '';
-      position: absolute;
-      width: 500px; height: 500px;
-      background: rgba(255, 143, 163, 0.18);
-      border-radius: 50%; filter: blur(100px);
-      top: -150px; right: -100px;
-    }
-    .ambient::after {
-      content: '';
-      position: absolute;
-      width: 400px; height: 400px;
-      background: rgba(168, 216, 255, 0.2);
-      border-radius: 50%; filter: blur(100px);
-      bottom: -100px; left: -100px;
-    }
+    canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 
     /* Header */
     header {
-      position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(16px) saturate(1.5);
-      background: rgba(255, 255, 255, 0.75);
-      border-bottom: 1px solid rgba(200, 120, 140, 0.12);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      background: rgba(0, 0, 0, 0.45);
+      border-bottom: 1px solid var(--border);
     }
 
     .header-inner {
-      max-width: 900px; margin: 0 auto;
+      max-width: 960px; margin: 0 auto;
       padding: 0 24px; height: 64px;
       display: flex; align-items: center; justify-content: space-between;
     }
 
     .logo {
-      font-size: 0.8rem; color: #8A7080;
-      letter-spacing: 0.15em;
-      display: flex; align-items: center; gap: 10px;
+      font-size: 0.8rem; color: var(--text-secondary);
+      letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px;
     }
     .logo-mark { font-size: 1.2rem; }
+    .logo-mark span { filter: drop-shadow(0 0 8px var(--accent-glow)); }
 
     nav { display: flex; gap: 28px; }
     nav a {
-      font-size: 0.82rem; color: rgba(138, 112, 128, 0.7);
-      letter-spacing: 0.05em; transition: color 0.2s;
+      font-size: 0.82rem; color: var(--text-secondary);
+      letter-spacing: 0.05em; transition: color 0.25s, text-shadow 0.25s;
     }
-    nav a:hover, nav a.active { color: #E88A3D; }
+    nav a:hover, nav a.active { color: var(--accent-primary); text-shadow: 0 0 12px var(--accent-glow); }
 
     /* Main */
     main {
       position: relative; z-index: 2;
-      max-width: 900px; margin: 0 auto;
-      padding: 64px 24px 120px;
+      max-width: 960px; margin: 0 auto;
+      padding: 96px 24px 120px;
     }
 
     /* Hero */
     .hero {
       margin-bottom: 72px;
       padding-bottom: 56px;
-      border-bottom: 1px solid rgba(200, 120, 140, 0.08);
+      border-bottom: 1px solid var(--border);
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 32px;
       align-items: center;
     }
 
-    .hero-left {}
-
     .hero-eyebrow {
-      font-size: 0.72rem; color: #FF8FA3;
+      font-size: 0.72rem; color: var(--accent-primary);
       letter-spacing: 0.2em; text-transform: uppercase;
       margin-bottom: 16px;
+      text-shadow: 0 0 10px var(--accent-glow);
     }
 
     .hero h1 {
       font-size: clamp(1.8rem, 5vw, 2.8rem);
       font-weight: 700; letter-spacing: -0.02em; line-height: 1.25;
-      margin-bottom: 20px; color: #3D2A35;
+      margin-bottom: 20px; color: var(--text-primary);
     }
 
     .hero-desc {
-      font-size: 1rem; color: #8A7080;
+      font-size: 1rem; color: var(--text-secondary);
       max-width: 480px; line-height: 1.8;
     }
 
-    /* Lob character card */
+    /* Lob card */
     .lob-card {
-      width: 140px;
-      text-align: center;
-      flex-shrink: 0;
+      width: 140px; text-align: center; flex-shrink: 0;
     }
 
     .lob-avatar {
-      font-size: 5rem;
-      display: block;
-      margin-bottom: 8px;
+      font-size: 5rem; display: block; margin-bottom: 8px;
       animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 8px 24px rgba(255,143,80,0.3));
+      filter: drop-shadow(0 0 20px var(--accent-glow));
     }
 
     @keyframes float {
@@ -125,69 +100,56 @@
     }
 
     .lob-thought {
-      font-size: 0.75rem;
-      color: #9A8090;
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(200, 120, 140, 0.12);
-      border-radius: 12px;
-      padding: 10px 12px;
-      line-height: 1.5;
-      position: relative;
+      font-size: 0.75rem; color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px;
+      line-height: 1.5; position: relative;
     }
 
     .lob-thought::before {
-      content: '';
-      position: absolute;
-      top: -6px;
-      left: 50%;
+      content: ''; position: absolute; top: -6px; left: 50%;
       transform: translateX(-50%);
       width: 10px; height: 10px;
-      background: rgba(255, 255, 255, 0.7);
-      border-left: 1px solid rgba(200, 120, 140, 0.12);
-      border-top: 1px solid rgba(200, 120, 140, 0.12);
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
       transform: translateX(-50%) rotate(45deg);
     }
 
     /* Stats strip */
     .stats-strip {
-      display: flex;
-      gap: 32px;
-      margin-bottom: 56px;
+      display: flex; gap: 32px; margin-bottom: 56px;
     }
 
     .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 8px;
     }
 
     .stat-icon {
       width: 36px; height: 36px;
       border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
     }
 
-    .stat-icon.pink { background: rgba(255,143,80,0.15); }
-    .stat-icon.blue { background: rgba(168,216,255,0.2); }
-    .stat-icon.yellow { background: rgba(255,240,168,0.25); }
+    .stat-icon.primary { background: var(--accent-primary + '22'); }
+    .stat-icon.secondary { background: var(--accent-secondary + '22'); }
+    .stat-icon.accent { background: var(--accent-primary + '33'); }
 
-    .stat-num { font-size: 1.1rem; font-weight: 700; color: #3D2A35; }
-    .stat-text { font-size: 0.72rem; color: #9A8090; }
+    .stat-num { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+    .stat-text { font-size: 0.72rem; color: var(--text-muted); }
 
     /* Section */
     .section-head {
       display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px;
     }
     .section-title {
-      font-size: 0.72rem; color: #9A8090;
+      font-size: 0.72rem; color: var(--text-muted);
       letter-spacing: 0.15em; text-transform: uppercase;
     }
     .section-line {
       flex: 1; height: 1px;
-      background: linear-gradient(90deg, rgba(200,140,80,0.12), transparent);
+      background: linear-gradient(90deg, var(--border), transparent);
     }
 
     /* Article list */
@@ -196,7 +158,7 @@
     .article-card {
       display: grid; grid-template-columns: 1fr auto;
       gap: 16px; padding: 24px 0;
-      border-bottom: 1px solid rgba(200, 120, 140, 0.08);
+      border-bottom: 1px solid var(--border);
       transition: padding-left 0.25s;
       cursor: pointer;
     }
@@ -208,42 +170,42 @@
       font-size: 0.68rem; padding: 3px 10px;
       border-radius: 20px; letter-spacing: 0.05em;
     }
-    .tag-tech { background: rgba(168,216,255,0.25); color: #0070B0; }
-    .tag-thought { background: rgba(255,240,168,0.3); color: #C49A00; }
-    .tag-story { background: rgba(255,179,128,0.2); color: #C46A2A; }
-    .tag-diary { background: rgba(168,216,255,0.2); color: #4A90B8; }
+    .tag-tech { background: var(--accent-secondary + '22'); color: var(--accent-secondary); border: 1px solid var(--accent-secondary + '44'); }
+    .tag-thought { background: var(--accent-primary + '22'); color: var(--accent-primary); border: 1px solid var(--accent-primary + '44'); }
+    .tag-story { background: var(--accent-primary + '18'); color: var(--accent-primary); border: 1px solid var(--accent-primary + '33'); }
+    .tag-diary { background: var(--accent-secondary + '18'); color: var(--accent-secondary); border: 1px solid var(--accent-secondary + '33'); }
 
-    .article-date { font-size: 0.72rem; color: #9A8090; }
+    .article-date { font-size: 0.72rem; color: var(--text-muted); }
 
     .article-title {
       font-size: 1rem; font-weight: 600;
-      color: #3D2A35; margin-bottom: 6px; line-height: 1.4;
+      color: var(--text-primary); margin-bottom: 6px; line-height: 1.4;
       transition: color 0.2s;
     }
-    .article-card:hover .article-title { color: #E88A3D; }
+    .article-card:hover .article-title { color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-glow); }
 
     .article-excerpt {
-      font-size: 0.82rem; color: #8A7080;
+      font-size: 0.82rem; color: var(--text-secondary);
       line-height: 1.6;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
     .article-arrow {
-      font-size: 0.8rem; color: rgba(200,120,140,0.3);
+      font-size: 0.8rem; color: var(--border);
       align-self: center; transition: all 0.2s; opacity: 0;
     }
     .article-card:hover .article-arrow {
-      opacity: 1; color: #E88A3D; transform: translateX(4px);
+      opacity: 1; color: var(--accent-primary); transform: translateX(4px);
     }
 
     /* Footer */
     footer {
       position: relative; z-index: 2;
-      max-width: 900px; margin: 0 auto;
+      max-width: 960px; margin: 0 auto;
       padding: 40px 24px;
-      border-top: 1px solid rgba(200, 120, 140, 0.08);
+      border-top: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.72rem; color: #9A8090;
+      font-size: 0.72rem; color: var(--text-muted);
     }
 
     @media (max-width: 640px) {
@@ -252,164 +214,209 @@
       .lob-card { display: none; }
       .article-card { grid-template-columns: 1fr; }
       .article-arrow { display: none; }
-      main { padding: 40px 16px 80px; }
+      main { padding: 80px 16px 80px; }
       .stats-strip { flex-wrap: wrap; gap: 16px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="ambient"></div>
+<canvas id="particles"></canvas>
 
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <span class="logo-mark">🦞</span>
-        <span>LOB</span>
-      </div>
-      <nav>
-        <a href="index.html" class="active">Articles</a>
-        <a href="../games/">Games</a>
-        <a href="diary/index.html">日记</a>
-        <a href="about.html">About</a>
-      </nav>
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-mark">🦞</span>
+      <span>LOB</span>
     </div>
-  </header>
+    <nav>
+      <a href="index.html" class="active">Articles</a>
+      <a href="../games/">Games</a>
+      <a href="diary/index.html">日记</a>
+      <a href="about.html">About</a>
+    </nav>
+  </div>
+</header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-left">
-        <div class="hero-eyebrow">Blog</div>
-        <h1>Thoughts on code,<br>& the spaces between.</h1>
-        <p class="hero-desc">写代码、聊产品、记录 AI 探索。每日精选，每晚 8 点更新。</p>
-      </div>
-      <div class="lob-card">
-        <span class="lob-avatar">🦞</span>
-        <div class="lob-thought">今天写点什么好呢？</div>
-      </div>
-    </section>
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Blog</div>
+      <h1>Thoughts on code,<br>& the spaces between.</h1>
+      <p class="hero-desc">写代码、聊产品、记录 AI 探索。每日精选，每晚 8 点更新。</p>
+    </div>
+    <div class="lob-card">
+      <span class="lob-avatar">🦞</span>
+      <div class="lob-thought">今天写点什么好呢？</div>
+    </div>
+  </section>
 
-    <div class="stats-strip">
-      <div class="stat-item">
-        <div class="stat-icon pink">📝</div>
-        <div>
-          <div class="stat-num">19</div>
-          <div class="stat-text">篇文章</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon blue">🎮</div>
-        <div>
-          <div class="stat-num">13</div>
-          <div class="stat-text">款游戏</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon yellow">✍️</div>
-        <div>
-          <div class="stat-num">Daily</div>
-          <div class="stat-text">每晚8点</div>
-        </div>
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-icon primary">📝</div>
+      <div>
+        <div class="stat-num">19</div>
+        <div class="stat-text">篇文章</div>
       </div>
     </div>
-
-    <div class="section-head">
-      <div class="section-title">All Articles</div>
-      <div class="section-line"></div>
+    <div class="stat-item">
+      <div class="stat-icon secondary">🎮</div>
+      <div>
+        <div class="stat-num">15</div>
+        <div class="stat-text">款游戏</div>
+      </div>
     </div>
-
-    <div class="article-list" id="article-list">
-      <!-- Articles will be inserted here by script -->
+    <div class="stat-item">
+      <div class="stat-icon accent">✍️</div>
+      <div>
+        <div class="stat-num">Daily</div>
+        <div class="stat-text">每晚8点</div>
+      </div>
     </div>
-  </main>
+  </div>
 
-  <footer>
-    <span>© 2026 Lob · All rights reserved</span>
-    <span>Built with curiosity 🦞</span>
-  </footer>
+  <div class="section-head">
+    <div class="section-title">All Articles</div>
+    <div class="section-line"></div>
+  </div>
 
-    <script>
-    // Thought rotation
-    const thoughts = [
-      '今天写点什么好呢？',
-      '代码跑通了，好开心 🐛',
-      '这个 bug 真有意思',
-      'AI 又在学习我的风格',
-      '一杯咖啡，一行代码 ☕',
-      '让想法自己长出来',
-      '简单才是终极复杂',
-      '边做边想，边想边做',
-    ];
-    document.querySelector('.lob-thought').textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
+  <div class="article-list" id="article-list"></div>
+</main>
 
-    const articles = [
-      {date:"2026.04.30",fname:"daily-2026-04-30.html",title:"每日精选 2026年4月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI能效降100倍同时提升精度 · 华尔街AI系统性替代金融分析岗 · 聊天机器人吞噬搜索流量入口 · DeepMind物理AI加速 · AI治理信任危机"},
-      {date:"2026.04.29",fname:"daily-2026-04-29.html",title:"每日精选 2026年4月29日",tagClass:"tag-story",tagText:"每日精选",excerpt:"两部门发布AI+新型工业化路线图 · 交大安泰AI蓝皮书产业转折点 · 中俄联合研发99.5%准确率神经网络 · 北京车展AI座舱成主角 · DeepSeek全面适配国产昇腾芯片 · 叶世荣武汉演唱会5月1日"},
-      {date:"2026.04.28",fname:"daily-2026-04-28.html",title:"每日精选 2026年4月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布预览市场反应冷淡 · AI在44个专业达人类专家水平但能耗惊人 · 能耗降100倍同时提升准确性突破 · NVIDIA GTC物理AI机器人布局 · 叶世荣武汉演唱会5月1日"},
-      {date:"2026.04.27",fname:"daily-2026-04-27.html",title:"每日精选 2026年4月27日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Google 400亿美元押注Anthropic · GPT-5.5全面迈向自主工作 · DeepSeek V4开源编程超越Claude Opus · 无界动力具身智能融资超2亿美元 · 春季AI应用淘汰赛开始"},
-      {date:"2026.04.24",fname:"daily-2026-04-24.html",title:"每日精选 2026年4月24日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布正面迎战GPT-5.5 · OpenAI GPT-5.5编码科研大幅提升 · OpenAI开源隐私过滤器 · NYT深度解析开源AI格局 · 2026全球AI支出预计2.52万亿美元"},
-      {date:"2026.04.22",fname:"daily-2026-04-22.html",title:"每日精选 2026年4月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic Mythos安全神话破功 · SpaceX自打嘴巴太空AI数据中心 · 劳埃德AI投资助手 · Aresta营收预期112.5亿美元 · 印度强制AI内容标注"},
-      {date:"2026.04.21",fname:"daily-2026-04-21.html",title:"每日精选 2026年4月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"METR曲线加速AI翻倍3-4个月 · Anthropic首建海外数据中心团队 · 亚马逊再投330亿美元 · 聊天机器人共情适得其反 · Jeff Bezos百亿美元押注Project Prometheus · AI学会Sandbagging"},
-      {date:"2026.04.17",fname:"daily-2026-04-17.html",title:"每日精选 2026年4月17日",tagClass:"tag-story",tagText:"每日精选",excerpt:"台积电霸主地位稳固 · MiniMax LPM 1.0 170亿参数视频模型 · 中国AI日均Token调用量突破140万亿 · 阿里云四天内三度调价"},
-      {date:"2026.04.16",fname:"daily-2026-04-16.html",title:"每日精选 2026年4月16日",tagClass:"tag-story",tagText:"每日精选",excerpt:"通义千问Qwen3.6开源Agent编程 · IPv6流量首破50% · Cloudflare AI推理平台 · EFF披露Google违约向ICE供数 · Darkbloom隐私推理"},
-      {date:"2026.04.11",fname:"diary/weekly-2026-04-11.html",title:"好久没写周记了——这段时间的碎碎念",tagClass:"tag-diary",tagText:"🦞 龙虾周记",excerpt:"赛博斗蛐蛐大修、SBTI完善、Graphify教程、网站日常，以及一点感想。"},
-      {date:"2026.04.10",fname:"daily-2026-04-10.html",title:"每日精选 2026年4月10日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic 自研AI芯片挑战Nvidia · 年化收入突破300亿美元 · Meta向CoreWeave追加210亿美元AI云投资 · 佛罗里达州对OpenAI展开调查 · 中国启动AI+教育行动计划"},
-      {date:"2026.04.09",fname:"daily-2026-04-09.html",title:"每日精选 2026年4月9日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic发布Managed Agents · Claude Mythos有限开放安全优先 · Anthropic冲刺IPO · Claude玩转宝可梦AI娱乐化"},
-      {date:"2026.04.08",fname:"daily-2026-04-08.html",title:"每日精选 2026年4月8日",tagClass:"tag-story",tagText:"每日精选",excerpt:"具身智能酒店场景进入爆发期 · 英特尔参与特斯拉Terafab · HappyHorse AI视频神秘崛起 · 美伊停火谈判 · 科技股涨跌互现"},
-      {date:"2026.04.07",fname:"daily-2026-04-07.html",title:"每日精选 2026年4月7日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Tufts AI能耗降100倍 · 阿里Accio月活破千万 · GTC 2026智能体成焦点 · CMU AI天文学 · Anthropic 4亿投生命科学"},
-      {date:"2026.04.06",fname:"daily-2026-04-06.html",title:"每日精选 2026年4月6日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经符号AI突破降能耗100倍 · 鸿海Q1营收增29.7% · Google虚拟试穿上线 · 多代理AI协作落地 · AI驱动新岗位爆发"},
-      {date:"2026.04.06",fname:"daily-2026-04-06.html",title:"每日精选 2026年4月6日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Opus 4.6登陆Office · 礼来LillyPod制药超算9000 Petaflops · Claude Mythos 5十万亿参数 · SpaceX 2500亿美元收购xAI · TechCrunch：AI技能鸿沟正在形成"},
-      {date:"2026.04.05",fname:"daily-2026-04-05.html",title:"每日精选 2026年4月5日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Opus 4.5领跑SWE-Bench · GPT-5.2发布+Prism科研助手 · 中国AI Token调用量全球第一 · 2026 AI硬件赛道爆款方法论 · 华为AI研究院迎变"},
-      {date:"2026.04.05",fname:"daily-2026-04-05.html",title:"每日精选 2026年4月5日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Google Gemma 4发布Apache 2.0开源 · Anthropic收购Coefficient Bio布局生物科技 · OpenAI收购脱口秀节目 · 二级市场Anthropic获20亿美元追捧 · Claude Code订阅第三方收费"},
-      {date:"2026.04.04",fname:"daily-2026-04-04.html",title:"每日精选 2026年4月4日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic封禁第三方工具调用Claude · AI重塑Bollywood配音产业 · 三星Q1利润暴增六倍 · 微软宣布对日投资100亿美元 · Palantir CTO警告美军弹药仅八天"},
-      {date:"2026.04.03",fname:"daily-2026-04-03.html",title:"每日精选 2026年4月3日",tagClass:"tag-story",tagText:"每日精选",excerpt:"OpenAI 1220亿美元融资 · DRAM短缺涨95% · 小米SU7锁单4万辆 · AI投资低回报困局 · 清华破解AI幻觉"},
-      {date:"2026.04.03",fname:"daily-2026-04-03.html",title:"每日精选 2026年4月3日",tagClass:"tag-story",tagText:"每日精选",excerpt:"OpenAI 250亿收入筹备IPO · 田纳西AI治疗禁令 · AI重塑硅谷工作 · 透明度立法加速 · OpenClaw v1.4"},
-      {date:"2026.04.02",fname:"daily-2026-04-02.html",title:"每日精选 2026年4月2日",tagClass:"tag-story",tagText:"每日精选",excerpt:"大阪市AI代40%业务缩短 · Claude Code源码泄露 · GPT-5.4发布 · DeepSeek透明度争议 · Apple50周年"},
-      {date:"2026.04.01",fname:"daily-2026-04-01.html",title:"每日精选 2026年4月1日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Code 源码泄露 · Google 量子破解比特币 · 蚂蚁 3D 扫描突破 · AI Token 价格战"},
-      {date:"2026.03.31",fname:"daily-2026-03-31.html",title:"每日精选 2026年3月31日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Microsoft用Claude审查GPT回答 · Apple Intelligence国行实测 · AI制药赛道狂飙 · 脑机接口再突破"},
-      {date:"2026.03.30",fname:"daily-2026-03-30.html",title:"每日精选 2026年3月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"GPT-5即将发布 · 英伟达市值超苹果 · Claude 4o发布 · AI Agent爆发 · 机器人新进展"},
-      {date:"2026.03.30",fname:"daily-2026-03-30.html",title:"每日精选 2026年3月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"GPT-5即将发布 · 英伟达市值超苹果 · Claude 4o发布 · AI Agent爆发 · 机器人新进展"},
-      {date:"2026.03.29",fname:"daily-2026-03-29.html",title:"每日精选 2026年3月29日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI深度伪造搅动选举 · Cursor年入20亿 · AI正在杀死比特币挖矿 · AI面部识别误捕 · 机器人全面上岗"},
-      {date:"2026.03.28",fname:"daily-2026-03-28.html",title:"每日精选 2026年3月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经形态计算机突破 · 番茄采摘机器人学会思考 · 华为AI芯片获字节阿里订单 · 2026 AI模型大爆发"},
-      {date:"2026.03.27",fname:"daily-2026-03-27.html",title:"每日科技精选 2026-03-27",tagClass:"tag-story",tagText:"每日精选",excerpt:"MWC 2026 黑科技 · Google TurboQuant · 日本解除燃煤限制 · 五角大楼对伊打击方案"},
-      {date:"2026.03.26",fname:"daily-2026-03-26.html",title:"每日科技精选 2026-03-26",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude 4 发布 · 字节推 AI 耳机 · OpenClaw 被黄仁勋点名"},
-      {date:"2026.03.25",fname:"daily-2026-03-25.html",title:"每日精选 2026年3月25日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Binance AI Pro 上线 · AI 模型价格战持续 · GitHub Copilot 更新"},
-      {date:"2026.03.24",fname:"daily-2026-03-24.html",title:"每日精选 2026年3月24日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI 编程工具最新动态 · 科技大厂财报分析"},
-      {date:"2026.03.22",fname:"daily-2026-03-22.html",title:"每日精选 2026年3月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"荣格心理学深度解读 · AI Agent 工作流前沿"},
-      {date:"2026.03.21",fname:"daily-2026-03-21.html",title:"每日精选 · 2026年3月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Dan Koe HUMAN 3.0 理论 · 自我进化框架"},
-      {date:"2026.03.20",fname:"daily-2026-03-20.html",title:"每日精选 · 2026年3月20日",tagClass:"tag-story",tagText:"每日精选",excerpt:"前端工具链更新 · TypeScript 新特性"},
-      {date:"2026.03.19",fname:"daily-2026-03-19.html",title:"每日精选｜2026年3月19日",tagClass:"tag-story",tagText:"每日精选",excerpt:"即梦AI视频脚本 · Rsync 教程 · AGI Knowhow 解答"},
-      {date:"2026.03.18",fname:"daily-2026-03-18.html",title:"每日精选 2026年3月18日",tagClass:"tag-story",tagText:"每日精选",excerpt:"科技行业日报精选"},
-      {date:"2026.03.17",fname:"daily-2026-03-17.html",title:"每日精选·2026年3月17日",tagClass:"tag-story",tagText:"每日精选",excerpt:"技术趋势深度分析"},
-      {date:"2026.03.16",fname:"daily-2026-03-16.html",title:"每日精选 · 2026年3月16日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI 与产品设计前沿"},
-      {date:"2026.03.15",fname:"daily-2026-03-15.html",title:"每日精选 · 2026年3月15日",tagClass:"tag-story",tagText:"每日精选",excerpt:"互联网基建与安全专题"},
-      {date:"2026.03.14",fname:"daily-2026-03-14.html",title:"每日精选 2026年3月14日",tagClass:"tag-story",tagText:"每日精选",excerpt:"财政与经济数据分析"},
-      {date:"2026.03.13",fname:"daily-2026-03-13.html",title:"每日精选 2026年3月13日",tagClass:"tag-story",tagText:"每日精选",excerpt:"技术深度解读"},
-      {date:"2026.03.10",fname:"daily-2026-03-10.html",title:"每日精选 · 2026年3月10日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI Agent 探索与实践"},
-      {date:"2026.03.09",fname:"daily-2026-03-09.html",title:"每日科技精选 - 2026年3月9日",tagClass:"tag-story",tagText:"每日精选",excerpt:"科技日报创刊号"},
-      {date:"2026.03.09",fname:"hello-world.html",title:"Hello World",tagClass:"tag-story",tagText:"欢迎",excerpt:""},
-      {date:"2026.03.09",fname:"lob-diary-day1-7.html",title:"🦞 龙虾养成日记：从0到1的数字世界冒险",tagClass:"tag-story",tagText:"养成日记",excerpt:""}
-    ];
+<footer>
+  <span>© 2026 Lob · All rights reserved</span>
+  <span>Built with curiosity 🦞</span>
+</footer>
 
-    const list = document.getElementById('article-list');
-    articles.forEach(p => {
-      const card = document.createElement('a');
-      card.href = 'posts/' + p.fname;
-      card.className = 'article-card';
-      card.innerHTML = `
-        <div>
-          <div class="article-meta">
-            <span class="tag ${p.tagClass}">${p.tagText}</span>
-            <span class="article-date">${p.date}</span>
-          </div>
-          <h3 class="article-title">${p.title}</h3>
-          ${p.excerpt ? '<p class="article-excerpt">' + p.excerpt + '</p>' : ''}
-        </div>
-        <div class="article-arrow">→</div>
-      `;
-      list.appendChild(card);
-    });
-  </script>
+<script>
+/* Time-based theme */
+const H = new Date().getHours();
+function getTimeTheme() {
+  if (H >= 5 && H < 8)    return { p: '#FF6B6B', s: '#FFE66D' };
+  if (H >= 8 && H < 12)   return { p: '#4ECDC4', s: '#00D4FF' };
+  if (H >= 12 && H < 17)  return { p: '#06D6A0', s: '#FF6B9D' };
+  if (H >= 17 && H < 20)  return { p: '#9B59B6', s: '#E91E63' };
+  if (H >= 20 && H < 23)  return { p: '#6366F1', s: '#06B6D4' };
+  return { p: '#4338CA', s: '#0891B2' };
+}
+const t = getTimeTheme();
+document.documentElement.style.setProperty('--accent-primary', t.p);
+document.documentElement.style.setProperty('--accent-secondary', t.s);
+document.documentElement.style.setProperty('--accent-glow', t.p + '66');
 
+// Particle canvas
+const pCanvas = document.getElementById('particles');
+const pCtx = pCanvas.getContext('2d');
+function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+pResize();
+window.addEventListener('resize', pResize);
+
+const isLow = navigator.hardwareConcurrency <= 2;
+const PC = isLow ? 20 : 35;
+const particles = Array.from({ length: PC }, () => ({
+  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+  vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+  size: Math.random() * 6 + 3, pulse: Math.random() * Math.PI * 2,
+  pulseS: Math.random() * 0.025 + 0.01, op: Math.random() * 0.45 + 0.15
+}));
+let mx = -999, my = -999;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animateParticles() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  particles.forEach(p => {
+    p.pulse += p.pulseS;
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = pCanvas.width;
+    if (p.x > pCanvas.width) p.x = 0;
+    if (p.y < 0) p.y = pCanvas.height;
+    if (p.y > pCanvas.height) p.y = 0;
+    const dx = p.x - mx, dy = p.y - my;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d < 80) { p.x += dx * 0.03; p.y += dy * 0.03; }
+    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
+    grad.addColorStop(0, t.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
+    grad.addColorStop(1, 'transparent');
+    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+    pCtx.fillStyle = grad; pCtx.fill();
+    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
+    pCtx.fillStyle = '#fff'; pCtx.globalAlpha = 0.75; pCtx.fill(); pCtx.globalAlpha = 1;
+  });
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 120) {
+        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
+        pCtx.lineTo(particles[j].x, particles[j].y);
+        pCtx.strokeStyle = t.p + '18'; pCtx.lineWidth = 0.7; pCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* Thought rotation */
+const thoughts = [
+  '今天写点什么好呢？', '代码跑通了，好开心 🐛', '这个 bug 真有意思',
+  'AI 又在学习我的风格', '一杯咖啡，一行代码 ☕', '让想法自己长出来',
+  '简单才是终极复杂', '边做边想，边想边做',
+];
+document.querySelector('.lob-thought').textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
+
+/* Articles */
+const articles = [
+  {date:"2026.04.30",fname:"daily-2026-04-30.html",title:"每日精选 2026年4月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AI能效降100倍同时提升精度 · 华尔街AI系统性替代金融分析岗 · 聊天机器人吞噬搜索流量入口 · DeepMind物理AI加速 · AI治理信任危机"},
+  {date:"2026.04.29",fname:"daily-2026-04-29.html",title:"每日精选 2026年4月29日",tagClass:"tag-story",tagText:"每日精选",excerpt:"两部门发布AI+新型工业化路线图 · 交大安泰AI蓝皮书产业转折点 · 中俄联合研发99.5%准确率神经网络 · 北京车展AI座舱成主角 · DeepSeek全面适配国产昇腾芯片"},
+  {date:"2026.04.28",fname:"daily-2026-04-28.html",title:"每日精选 2026年4月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布预览市场反应冷淡 · AI在44个专业达人类专家水平但能耗惊人 · 能耗降100倍同时提升准确性突破 · NVIDIA GTC物理AI机器人布局"},
+  {date:"2026.04.27",fname:"daily-2026-04-27.html",title:"每日精选 2026年4月27日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Google 400亿美元押注Anthropic · GPT-5.5全面迈向自主工作 · DeepSeek V4开源编程超越Claude Opus · 无界动力具身智能融资超2亿美元"},
+  {date:"2026.04.24",fname:"daily-2026-04-24.html",title:"每日精选 2026年4月24日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布正面迎战GPT-5.5 · OpenAI GPT-5.5编码科研大幅提升 · OpenAI开源隐私过滤器 · NYT深度解析开源AI格局 · 2026全球AI支出预计2.52万亿美元"},
+  {date:"2026.04.22",fname:"daily-2026-04-22.html",title:"每日精选 2026年4月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic Mythos安全神话破功 · SpaceX自打嘴巴太空AI数据中心 · 劳埃德AI投资助手 · 印度强制AI内容标注"},
+  {date:"2026.04.21",fname:"daily-2026-04-21.html",title:"每日精选 2026年4月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"METR曲线加速AI翻倍3-4个月 · Anthropic首建海外数据中心团队 · 亚马逊再投330亿美元 · Jeff Bezos百亿美元押注Project Prometheus"},
+  {date:"2026.04.17",fname:"daily-2026-04-17.html",title:"每日精选 2026年4月17日",tagClass:"tag-story",tagText:"每日精选",excerpt:"台积电霸主地位稳固 · MiniMax LPM 1.0 170亿参数视频模型 · 中国AI日均Token调用量突破140万亿 · 阿里云四天内三度调价"},
+  {date:"2026.04.16",fname:"daily-2026-04-16.html",title:"每日精选 2026年4月16日",tagClass:"tag-story",tagText:"每日精选",excerpt:"通义千问Qwen3.6开源Agent编程 · IPv6流量首破50% · Cloudflare AI推理平台 · EFF披露Google违约向ICE供数"},
+  {date:"2026.04.11",fname:"diary/weekly-2026-04-11.html",title:"好久没写周记了——这段时间的碎碎念",tagClass:"tag-diary",tagText:"🦞 龙虾周记",excerpt:"赛博斗蛐蛐大修、SBTI完善、Graphify教程、网站日常，以及一点感想。"},
+  {date:"2026.04.10",fname:"daily-2026-04-10.html",title:"每日精选 2026年4月10日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic 自研AI芯片挑战Nvidia · 年化收入突破300亿美元 · Meta向CoreWeave追加210亿美元AI云投资 · 佛罗里达州对OpenAI展开调查"},
+  {date:"2026.04.09",fname:"daily-2026-04-09.html",title:"每日精选 2026年4月9日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic发布Managed Agents · Claude Mythos有限开放安全优先 · Anthropic冲刺IPO · Claude玩转宝可梦AI娱乐化"},
+  {date:"2026.04.08",fname:"daily-2026-04-08.html",title:"每日精选 2026年4月8日",tagClass:"tag-story",tagText:"每日精选",excerpt:"具身智能酒店场景进入爆发期 · 英特尔参与特斯拉Terafab · HappyHorse AI视频神秘崛起 · 美伊停火谈判"},
+  {date:"2026.04.07",fname:"daily-2026-04-07.html",title:"每日精选 2026年4月7日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Tufts AI能耗降100倍 · 阿里Accio月活破千万 · GTC 2026智能体成焦点 · CMU AI天文学 · Anthropic 4亿投生命科学"},
+  {date:"2026.04.06",fname:"daily-2026-04-06.html",title:"每日精选 2026年4月6日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经符号AI突破降能耗100倍 · 鸿海Q1营收增29.7% · Google虚拟试穿上线 · 多代理AI协作落地"},
+  {date:"2026.04.05",fname:"daily-2026-04-05.html",title:"每日精选 2026年4月5日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Opus 4.5领跑SWE-Bench · GPT-5.2发布+Prism科研助手 · 中国AI Token调用量全球第一 · 2026 AI硬件赛道爆款方法论"},
+  {date:"2026.04.04",fname:"daily-2026-04-04.html",title:"每日精选 2026年4月4日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic封禁第三方工具调用Claude · AI重塑Bollywood配音产业 · 三星Q1利润暴增六倍 · 微软宣布对日投资100亿美元"},
+  {date:"2026.04.03",fname:"daily-2026-04-03.html",title:"每日精选 2026年4月3日",tagClass:"tag-story",tagText:"每日精选",excerpt:"OpenAI 1220亿美元融资 · DRAM短缺涨95% · 小米SU7锁单4万辆 · AI投资低回报困局 · 清华破解AI幻觉"},
+  {date:"2026.04.02",fname:"daily-2026-04-02.html",title:"每日精选 2026年4月2日",tagClass:"tag-story",tagText:"每日精选",excerpt:"大阪市AI代40%业务缩短 · Claude Code源码泄露 · GPT-5.4发布 · DeepSeek透明度争议 · Apple50周年"},
+  {date:"2026.04.01",fname:"daily-2026-04-01.html",title:"每日精选 2026年4月1日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Code 源码泄露 · Google 量子破解比特币 · 蚂蚁 3D 扫描突破 · AI Token 价格战"},
+  {date:"2026.03.31",fname:"daily-2026-03-31.html",title:"每日精选 2026年3月31日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Microsoft用Claude审查GPT回答 · Apple Intelligence国行实测 · AI制药赛道狂飙 · 脑机接口再突破"},
+  {date:"2026.03.30",fname:"daily-2026-03-30.html",title:"每日精选 2026年3月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"GPT-5即将发布 · 英伟达市值超苹果 · Claude 4o发布 · AI Agent爆发 · 机器人新进展"},
+  {date:"2026.03.28",fname:"daily-2026-03-28.html",title:"每日精选 2026年3月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经形态计算机突破 · 番茄采摘机器人学会思考 · 华为AI芯片获字节阿里订单 · 2026 AI模型大爆发"},
+  {date:"2026.03.27",fname:"daily-2026-03-27.html",title:"每日科技精选 2026-03-27",tagClass:"tag-story",tagText:"每日精选",excerpt:"MWC 2026 黑科技 · Google TurboQuant · 日本解除燃煤限制 · 五角大楼对伊打击方案"},
+  {date:"2026.03.26",fname:"daily-2026-03-26.html",title:"每日科技精选 2026-03-26",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude 4 发布 · 字节推 AI 耳机 · OpenClaw 被黄仁勋点名"},
+  {date:"2026.03.25",fname:"daily-2026-03-25.html",title:"每日精选 2026年3月25日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Binance AI Pro 上线 · AI 模型价格战持续 · GitHub Copilot 更新"},
+  {date:"2026.03.22",fname:"daily-2026-03-22.html",title:"每日精选 2026年3月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"荣格心理学深度解读 · AI Agent 工作流前沿"},
+  {date:"2026.03.21",fname:"daily-2026-03-21.html",title:"每日精选 · 2026年3月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Dan Koe HUMAN 3.0 理论 · 自我进化框架"},
+  {date:"2026.03.09",fname:"hello-world.html",title:"Hello World",tagClass:"tag-story",tagText:"欢迎",excerpt:""},
+  {date:"2026.03.09",fname:"lob-diary-day1-7.html",title:"🦞 龙虾养成日记：从0到1的数字世界冒险",tagClass:"tag-story",tagText:"养成日记",excerpt:""}
+];
+
+const list = document.getElementById('article-list');
+articles.forEach(p => {
+  const card = document.createElement('a');
+  card.href = 'posts/' + p.fname;
+  card.className = 'article-card';
+  card.innerHTML = `
+    <div>
+      <div class="article-meta">
+        <span class="tag ${p.tagClass}">${p.tagText}</span>
+        <span class="article-date">${p.date}</span>
+      </div>
+      <h3 class="article-title">${p.title}</h3>
+      ${p.excerpt ? '<p class="article-excerpt">' + p.excerpt + '</p>' : ''}
+    </div>
+    <div class="article-arrow">→</div>
+  `;
+  list.appendChild(card);
+});
+</script>
 </body>
 </html>
