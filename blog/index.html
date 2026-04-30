@@ -134,17 +134,17 @@ articles.forEach(p => {
   const card = document.createElement('a');
   card.href = 'posts/' + p.fname;
   card.className = 'article-card';
-  card.innerHTML = \`
+  card.innerHTML = `
     <div>
       <div class="article-meta">
-        <span class="tag">\${p.tagText}</span>
-        <span class="article-date">\${p.date}</span>
+        <span class="tag">${p.tagText}</span>
+        <span class="article-date">${p.date}</span>
       </div>
-      <h3 class="article-title">\${p.title}</h3>
-      \${p.excerpt ? '<p class="article-excerpt">' + p.excerpt + '</p>' : ''}
+      <h3 class="article-title">${p.title}</h3>
+      ${p.excerpt ? '<p class="article-excerpt">' + p.excerpt + '</p>' : ''}
     </div>
     <div class="article-arrow">→</div>
-  \`;
+  `;
   list.appendChild(card);
 });
 </script>
