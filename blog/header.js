@@ -10,17 +10,17 @@
   }
 
   // Build correct nav link paths based on directory
-  const articlesHref = isPostsDir ? 'index.html' : 'index.html';
+  const articlesHref = 'index.html';
   const gamesHref   = isPostsDir ? '../games/' : '../games/';
   const diaryHref    = isPostsDir ? '../diary/index.html' : 'diary/index.html';
   const aboutHref    = isPostsDir ? '../about.html' : 'about.html';
+  const logoHref     = isPostsDir ? '../' : '';
 
   const page = (function() {
     for (const s of scripts) {
       const p = s.getAttribute('data-page');
       if (p) return p;
     }
-    // Infer from URL
     const u = location.pathname;
     if (u.includes('/posts/') || u.includes('/diary/')) return 'articles';
     if (u.includes('/games/')) return 'games';
@@ -39,11 +39,12 @@
     `<a href="${n.href}"${n.key === page ? ' class="active"' : ''}>${n.label}</a>`
   ).join('');
 
-  const backURL = isPostsDir ? '../index.html' : 'index.html';
+  const backURL = isPostsDir ? '../' : '';
 
   const headerHTML = `<header>
 <div class="header-inner">
-  <a href="${backURL}" class="logo" style="text-decoration:none">
+  <button onclick="history.back()" style="font-size:0.82rem;color:var(--text-secondary);cursor:pointer;border:none;background:none;padding:0;transition:color 0.2s;" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='var(--text-secondary)'">← Back</button>
+  <a href="${logoHref}" class="logo" style="text-decoration:none">
     <span class="logo-mark">🦞</span>
     <span>LOB</span>
   </a>
