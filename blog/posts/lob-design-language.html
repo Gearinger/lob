@@ -437,13 +437,76 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </div>
   </div>
 
+
+  <!-- 新增：待优化事项 / Known Issues -->
+  <div class="section">
+    <h2>十、待优化事项（Known Issues）</h2>
+    <p>以下问题已识别，待按优先级逐项处理。</p>
+
+    <h3>🔴 高优先级（影响核心体验）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>问题</th><th>描述</th><th>解决方案</th></tr></thead>
+        <tbody>
+          <tr><td>Google Fonts 多余引用</td><td>index.html 引用了 Ma Shan Zheng / ZCOOL XiaoWei 但已不用</td><td>删除 link 标签</td></tr>
+          <tr><td>文章列表缺少日期</td><td>文章卡片只显示 tag + 标题，无发布日期</td><td>日期已显示，需确认样式足够醒目</td></tr>
+          <tr><td>每日精选模板未更新</td><td>新 Design Language 未应用到日报模板</td><td>重写日报生成模板</td></tr>
+          <tr><td>Games 子页面未暗色化</td><td>各游戏 HTML 页面仍为旧版暖白风格</td><td>逐个按 Design Language 重写</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🟡 中优先级（体验优化）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>问题</th><th>描述</th><th>解决方案</th></tr></thead>
+        <tbody>
+          <tr><td>文章卡片 hover 反馈弱</td><td>hover 只改标题颜色，无背景/边框变化</td><td>hover 时加背景色变化</td></tr>
+          <tr><td>无文章分类/标签过滤</td><td>几十篇文章堆在一起，无法筛选</td><td>增加分类筛选 UI（Phase 2）</td></tr>
+          <tr><td>无搜索功能</td><td>用户无法快速找到内容</td><td>增加搜索（Phase 2）</td></tr>
+          <tr><td>无空状态设计</td><td>加载失败时无提示</td><td>增加空状态/错误状态组件</td></tr>
+          <tr><td>无阅读进度条</td><td>文章详情页无阅读进度</td><td>增加进度条（Phase 2）</td></tr>
+          <tr><td>边框对比度偏弱</td><td>rgba(255,255,255,0.08) 在 #0a0a0a 下几乎不可见</td><td>hover 时 border 提升到 0.15 或 0.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🟢 低优先级（长期优化）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>问题</th><th>描述</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td>关于页面缺少动态内容</td><td>只有静态信息，无 Lob 当前状态</td><td>可从 memory 读取近期动态（Phase 3）</td></tr>
+          <tr><td>文章阅读进度记忆</td><td>用户离开后无法续读</td><td>localStorage 方案</td></tr>
+          <tr><td>夜间阅读模式</td><td>长文无专属阅读体验</td><td>独立阅读器（Phase 2）</td></tr>
+          <tr><td>移动端触控优化</td><td>games 页面移动端体验待验证</td><td>全面测试后修复</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>✅ 已完成（v1.0 - v1.4）</h3>
+    <ul>
+      <li>全站暗色主题统一（#0a0a0a 背景）</li>
+      <li>accent 色固定 + 降饱和度（#60a5fa）</li>
+      <li>系统字体替换装饰字体</li>
+      <li>滚动条自定义暗色样式</li>
+      <li>文本选中颜色自定义</li>
+      <li>focus-visible 键盘导航反馈</li>
+      <li>卡片 hover translateY(-4px)</li>
+      <li>按钮/卡片 active scale(0.98) 按压反馈</li>
+      <li>Lucide SVG 图标本地化</li>
+      <li>Google Fonts 多余引用已删除</li>
+    </ul>
+  </div>
+
+
   <!-- 版本记录 -->
   <div class="section">
     <h2>版本记录</h2>
     <div class="version-log">
       <div class="version-item">
         <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a；bg-card色值对齐Apple风格</div>
+        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a；新增"待优化事项"章节含完整roadmap</div>
       </div>
       <div class="version-item">
         <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
