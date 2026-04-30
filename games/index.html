@@ -9,21 +9,17 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
+  -webkit-font-smoothing: antialiased;
       background: var(--bg-deep);
       color: var(--text-primary);
-      font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
       min-height: 100vh; overflow-x: hidden;
     }
 
     .ambient {
       position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
-    .ambient::before {
-      content: '';
-      position: absolute; width: 600px; height: 600px;
-      background: var(--accent-primary + '22'); border-radius: 50%; filter: blur(120px);
-      top: -200px; right: -100px;
-    }
+    .ambient { background: var(--bg-deep); }
     .ambient::after {
       content: '';
       position: absolute; width: 400px; height: 400px;
@@ -43,7 +39,7 @@
     .logo-mark {
       display: inline-flex; align-items: center; justify-content: center;
       width: 56px; height: 56px; border-radius: 18px;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      background: var(--bg-surface);
       font-size: 1.5rem; margin-bottom: 20px;
       box-shadow: 0 4px 30px var(--accent-primary + '22');
     }
@@ -125,7 +121,7 @@
     .icon-bomberman .card-icon::after { background: linear-gradient(135deg, #FF8FA3, #E88A3D); }
     .icon-herstory .card-icon::after { background: linear-gradient(135deg, #FFB3C6, #FF8FA3); }
     .icon-carfactory .card-icon::after { background: linear-gradient(135deg, #FFF0A8, #FFE566); }
-    .icon-audioviz .card-icon::after { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); }
+    .icon-audioviz .card-icon::after { background: var(--bg-surface); }
     .icon-poker .card-icon::after { background: linear-gradient(135deg, #7ED9C4, #A8D8FF); }
     .icon-cricket .card-icon::after { background: linear-gradient(135deg, #E88A3D, #FF8FA3); }
 

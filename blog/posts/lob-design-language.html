@@ -205,22 +205,18 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
       </table>
     </div>
 
-    <h3>2.4 动态强调色（JS 注入，24小时变化）</h3>
+    <h3>2.4 强调色（固定）</h3>
+    <p>accent 色固定，不再随时间变化。参考 Apple 暗色模式的柔和强调色。</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>时段</th><th>--accent-primary</th><th>--accent-secondary</th></tr></thead>
+        <thead><tr><th>变量名</th><th>色值</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>🌅 05:00–07:59</td><td><code>#FF6B6B</code> 珊瑚红</td><td><code>#FFE66D</code> 金黄</td></tr>
-          <tr><td>☀️ 08:00–11:59</td><td><code>#4ECDC4</code> 薄荷绿</td><td><code>#00D4FF</code> 天蓝</td></tr>
-          <tr><td>🌞 12:00–16:59</td><td><code>#06D6A0</code> 青绿</td><td><code>#FF6B9D</code> 粉红</td></tr>
-          <tr><td>🌇 17:00–19:59</td><td><code>#9B59B6</code> 紫罗兰</td><td><code>#E91E63</code> 玫红</td></tr>
-          <tr><td>🌙 20:00–22:59</td><td><code>#6366F1</code> 靛蓝</td><td><code>#06B6D4</code> 电蓝</td></tr>
-          <tr><td>🌌 23:00–04:59</td><td><code>#4338CA</code> 深靛</td><td><code>#0891B2</code> 深青</td></tr>
+          <tr><td><code>--accent-primary</code></td><td><code>#67e8f9</code></td><td>主强调色，天蓝（固定）</td></tr>
+          <tr><td><code>--accent-secondary</code></td><td><code>#a78bfa</code></td><td>次强调色，薰衣草紫（固定）</td></tr>
+          <tr><td><code>--accent-glow</code></td><td><code>rgba(103, 232, 249, 0.35)</code></td><td>光晕效果</td></tr>
         </tbody>
       </table>
     </div>
-    <p>Glow：<code>--accent-glow</code> = <code>--accent-primary</code> + <code>'66'</code>（40%透明度）<br>
-    强 Glow：<code>--accent-glow-strong</code> = <code>--accent-primary</code> + <code>'A8'</code>（67%透明度）</p>
 
     <h3>2.5 禁止使用的颜色</h3>
     <p>以下颜色在 Phase 1 后的任何页面中<span class="badge badge-red">禁止出现</span>：</p>
@@ -236,7 +232,8 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
   <!-- 三、字体系统 -->
   <div class="section">
     <h2>三、字体系统</h2>
-    <p>中文标题用 <code>Ma Shan Zheng</code>，正文用 <code>ZCOOL XiaoWei</code>，英文/数字用系统字体。</p>
+    <p>使用系统字体（<code>-apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif</code>），参考 Apple 的字体策略：干净、可预测、加载快。</p>
+    <p class="note"><strong>已弃用：</strong><code>Ma Shan Zheng</code>（毛笔字体）和 <code>ZCOOL XiaoWei</code>（站酷犀利体）已弃用，装饰性太强，与暗色简洁风格冲突。</p>
 
     <h3>字号层级</h3>
     <div class="table-wrap">
@@ -373,6 +370,10 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
   <div class="section">
     <h2>版本记录</h2>
     <div class="version-log">
+      <div class="version-item">
+        <span class="version-tag">v1.2</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">accent色固定（去除24小时动态变化）；字体换为系统字体（弃用装饰字体）；配色统一为Apple风格柔和天蓝+薰衣草紫</div>
+      </div>
       <div class="version-item">
         <span class="version-tag">v1.1</span><span class="version-date">2026-04-30</span>
         <div class="version-changes">融入苹果设计原则：简洁/明确/优雅/协调；去除粒子背景；卡片去掉阴影；正文字号微调；组件规范简化</div>

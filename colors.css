@@ -1,34 +1,33 @@
-/* Lob — 生物荧光暗色主题 | Biofluorescent Dark Theme */
+/* Lob — Dark Mode Design System v1.2
+   参考 Apple 设计原则：简洁、明确、优雅、协调
+*/
+
 :root {
-  /* Accent — 动态，由 JS 根据时间注入 */
-  --accent-primary: #00D4FF;
-  --accent-secondary: #4ECDC4;
-  --accent-glow: rgba(0, 212, 255, 0.4);
-  --accent-glow-strong: rgba(0, 212, 255, 0.65);
+  /* Accent — 固定主色调（参考 Apple 暗色模式的柔和强调色） */
+  --accent-primary: #67e8f9;
+  --accent-secondary: #a78bfa;
+  --accent-glow: rgba(103, 232, 249, 0.35);
+  --accent-glow-strong: rgba(103, 232, 249, 0.6);
 
   /* Background */
   --bg-deep: #000000;
-  --bg-card: rgba(12, 12, 18, 0.85);
-  --bg-card-hover: rgba(18, 18, 28, 0.92);
-  --bg-surface: rgba(20, 20, 32, 0.6);
+  --bg-card: rgba(18, 18, 24, 0.95);
+  --bg-card-hover: rgba(26, 26, 36, 0.98);
+  --bg-surface: rgba(24, 24, 32, 0.6);
+  --bg-hover: rgba(255, 255, 255, 0.04);
 
   /* Text */
-  --text-primary: #E8E8F0;
-  --text-secondary: rgba(232, 232, 240, 0.55);
-  --text-muted: rgba(232, 232, 240, 0.3);
+  --text-primary: #f1f5f9;
+  --text-secondary: rgba(241, 245, 249, 0.55);
+  --text-muted: rgba(241, 245, 249, 0.3);
 
   /* Borders */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
-  --border-glow: var(--accent-glow);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --border-accent: rgba(103, 232, 249, 0.3);
 
-  /* Brain states */
-  --brain-idle: #4ECDC4;
-  --brain-thinking: #FFE66D;
-  --brain-creating: #FF6B6B;
-  --brain-sleeping: #4338CA;
-
-  /* Cards */
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --card-glow: 0 0 20px var(--accent-glow);
+  /* Tag */
+  --tag-bg: rgba(103, 232, 249, 0.12);
+  --tag-border: rgba(103, 232, 249, 0.25);
+  --tag-color: #67e8f9;
 }
