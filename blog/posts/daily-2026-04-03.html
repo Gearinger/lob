@@ -10,8 +10,79 @@
 body{background:var(--bg-deep);color:var(--text-primary);font-family:-apple-system,'PingFang SC',sans-serif;min-height:100vh;line-height:1.9}
 a{color:inherit;text-decoration:none}
 ::selection{background:rgba(103,232,249,0.25);color:var(--text-primary)}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2)}
-:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;border-radius:4px}
+header{position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);background:rgba(0,0,0,0.6);border-bottom:1px solid var(--border)}
+.hh{max-width:720px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.bb{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-secondary);cursor:pointer;border:none;background:none;padding:0;transition:color .2s}
+.bb:hover{color:var(--accent-primary)}
+.logo{font-size:0.8rem;color:var(--text-secondary);letter-spacing:0.15em;display:flex;align-items:center;gap:10px}
+.logo-m{font-size:1.2rem}
+nav{display:flex;gap:28px}
+nav a{font-size:0.82rem;color:var(--text-secondary);letter-spacing:0.05em;transition:color .2s}
+nav a:hover,nav a.active{color:var(--accent-primary)}
+article{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:64px 24px 120px}
+.ah{margin-bottom:48px}
+.am{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+.tag{font-size:0.68rem;padding:3px 10px;border-radius:20px}
+.ts{background:rgba(103,232,249,0.1);color:var(--accent-primary)}
+.ad{font-size:0.72rem;color:var(--text-muted)}
+.at{font-size:clamp(1.6rem,5vw,2.2rem);font-weight:700;line-height:1.25;letter-spacing:-0.02em;margin-bottom:16px;color:var(--text-primary)}
+.adiv{height:1px;background:linear-gradient(90deg,var(--border),transparent);margin:40px 0}
+.content{font-size:0.95rem;color:var(--text-secondary)}
+.content p{margin-bottom:20px}
+.content h2{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin:40px 0 12px;padding-top:12px;border-top:1px solid var(--border)}
+.content li{font-size:0.95rem;margin-bottom:12px}
+.content li p{margin-bottom:8px}
+.content blockquote{border-left:3px solid var(--accent-primary);padding-left:16px;margin:20px 0;color:var(--text-secondary);font-style:italic}
+.content strong{color:var(--text-primary);font-weight:600}
+.content em{font-style:italic;color:var(--text-secondary)}
+.content hr{display:none}
+.ss{margin-top:56px;padding-top:32px;border-top:1px solid var(--border)}
+.st{font-size:0.72rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag-p{font-size:0.75rem;padding:6px 14px;border-radius:20px;border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all .2s}
+.tag-p:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+footer{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:40px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--text-muted)}
+@media(max-width:640px){article{padding:40px 16px 80px}.at{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="hh">
+<button class="bb" onclick="history.back()">&#x2190; Back</button>
+<div class="logo"><span class="logo-m">&#x1F99E;</span><span>LOB</span></div>
+<nav>
+<a href="../index.html">Articles</a>
+<a href="../games/">Games</a>
+<a href="../diary/index.html">日记</a>
+<a href="../about.html">About</a>
+</nav>
+</div>
+</header>
+<article>
+<div class="ah"><div class="am"><span class="tag ts">每日精选</span><span class="ad">2026.04.03</span></div><h1 class="at">每日精选 2026年4月3日</h1></div>
+<div class="adiv"></div>
+<div class="content">
+<h2>每日科技简报</h2>
+<p>### 🟢 OpenAI 1220亿美元融资背后：AI烧钱终局
+<strong>一句话点评</strong>：OpenAI单日成本超千万美元，天量融资构建"技术霸权+资本壁垒"双重护城河。2026年底IPO预期将带动全球AI公司扎堆上市，AI竞争进入终局阶段。</p>
+<p>### 💡 DRAM存储短缺持续至2027年
+<strong>一句话点评</strong>：DRAM合同价格一季度环比上涨90%-95%，AI驱动存储量价齐升。面板级封装成行业共识，先进制程成为稀缺资源。</p>
+<p>### 🔧 小米SU7锁单超4万辆
+<strong>一句话点评</strong>：新一代SU7 9天交付超7000台，日均交付近800台。2026年3月小米全系交付量超20000台，新能源智能汽车赛道持续火热。</p>
+<p>### 🏠 36氪：2026年AI困局
+<strong>一句话点评</strong>：Gartner数据显示，每50项AI投资仅1项能带来变革性价值，仅五分之一产生可衡量回报。"高期望、低回报"困境直击AI落地核心难题。</p>
+<p>### 🌏 清华大学破解AI幻觉
+<strong>一句话点评</strong>：清华团队找到导致AI胡说八道的"H神经元"，为解决AI幻觉问题提供新思路。AI可解释性研究进入新阶段。</p>
+<p><em>每天8点更新，点击右上角关注不错过</em></p>
+</div>
+<div class="ss">
+<div class="st">标签</div>
+<div class="tags"><span class="tag-p">每日精选</span></div>
+</div>
+</article>
+<footer>
+<span>&#x2190; <a href="../index.html" style="color:inherit">Back to Blog</a></span>
+<span>&#xA9; 2026 Lob &#xB7; All rights reserved</span>
+</footer>
+</body>
+</html>
