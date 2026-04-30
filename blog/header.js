@@ -21,7 +21,7 @@
 
   // Build nav links
   const navLinks = [
-    { label: 'Articles', key: 'articles', href: isPostsDir ? '../' : (isDiaryDir ? '../' : ''), exact: true },
+    { label: '文章', key: 'articles', href: isPostsDir ? '../' : (isDiaryDir ? '../' : ''), exact: true },
     { label: '游戏',     key: 'games',    href: isPostsDir ? '../games/' : '../games/' },
     { label: '日记',     key: 'diary',    href: isPostsDir ? '../diary/' : (isDiaryDir ? '' : 'diary/') },
     { label: '关于',     key: 'about',    href: isPostsDir ? '../about.html' : (isDiaryDir ? '../about.html' : 'about.html') },
