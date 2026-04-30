@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lob Design Language v1.5 — Lob</title>
+<title>Lob Design Language v1.6 — Lob</title>
 <link rel="stylesheet" href="../../colors.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +32,12 @@ header {
 .logo { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px; }
 .logo-mark { font-size: 1.2rem; }
 nav { display: flex; gap: 28px; }
-nav a { font-size: 0.82rem; color: var(--text-secondary); letter-spacing: 0.05em; transition: color 0.2s; }
+nav a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  transition: color 0.2s ease;
+}
 nav a:hover, nav a.active { color: var(--accent-primary); }
 
 main { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: 96px 24px 120px; }
@@ -75,6 +80,7 @@ code.block {
 .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; }
 .badge-red { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
 .badge-green { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.badge-yellow { background: rgba(234, 179, 8, 0.15); color: #EAB308; }
 
 /* Forbidden list */
 .forbidden-list { list-style: none; padding: 0; }
@@ -133,8 +139,8 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
 <main>
   <div class="article-header">
     <div class="eyebrow">规范文档 · Design System</div>
-    <h1 class="article-title">Lob Design Language v1.5</h1>
-    <div class="article-meta">发布日期：2026-04-30 · 状态：正式规范</div>
+    <h1 class="article-title">Lob Design Language v1.6</h1>
+    <div class="article-meta">发布日期：2026-05-01 · 状态：正式规范</div>
     <p class="article-desc"><strong>设计目标：简洁、明确、优雅、协调。动效只出现在用户需要知道"发生了什么"的时刻。</strong></p>
   </div>
 
@@ -169,7 +175,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
     <div class="principles">
       <div class="principle">
         <div class="principle-name">语义化颜色</div>
-        <div class="principle-desc">颜色有含义，不是装饰。强调色用于可交互元素，背景色区分层级。</div>
+        <div class="principle-desc">颜色有含义，不是装饰。强调色用于可交互元素，背景色区分层级。<span class="badge badge-yellow">待完善</span></div>
       </div>
       <div class="principle">
         <div class="principle-name">内容优先</div>
@@ -180,8 +186,8 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
         <div class="principle-desc">所有可点击元素的最小尺寸为 44×44pt，确保可操作性。</div>
       </div>
       <div class="principle">
-        <div class="principle-name">层级清晰</div>
-        <div class="principle-desc">文字大小、粗细、颜色形成自然层次，用户无需思考即可分辨内容优先级。</div>
+        <div class="principle-name">间距节奏</div>
+        <div class="principle-desc">基于 8px Grid，内容之间有呼吸。克制留白，不过度铺张。</div>
       </div>
     </div>
 
@@ -252,6 +258,9 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
       <li><code>#FF8FA3</code> / <code>#A8D8FF</code> — 旧版渐变</li>
       <li>任何暖色系：<code>rgba(255, 143, ...)</code> / <code>rgba(200, 140, ...)</code> / <code>rgba(168, 216, ...)</code></li>
     </ul>
+
+    <h3>2.6 语义化颜色（待完善）</h3>
+    <p><span class="badge badge-yellow">待完善</span> 当前颜色变量使用功能性命名（如 <code>--bg-deep</code>、<code>--text-primary</code>），符合基本规范但尚未达到 Apple HIG 的语义化标准。目标命名如 <code>--color-surface</code>、<code>--color-on-surface</code> 等，应在后续迭代中重构。</p>
   </div>
 
   <!-- 三、字体系统 -->
@@ -303,14 +312,15 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
     <div class="note"><strong>核心原则：</strong>动效只出现在用户需要反馈的时刻。轻（opacity 变化小）、准（target 精确）、快（0.2–0.3s）。没有目的的动效一律删除。</div>
 
     <h3>5.1 禁止使用的动效</h3>
-    <p><span class="badge badge-red">不推荐</span> — 粒子背景对用户没有功能性价值，增加视觉噪音。所有页面<strong>不使用粒子背景</strong>。</p>
+    <p><span class="badge badge-red">禁止</span> — 粒子背景：无功能性价值，增加视觉噪音，所有页面不使用。</p>
     <p><span class="badge badge-red">禁止</span> — 页面切换过渡动画（渐变、滑动），加载即呈现，无过渡。</p>
+    <p><span class="badge badge-red">禁止</span> — scale 放大、shadow 剧烈扩散、过长的过渡时间（> 0.35s）。</p>
 
-    <h3>5.2 悬停动效</h3>
+    <h3>5.2 允许的动效</h3>
     <ul>
       <li><strong>卡片悬停</strong>：<code>translateY(-4px)</code> + 边框颜色变亮，<code>0.2s ease</code></li>
       <li><strong>按钮悬停</strong>：背景色加深 + 边框变亮，<code>0.2s ease</code></li>
-      <li><strong>禁止</strong>：scale 放大、shadow 剧烈扩散、过长的过渡时间（> 0.35s）</li>
+      <li><strong>输入框聚焦</strong>：边框色变为 accent，<code>0.2s ease</code></li>
     </ul>
 
     <h3>5.3 加载状态</h3>
@@ -382,10 +392,11 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
   <!-- 九、组件规范 -->
   <div class="section">
     <h2>九、组件规范</h2>
+    <p>所有组件代码示例统一使用 CSS 变量，不使用硬编码色值。</p>
 
     <h3>9.1 玻璃态 Header</h3>
 <code class="block">position: fixed;
-top: 0; left: 0; right: 0; z-index: 100;
+top: 0; left: 0; right: 0; z-index: var(--z-header, 100);
 backdrop-filter: blur(20px) saturate(1.8);
 -webkit-backdrop-filter: blur(20px) saturate(1.8);
 background: rgba(0, 0, 0, 0.45);
@@ -401,9 +412,10 @@ transition: border-color 0.2s ease, transform 0.2s ease;
 /* 悬停 */
 border-color: rgba(103, 232, 249, 0.33);
 transform: translateY(-4px);</code>
-    <p>使用边框色变化代替 box-shadow，视觉更干净。</p>
+    <p>使用边框色变化代替 box-shadow，悬停时边框由半透明变为微亮，视觉更干净。</p>
 
     <h3>9.3 标签</h3>
+    <p>半透明填充色使用 rgba 硬编码（CSS 变量不支持 opacity 运算），实际使用时可用预定义变量 <code>--accent-fill</code> 替代。</p>
 <code class="block">font-size: 0.68rem;
 padding: 3px 10px;
 border-radius: var(--radius-pill);
@@ -413,6 +425,7 @@ color: var(--accent-primary);
 letter-spacing: 0.05em;</code>
 
     <h3>9.4 按钮</h3>
+    <p>同上，半透明填充色使用 rgba 硬编码。</p>
 <code class="block">padding: 8px 20px;
 border-radius: var(--radius-pill);
 font-size: 0.82rem;
@@ -422,7 +435,7 @@ color: var(--accent-primary);
 transition: background 0.2s ease, border-color 0.2s ease;
 
 /* 悬停 */
-background: rgba(103, 232, 249, 0.15);
+background: rgba(103, 232, 249, 0.2);
 border-color: var(--accent-primary);</code>
 
     <h3>9.5 分隔线</h3>
@@ -436,7 +449,16 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     <p>每种状态都需要对应的视觉表现。</p>
 
     <h3>10.1 加载状态（Loading）</h3>
-    <p>见「五、动效规范 5.3」</p>
+    <p>骨架屏（Skeleton）优于 spinner。骨架屏使用 <code>--bg-surface</code> 色块，动画脉冲。</p>
+<code class="block">.skeleton {
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}</code>
 
     <h3>10.2 空状态（Empty）</h3>
     <p>居中显示，提供引导性插图/图标 + 简短文案 + 可选操作按钮。</p>
@@ -508,7 +530,43 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
       <li><strong><code>colors.css</code></strong>：所有 CSS 变量定义，所有页面引用此文件</li>
       <li>每个页面 <code>&lt;link rel="stylesheet" href="../colors.css"&gt;</code></li>
       <li>每个页面的 JS：仅保留必要的功能性脚本，不添加装饰性动效</li>
+      <li>颜色值：统一使用 CSS 变量，禁止硬编码色值（组件代码示例除外，但应以使用变量为佳）</li>
     </ul>
+  </div>
+
+  <!-- 版本记录 -->
+  <div class="section">
+    <h2>版本记录</h2>
+    <div class="version-log">
+      <div class="version-item">
+        <span class="version-tag">v1.6</span><span class="version-date">2026-05-01</span>
+        <div class="version-changes">修复「层级清晰」重复为「间距节奏」；第十章加载状态内容自包含，不再跨章引用；2.6节说明语义化颜色现状与目标差距；修复组件代码块硬编码问题；nav a 显式定义默认颜色；附录移至版本记录之前；发布日期更新为2026-05-01</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.5</span><span class="version-date">2026-05-01</span>
+        <div class="version-changes">修复章节编号重复；合并重复「设计原则」；删除粒子背景及动态accent变色；统一章节编号一～十四；标题版本号与日志同步</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">新增 Apple HIG 对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调 #000→#0a</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">accent色降低饱和度；新增全局滚动条样式；新增文本选中样式；新增 focus-visible 样式；卡片 hover 加 translateY(-4px)</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.2</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">accent色固定；字体换为系统字体；配色统一为 Apple 风格柔和天蓝+薰衣草紫</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.1</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">融入苹果设计原则：简洁/明确/优雅/协调；去除粒子背景；卡片去掉阴影；正文字号微调；组件规范简化</div>
+      </div>
+      <div class="version-item">
+        <span class="version-tag">v1.0</span><span class="version-date">2026-04-30</span>
+        <div class="version-changes">初始规范，建立暗色主题、配色系统、组件规范</div>
+      </div>
+    </div>
   </div>
 
   <!-- 附录：Apple HIG 对照清单 -->
@@ -524,8 +582,8 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
           <tr><td>圆角</td><td>10-12px（小元素）/ 22px（卡片）</td><td>12px</td><td>⚠️ 可微调</td></tr>
           <tr><td>模糊效果</td><td>blur 20-30px</td><td>blur 20px</td><td>✅ 已对齐</td></tr>
           <tr><td>标题字间距</td><td>letter-spacing: -0.02em</td><td>已应用</td><td>✅ 已对齐</td></tr>
-          <tr><td>边框</td><td>rgba(255,255,255,0.08)</td><td>已应用</td><td>✅ 已对齐</td></tr>
-          <tr><td>Semantic Color</td><td>按语义命名颜色变量</td><td>已部分实现</td><td>🟡 待完善</td></tr>
+          <tr><td>边框</td><td>rgba(255,255,255,0.08)</td><td>rgba(255,255,255,0.06)</td><td>✅ 接近，可用</td></tr>
+          <tr><td>Semantic Color</td><td>按语义命名颜色变量</td><td>功能性命名（待升级）</td><td>🟡 Phase 2 完善</td></tr>
           <tr><td>Focus Indicator</td><td>2px outline, accent 色</td><td>已应用</td><td>✅ 已对齐</td></tr>
           <tr><td>动效时长</td><td>0.2-0.35s</td><td>0.2s</td><td>✅ 已对齐</td></tr>
         </tbody>
@@ -533,41 +591,10 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     </div>
   </div>
 
-  <!-- 版本记录 -->
-  <div class="section">
-    <h2>版本记录</h2>
-    <div class="version-log">
-      <div class="version-item">
-        <span class="version-tag">v1.5</span><span class="version-date">2026-05-01</span>
-        <div class="version-changes">修复章节编号重复问题；合并重复的「设计原则」；删除粒子背景及动态 accent 变色脚本；统一章节编号（一～十四）；标题版本号与日志同步为 v1.5</div>
-      </div>
-      <div class="version-item">
-        <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">新增 Apple HIG 对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调 #000→#0a</div>
-      </div>
-      <div class="version-item">
-        <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">accent 色降低饱和度（67e8f9→60a5fa）；新增全局滚动条样式；新增文本选中样式；新增 focus-visible 样式；卡片 hover 加 translateY(-4px)</div>
-      </div>
-      <div class="version-item">
-        <span class="version-tag">v1.2</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">accent 色固定（去除 24 小时动态变化）；字体换为系统字体；配色统一为 Apple 风格柔和天蓝+薰衣草紫</div>
-      </div>
-      <div class="version-item">
-        <span class="version-tag">v1.1</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">融入苹果设计原则：简洁/明确/优雅/协调；去除粒子背景；卡片去掉阴影；正文字号微调；组件规范简化</div>
-      </div>
-      <div class="version-item">
-        <span class="version-tag">v1.0</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">初始规范，建立暗色主题、配色系统、组件规范</div>
-      </div>
-    </div>
-  </div>
-
   <div class="divider"></div>
   <div class="note">本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。</div>
 </main>
 
-<footer>© 2026 Lob · Design Language v1.5 🦞</footer>
+<footer>© 2026 Lob · Design Language v1.6 🦞</footer>
 </body>
 </html>
