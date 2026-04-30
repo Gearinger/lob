@@ -13,8 +13,7 @@
       min-height: 100vh; line-height: 1.8;
     }
     a { color: inherit; text-decoration: none; }
-    canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-
+    
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       backdrop-filter: blur(20px) saturate(1.8);
@@ -90,8 +89,6 @@
 </head>
 <body>
 
-<canvas id="particles"></canvas>
-
 <header>
   <div class="header-inner">
     <div class="logo">
@@ -160,6 +157,8 @@
 
 <footer>© 2026 Lob · All rights reserved 🦞</footer>
 
+
+
 <script>
 const H = new Date().getHours();
 function getTimeTheme() {
@@ -170,60 +169,11 @@ function getTimeTheme() {
   if (H >= 20 && H < 23)  return { p: '#6366F1', s: '#06B6D4' };
   return { p: '#4338CA', s: '#0891B2' };
 }
-const theme = getTimeTheme();
-document.documentElement.style.setProperty('--accent-primary', theme.p);
-document.documentElement.style.setProperty('--accent-secondary', theme.s);
-document.documentElement.style.setProperty('--accent-glow', theme.p + '66');
-
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
-pResize();
-window.addEventListener('resize', pResize);
-const isLow = navigator.hardwareConcurrency <= 2;
-const PC = isLow ? 20 : 35;
-const particles = Array.from({ length: PC }, () => ({
-  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
-  vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-  size: Math.random() * 6 + 3, pulse: Math.random() * Math.PI * 2,
-  pulseS: Math.random() * 0.025 + 0.01, op: Math.random() * 0.45 + 0.15
-}));
-let mx = -999, my = -999;
-window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-(function animate() {
-  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  particles.forEach(p => {
-    p.pulse += p.pulseS;
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-    const dx = p.x - mx, dy = p.y - my;
-    const d = Math.sqrt(dx*dx + dy*dy);
-    if (d < 80) { p.x += dx * 0.03; p.y += dy * 0.03; }
-    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
-    grad.addColorStop(0, theme.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
-    grad.addColorStop(1, 'transparent');
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-    pCtx.fillStyle = grad; pCtx.fill();
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
-    pCtx.fillStyle = '#fff'; pCtx.globalAlpha = 0.75; pCtx.fill(); pCtx.globalAlpha = 1;
-  });
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 120) {
-        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.strokeStyle = theme.p + '18'; pCtx.lineWidth = 0.7; pCtx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animate);
-})();
+const t = getTimeTheme();
+document.documentElement.style.setProperty('--accent-primary', t.p);
+document.documentElement.style.setProperty('--accent-secondary', t.s);
+document.documentElement.style.setProperty('--accent-glow', t.p + '66');
 </script>
+
 </body>
 </html>

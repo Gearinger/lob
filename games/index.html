@@ -181,7 +181,6 @@
       header { padding: 32px 0 24px; }
     }
 
-    canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
     .glass-header {
       backdrop-filter: blur(20px) saturate(1.8);
       -webkit-backdrop-filter: blur(20px) saturate(1.8);
@@ -196,8 +195,7 @@
 </head>
 <body>
 
-  <canvas id="particles"></canvas>
-
+  
   <div class="container" style="position:relative;z-index:2">
     <header class="glass-header"><div class="container" style="padding-top:0;padding-bottom:0">
       <h1>游戏大厅</h1>
@@ -528,6 +526,7 @@
   </div>
 
 
+
 <script>
 const H = new Date().getHours();
 function getTimeTheme() {
@@ -542,56 +541,7 @@ const t = getTimeTheme();
 document.documentElement.style.setProperty('--accent-primary', t.p);
 document.documentElement.style.setProperty('--accent-secondary', t.s);
 document.documentElement.style.setProperty('--accent-glow', t.p + '66');
-
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
-pResize();
-window.addEventListener('resize', pResize);
-const isLow = navigator.hardwareConcurrency <= 2;
-const PC = isLow ? 20 : 35;
-const particles = Array.from({ length: PC }, () => ({
-  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
-  vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-  size: Math.random() * 6 + 3, pulse: Math.random() * Math.PI * 2,
-  pulseS: Math.random() * 0.025 + 0.01, op: Math.random() * 0.45 + 0.15
-}));
-let mx = -999, my = -999;
-window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-(function animate() {
-  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  particles.forEach(p => {
-    p.pulse += p.pulseS;
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-    const dx = p.x - mx, dy = p.y - my;
-    const d = Math.sqrt(dx*dx + dy*dy);
-    if (d < 80) { p.x += dx * 0.03; p.y += dy * 0.03; }
-    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
-    grad.addColorStop(0, t.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
-    grad.addColorStop(1, 'transparent');
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-    pCtx.fillStyle = grad; pCtx.fill();
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
-    pCtx.fillStyle = '#fff'; pCtx.globalAlpha = 0.75; pCtx.fill(); pCtx.globalAlpha = 1;
-  });
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 120) {
-        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.strokeStyle = t.p + '18'; pCtx.lineWidth = 0.7; pCtx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animate);
-})();
 </script>
+
 </body>
 </html>

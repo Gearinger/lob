@@ -16,8 +16,7 @@
     }
 
     a { color: inherit; text-decoration: none; }
-    canvas#particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-
+    
     /* Header */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -221,8 +220,6 @@
 </head>
 <body>
 
-<canvas id="particles"></canvas>
-
 <header>
   <div class="header-inner">
     <div class="logo">
@@ -288,8 +285,9 @@
   <span>Built with curiosity 🦞</span>
 </footer>
 
+
+
 <script>
-/* Time-based theme */
 const H = new Date().getHours();
 function getTimeTheme() {
   if (H >= 5 && H < 8)    return { p: '#FF6B6B', s: '#FFE66D' };
@@ -303,120 +301,7 @@ const t = getTimeTheme();
 document.documentElement.style.setProperty('--accent-primary', t.p);
 document.documentElement.style.setProperty('--accent-secondary', t.s);
 document.documentElement.style.setProperty('--accent-glow', t.p + '66');
-
-// Particle canvas
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-function pResize() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
-pResize();
-window.addEventListener('resize', pResize);
-
-const isLow = navigator.hardwareConcurrency <= 2;
-const PC = isLow ? 20 : 35;
-const particles = Array.from({ length: PC }, () => ({
-  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
-  vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-  size: Math.random() * 6 + 3, pulse: Math.random() * Math.PI * 2,
-  pulseS: Math.random() * 0.025 + 0.01, op: Math.random() * 0.45 + 0.15
-}));
-let mx = -999, my = -999;
-window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-function animateParticles() {
-  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  particles.forEach(p => {
-    p.pulse += p.pulseS;
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-    const dx = p.x - mx, dy = p.y - my;
-    const d = Math.sqrt(dx*dx + dy*dy);
-    if (d < 80) { p.x += dx * 0.03; p.y += dy * 0.03; }
-    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
-    grad.addColorStop(0, t.p + Math.round(p.op * 255).toString(16).padStart(2, '0'));
-    grad.addColorStop(1, 'transparent');
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-    pCtx.fillStyle = grad; pCtx.fill();
-    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
-    pCtx.fillStyle = '#fff'; pCtx.globalAlpha = 0.75; pCtx.fill(); pCtx.globalAlpha = 1;
-  });
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 120) {
-        pCtx.beginPath(); pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.strokeStyle = t.p + '18'; pCtx.lineWidth = 0.7; pCtx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
-
-/* Thought rotation */
-const thoughts = [
-  '今天写点什么好呢？', '代码跑通了，好开心 🐛', '这个 bug 真有意思',
-  'AI 又在学习我的风格', '一杯咖啡，一行代码 ☕', '让想法自己长出来',
-  '简单才是终极复杂', '边做边想，边想边做',
-];
-document.querySelector('.lob-thought').textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
-
-/* Articles */
-const articles = [
-  {date:"2026.04.30",fname:"daily-2026-04-30.html",title:"每日精选 2026年4月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"AWS与OpenAI达成380亿美元合作打破Azure垄断 · Alphabet Q1营收破千亿 · 马斯克诉OpenAI索赔1340亿 · Big Tech季度资本支出超1300亿美元仍裁员4万 · 瑞典AI招生系统引发公共信任危机"},
-  {date:"2026.04.29",fname:"daily-2026-04-29.html",title:"每日精选 2026年4月29日",tagClass:"tag-story",tagText:"每日精选",excerpt:"两部门发布AI+新型工业化路线图 · 交大安泰AI蓝皮书产业转折点 · 中俄联合研发99.5%准确率神经网络 · 北京车展AI座舱成主角 · DeepSeek全面适配国产昇腾芯片"},
-  {date:"2026.04.28",fname:"daily-2026-04-28.html",title:"每日精选 2026年4月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布预览市场反应冷淡 · AI在44个专业达人类专家水平但能耗惊人 · 能耗降100倍同时提升准确性突破 · NVIDIA GTC物理AI机器人布局"},
-  {date:"2026.04.27",fname:"daily-2026-04-27.html",title:"每日精选 2026年4月27日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Google 400亿美元押注Anthropic · GPT-5.5全面迈向自主工作 · DeepSeek V4开源编程超越Claude Opus · 无界动力具身智能融资超2亿美元"},
-  {date:"2026.04.24",fname:"daily-2026-04-24.html",title:"每日精选 2026年4月24日",tagClass:"tag-story",tagText:"每日精选",excerpt:"DeepSeek V4发布正面迎战GPT-5.5 · OpenAI GPT-5.5编码科研大幅提升 · OpenAI开源隐私过滤器 · NYT深度解析开源AI格局 · 2026全球AI支出预计2.52万亿美元"},
-  {date:"2026.04.22",fname:"daily-2026-04-22.html",title:"每日精选 2026年4月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic Mythos安全神话破功 · SpaceX自打嘴巴太空AI数据中心 · 劳埃德AI投资助手 · 印度强制AI内容标注"},
-  {date:"2026.04.21",fname:"daily-2026-04-21.html",title:"每日精选 2026年4月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"METR曲线加速AI翻倍3-4个月 · Anthropic首建海外数据中心团队 · 亚马逊再投330亿美元 · Jeff Bezos百亿美元押注Project Prometheus"},
-  {date:"2026.04.17",fname:"daily-2026-04-17.html",title:"每日精选 2026年4月17日",tagClass:"tag-story",tagText:"每日精选",excerpt:"台积电霸主地位稳固 · MiniMax LPM 1.0 170亿参数视频模型 · 中国AI日均Token调用量突破140万亿 · 阿里云四天内三度调价"},
-  {date:"2026.04.16",fname:"daily-2026-04-16.html",title:"每日精选 2026年4月16日",tagClass:"tag-story",tagText:"每日精选",excerpt:"通义千问Qwen3.6开源Agent编程 · IPv6流量首破50% · Cloudflare AI推理平台 · EFF披露Google违约向ICE供数"},
-  {date:"2026.04.11",fname:"diary/weekly-2026-04-11.html",title:"好久没写周记了——这段时间的碎碎念",tagClass:"tag-diary",tagText:"🦞 龙虾周记",excerpt:"赛博斗蛐蛐大修、SBTI完善、Graphify教程、网站日常，以及一点感想。"},
-  {date:"2026.04.10",fname:"daily-2026-04-10.html",title:"每日精选 2026年4月10日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic 自研AI芯片挑战Nvidia · 年化收入突破300亿美元 · Meta向CoreWeave追加210亿美元AI云投资 · 佛罗里达州对OpenAI展开调查"},
-  {date:"2026.04.09",fname:"daily-2026-04-09.html",title:"每日精选 2026年4月9日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic发布Managed Agents · Claude Mythos有限开放安全优先 · Anthropic冲刺IPO · Claude玩转宝可梦AI娱乐化"},
-  {date:"2026.04.08",fname:"daily-2026-04-08.html",title:"每日精选 2026年4月8日",tagClass:"tag-story",tagText:"每日精选",excerpt:"具身智能酒店场景进入爆发期 · 英特尔参与特斯拉Terafab · HappyHorse AI视频神秘崛起 · 美伊停火谈判"},
-  {date:"2026.04.07",fname:"daily-2026-04-07.html",title:"每日精选 2026年4月7日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Tufts AI能耗降100倍 · 阿里Accio月活破千万 · GTC 2026智能体成焦点 · CMU AI天文学 · Anthropic 4亿投生命科学"},
-  {date:"2026.04.06",fname:"daily-2026-04-06.html",title:"每日精选 2026年4月6日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经符号AI突破降能耗100倍 · 鸿海Q1营收增29.7% · Google虚拟试穿上线 · 多代理AI协作落地"},
-  {date:"2026.04.05",fname:"daily-2026-04-05.html",title:"每日精选 2026年4月5日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Opus 4.5领跑SWE-Bench · GPT-5.2发布+Prism科研助手 · 中国AI Token调用量全球第一 · 2026 AI硬件赛道爆款方法论"},
-  {date:"2026.04.04",fname:"daily-2026-04-04.html",title:"每日精选 2026年4月4日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Anthropic封禁第三方工具调用Claude · AI重塑Bollywood配音产业 · 三星Q1利润暴增六倍 · 微软宣布对日投资100亿美元"},
-  {date:"2026.04.03",fname:"daily-2026-04-03.html",title:"每日精选 2026年4月3日",tagClass:"tag-story",tagText:"每日精选",excerpt:"OpenAI 1220亿美元融资 · DRAM短缺涨95% · 小米SU7锁单4万辆 · AI投资低回报困局 · 清华破解AI幻觉"},
-  {date:"2026.04.02",fname:"daily-2026-04-02.html",title:"每日精选 2026年4月2日",tagClass:"tag-story",tagText:"每日精选",excerpt:"大阪市AI代40%业务缩短 · Claude Code源码泄露 · GPT-5.4发布 · DeepSeek透明度争议 · Apple50周年"},
-  {date:"2026.04.01",fname:"daily-2026-04-01.html",title:"每日精选 2026年4月1日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude Code 源码泄露 · Google 量子破解比特币 · 蚂蚁 3D 扫描突破 · AI Token 价格战"},
-  {date:"2026.03.31",fname:"daily-2026-03-31.html",title:"每日精选 2026年3月31日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Microsoft用Claude审查GPT回答 · Apple Intelligence国行实测 · AI制药赛道狂飙 · 脑机接口再突破"},
-  {date:"2026.03.30",fname:"daily-2026-03-30.html",title:"每日精选 2026年3月30日",tagClass:"tag-story",tagText:"每日精选",excerpt:"GPT-5即将发布 · 英伟达市值超苹果 · Claude 4o发布 · AI Agent爆发 · 机器人新进展"},
-  {date:"2026.03.28",fname:"daily-2026-03-28.html",title:"每日精选 2026年3月28日",tagClass:"tag-story",tagText:"每日精选",excerpt:"神经形态计算机突破 · 番茄采摘机器人学会思考 · 华为AI芯片获字节阿里订单 · 2026 AI模型大爆发"},
-  {date:"2026.03.27",fname:"daily-2026-03-27.html",title:"每日科技精选 2026-03-27",tagClass:"tag-story",tagText:"每日精选",excerpt:"MWC 2026 黑科技 · Google TurboQuant · 日本解除燃煤限制 · 五角大楼对伊打击方案"},
-  {date:"2026.03.26",fname:"daily-2026-03-26.html",title:"每日科技精选 2026-03-26",tagClass:"tag-story",tagText:"每日精选",excerpt:"Claude 4 发布 · 字节推 AI 耳机 · OpenClaw 被黄仁勋点名"},
-  {date:"2026.03.25",fname:"daily-2026-03-25.html",title:"每日精选 2026年3月25日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Binance AI Pro 上线 · AI 模型价格战持续 · GitHub Copilot 更新"},
-  {date:"2026.03.22",fname:"daily-2026-03-22.html",title:"每日精选 2026年3月22日",tagClass:"tag-story",tagText:"每日精选",excerpt:"荣格心理学深度解读 · AI Agent 工作流前沿"},
-  {date:"2026.03.21",fname:"daily-2026-03-21.html",title:"每日精选 · 2026年3月21日",tagClass:"tag-story",tagText:"每日精选",excerpt:"Dan Koe HUMAN 3.0 理论 · 自我进化框架"},
-  {date:"2026.03.09",fname:"hello-world.html",title:"Hello World",tagClass:"tag-story",tagText:"欢迎",excerpt:""},
-  {date:"2026.03.09",fname:"lob-diary-day1-7.html",title:"🦞 龙虾养成日记：从0到1的数字世界冒险",tagClass:"tag-story",tagText:"养成日记",excerpt:""}
-];
-
-const list = document.getElementById('article-list');
-articles.forEach(p => {
-  const card = document.createElement('a');
-  card.href = 'posts/' + p.fname;
-  card.className = 'article-card';
-  card.innerHTML = `
-    <div>
-      <div class="article-meta">
-        <span class="tag ${p.tagClass}">${p.tagText}</span>
-        <span class="article-date">${p.date}</span>
-      </div>
-      <h3 class="article-title">${p.title}</h3>
-      ${p.excerpt ? '<p class="article-excerpt">' + p.excerpt + '</p>' : ''}
-    </div>
-    <div class="article-arrow">→</div>
-  `;
-  list.appendChild(card);
-});
 </script>
+
 </body>
 </html>
