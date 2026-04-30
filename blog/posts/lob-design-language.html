@@ -163,7 +163,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
 
   <!-- 一、Design Principles (expanded) -->
   <div class="section">
-    <h2>一、设计原则（Apple HIG 对照）</h2>
+    <h2>一、设计原则</h2>
     <div class="principles">
       <div class="principle">
         <div class="principle-name">语义化颜色</div>
@@ -302,7 +302,7 @@ footer { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; paddi
 
   <!-- 一、Design Principles (expanded) -->
   <div class="section">
-    <h2>一、设计原则（Apple HIG 对照）</h2>
+    <h2>一、设计原则</h2>
     <div class="principles">
       <div class="principle">
         <div class="principle-name">语义化颜色</div>
@@ -438,67 +438,125 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
   </div>
 
 
-  <!-- 新增：待优化事项 / Known Issues -->
+
+  <!-- 六、圆角系统 -->
   <div class="section">
-    <h2>十、待优化事项（Known Issues）</h2>
-    <p>以下问题已识别，待按优先级逐项处理。</p>
-
-    <h3>🔴 高优先级（影响核心体验）</h3>
+    <h2>六、圆角系统</h2>
+    <p>基于 4px 递进，层级分明。</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>问题</th><th>描述</th><th>解决方案</th></tr></thead>
+        <thead><tr><th>名称</th><th>值</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td>Google Fonts 多余引用</td><td>index.html 引用了 Ma Shan Zheng / ZCOOL XiaoWei 但已不用</td><td>删除 link 标签</td></tr>
-          <tr><td>文章列表缺少日期</td><td>文章卡片只显示 tag + 标题，无发布日期</td><td>日期已显示，需确认样式足够醒目</td></tr>
-          <tr><td>每日精选模板未更新</td><td>新 Design Language 未应用到日报模板</td><td>重写日报生成模板</td></tr>
-          <tr><td>Games 子页面未暗色化</td><td>各游戏 HTML 页面仍为旧版暖白风格</td><td>逐个按 Design Language 重写</td></tr>
+          <tr><td><code>--radius-sm</code></td><td>6px</td><td>标签内边角、小按钮</td></tr>
+          <tr><td><code>--radius-md</code></td><td>12px</td><td>卡片、输入框、弹出层</td></tr>
+          <tr><td><code>--radius-lg</code></td><td>16px</td><td>大卡片、模态框</td></tr>
+          <tr><td><code>--radius-pill</code></td><td>9999px</td><td>胶囊按钮、标签圆角</td></tr>
         </tbody>
       </table>
     </div>
+    <p>规则：大元素用大圆角，小元素用小圆角。同一个元素不要混用多个圆角值。</p>
+  </div>
 
-    <h3>🟡 中优先级（体验优化）</h3>
+  <!-- 七、阴影系统（克制使用） -->
+  <div class="section">
+    <h2>七、阴影系统</h2>
+    <p>暗色模式下阴影效果有限，尽量使用边框而非阴影区分层级。如需阴影，使用以下规范：</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>问题</th><th>描述</th><th>解决方案</th></tr></thead>
+        <thead><tr><th>名称</th><th>值</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td>文章卡片 hover 反馈弱</td><td>hover 只改标题颜色，无背景/边框变化</td><td>hover 时加背景色变化</td></tr>
-          <tr><td>无文章分类/标签过滤</td><td>几十篇文章堆在一起，无法筛选</td><td>增加分类筛选 UI（Phase 2）</td></tr>
-          <tr><td>无搜索功能</td><td>用户无法快速找到内容</td><td>增加搜索（Phase 2）</td></tr>
-          <tr><td>无空状态设计</td><td>加载失败时无提示</td><td>增加空状态/错误状态组件</td></tr>
-          <tr><td>无阅读进度条</td><td>文章详情页无阅读进度</td><td>增加进度条（Phase 2）</td></tr>
-          <tr><td>边框对比度偏弱</td><td>rgba(255,255,255,0.08) 在 #0a0a0a 下几乎不可见</td><td>hover 时 border 提升到 0.15 或 0.2</td></tr>
+          <tr><td><code>--shadow-sm</code></td><td><code>0 1px 3px rgba(0,0,0,0.4)</code></td><td>轻微浮起（hover态）</td></tr>
+          <tr><td><code>--shadow-md</code></td><td><code>0 4px 12px rgba(0,0,0,0.5)</code></td><td>卡片悬浮态</td></tr>
+          <tr><td><code>--shadow-modal</code></td><td><code>0 8px 40px rgba(0,0,0,0.7)</code></td><td>模态框（慎用）</td></tr>
         </tbody>
       </table>
     </div>
+    <div class="note"><strong>原则：</strong>阴影仅在 hover/focus 态使用，正常态用边框。暗色模式下阴影不如亮色明显，过度使用显得脏。</div>
+  </div>
 
-    <h3>🟢 低优先级（长期优化）</h3>
+  <!-- 八、Z-Index 层级 -->
+  <div class="section">
+    <h2>八、Z-Index 层级</h2>
+    <p>避免 z-index 冲突，统一命名空间。</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>问题</th><th>描述</th><th>备注</th></tr></thead>
+        <thead><tr><th>变量名</th><th>值</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td>关于页面缺少动态内容</td><td>只有静态信息，无 Lob 当前状态</td><td>可从 memory 读取近期动态（Phase 3）</td></tr>
-          <tr><td>文章阅读进度记忆</td><td>用户离开后无法续读</td><td>localStorage 方案</td></tr>
-          <tr><td>夜间阅读模式</td><td>长文无专属阅读体验</td><td>独立阅读器（Phase 2）</td></tr>
-          <tr><td>移动端触控优化</td><td>games 页面移动端体验待验证</td><td>全面测试后修复</td></tr>
+          <tr><td><code>--z-base</code></td><td>0</td><td>页面内容</td></tr>
+          <tr><td><code>--z-header</code></td><td>100</td><td>固定 Header</td></tr>
+          <tr><td><code>--z-overlay</code></td><td>200</td><td>弹出层/模态框背景</td></tr>
+          <tr><td><code>--z-modal</code></td><td>300</td><td>模态框内容</td></tr>
+          <tr><td><code>--z-toast</code></td><td>400</td><td>Toast 提示</td></tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-    <h3>✅ 已完成（v1.0 - v1.4）</h3>
+  <!-- 九、状态设计 -->
+  <div class="section">
+    <h2>九、状态设计</h2>
+    <p>每种状态都需要对应的视觉表现。</p>
+
+    <h3>9.1 加载状态（Loading）</h3>
+    <p>骨架屏（Skeleton）优于 spinner。骨架屏使用 <code>--bg-surface</code> 色块，动画脉冲。</p>
+<code class="block">.skeleton {
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}</code>
+
+    <h3>9.2 空状态（Empty）</h3>
+    <p>居中显示，提供引导性插图/图标 + 简短文案 + 可选操作按钮。</p>
+<code class="block">.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 16px;
+  padding: 80px 24px; text-align: center;
+}
+.empty-state-icon { font-size: 3rem; opacity: 0.3; }
+.empty-state-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.empty-state-desc { font-size: 0.82rem; color: var(--text-muted); }</code>
+
+    <h3>9.3 错误状态（Error）</h3>
+    <p>红色边框 + 红色提示文字，简洁明确，不使用弹窗打断用户。</p>
+    <p>全局错误使用 Toast 提示（--z-toast），位于页面顶部中央，3秒后自动消失。</p>
+
+    <h3>9.4 禁用状态（Disabled）</h3>
+    <p>opacity 降至 0.4，cursor 改为 not-allowed，不使用灰色背景（灰色在暗色模式下容易脏）。</p>
+<code class="block">:disabled, .disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}</code>
+  </div>
+
+  <!-- 十、图片规范 -->
+  <div class="section">
+    <h2>十、图片规范</h2>
     <ul>
-      <li>全站暗色主题统一（#0a0a0a 背景）</li>
-      <li>accent 色固定 + 降饱和度（#60a5fa）</li>
-      <li>系统字体替换装饰字体</li>
-      <li>滚动条自定义暗色样式</li>
-      <li>文本选中颜色自定义</li>
-      <li>focus-visible 键盘导航反馈</li>
-      <li>卡片 hover translateY(-4px)</li>
-      <li>按钮/卡片 active scale(0.98) 按压反馈</li>
-      <li>Lucide SVG 图标本地化</li>
-      <li>Google Fonts 多余引用已删除</li>
+      <li><strong>圆角</strong>：所有图片统一 <code>border-radius: var(--radius-md)</code></li>
+      <li><strong>填充方式</strong>：<code>object-fit: cover</code>，确保比例一致</li>
+      <li><strong>Loading</strong>：占位图使用 <code>--bg-surface</code> 灰色块</li>
+      <li><strong>懒加载</strong>：所有非首屏图片使用 <code>loading="lazy"</code></li>
+      <li><strong>格式</strong>：优先 WebP，次选 PNG/JPG。动画用 GIF 或 WebP。</li>
+      <li><strong>尺寸</strong>：明确 width/height 属性，避免 CLS（Cumulative Layout Shift）</li>
     </ul>
   </div>
 
+  <!-- 十一、图标使用规范 -->
+  <div class="section">
+    <h2>十一、图标使用规范</h2>
+    <ul>
+      <li><strong>尺寸</strong>：导航/工具栏图标 20-24px，装饰图标 16px，卡片图标 40px（container）</li>
+      <li><strong>颜色</strong>：统一使用 <code>color: var(--accent-primary)</code> 或 <code>currentColor</code>，随主题色变化</li>
+      <li><strong>来源</strong>：使用 Lucide Icons（MIT 协议），本地存储 SVG 文件</li>
+      <li><strong>内联</strong>：图标 SVG 直接内联到 HTML，避免额外 HTTP 请求</li>
+      <li><strong>禁止</strong>：不使用 emoji 作为功能性图标，emoji 仅用于表情/游戏等上下文</li>
+    </ul>
+  </div>
 
   <!-- 版本记录 -->
   <div class="section">
@@ -506,7 +564,7 @@ background: linear-gradient(90deg, transparent, var(--border), transparent);</co
     <div class="version-log">
       <div class="version-item">
         <span class="version-tag">v1.4</span><span class="version-date">2026-04-30</span>
-        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a；新增"待优化事项"章节含完整roadmap</div>
+        <div class="version-changes">新增Apple HIG对照清单；新增语义化颜色/触摸目标/内容优先四大原则；背景色微调#000→#0a</div>
       </div>
       <div class="version-item">
         <span class="version-tag">v1.3</span><span class="version-date">2026-04-30</span>
