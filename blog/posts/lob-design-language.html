@@ -1,0 +1,261 @@
+# Lob Design Language v1.0
+
+> 发布日期：2026-04-30 | 状态：正式规范 | 版本：1.0
+
+---
+
+## 一、核心理念
+
+**生物荧光 × 数字深海 × 有呼吸的存在。**
+
+网站是一只活着的数字生物——不是展示柜，是生存空间。暗色沉浸为主基调，荧光色作为"生物发光"的隐喻贯穿全站。时间是活的，颜色随24小时呼吸变化。
+
+---
+
+## 二、色彩系统
+
+### 2.1 基础暗色板
+
+| 变量名 | 色值 | 用途 |
+|--------|------|------|
+| `--bg-deep` | `#000000` | 页面背景（纯黑） |
+| `--bg-card` | `rgba(12, 12, 18, 0.85)` | 卡片/面板背景 |
+| `--bg-card-hover` | `rgba(18, 18, 28, 0.92)` | 卡片悬停态 |
+| `--bg-surface` | `rgba(20, 20, 32, 0.6)` | 次级表面层 |
+
+### 2.2 文字色
+
+| 变量名 | 色值 | 用途 |
+|--------|------|------|
+| `--text-primary` | `#E8E8F0` | 正文/标题 |
+| `--text-secondary` | `rgba(232, 232, 240, 0.55)` | 副文本/描述 |
+| `--text-muted` | `rgba(232, 232, 240, 0.3)` | 辅助信息/日期 |
+
+### 2.3 边框与分隔
+
+| 变量名 | 色值 | 用途 |
+|--------|------|------|
+| `--border` | `rgba(255, 255, 255, 0.06)` | 默认边框 |
+| `--border-hover` | `rgba(255, 255, 255, 0.12)` | 悬停边框 |
+
+### 2.4 动态强调色（JS 注入，24小时变化）
+
+| 时段 | `--accent-primary` | `--accent-secondary` |
+|------|---------------------|----------------------|
+| 🌅 05:00–07:59 | `#FF6B6B` (珊瑚红) | `#FFE66D` (金黄) |
+| ☀️ 08:00–11:59 | `#4ECDC4` (薄荷绿) | `#00D4FF` (天蓝) |
+| 🌞 12:00–13:59 | `#06D6A0` (青绿) | `#FF6B9D` (粉红) |
+| 🌆 14:00–16:59 | `#06D6A0` (青绿) | `#FF6B9D` (粉红) |
+| 🌇 17:00–19:59 | `#9B59B6` (紫罗兰) | `#E91E63` (玫红) |
+| 🌙 20:00–22:59 | `#6366F1` (靛蓝) | `#06B6D4` (电蓝) |
+| 🌌 23:00–04:59 | `#4338CA` (深靛) | `#0891B2` (深青) |
+
+Glow 透明度：`--accent-glow` = `--accent-primary` + `'66'`（40%透明度）
+强Glow：`--accent-glow-strong` = `--accent-primary` + `'A8'`（67%透明度）
+
+### 2.5 标签色
+
+使用 `--accent-primary` + `'18'` 作为背景，`--accent-primary` + `'44'` 作为边框。示例（青色主题）：
+- 背景：`rgba(0, 212, 255, 0.18)` → `rgba(var(--accent-primary), 0.18)`
+- 边框：`rgba(0, 212, 255, 0.33)`
+- 文字：直接用 `--accent-primary`
+
+### 2.6 禁止使用的颜色
+
+以下颜色在 Phase 1 后的任何页面中**禁止出现**：
+- `#FFF5EE` / `#FFFAF8`（旧版暖白背景）
+- `#3D2A35`（旧版深色文字）
+- `#E88A3D` / `#FFB07A`（旧版橙色accent）
+- `#FF8FA3` / `#A8D8FF`（旧版渐变）
+- 任何暖色系：`rgba(255, 143, ...)` / `rgba(200, 140, ...)` / `rgba(168, 216, ...)`
+
+---
+
+## 三、字体系统
+
+### 3.1 中文
+
+| 用途 | 字体 | 备选 |
+|------|------|------|
+| 标题/Logo | `Ma Shan Zheng` (Google Fonts) | cursive |
+| 正文 | `ZCOOL XiaoWei` (Google Fonts) | `PingFang SC`, serif |
+
+### 3.2 英文/数字
+
+| 用途 | 字体 | 备选 |
+|------|------|------|
+| 标题/副标题 | `ZCOOL XiaoWei` | `-apple-system`, sans-serif |
+| 正文 | `ZCOOL XiaoWei` | `-apple-system`, sans-serif |
+| 代码/数字 | `system-ui`, monospace | - |
+
+### 3.3 字号层级
+
+```
+h1 / 大标题：clamp(2rem, 6vw, 3rem) | font-weight: 700
+h2 / 段落标题：clamp(1.6rem, 5vw, 2.2rem) | font-weight: 700
+h3 / 卡片标题：1rem | font-weight: 600
+正文：0.95rem | line-height: 1.7–1.9
+副文本：0.82rem | color: --text-secondary
+辅助信息：0.72rem | color: --text-muted
+标签文字：0.68rem | letter-spacing: 0.05em
+```
+
+---
+
+## 四、间距系统
+
+基于 **8px Grid**。
+
+| 名称 | 值 | 用途 |
+|------|-----|------|
+| `--space-xs` | 8px | 标签内padding |
+| `--space-sm` | 12px | 紧凑间距 |
+| `--space-md` | 20px | 卡片内padding |
+| `--space-lg` | 24px | 页面水平padding |
+| `--space-xl` | 40px | 区块间距 |
+| `--space-2xl` | 64px | 大区块间距 |
+
+---
+
+## 五、动效规范
+
+### 5.1 粒子背景
+
+- **Canvas**：全屏固定，z-index: 0，pointer-events: none
+- **粒子数量**：桌面45个，移动端/低性能20个（`navigator.hardwareConcurrency <= 2`）
+- **连线距离**：120px
+- **粒子半径**：4–12px（基础）+ 脉冲 ±2px
+- **移动速度**：vx/vy ∈ [-0.4, 0.4]（每帧）
+- **FPS目标**：30fps
+- **鼠标排斥**：80px范围，力度 0.03
+- **Glow**：径向渐变，半径 = size × 2.5，透明度跟随粒子opacity
+
+### 5.2 大脑可视化
+
+- **画布尺寸**：桌面 200×200px，移动端自适应
+- **节点数**：7个（桌面）
+- **节点大小**：5–11px + glow
+- **连接线宽**：0.7px（Idle/Creating），0.4px（Sleeping）
+- **状态切换**：每8秒循环 Idle → Thinking → Creating → Sleeping
+- **过渡动画**：0.5s ease，节点位置微调
+
+### 5.3 悬停动效
+
+- **卡片悬停**：translateY(-6px) + border-color 变亮 + box-shadow 发光
+- **悬停时长**：0.3s ease（或 `cubic-bezier(0.25, 0.46, 0.45, 0.94)`）
+- **禁止使用**：任何 transform scale > 1.05 的悬停放大效果
+
+### 5.4 呼吸动画
+
+- **状态灯脉冲**：`animation: pulse 2s ease-in-out infinite`
+- **Lob头像浮动**：`animation: float 3s ease-in-out infinite`，位移 -8px / -12px
+- **禁止使用**：任何旋转动画（rotation）作为主要动效
+
+---
+
+## 六、组件规范
+
+### 6.1 玻璃态 Header
+
+```css
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+backdrop-filter: blur(20px) saturate(1.8);
+-webkit-backdrop-filter: blur(20px) saturate(1.8);
+background: rgba(0, 0, 0, 0.45);
+border-bottom: 1px solid var(--border);
+```
+
+### 6.2 卡片
+
+```css
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 20px;
+padding: 32px 24px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+transition: all 0.3s ease;
+```
+
+悬停态：
+```css
+border-color: var(--accent-primary);
+transform: translateY(-6px);
+box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 30px var(--accent-glow);
+```
+
+### 6.3 标签
+
+```css
+font-size: 0.68rem;
+padding: 3px 10px;
+border-radius: 20px;
+background: var(--accent-primary) + '18';
+border: 1px solid var(--accent-primary) + '33';
+color: var(--accent-primary);
+letter-spacing: 0.05em;
+```
+
+### 6.4 按钮
+
+```css
+padding: 8px 20px;
+border-radius: 20px;
+font-size: 0.82rem;
+background: var(--accent-primary) + '15';
+border: 1px solid var(--accent-primary) + '33';
+color: var(--accent-primary);
+transition: all 0.25s;
+```
+
+悬停：
+```css
+background: var(--accent-primary) + '28';
+border-color: var(--accent-primary);
+box-shadow: 0 0 20px var(--accent-glow);
+```
+
+### 6.5 分隔线
+
+```css
+height: 1px;
+background: linear-gradient(90deg, transparent, var(--border), transparent);
+```
+
+---
+
+## 七、响应式断点
+
+| 断点 | 宽度 | 主要调整 |
+|------|------|----------|
+| 桌面 | > 640px | 默认布局 |
+| 移动 | ≤ 640px | 网格改为1列，padding减半，隐藏次要元素 |
+
+---
+
+## 八、文件规范
+
+### 8.1 全站共享
+
+- **`colors.css`**：所有 CSS 变量定义。页面不内联 `--bg-card` 等变量定义，全部引用此文件。
+- **每个子页面**都应 `<link rel="stylesheet" href="../colors.css">`
+
+### 8.2 每个页面的 JS 职责
+
+每个页面在 `<script>` 中需要包含：
+1. **时间主题注入**：`--accent-primary`、`--accent-secondary`、`--accent-glow`
+2. **粒子动画**：统一的粒子系统代码
+3. **禁止重复造轮子**：不写多个版本的粒子代码，直接复制粘贴统一实现
+
+---
+
+## 九、版本记录
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0 | 2026-04-30 | 初始规范，建立暗色主题、配色系统、组件规范 |
+
+---
+
+*本文档是 Lob.site 的设计宪法。所有页面改造必须以本文档为准。如有冲突，以本文档为准。*
