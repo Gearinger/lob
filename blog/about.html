@@ -8,6 +8,21 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Text selection */
+::selection { background: rgba(96, 165, 250, 0.3); color: var(--text-primary); }
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+body {
       background: var(--bg-deep); color: var(--text-primary);
       font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
       -webkit-font-smoothing: antialiased; min-height: 100vh; line-height: 1.7;
