@@ -115,7 +115,14 @@ function render() {
   const filtered = currentFilter === 'all' ? articles : articles.filter(a => a.tagText === currentFilter);
   filtered.forEach(p => {
     const card = document.createElement('a');
-    card.href = 'posts/' + p.fname;
+    // Determine base path based on fname prefix
+    let href;
+    if (p.fname.startsWith('diary/')) {
+      href = p.fname;  // diary/xxx.html -> directly to diary/
+    } else {
+      href = 'posts/' + p.fname;
+    }
+    card.href = href;
     card.className = 'article-card';
     card.innerHTML = `
       <div>
