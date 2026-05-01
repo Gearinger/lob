@@ -173,17 +173,21 @@
     }
 
     .card-icon {
-      width: 52px;
+      width: auto;
+      min-width: 52px;
       height: 52px;
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.6rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
       flex-shrink: 0;
       background: rgba(20, 20, 32, 0.8);
       color: var(--accent-primary);
       position: relative;
+      padding: 0 12px;
     }
 
     .card-info {
@@ -292,7 +296,9 @@
     }
 
     footer .lob-mark {
-      font-size: 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       margin-bottom: 8px;
     }
 
@@ -320,7 +326,7 @@
 
   <div class="container">
     <div class="main-header">
-      <div class="logo-mark">🦞</div>
+      <div class="logo-mark" style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;">Lob</div>
       <h1>游戏大厅</h1>
       <p>LOB'S GAME PARLOR</p>
     </div>
@@ -351,7 +357,7 @@
         <a href="poker/index.html" class="game-card">
           <div class="new-badge"></div>
           <div class="card-header">
-            <div class="card-icon">🃏</div>
+            <div class="card-icon">扑克</div>
             <div class="card-info">
               <div class="card-name">德州扑克</div>
               <div class="card-category">Card Game · WebRTC</div>
@@ -368,7 +374,7 @@
 
         <a href="cricket-fight/index.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🦗</div>
+            <div class="card-icon">斗蛐蛐</div>
             <div class="card-info">
               <div class="card-name">赛博斗蛐蛐</div>
               <div class="card-category">回合策略 · Rogue</div>
@@ -386,7 +392,7 @@
         <a href="her-story.html" class="game-card">
           <div class="new-badge"></div>
           <div class="card-header">
-            <div class="card-icon">🌸</div>
+            <div class="card-icon">她的故事</div>
             <div class="card-info">
               <div class="card-name">她是谁</div>
               <div class="card-category">Narrative Exploration</div>
@@ -414,7 +420,7 @@
 
         <a href="snake.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🐍</div>
+            <div class="card-icon">贪吃蛇</div>
             <div class="card-info">
               <div class="card-name">贪吃蛇</div>
               <div class="card-category">Arcade</div>
@@ -431,7 +437,7 @@
 
         <a href="tetris.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🧱</div>
+            <div class="card-icon">方块</div>
             <div class="card-info">
               <div class="card-name">俄罗斯方块</div>
               <div class="card-category">Arcade</div>
@@ -448,7 +454,7 @@
 
         <a href="bomberman.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">💥</div>
+            <div class="card-icon">炸弹人</div>
             <div class="card-info">
               <div class="card-name">炸弹人</div>
               <div class="card-category">Action</div>
@@ -465,7 +471,7 @@
 
         <a href="jump.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🏃</div>
+            <div class="card-icon">跑酷</div>
             <div class="card-info">
               <div class="card-name">跳一跳</div>
               <div class="card-category">Endless Runner</div>
@@ -493,7 +499,7 @@
 
         <a href="2048.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🔢</div>
+            <div class="card-icon">2048</div>
             <div class="card-info">
               <div class="card-name">2048</div>
               <div class="card-category">Number Puzzle</div>
@@ -510,7 +516,7 @@
 
         <a href="minesweeper.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">💣</div>
+            <div class="card-icon">扫雷</div>
             <div class="card-info">
               <div class="card-name">扫雷</div>
               <div class="card-category">Logic Puzzle</div>
@@ -527,7 +533,7 @@
 
         <a href="lianliankan.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🔗</div>
+            <div class="card-icon">连连看</div>
             <div class="card-info">
               <div class="card-name">连连看</div>
               <div class="card-category">Pattern Matching</div>
@@ -544,7 +550,7 @@
 
         <a href="sokoban.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">📦</div>
+            <div class="card-icon">推箱子</div>
             <div class="card-info">
               <div class="card-name">推箱子</div>
               <div class="card-category">Spatial Puzzle</div>
@@ -561,7 +567,7 @@
 
         <a href="maze.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🧩</div>
+            <div class="card-icon">迷宫</div>
             <div class="card-info">
               <div class="card-name">迷宫逃脱</div>
               <div class="card-category">Path Finding</div>
@@ -589,7 +595,7 @@
 
         <a href="typing.html" class="game-card">
           <div class="card-header">
-            <div class="card-icon">⌨️</div>
+            <div class="card-icon">打字</div>
             <div class="card-info">
               <div class="card-name">打字达人</div>
               <div class="card-category">Skill Training</div>
@@ -606,7 +612,7 @@
 
         <a href="car-factory/" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🏭</div>
+            <div class="card-icon">工厂</div>
             <div class="card-info">
               <div class="card-name">汽车工厂</div>
               <div class="card-category">Simulation</div>
@@ -623,7 +629,7 @@
 
         <a href="audio-viz/" class="game-card">
           <div class="card-header">
-            <div class="card-icon">🎵</div>
+            <div class="card-icon">音乐</div>
             <div class="card-info">
               <div class="card-name">音频可视化</div>
               <div class="card-category">Audio Visualization</div>
@@ -642,7 +648,7 @@
     </section>
 
     <footer>
-      <div class="lob-mark">🦞</div>
+      <div class="lob-mark">Lob</div>
       <div>LOB'S GAME PARLOR</div>
       <div style="margin-top: 8px; opacity: 0.6;">Built with curiosity · Powered by code</div>
     </footer>
