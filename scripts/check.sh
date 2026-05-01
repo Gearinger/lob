@@ -106,7 +106,7 @@ fi
 
 # ── 6. Dynamic theme JS warning (non-blocking) ────────────────
 echo -n "Checking for dynamic theme JS... "
-DYNAMIC=$(echo "$STAGED" | xargs grep -l "getTimeTheme" 2>/dev/null | grep -v "/node_modules/\|/dist/\|bundle\|\.min\." | head -3 || true)
+DYNAMIC=$(echo "$STAGED" | xargs grep -l "getTimeTheme" 2>/dev/null | grep -vE "/node_modules/|/dist/|bundle|\.min\.|scripts/check.sh" | head -3 || true)
 if [ -n "$DYNAMIC" ]; then
   echo -e "${YELLOW}WARN${NC} dynamic theme JS found:"
   echo "$DYNAMIC" | head -3
