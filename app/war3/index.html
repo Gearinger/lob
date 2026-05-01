@@ -6,7 +6,7 @@
 <title>战三国</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;background:#1a1208;color:#f5e6c8;min-height:100vh;overflow:hidden}
+body{font-family:'PingFang SC',serif;background:#0a0a0a;color:#E8E8F0;min-height:100vh;overflow:hidden}
 canvas{position:fixed;inset:0;width:100%;height:100%}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
 
@@ -31,8 +31,8 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .general-list{flex:1;padding:16px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
 .general-card{padding:12px;border-radius:8px;border:2px solid rgba(201,169,110,.15);cursor:pointer;transition:all .2s;text-align:center;position:relative}
 .general-card:hover{border-color:rgba(201,169,110,.5);transform:translateY(-2px)}
-.general-card.selected{border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)}
-.general-card.selected::after{content:'✓';position:absolute;top:4px;right:6px;font-size:.8em;color:#ffd700}
+.general-card.selected{border-color:#67e8f9;box-shadow:0 0 16px rgba(103,232,249,.3)}
+.general-card.selected::after{content:'✓';position:absolute;top:4px;right:6px;font-size:.8em;color:#67e8f9}
 .general-card.deployed{opacity:.55;border-style:dashed}
 .general-avatar{font-size:2.2em;margin-bottom:6px}
 .general-name{font-size:.85em;margin-bottom:3px}
@@ -48,7 +48,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .deployed-unit .u-name{flex:1;font-size:.8em}
 .deployed-unit .u-remove{font-size:.7em;color:rgba(245,230,200,.4);cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(245,230,200,.05)}
 .deployed-unit .u-remove:hover{background:rgba(245,230,200,.15)}
-.start-btn{margin-top:auto;padding:12px;background:#c9a96e;color:#1a1208;border:none;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em;transition:opacity .2s}
+.start-btn{margin-top:auto;padding:12px;background:#1a1a25;color:#67e8f9;border:1px solid #67e8f9;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em;transition:opacity .2s}
 .start-btn:disabled{opacity:.3;cursor:not-allowed}
 .start-btn:hover:not(:disabled){opacity:.85}
 
@@ -66,10 +66,10 @@ canvas{position:fixed;inset:0;width:100%;height:100%}
 .result-overlay.show{opacity:1;pointer-events:all;z-index:30}
 .result-box{padding:48px 80px;border-radius:16px;background:rgba(26,18,8,.95);border:2px solid #c9a96e;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .result-title{font-size:2.4em;letter-spacing:.2em;margin-bottom:12px}
-.result-title.win{color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.5)}
+.result-title.win{color:#67e8f9;text-shadow:0 0 30px rgba(103,232,249,.5)}
 .result-title.lose{color:#888}
 .result-sub{font-size:.85em;color:rgba(245,230,200,.5);margin-bottom:32px;letter-spacing:.08em}
-.result-btn{padding:12px 36px;background:#c9a96e;color:#1a1208;border:none;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em}
+.result-btn{padding:12px 36px;background:#1a1a25;color:#67e8f9;border:1px solid #67e8f9;border-radius:6px;font-family:inherit;font-size:.9em;cursor:pointer;letter-spacing:.1em}
 .result-btn:hover{opacity:.85}
 </style>
 </head>
@@ -136,7 +136,7 @@ var GENERALS = {
   shu: [
     {id:'zhaoyun',    name:'赵云',    job:'猛将',avatar:'赵',color:'#5b9bd5',atk:45,hp:320,speed:2.2,atkSpeed:1.1,range:30,size:16,skill:'龙胆突刺',skillDesc:'对最近敌人150%伤害',skillType:'single',skillDmg:1.5},
     {id:'zhugeliang',name:'诸葛亮',job:'鬼谋',avatar:'葛',color:'#9e6ab8',atk:28,hp:200,speed:0.8,atkSpeed:0.9,range:140,size:14,skill:'火计',skillDesc:'对全体敌人80%AOE',skillType:'aoe',skillDmg:0.8},
-    {id:'zhangfei',  name:'张飞',    job:'猛将',avatar:'飞',color:'#c9522a',atk:50,hp:380,speed:1.3,atkSpeed:0.85,range:28,size:17,skill:'燕人咆哮',skillDesc:'周围敌人攻击-30%',skillType:'debuff',skillDmg:0},
+    {id:'zhangfei',  name:'张飞',    job:'猛将',avatar:'飞',color:'#67e8f9',atk:50,hp:380,speed:1.3,atkSpeed:0.85,range:28,size:17,skill:'燕人咆哮',skillDesc:'周围敌人攻击-30%',skillType:'debuff',skillDmg:0},
     {id:'machao',    name:'马超',    job:'豪杰',avatar:'超',color:'#e8c547',atk:42,hp:280,speed:2.5,atkSpeed:1.0,range:25,size:15,skill:'铁骑冲锋',skillDesc:'突进，路径敌人受伤',skillType:'charge',skillDmg:1.2},
     {id:'huangzhong',name:'黄忠',    job:'神射',avatar:'忠',color:'#70ad47',atk:55,hp:200,speed:0.9,atkSpeed:1.3,range:160,size:13,skill:'百步穿杨',skillDesc:'对单体200%伤害',skillType:'execute',skillDmg:2.0},
     {id:'guanyu',    name:'关羽',    job:'猛将',avatar:'羽',color:'#4caf50',atk:48,hp:400,speed:1.4,atkSpeed:0.9,range:32,size:18,skill:'拖刀计',skillDesc:'血量低于30%时250%伤害',skillType:'execute',skillDmg:2.5},
@@ -144,10 +144,10 @@ var GENERALS = {
   wei: [
     {id:'caocao',    name:'曹操',    job:'鬼谋',avatar:'曹',color:'#5b6dd4',atk:35,hp:260,speed:1.0,atkSpeed:1.0,range:130,size:14,skill:'天下归心',skillDesc:'全体友军攻击+20%',skillType:'buff',skillDmg:0},
     {id:'simayi',   name:'司马懿',  job:'鬼谋',avatar:'马',color:'#9e6ab8',atk:32,hp:220,speed:0.9,atkSpeed:1.0,range:120,size:13,skill:'忍辱负重',skillDesc:'沉默最近敌人3秒',skillType:'silence',skillDmg:0},
-    {id:'xiahoudun', name:'夏侯惇', job:'猛将',avatar:'惇',color:'#c9522a',atk:52,hp:350,speed:1.5,atkSpeed:0.85,range:28,size:17,skill:'拔矢啖睛',skillDesc:'牺牲30%血对单体400%',skillType:'execute',skillDmg:4.0},
+    {id:'xiahoudun', name:'夏侯惇', job:'猛将',avatar:'惇',color:'#67e8f9',atk:52,hp:350,speed:1.5,atkSpeed:0.85,range:28,size:17,skill:'拔矢啖睛',skillDesc:'牺牲30%血对单体400%',skillType:'execute',skillDmg:4.0},
     {id:'zhangliao', name:'张辽',    job:'豪杰',avatar:'辽',color:'#e8c547',atk:40,hp:300,speed:2.3,atkSpeed:1.0,range:26,size:15,skill:'威震逍遥',skillDesc:'冲锋路径上敌人受伤',skillType:'charge',skillDmg:1.3},
     {id:'caoren',    name:'曹仁',    job:'猛将',avatar:'仁',color:'#5b9bd5',atk:30,hp:450,speed:0.8,atkSpeed:0.8,range:28,size:18,skill:'固守',skillDesc:'8秒内免疫伤害',skillType:'shield',skillDmg:0},
-    {id:'xuchu',     name:'许褚',    job:'豪杰',avatar:'褚',color:'#c9522a',atk:55,hp:320,speed:1.8,atkSpeed:1.2,range:24,size:16,skill:'裸衣斗杀',skillDesc:'接下来3次攻击无间隔',skillType:'burst',skillDmg:1.0},
+    {id:'xuchu',     name:'许褚',    job:'豪杰',avatar:'褚',color:'#67e8f9',atk:55,hp:320,speed:1.8,atkSpeed:1.2,range:24,size:16,skill:'裸衣斗杀',skillDesc:'接下来3次攻击无间隔',skillType:'burst',skillDmg:1.0},
   ]
 };
 
@@ -428,7 +428,7 @@ function doAttack(u, target) {
 
   if (target.hp <= 0) {
     target.dead = true;
-    spawnSkillText(target.x, target.y, '击杀!', '#ffd700');
+    spawnSkillText(target.x, target.y, '击杀!', '#67e8f9');
     for (var m = 0; m < 8; m++) {
       var a = Math.random() * Math.PI * 2;
       particles.push({x:target.x, y:target.y, vx:Math.cos(a)*(1+Math.random()*3), vy:Math.sin(a)*(1+Math.random()*3), life:1, color:target.color, size:3+Math.random()*4});
@@ -536,7 +536,7 @@ function pointToLineDist(px, py, x1, y1, x2, y2) {
 }
 
 function spawnDmg(x, y, text, isLeft) {
-  particles.push({x:x, y:y, vy:-2, life:1, text:String(text), color:isLeft?'#5b9bd5':'#c9522a', size:13});
+  particles.push({x:x, y:y, vy:-2, life:1, text:String(text), color:isLeft?'#67e8f9':'#67e8f9', size:13});
 }
 
 function spawnSkillText(x, y, text, color) {

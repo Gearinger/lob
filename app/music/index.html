@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>黑胶唱片机</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Noto+Serif+SC:wght@300;400;600&display=swap');
+
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -14,12 +13,10 @@
   --surface: #0e0e0e;
   --surface2: #141414;
   --border: #1c1c1c;
-  --text: #c4b8a0;
-  --text-dim: #5a5040;
-  --text-mute: #2a2420;
-  --gold: #c8a060;
-  --gold-dim: #6a5030;
-  --gold-glow: rgba(200,160,96,0.15);
+  --text: #E8E8F0;
+  --text-dim: #555;
+  --text-mute: #2a2a2a;
+  --accent: #67e8f9;
   --vinyl-groove: #181818;
 }
 
@@ -28,7 +25,7 @@ html, body { height: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Noto Serif SC', 'Cormorant Garamond', serif;
+  font-family: 'PingFang SC', serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -56,7 +53,7 @@ header {
   font-size: 1.6em;
   font-weight: 300;
   letter-spacing: 8px;
-  color: var(--gold);
+  color: var(--accent);
 }
 
 .logo-sub {
@@ -90,7 +87,7 @@ header {
 
 .nav-btn:hover { color: var(--text); }
 .nav-btn.active {
-  color: var(--gold);
+  color: var(--accent);
 }
 .nav-btn.active::after {
   content: '';
@@ -100,7 +97,7 @@ header {
   transform: translateX(-50%);
   width: 16px;
   height: 1px;
-  background: var(--gold);
+  background: var(--accent);
 }
 
 /* ========== MAIN LAYOUT ========== */
@@ -197,7 +194,7 @@ header {
   width: 105px;
   height: 105px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #c8a060 0%, #8a6830 45%, #c8a060 100%);
+  background: linear-gradient(145deg, #67e8f9 0%, #3ba8c0 45%, #67e8f9 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -325,13 +322,13 @@ header {
   justify-content: center;
   transition: all 0.2s;
 }
-.ctrl-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.ctrl-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
 
 .ctrl-play {
   width: 52px;
   height: 52px;
-  background: var(--gold);
-  border-color: var(--gold);
+  background: var(--accent);
+  border-color: var(--accent);
   color: #0a0a0a;
   font-size: 1.1em;
 }
@@ -379,7 +376,7 @@ header {
   transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
-  background: var(--gold);
+  background: var(--accent);
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.15s;
@@ -389,7 +386,7 @@ header {
 
 .progress-fill {
   height: 100%;
-  background: var(--gold);
+  background: var(--accent);
   border-radius: 1px;
   width: 0%;
   transition: width 0.1s linear;
@@ -413,7 +410,7 @@ header {
   padding: 2px;
   transition: color 0.2s;
 }
-.vol-btn:hover { color: var(--gold); }
+.vol-btn:hover { color: var(--accent); }
 
 .vol-track {
   flex: 1;
@@ -432,7 +429,7 @@ header {
   width: 80%;
   transition: width 0.05s;
 }
-.volume-row:hover .vol-fill { background: var(--gold); }
+.volume-row:hover .vol-fill { background: var(--accent); }
 
 /* ========== NOW PLAYING INFO ========== */
 .now-playing {
@@ -487,7 +484,7 @@ header {
 }
 .track-item:hover { background: var(--surface2); }
 .track-item.playing {
-  background: var(--gold-glow);
+  background: rgba(103,232,249,.1);
   border-color: rgba(200,160,96,0.15);
 }
 
@@ -499,7 +496,7 @@ header {
   text-overflow: ellipsis;
   margin-bottom: 2px;
 }
-.track-item.playing .track-title { color: var(--gold); }
+.track-item.playing .track-title { color: var(--accent); }
 
 .track-info {
   font-size: 0.62em;
@@ -519,7 +516,7 @@ header {
 .track-item.playing .track-title::before {
   content: '▶ ';
   font-size: 0.6em;
-  color: var(--gold);
+  color: var(--accent);
 }
 
 /* ========== LYRICS ========== */
@@ -546,7 +543,7 @@ header {
   text-align: center;
   padding: 2px 8px;
 }
-.lyric-line.lit { color: var(--gold); font-weight: 400; }
+.lyric-line.lit { color: var(--accent); font-weight: 400; }
 .lyric-line.past { color: var(--text-dim); }
 
 .no-lyric {
@@ -577,7 +574,7 @@ header {
 
 .info-key { color: var(--text-mute); letter-spacing: 1px; flex-shrink: 0; }
 .info-val { color: var(--text-dim); text-align: right; word-break: break-all; }
-.info-val.accent { color: var(--gold); }
+.info-val.accent { color: var(--accent); }
 .info-val.prompt-val {
   font-size: 0.72em;
   color: var(--text-mute);

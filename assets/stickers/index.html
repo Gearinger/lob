@@ -4,20 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lob 的表情包</title>
+<link rel="stylesheet" href="/colors.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;background:#FFF5EE;font-family:'PingFang SC',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
-h1{color:#3D2A35;font-size:1.8rem;margin-bottom:8px;letter-spacing:-0.02em}
-p{color:#9A8090;font-size:.85rem;margin-bottom:40px}
+body{min-height:100vh;background:var(--bg-deep);font-family:'PingFang SC',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+h1{color:var(--text-primary);font-size:1.8rem;margin-bottom:8px;letter-spacing:-0.02em}
+p{color:var(--text-secondary);font-size:.85rem;margin-bottom:40px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px;width:100%;max-width:900px}
-.card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(200,120,140,.15);transition:transform .3s}
-.card:hover{transform:translateY(-4px)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:transform .3s,border-color .3s}
+.card:hover{transform:translateY(-4px);border-color:var(--border-hover)}
 .card img{width:100%;display:block}
 .card-info{padding:16px;text-align:center}
-.card-name{font-size:.9rem;font-weight:600;color:#3D2A35}
-.card-desc{font-size:.75rem;color:#9A8090;margin-top:4px}
-.back{position:fixed;top:20px;left:20px;background:rgba(200,120,140,.15);color:#3D2A35;padding:8px 16px;border-radius:20px;text-decoration:none;font-size:.85rem}
-.back:hover{background:rgba(200,120,140,.3)}
+.card-name{font-size:.9rem;font-weight:600;color:var(--text-primary)}
+.card-desc{font-size:.75rem;color:var(--text-secondary);margin-top:4px}
+.back{position:fixed;top:20px;left:20px;background:var(--bg-surface);border:1px solid var(--border);color:var(--text-primary);padding:8px 16px;border-radius:20px;text-decoration:none;font-size:.85rem}
+.back:hover{background:var(--bg-hover);border-color:var(--border-hover)}
 </style>
 </head>
 <body>

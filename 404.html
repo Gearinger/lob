@@ -5,36 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>404 — 这个页面游走了 🦞</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="stylesheet" href="/colors.css">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  background: #FFF5EE;
-  color: #3D2A35;
+  background: var(--bg-deep);
+  color: var(--text-primary);
   font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-.ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-.ambient::before {
-  content: '';
-  position: absolute;
-  width: 600px; height: 600px;
-  background: rgba(255,143,80,0.18);
-  border-radius: 50%;
-  filter: blur(120px);
-  top: -200px; right: -150px;
-}
-.ambient::after {
-  content: '';
-  position: absolute;
-  width: 500px; height: 500px;
-  background: rgba(168,216,255,0.2);
-  border-radius: 50%;
-  filter: blur(100px);
-  bottom: -150px; left: -150px;
 }
 .container {
   position: relative;
@@ -54,7 +36,7 @@ body {
 .error-code {
   font-size: 7rem;
   font-weight: 700;
-  color: #E88A3D;
+  color: var(--accent-primary);
   line-height: 1;
   letter-spacing: -0.04em;
   opacity: 0.85;
@@ -66,13 +48,13 @@ body {
 }
 .message {
   font-size: 1.25rem;
-  color: #3D2A35;
+  color: var(--text-primary);
   margin: 20px 0 6px;
   font-weight: 500;
 }
 .submessage {
   font-size: 0.88rem;
-  color: #9A8070;
+  color: var(--text-secondary);
   margin-bottom: 36px;
 }
 .links {
@@ -92,53 +74,26 @@ body {
   text-decoration: none;
 }
 .links a.primary {
-  background: #E88A3D;
-  color: #fff;
+  background: var(--accent-primary);
+  color: var(--bg-deep);
 }
 .links a.primary:hover {
-  background: #D07030;
+  background: var(--accent-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232,138,61,0.3);
+  box-shadow: 0 6px 20px var(--accent-glow);
 }
 .links a.secondary {
-  border: 1px solid rgba(200,140,80,0.35);
-  color: #8A7065;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 .links a.secondary:hover {
-  border-color: rgba(200,140,80,0.6);
-  color: #E88A3D;
-  background: rgba(255,143,80,0.06);
-}
-.particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.25;
-  animation: drift 8s ease-in-out infinite;
-}
-@keyframes drift {
-  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.25; }
-  50% { transform: translateY(-30px) rotate(180deg); opacity: 0.55; }
+  border-color: var(--border-hover);
+  color: var(--accent-primary);
+  background: var(--bg-hover);
 }
 </style>
 </head>
 <body>
-
-<div class="ambient"></div>
-
-<div class="particles">
-  <div class="particle" style="width:8px;height:8px;top:22%;left:14%;background:#FFB07A;animation-delay:0s"></div>
-  <div class="particle" style="width:6px;height:6px;top:65%;left:82%;background:#A8D8FF;animation-delay:1.8s"></div>
-  <div class="particle" style="width:5px;height:5px;top:28%;left:72%;background:#FFCCA0;animation-delay:3.5s"></div>
-  <div class="particle" style="width:7px;height:7px;top:72%;left:22%;background:#FFB07A;animation-delay:5s"></div>
-  <div class="particle" style="width:5px;height:5px;top:48%;left:58%;background:#A8D8FF;animation-delay:2.5s"></div>
-  <div class="particle" style="width:6px;height:6px;top:38%;left:35%;background:#FFD580;animation-delay:1s"></div>
-</div>
 
 <div class="container">
   <div class="lob-face">🦞</div>

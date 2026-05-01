@@ -4,25 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>玄学骰子 🎲</title>
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");font-family:'PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:#2c2c2c}
-.card{background:#fdf8f0;border:2.5px solid #2c2c2c;border-radius:16px;padding:40px 32px;box-shadow:5px 6px 0 rgba(0,0,0,.15);text-align:center;position:relative;max-width:420px;width:100%}
-.card::before{content:'';position:absolute;inset:8px;border:1.5px dashed #c9b99a;border-radius:12px;pointer-events:none}
-.back{position:absolute;top:16px;left:20px;color:#888;font-size:.85em;text-decoration:none}
-.title{font-family:'Ma Shan Zheng',cursive;font-size:2em;letter-spacing:3px;margin-bottom:8px}
-.decorative{width:60px;height:3px;background:#f39c12;border-radius:2px;margin:0 auto 20px}
+body{background:#0a0a0a;font-family:'PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:#E8E8F0}
+.card{background:#111116;border:1px solid #2a2a35;border-radius:16px;padding:40px 32px;text-align:center;position:relative;max-width:420px;width:100%}
+.back{position:absolute;top:16px;left:20px;color:#555;font-size:.85em;text-decoration:none}
+.title{font-size:2em;letter-spacing:3px;margin-bottom:8px}
+.decorative{width:60px;height:3px;background:#67e8f9;border-radius:2px;margin:0 auto 20px}
 .question-box{margin-bottom:20px}
-.question-input{border:2px solid #c9b99a;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:.95em;width:100%;background:#fdf8f0;outline:none;transition:border-color .2s}
-.question-input:focus{border-color:#f39c12}
+.question-input{border:1px solid #2a2a35;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:.95em;width:100%;background:#111116;color:#E8E8F0;outline:none;transition:border-color .2s}
+.question-input:focus{border-color:#67e8f9}
 .dice-area{min-height:140px;display:flex;align-items:center;justify-content:center;margin:20px 0}
-.dice{font-size:6em;cursor:pointer;transition:transform .1s;user-select:none;filter:drop-shadow(4px 4px 0 rgba(0,0,0,.15))}
+.dice{font-size:6em;cursor:pointer;transition:transform .1s;user-select:none}
 .dice.rolling{animation:shake .1s linear infinite}
 @keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
-.result{font-size:1.5em;font-family:'Ma Shan Zheng',cursive;letter-spacing:2px;color:#2c2c2c;line-height:1.8;margin-top:12px;text-align:center}
-.btn{background:#f39c12;color:#fff;border:2px solid #d68910;border-radius:12px;padding:12px 28px;font-family:'Ma Shan Zheng',cursive;font-size:1.1em;letter-spacing:2px;cursor:pointer;box-shadow:3px 4px 0 #d68910;transition:all .2s;margin-top:16px}
-.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 #d68910}
+.result{font-size:1.5em;letter-spacing:2px;color:#E8E8F0;line-height:1.8;margin-top:12px;text-align:center}
+.btn{background:#1a1a25;color:#67e8f9;border:1px solid #67e8f9;border-radius:12px;padding:12px 28px;font-size:1.1em;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:16px}
 .notice{font-size:.78em;color:#aaa;margin-top:16px;font-style:italic}
 </style>
 </head>
@@ -31,7 +29,7 @@ body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='h
   <a href="../" class="back">← 玄学实验室</a>
   <div class="title">玄学骰子</div>
   <div class="decorative"></div>
-  <p style="font-size:.9em;color:#888;line-height:1.7">心中默念你的问题<br>点击骰子，让命运来决定</p>
+  <p style="font-size:.9em;color:#555;line-height:1.7">心中默念你的问题<br>点击骰子，让命运来决定</p>
   <div class="question-box">
     <input class="question-input" id="q" placeholder="你的问题是什么？">
   </div>

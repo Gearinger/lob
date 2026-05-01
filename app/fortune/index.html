@@ -4,27 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>今日运势 🔮</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f5f0e8; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); font-family: 'ZCOOL XiaoWei', 'PingFang SC', serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #2c2c2c; }
-.card { background: #fdf8f0; border: 2.5px solid #2c2c2c; border-radius: 16px; padding: 32px 28px; box-shadow: 4px 5px 0 rgba(0,0,0,0.15); position: relative; max-width: 520px; width: 100%; text-align: center; margin-bottom: 24px; }
-.card::before { content: ''; position: absolute; inset: 8px; border: 1.5px dashed #c9b99a; border-radius: 12px; pointer-events: none; }
+body { background: #0a0a0a; font-family: 'PingFang SC', serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #E8E8F0; }
+.card { background: #111116; border: 1px solid #2a2a35; border-radius: 16px; padding: 32px 28px; position: relative; max-width: 520px; width: 100%; text-align: center; margin-bottom: 24px; }
+.card::before { content: ''; position: absolute; inset: 8px; border: 1px dashed #2a2a35; border-radius: 12px; pointer-events: none; }
 .card:hover { transform: none; }
-.back { display: inline-block; margin-bottom: 16px; color: #888; font-size: 0.9em; text-decoration: none; border: 1.5px solid #c9b99a; padding: 6px 16px; border-radius: 20px; transition: all .2s; }
-.back:hover { border-color: #e74c3c; color: #e74c3c; }
-.title { font-family: 'Ma Shan Zheng', cursive; font-size: 2.8em; letter-spacing: 4px; text-shadow: 2px 2px 0 #d4c4a8; margin-bottom: 8px; }
-.decorative { width: 80px; height: 3px; background: #e74c3c; border-radius: 2px; margin: 12px auto; }
+.back { display: inline-block; margin-bottom: 16px; color: #555; font-size: 0.9em; text-decoration: none; border: 1px solid #2a2a35; padding: 6px 16px; border-radius: 20px; transition: all .2s; }
+.back:hover { border-color: #67e8f9; color: #67e8f9; }
+.title { font-size: 2.8em; letter-spacing: 4px; margin-bottom: 8px; }
+.decorative { width: 80px; height: 3px; background: #67e8f9; border-radius: 2px; margin: 12px auto; }
 .form { margin-top: 20px; }
 .form-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .input-group { text-align: left; }
 .input-group label { font-size: 0.85em; color: #888; display: block; margin-bottom: 4px; }
-.input-group input, .input-group select { border: 2px solid #c9b99a; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 1em; background: #fdf8f0; color: #2c2c2c; outline: none; transition: border-color .2s; }
-.input-group input:focus, .input-group select:focus { border-color: #e74c3c; }
-.btn { background: #e74c3c; color: #fff; border: 2px solid #c0392b; border-radius: 12px; padding: 14px 36px; font-family: 'Ma Shan Zheng', cursive; font-size: 1.3em; letter-spacing: 3px; cursor: pointer; box-shadow: 3px 4px 0 #c0392b; transition: all .2s; margin-top: 20px; }
-.btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 6px 0 #c0392b; }
-.btn:active { transform: translate(2px,2px); box-shadow: 1px 2px 0 #c0392b; }
+.input-group input, .input-group select { border: 1px solid #2a2a35; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 1em; background: #111116; color: #E8E8F0; outline: none; transition: border-color .2s; }
+.input-group input:focus, .input-group select:focus { border-color: #67e8f9; }
+.btn { background: #1a1a25; color: #67e8f9; border: 1px solid #67e8f9; border-radius: 12px; padding: 14px 36px; font-size: 1.3em; letter-spacing: 3px; cursor: pointer; transition: all .2s; margin-top: 20px; }
+.btn:hover { transform: translate(-2px,-2px); }
+.btn:active { transform: translate(2px,2px); }
 /* Result */
 .result { display: none; text-align: center; }
 .result.show { display: block; animation: fadeIn .5s ease; }
@@ -35,13 +34,13 @@ body { background: #f5f0e8; background-image: url("data:image/svg+xml,%3Csvg xml
 .emoji-big { font-size: 4em; margin: 16px 0; animation: wobble 2s ease-in-out infinite; }
 @keyframes wobble { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
 .scores { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0; }
-.score-item { background: #fdf6e3; border: 1.5px solid #c9b99a; border-radius: 10px; padding: 8px 16px; text-align: center; min-width: 70px; }
+.score-item { background: rgba(103,232,249,.06); border: 1px solid #2a2a35; border-radius: 10px; padding: 8px 16px; text-align: center; min-width: 70px; }
 .score-item .name { font-size: 0.78em; color: #888; }
-.score-item .bar { width: 60px; height: 6px; background: #e0d5c0; border-radius: 3px; margin: 4px auto 0; overflow: hidden; }
+.score-item .bar { width: 60px; height: 6px; background: #1a1a25; border-radius: 3px; margin: 4px auto 0; overflow: hidden; }
 .score-item .bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
-.desc { font-size: 0.95em; color: #5a4a30; line-height: 1.8; text-align: left; background: rgba(0,0,0,0.03); padding: 14px; border-radius: 8px; border-left: 3px solid #e74c3c; margin-top: 16px; }
+.desc { font-size: 0.95em; color: #E8E8F0; line-height: 1.8; text-align: left; background: rgba(255,255,255,.03); padding: 14px; border-radius: 8px; border-left: 3px solid #67e8f9; margin-top: 16px; }
 .lucky { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-.lucky-item { background: #fdf6e3; border: 1.5px solid #c9b99a; border-radius: 8px; padding: 6px 14px; font-size: 0.85em; }
+.lucky-item { background: rgba(103,232,249,.06); border: 1px solid #2a2a35; border-radius: 8px; padding: 6px 14px; font-size: 0.85em; }
 .notice { font-size: 0.8em; color: #aaa; margin-top: 20px; font-style: italic; }
 @media(max-width:500px){.card{padding:20px 16px}.title{font-size:2em}.form-row{flex-direction:column}}
 </style>

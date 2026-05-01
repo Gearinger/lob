@@ -6,16 +6,16 @@
 <title>Lob Canvas Demo</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);font-family:'SF Mono',Monaco,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#e8d5b7}
+body{min-height:100vh;background:#0a0a0a;font-family:'SF Mono',Monaco,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#E8E8F0}
 .particle{position:absolute;border-radius:50%;pointer-events:none;animation:float linear infinite}
 .lob{display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10}
-.lob-face{font-size:80px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,140,50,0.5))}
-.lob-title{font-size:28px;font-weight:700;background:linear-gradient(90deg,#ff8c32,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.lob-face{font-size:80px;animation:bounce 2s ease-in-out infinite}
+.lob-title{font-size:28px;font-weight:700;background:linear-gradient(90deg,#67e8f9,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
 .lob-sub{font-size:14px;color:#a0a0c0;letter-spacing:4px;text-transform:uppercase}
 .stats{display:flex;gap:40px;margin-top:20px;z-index:10}
 .stat{text-align:center;padding:20px 30px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;backdrop-filter:blur(10px);min-width:120px;transition:all 0.3s}
-.stat:hover{transform:translateY(-5px);border-color:rgba(255,140,50,0.5);box-shadow:0 10px 30px rgba(255,140,50,0.2)}
-.stat-val{font-size:36px;font-weight:700;color:#ff8c32;display:block}
+.stat:hover{transform:translateY(-5px);border-color:rgba(103,232,249,.5);box-shadow:0 10px 30px rgba(103,232,249,.2)}
+.stat-val{font-size:36px;font-weight:700;color:#67e8f9;display:block}
 .stat-label{font-size:11px;color:#8888aa;text-transform:uppercase;letter-spacing:1px;margin-top:5px}
 .clock{position:absolute;top:30px;right:40px;font-size:14px;color:#666;font-family:monospace;z-index:10}
 .click-hint{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-size:12px;color:#555;letter-spacing:1px;z-index:10}
@@ -38,7 +38,7 @@ body{min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#
   <div class="stat"><span class="stat-val" id="time">0s</span><span class="stat-label">Uptime</span></div>
 </div>
 
-<div class="click-hint">Click anywhere to spawn particles</div>
+<div class="click-hint">Click anywhere to interact</div>
 
 <script>
 let clicks=0,moves=0,start=Date.now(),t=0;
@@ -51,10 +51,10 @@ setInterval(()=>{
 setInterval(()=>{t++;timeEl.textContent=t+'s'},1000);
 document.addEventListener('click',e=>{
   clicks++;clicksEl.textContent=clicks;
-  for(let i=0;i<5;i++)spawnParticle(e.clientX,e.clientY,'#ff8c32')
+  for(let i=0;i<5;i++)spawnParticle(e.clientX,e.clientY,'#67e8f9')
 });
 document.addEventListener('mousemove',e=>{
-  if(Math.random()>.7){moves++;movesEl.textContent=moves;spawnParticle(e.clientX,e.clientY,'#4ecdc4')}
+  if(Math.random()>.7){moves++;movesEl.textContent=moves;spawnParticle(e.clientX,e.clientY,'#67e8f9')}
 });
 function spawnParticle(x,y,color){
   const p=document.createElement('div');

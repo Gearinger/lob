@@ -4,39 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>八字简批 🪷</title>
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");font-family:'PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#2c2c2c}
-.card{background:#fdf8f0;border:2.5px solid #2c2c2c;border-radius:16px;padding:32px 28px;box-shadow:4px 5px 0 rgba(0,0,0,.15);text-align:center;position:relative;max-width:500px;width:100%;margin-bottom:24px}
-.card::before{content:'';position:absolute;inset:8px;border:1.5px dashed #c9b99a;border-radius:12px;pointer-events:none}
-.back{color:#888;font-size:.85em;text-decoration:none;display:block;margin-bottom:12px}
-.title{font-family:'Ma Shan Zheng',cursive;font-size:2.5em;letter-spacing:4px;text-shadow:2px 2px 0 #d4c4a8;margin-bottom:6px}
-.decorative{width:70px;height:3px;background:#e67e22;border-radius:2px;margin:8px auto}
+body{background:#0a0a0a;font-family:'PingFang SC',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;color:#E8E8F0}
+.card{background:#111116;border:1px solid #2a2a35;border-radius:16px;padding:32px 28px;box-shadow:0 0 0 1px rgba(255,255,255,.03);text-align:center;position:relative;max-width:500px;width:100%;margin-bottom:24px}
+.back{color:#555;font-size:.85em;text-decoration:none;display:block;margin-bottom:12px}
+.title{font-size:2em;letter-spacing:4px;margin-bottom:6px}
+.decorative{width:70px;height:3px;background:#67e8f9;border-radius:2px;margin:8px auto}
 .form{display:flex;flex-direction:column;gap:12px;margin-top:20px}
 .input-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .input-group{text-align:left}
 .input-group label{font-size:.82em;color:#888;display:block;margin-bottom:4px}
-.input-group input, .input-group select{border:2px solid #c9b99a;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:1em;background:#fdf8f0;outline:none;min-width:140px;transition:border-color .2s}
-.input-group input:focus, .input-group select:focus{border-color:#e67e22}
-.btn{background:#e67e22;color:#fff;border:2px solid #d35400;border-radius:12px;padding:13px 32px;font-family:'Ma Shan Zheng',cursive;font-size:1.2em;letter-spacing:3px;cursor:pointer;box-shadow:3px 4px 0 #d35400;transition:all .2s;margin-top:18px;display:inline-block}
-.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 6px 0 #d35400}
+.input-group input, .input-group select{border:1px solid #2a2a35;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:1em;background:#111116;color:#E8E8F0;outline:none;min-width:140px;transition:border-color .2s}
+.input-group input:focus, .input-group select:focus{border-color:#67e8f9}
+.btn{background:#1a1a25;color:#67e8f9;border:1px solid #67e8f9;border-radius:12px;padding:13px 32px;font-size:1.2em;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-top:18px;display:inline-block}
 .result{display:none;margin-top:16px;text-align:left}
 .result.show{display:block;animation:fadeIn .6s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.pillar{background:rgba(230,126,34,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:12px;text-align:center;font-size:.85em}
-.pillar-label{font-family:'Ma Shan Zheng',cursive;color:#e67e22;font-size:.9em;letter-spacing:2px;margin-bottom:4px}
-.pillar-val{font-size:1.05em;font-weight:bold;color:#2c2c2c}
-.ganji{font-size:.82em;color:#888;margin-top:4px}
+.pillar{background:rgba(103,232,249,.06);border:1px solid #2a2a35;border-radius:10px;padding:12px;text-align:center;font-size:.85em}
+.pillar-label{font-size:.9em;letter-spacing:2px;margin-bottom:4px;color:#67e8f9}
+.pillar-val{font-size:1.05em;font-weight:bold;color:#E8E8F0}
+.ganji{font-size:.82em;color:#555;margin-top:4px}
 .element-bar{margin:14px auto;max-width:320px;text-align:left}
 .element-bar-title{font-family:'Ma Shan Zheng',cursive;letter-spacing:2px;font-size:.9em;color:#888;margin-bottom:8px}
 .element-row{display:flex;align-items:center;gap:8px;font-size:.82em;margin-bottom:6px}
 .element-name{width:20px;color:#888;text-align:center}
-.element-bg{flex:1;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden}
+.element-bg{flex:1;height:8px;background:#1a1a25;border-radius:4px;overflow:hidden}
 .element-fill{height:100%;border-radius:4px;width:0;transition:width 1s ease}
-.overall{text-align:center;background:rgba(230,126,34,.08);border:1.5px solid #c9b99a;border-radius:10px;padding:14px;margin-top:14px;font-size:.92em;line-height:1.8;color:#5a4a30}
-.overall-title{font-family:'Ma Shan Zheng',cursive;color:#e67e22;letter-spacing:2px;font-size:1em;margin-bottom:8px;text-align:center}
+.overall{text-align:center;background:rgba(103,232,249,.06);border:1px solid #2a2a35;border-radius:10px;padding:14px;margin-top:14px;font-size:.92em;line-height:1.8;color:#E8E8F0}
+.overall-title{letter-spacing:2px;font-size:1em;margin-bottom:8px;text-align:center;color:#67e8f9}
 .notice{font-size:.78em;color:#aaa;margin-top:14px;text-align:center;font-style:italic}
 @media(max-width:500px){.card{padding:20px 16px}}
 </style>
@@ -46,7 +44,7 @@ body{background:#f5f0e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='h
   <a href="../" class="back">← 玄学实验室</a>
   <div class="title">八字简批</div>
   <div class="decorative"></div>
-  <p style="font-size:.9em;color:#888;margin-top:8px">出生年月，暗藏命运玄机<br>输入信息，看看你的人生剧本</p>
+  <p style="font-size:.9em;color:#555;margin-top:8px">出生年月，暗藏命运玄机<br>输入信息，看看你的人生剧本</p>
   <div class="form" id="form">
     <div class="input-row">
       <div class="input-group">
