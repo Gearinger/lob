@@ -1,6 +1,4 @@
 /* Daily Post Content Styles — Lob Design Language v1.6 */
-/* Header/nav/global styles are in blog/blog.css */
-@import url('../blog/blog.css');
 
 article{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:64px 24px 120px}
 .ah{margin-bottom:48px}
