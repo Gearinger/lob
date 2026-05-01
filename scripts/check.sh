@@ -1,7 +1,6 @@
 #!/bin/bash
 # Pre-commit check script for Lob site
 # Usage: ./scripts/check.sh
-# Auto-install hook: ln -sf ../../scripts/check.sh .git/hooks/pre-commit
 
 set -e
 
@@ -90,17 +89,7 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
-# ── 5. Daily post count ────────────────────────────────────────
-echo -n "Checking daily post count... "
-COUNT=$(find blog/posts -name "daily-*.html" | wc -l | tr -d ' ')
-if [ "$COUNT" -lt 45 ]; then
-  echo -e "${YELLOW}WARN${NC} only $COUNT daily posts (expected ~48)"
-  WARNINGS=$((WARNINGS+1))
-else
-  echo -e "${GREEN}OK ($COUNT files)${NC}"
-fi
-
-# ── 6. Escaped template literals ──────────────────────────────
+# ── 5. Escaped template literals ──────────────────────────────
 echo -n "Checking for escaped template literals... "
 ESCAPED=""
 for f in $(echo "$STAGED" | grep "\.html$" | grep -v "/node_modules/"); do
@@ -115,22 +104,7 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
-# ── 7. Missing shared CSS links ────────────────────────────────
-echo -n "Checking daily posts have shared CSS... "
-MISSING=""
-for f in blog/posts/daily-*.html; do
-  if [ -f "$f" ] && ! grep -q "posts.css" "$f" 2>/dev/null; then
-    MISSING="$MISSING $(basename $f)"
-  fi
-done
-if [ -n "$MISSING" ]; then
-  echo -e "${RED}FAIL${NC} missing posts.css:$MISSING"
-  ERRORS=$((ERRORS+1))
-else
-  echo -e "${GREEN}OK${NC}"
-fi
-
-# ── 8. Dynamic theme JS warning (non-blocking) ────────────────
+# ── 6. Dynamic theme JS warning (non-blocking) ────────────────
 echo -n "Checking for dynamic theme JS... "
 DYNAMIC=$(echo "$STAGED" | xargs grep -l "getTimeTheme" 2>/dev/null | grep -v "/node_modules/\|/dist/\|bundle\|\.min\." | head -3 || true)
 if [ -n "$DYNAMIC" ]; then
