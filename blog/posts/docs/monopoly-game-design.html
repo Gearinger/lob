@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大富翁 Online — 数值设计文档 v0.1</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="../design-lang.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<main>
+<div class="article-header">
+  <div class="eyebrow">数值设计文档 · Game Mechanics</div>
+  <h1 class="article-title">大富翁 Online — 数值设计</h1>
+  <div class="article-meta">版本 v0.1 · 状态：草稿 · 关联 PRD：monopoly-prd.html</div>
+  <p class="article-desc"><strong>定义所有游戏数值：地图城市、地价租金表、初始金币、机会/命运卡牌、Bot 难度参数。</strong></p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+<h2>1. 经济系统总览</h2>
+
+<p>游戏内所有资产以<strong>金币</strong>为单位。核心经济链：初始金币 → 买地 → 盖房 → 收租 → 积累 → 胜利。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">参数</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">数值</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">说明</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">初始金币</td><td style="padding:10px 14px;color:#E8E8F0">¥15,000</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">每人开局拥有</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">最高负债额度</td><td style="padding:10px 14px;color:#E8E8F0">¥-5,000</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">可向银行借款的上限，利息10%</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">起点奖励</td><td style="padding:10px 14px;color:#E8E8F0">¥2,000</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">经过起点格时获得（单向经过算一次）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">游戏总回合</td><td style="padding:10px 14px;color:#E8E8F0">20回合</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">20回合后资产最高者胜</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">玩家数</td><td style="padding:10px 14px;color:#E8E8F0">1玩家 + 3 Bot = 4人桌</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">顺序：玩家1→Bot1→Bot2→Bot3</td></tr>
+    <tr><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">玩家先手</td><td style="padding:10px 14px;color:#E8E8F0">随机决定</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">每局开局随机先手顺序</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>2. 地图与城市列表</h2>
+
+<p>环形地图共 <strong>40 格</strong>，逆时针排列。按现实地理位置布局（东部沿海→南部→西部→北部→中部），保证相邻城市地理接近。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">格号</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">城市/特殊格</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">定价等级</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">地价</th><th style="text-align:left;padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">颜色</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">1</td><td style="padding:8px 14px;color:#E8E8F0">🚩 起点（北京）</td><td style="padding:8px 14px;color:#E8E8F0">—</td><td style="padding:8px 14px;color:#E8E8F0">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">2</td><td style="padding:8px 14px;color:#E8E8F0">上海</td><td style="padding:8px 14px;color:#f87171">S级</td><td style="padding:8px 14px;color:#E8E8F0">¥15,000</td><td style="padding:8px 14px;background:#dc2626;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">3</td><td style="padding:8px 14px;color:#E8E8F0">🎲 机会格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">4</td><td style="padding:8px 14px;color:#E8E8F0">广州</td><td style="padding:8px 14px;color:#f87171">S级</td><td style="padding:8px 14px;color:#E8E8F0">¥13,000</td><td style="padding:8px 14px;background:#dc2626;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">5</td><td style="padding:8px 14px;color:#E8E8F0">深圳</td><td style="padding:8px 14px;color:#fb923c">A级</td><td style="padding:8px 14px;color:#E8E8F0">¥11,000</td><td style="padding:8px 14px;background:#ea580c;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">6</td><td style="padding:8px 14px;color:#E8E8F0">杭州</td><td style="padding:8px 14px;color:#fb923c">A级</td><td style="padding:8px 14px;color:#E8E8F0">¥10,000</td><td style="padding:8px 14px;background:#ea580c;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">7</td><td style="padding:8px 14px;color:#E8E8F0">🏠 火车站（北京）</td><td style="padding:8px 14px">交通</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">8</td><td style="padding:8px 14px;color:#E8E8F0">成都</td><td style="padding:8px 14px;color:#fbbf24">B级</td><td style="padding:8px 14px;color:#E8E8F0">¥8,000</td><td style="padding:8px 14px;background:#ca8a04;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">9</td><td style="padding:8px 14px;color:#E8E8F0">重庆</td><td style="padding:8px 14px;color:#fbbf24">B级</td><td style="padding:8px 14px;color:#E8E8F0">¥7,500</td><td style="padding:8px 14px;background:#ca8a04;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">10</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">11</td><td style="padding:8px 14px;color:#E8E8F0">南京</td><td style="padding:8px 14px;color:#4ade80">C级</td><td style="padding:8px 14px;color:#E8E8F0">¥6,000</td><td style="padding:8px 14px;background:#16a34a;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">12</td><td style="padding:8px 14px;color:#E8E8F0">武汉</td><td style="padding:8px 14px;color:#4ade80">C级</td><td style="padding:8px 14px;color:#E8E8F0">¥6,000</td><td style="padding:8px 14px;background:#16a34a;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">13</td><td style="padding:8px 14px;color:#E8E8F0">西安</td><td style="padding:8px 14px;color:#4ade80">C级</td><td style="padding:8px 14px;color:#E8E8F0">¥5,500</td><td style="padding:8px 14px;background:#16a34a;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">14</td><td style="padding:8px 14px;color:#E8E8F0">天津</td><td style="padding:8px 14px;color:#67e8f9">D级</td><td style="padding:8px 14px;color:#E8E8F0">¥4,000</td><td style="padding:8px 14px;background:#2563eb;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">15</td><td style="padding:8px 14px;color:#E8E8F0">🌤️ 免费停车</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">16</td><td style="padding:8px 14px;color:#E8E8F0">苏州</td><td style="padding:8px 14px;color:#67e8f9">D级</td><td style="padding:8px 14px;color:#E8E8F0">¥4,000</td><td style="padding:8px 14px;background:#2563eb;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">17</td><td style="padding:8px 14px;color:#E8E8F0">长沙</td><td style="padding:8px 14px;color:#67e8f9">D级</td><td style="padding:8px 14px;color:#E8E8F0">¥3,500</td><td style="padding:8px 14px;background:#2563eb;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">18</td><td style="padding:8px 14px;color:#E8E8F0">🎲 机会格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">19</td><td style="padding:8px 14px;color:#E8E8F0">郑州</td><td style="padding:8px 14px;color:#a78bfa">E级</td><td style="padding:8px 14px;color:#E8E8F0">¥2,500</td><td style="padding:8px 14px;background:#7c3aed;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">20</td><td style="padding:8px 14px;color:#E8E8F0">青岛</td><td style="padding:8px 14px;color:#a78bfa">E级</td><td style="padding:8px 14px;color:#E8E8F0">¥2,500</td><td style="padding:8px 14px;background:#7c3aed;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">21</td><td style="padding:8px 14px;color:#E8E8F0">大连</td><td style="padding:8px 14px;color:#a78bfa">E级</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px;background:#7c3aed;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">22</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">23</td><td style="padding:8px 14px;color:#E8E8F0">济南</td><td style="padding:8px 14px;color:#a78bfa">E级</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px;background:#7c3aed;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">24</td><td style="padding:8px 14px;color:#E8E8F0">厦门</td><td style="padding:8px 14px;color:#a78bfa">E级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,800</td><td style="padding:8px 14px;background:#7c3aed;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">25</td><td style="padding:8px 14px;color:#E8E8F0">合肥</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,500</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">26</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">27</td><td style="padding:8px 14px;color:#E8E8F0">沈阳</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,500</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">28</td><td style="padding:8px 14px;color:#E8E8F0">昆明</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,500</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">29</td><td style="padding:8px 14px;color:#E8E8F0">🎲 机会格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">30</td><td style="padding:8px 14px;color:#E8E8F0">太原</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,200</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">31</td><td style="padding:8px 14px;color:#E8E8F0">🏢 机场（上海）</td><td style="padding:8px 14px">交通</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">32</td><td style="padding:8px 14px;color:#E8E8F0">贵阳</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,200</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">33</td><td style="padding:8px 14px;color:#E8E8F0">南宁</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">34</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">35</td><td style="padding:8px 14px;color:#E8E8F0">哈尔滨</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">36</td><td style="padding:8px 14px;color:#E8E8F0">🎲 机会格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">37</td><td style="padding:8px 14px;color:#E8E8F0">海口</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">38</td><td style="padding:8px 14px;color:#E8E8F0">拉萨</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">39</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">40</td><td style="padding:8px 14px;color:#E8E8F0">乌鲁木齐</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.78rem;color:rgba(232,232,240,0.4);margin-top:8px;">
+  注：共 28 块地皮（S×2 / A×2 / B×2 / C×3 / D×3 / E×5 / F×11）。机会格 5 处，命运格 5 处，起点/停车/交通各 2 处。
+</p>
+</div>
+
+<div class="section">
+<h2>3. 地价与租金表</h2>
+
+<p>每块土地的租金 = <strong>基础租金 × 等级系数</strong>。盖房费用为地价的 50%（每栋）。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">等级</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">地价范围</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">基础租金</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">茅屋(1栋)</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">房屋(2栋)</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">楼房(3栋)</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">摩天楼(4栋)</th>
+      <th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">盖房费(每栋)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#dc2626;padding:2px 8px;border-radius:3px;color:#fff">S</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥13,000~¥15,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥600</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥3,600</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥7,200</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥15,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥7,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#ea580c;padding:2px 8px;border-radius:3px;color:#fff">A</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥10,000~¥11,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥450</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥2,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥5,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥10,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥5,500</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#ca8a04;padding:2px 8px;border-radius:3px;color:#fff">B</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥7,500~¥8,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥320</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥800</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,800</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥3,600</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥7,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥4,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#16a34a;padding:2px 8px;border-radius:3px;color:#fff">C</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥5,500~¥6,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥220</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥550</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,200</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥2,400</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥5,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥3,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#2563eb;padding:2px 8px;border-radius:3px;color:#fff">D</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥3,500~¥4,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥150</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥400</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥900</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,800</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥3,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥2,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#7c3aed;padding:2px 8px;border-radius:3px;color:#fff">E</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥1,800~¥2,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥90</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥220</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥2,000</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,200</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 14px;color:#E8E8F0"><span style="background:#db2777;padding:2px 8px;border-radius:3px;color:#fff">F</span></td>
+      <td style="padding:8px 14px;color:rgba(232,232,240,0.7)">¥1,000~¥1,500</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥50</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥120</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥300</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥600</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥1,200</td>
+      <td style="padding:8px 14px;color:#E8E8F0">¥750</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.82rem;color:rgba(232,232,240,0.6);margin-top:16px;">
+  <strong>租金公式：</strong>每块地租金 = 基础租金 × (1 + level × 1.5)，其中 level=0~4。<br>
+  例：北京（¥15,000）升至楼房(level=3)：租金 = ¥600 × (1+3×1.5) = ¥3,300，实际取表中 ¥3,600 为近似值。
+</p>
+</div>
+
+<div class="section">
+<h2>4. 特殊格子设计</h2>
+
+<div class="principles" style="grid-template-columns: 1fr 1fr;">
+  <div class="principle">
+    <div class="principle-name">🚩 起点格（1号位）</div>
+    <div class="principle-desc">玩家经过/到达起点格，获得 ¥2,000。起点同时也是地图起点，任何玩家必须从此处开始移动。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">🏠 火车站（2处，7号/31号）</div>
+    <div class="principle-desc">拥有者每次被路过时收取费用：¥200 × 骰子总点数。拥有 2 个车站费用翻倍。车站无建造升级。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">🏢 机场（31号位）</div>
+    <div class="principle-desc">拥有者使用机场时，可直接传送到任意城市格（每局限用 1 次）。拥有费用：¥2,000。无建造升级。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">🌤️ 免费停车（15号位）</div>
+    <div class="principle-desc">经典大富翁的"免费休息"格。无任何事件，玩家可在此停留恢复（跳过后继续下一回合）。</div>
+  </div>
+  <div class="principle" style="grid-column: 1 / -1;">
+    <div class="principle-name">⛓️ 监狱（31号位，实际为"路过/探访"）</div>
+    <div class="principle-desc">路过（不进入监狱）：无事发生，正常支付过路费。<br>
+    ⚠️ 被抓进监狱：玩家连续掷出三次双骰时触发 → 本次移动停止，直接进入监狱（跳到31号），下 3 回合不得离开（可通过付 ¥1,000 保释或掷双骰脱狱）。</div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<h2>5. 机会卡牌库（16张）</h2>
+
+<p>落地机会格时，从牌堆顶部随机抽取一张，执行效果后放回牌堆底部。牌堆打乱后重新抽取。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">#</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">卡片名称</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">效果</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-01</td><td style="padding:8px 14px;color:#E8E8F0">一路顺风</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">顺风直行！获得 ¥500 奖金。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-02</td><td style="padding:8px 14px;color:#E8E8F0">政府补贴</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">获得创新企业补贴 ¥2,000。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-03</td><td style="padding:8px 14px;color:#E8E8F0">出售房产</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">出售一处房产，收入为该房产盖房费的 80%。选择最贵的。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-04</td><td style="padding:8px 14px;color:#E8E8F0">银行利息</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">存款利息到账，获得 ¥1,000。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-05</td><td style="padding:8px 14px;color:#E8E8F0">交通事故</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">交通罚款！支付 ¥800。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-06</td><td style="padding:8px 14px;color:#E8E8F0">意外税单</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">补缴税款，支付 ¥1,200。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-07</td><td style="padding:8px 14px;color:#E8E8F0">朋友还款</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">朋友归还欠款，获得 ¥600。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-08</td><td style="padding:8px 14px;color:#E8E8F0">免费盖房</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">免费为任意一处已有地皮盖 1 栋（最多到摩天楼）。若无地皮，无效。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-09</td><td style="padding:8px 14px;color:#E8E8F0">股市收益</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">投资获利，获得 ¥2,500。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-10</td><td style="padding:8px 14px;color:#E8E8F0">股市亏损</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">投资失败，损失 ¥1,500。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-11</td><td style="padding:8px 14px;color:#E8E8F0">慈善捐款</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">捐款 ¥300，获得"慷慨"标记：下次租金收入+10%。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-12</td><td style="padding:8px 14px;color:#E8E8F0">收到礼金</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">生日派对收到礼金，获得 ¥800。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-13</td><td style="padding:8px 14px;color:#E8E8F0">盗窃损失</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">遭遇小偷，损失 ¥500。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-14</td><td style="padding:8px 14px;color:#E8E8F0">加速发展</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">获得额外行动：本回合再次掷骰。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">C-15</td><td style="padding:8px 14px;color:#E8E8F0">罚款通知</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">违规经营，支付 ¥700。</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">C-16</td><td style="padding:8px 14px;color:#E8E8F0">年末分红</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">年终分红，获得 ¥1,000。</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>6. 命运卡牌库（16张）</h2>
+
+<p>落地命运格时抽取。命运卡偏向中随机负面事件，体现"市场不确定性"和"政策影响"。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">#</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">卡片名称</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">效果</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-01</td><td style="padding:8px 14px;color:#E8E8F0">经济过热</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">宏观调控启动，所有地皮租金减免 1 回合。所有人收益减少。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-02</td><td style="padding:8px 14px;color:#E8E8F0">政策利好</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">政策扶持，指定颜色地皮租金 2 回合内+50%。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-03</td><td style="padding:8px 14px;color:#E8E8F0">房产泡沫</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">市场崩盘！所有摩天楼降级为房屋（level 2）。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-04</td><td style="padding:8px 14px;color:#E8E8F0">银行加息</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">负债玩家额外支付负债额的 10% 利息。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-05</td><td style="padding:8px 14px;color:#E8E8F0">城市升级</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">指定城市（就近）地皮价格+15%，持续 3 回合。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-06</td><td style="padding:8px 14px;color:#E8E8F0">贸易制裁</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">出口受限，损失 ¥1,000。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-07</td><td style="padding:8px 14px;color:#E8E8F0">汇率波动</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">汇率变动，所有玩家资产折算后损失或获得随机 ¥500~¥1,500。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-08</td><td style="padding:8px 14px;color:#E8E8F0">项目获奖</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">创新项目获奖，获得 ¥2,000。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-09</td><td style="padding:8px 14px;color:#E8E8F0">竞对打压</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">竞争对手恶意压价，损失 ¥800。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-10</td><td style="padding:8px 14px;color:#E8E8F0">台风灾害</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">自然灾害，随机一处自有地皮降 1 级。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-11</td><td style="padding:8px 14px;color:#E8E8F0">IPO上市</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">公司上市，所有玩家按资产 5% 缴税。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-12</td><td style="padding:8px 14px;color:#E8E8F0">市场调研</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">花钱做调研，本回合知道所有 Bot 手上的金币数量（信息优势）。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-13</td><td style="padding:8px 14px;color:#E8E8F0">租金管制</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">政府租金管制，本回合所有租金收入减半。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-14</td><td style="padding:8px 14px;color:#E8E8F0">偷税处罚</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">税务稽查，支付 ¥2,000 罚款。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">F-15</td><td style="padding:8px 14px;color:#E8E8F0">并购扩张</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">获得 ¥1,000 扩张资金。</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">F-16</td><td style="padding:8px 14px;color:#E8E8F0">人才招聘</td><td style="padding:8px 14px;color:rgba(232,232,240,0.7)">招聘人才花费 ¥500，下一回合租金收入+20%。</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>7. Bot 难度参数</h2>
+
+<p>三个 Bot 类型各有独立的决策参数表。Bot 在 Easy/Hard 两个难度模式下有不同的随机扰动系数。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">参数</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🦅 鹰派</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🐢 龟派</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🦊 狐狸</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">买地意愿阈值</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 地价 × 0.6</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 地价 × 1.2</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 地价 × 0.9</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">升级意愿阈值</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 盖房费 × 0.8</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 盖房费 × 1.5</td><td style="padding:8px 14px;color:#E8E8F0">资金 > 盖房费 × 1.0</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">攻击目标</td><td style="padding:8px 14px;color:#E8E8F0">优先升级玩家必经地</td><td style="padding:8px 14px;color:#E8E8F0">优先升级自己已有地</td><td style="padding:8px 14px;color:#E8E8F0">看对手资金，低买高卖</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">交易接受度</td><td style="padding:8px 14px;color:#E8E8F0">低（不主动交易）</td><td style="padding:8px 14px;color:#E8E8F0">中（等价交换可谈）</td><td style="padding:8px 14px;color:#E8E8F0">高（爱讨价还价）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">负债容忍度</td><td style="padding:8px 14px;color:#E8E8F0">高（¥-8,000）</td><td style="padding:8px 14px;color:#E8E8F0">低（¥-1,000）</td><td style="padding:8px 14px;color:#E8E8F0">中（¥-3,000）</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">Easy Bot 随机因子</td><td style="padding:8px 14px;color:#E8E8F0">35% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">30% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">40% 概率做出次优决策</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>8. 数值设计原则</h2>
+
+<div class="principles" style="grid-template-columns: 1fr 1fr;">
+  <div class="principle">
+    <div class="principle-name">经济不崩溃原则</div>
+    <div class="principle-desc">游戏全程金币总量应稳定增长（通过起点奖励和机会卡注入），但增长速度不超过租金总回收量。每一笔租金流出，必须有等量或更大的金币注入源补充回来，防止经济通缩导致所有玩家无法继续游戏。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">S级地皮战略价值优先</div>
+    <div class="principle-desc">S级城市（上海/广州）是核心争夺点。地价高意味着持有成本高，但收益也高。设计目标：前 5 回合至少有 1 个 Bot 会放弃购买北京/上海，等待其他玩家资产积累后再抢，形成博弈张力。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">Bot 不应碾压玩家</div>
+    <div class="principle-desc">Easy 模式下 Bot 胜率 ≤ 35%，Hard 模式下 Bot 胜率 ≤ 65%。Bot 若在游戏前 10 回合内连续买走 3 块以上核心地皮，触发"新手保护"：剩余 S/A 级地皮价格临时下调 20%。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">单局时长 30-60 分钟</div>
+    <div class="principle-desc">每个 Bot 回合 ≤ 1.5 秒思考动画。玩家操作每步响应 ≤ 200ms。20 回合 × 4人 × 平均 3 分钟操作 = 约 40 分钟中位时长。机会/命运卡增加随机波动，防止每局节奏完全相同。</div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<h2>Open Questions</h2>
+<ul>
+  <li>城市颜色共 6 种，每个颜色 2-11 块不等，是否需要同颜色全买齐才有租金加成（经典大富翁规则）？</li>
+  <li>Bot 是否需要"记牌"能力（即追踪已出现的卡牌，调整后续概率）？</li>
+  <li>机场格子传送是否应该限每局 1 次，还是拥有后可无限使用？</li>
+  <li>E/F 级地皮是否需要设计更多建造升级（因为价格低，升级太快失去张力）？</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Recommended Next Step：</strong>确认数值文档后，补充城市颜色同色加成规则，然后开始 Canvas 地图渲染预研（MVP Demo 优先渲染 40 格棋盘和玩家令牌）。
+</div>
+
+<div class="divider" style="margin-top: 48px;"></div>
+</main>
+</body>
+</html>
