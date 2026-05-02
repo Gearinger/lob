@@ -1,6 +1,6 @@
 /* Daily Post Content Styles — Lob Design Language v1.6 */
 
-article{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:64px 24px 120px}
+article{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:80px 24px 120px;scroll-margin-top:16px}
 .ah{margin-bottom:48px}
 .am{display:flex;gap:12px;align-items:center;margin-bottom:20px}
 .tag{font-size:0.68rem;padding:3px 10px;border-radius:20px}
