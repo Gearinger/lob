@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大富翁 Online PRD — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="../design-lang.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<main>
+<div class="article-header">
+  <div class="eyebrow">产品需求文档 · PRD</div>
+  <h1 class="article-title">大富翁 Online</h1>
+  <div class="article-meta">版本 v0.1 · 状态：草稿 · 作者：Lob</div>
+  <p class="article-desc"><strong>一款基于中国城市地图的经典大富翁玩法网页游戏，支持玩家 vs AI Bot 单人模式，未来可扩展多人联机。</strong></p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+<h2>1. Executive Summary</h2>
+
+<p>经典大富翁玩法在中国有极强的情感基础（强手棋、大富翁游戏盘），但近年来缺乏有吸引力的线上版本。现有网页端产品普遍界面老旧、交互粗糙、AI Bot 无趣。</p>
+
+<p>本产品定位为：一款精致、有策略深度、视觉风格现代化的中国城市大富翁网页游戏。以「玩家 vs AI Bot」为核心首发模式，重现经典地皮买卖、建造升级、命运卡、博弈对抗的核心乐趣。</p>
+
+<p>差异化点：中国城市地图（省会+直辖市）+ 中国特色命运卡（政策/机遇/风险）+ 聪明有进攻性的 AI Bot + 现代暗色 UI。</p>
+</div>
+
+<div class="section">
+<h2>2. Problem Statement</h2>
+
+<p><strong>谁有这个问题？</strong></p>
+<p>20-40岁对中国经典大富翁有情怀记忆的用户，想要随时随地来一局，不需要下载 App，不需要队友。</p>
+
+<p><strong>现有方案的痛苦点：</strong></p>
+<ul>
+  <li>传统桌游：需要凑人、时间、道具，门槛高</li>
+  <li>Steam/App 大富翁游戏：需要下载安装，很多收费且品质参差</li>
+  <li>网页版：界面老旧、交互反人类、AI Bot 弱智（永远买不到地/永远乱买）</li>
+</ul>
+
+<p><strong>证据：</strong>豆瓣/B站上经典大富翁相关内容持续有热度，但找不到一个能打的在线版本。</p>
+</div>
+
+<div class="section">
+<h2>3. Target Users & Personas</h2>
+
+<p><strong>核心用户</strong></p>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">怀旧玩家</div>
+    <div class="principle-desc">25-40岁，童年玩过强手棋/大富翁，现在想重温，但没有时间和人凑桌游。想要一个 AI Bot 能陪打的网页版，随时打开随时玩，30-60分钟一局。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">策略游戏爱好者</div>
+    <div class="principle-desc">18-35岁，喜欢回合制策略游戏（文明、英雄无敌），追求博弈深度。经典大富翁的"买地-盖房-收租"博弈链能否带来足够策略深度是他们的核心关注点。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">休闲社交用户</div>
+    <div class="principle-desc">18-30岁，和朋友远程玩游戏的场景。首发 AI 模式是替代方案，真正的目标是多人联机模式（Phase 2）。</div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<h2>4. Strategic Context</h2>
+
+<p><strong>为什么现在？</strong></p>
+<ul>
+  <li>HTML5 游戏技术成熟，单文件可承载复杂游戏逻辑</li>
+  <li>大富翁核心玩法简单，但 AI Bot 设计有壁垒——好玩的 Bot 需要精心调参</li>
+  <li>Lob 站已有游戏矩阵（扑克/斗蛐蛐/德州扑克），大富翁是策略类补充</li>
+  <li>中国城市 IP 有共鸣感，差异化强于"经典欧美地图"</li>
+</ul>
+
+<p><strong>Phase 规划</strong></p>
+<ul>
+  <li><strong>Phase 1（MVP）：</strong>玩家 vs 3个 AI Bot，单机运行，中国省会城市地图，完整大富翁核心玩法</li>
+  <li><strong>Phase 2（联机）：</strong>WebSocket 中转，支持 2-4 人真实联机对战</li>
+  <li><strong>Phase 3（社交）：</strong>好友系统、排行榜、录像回放</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>5. Solution Overview</h2>
+
+<p><strong>地图设计</strong></p>
+<p>采用环形棋盘路线，共 40 格（与经典大富翁一致）。</p>
+<ul>
+  <li><strong>地皮格：28 格</strong> — 中国省会/直辖市，每块地有价格、等级（空地→茅屋→房屋→楼房→摩天楼）、地价租金表</li>
+  <li><strong>机会格：3 格</strong> — 抽取机会卡（获得收益/失去资产/特殊事件）</li>
+  <li><strong>命运格：3 格</strong> — 中国特色命运（政策影响/市场波动/机会事件）</li>
+  <li><strong>起点格：1 格</strong> — 每次经过起点获得固定奖励（如 2000 金币）</li>
+  <li><strong>公共设施格：2 格</strong> — 火车站、机场（拥有后使用费用翻倍）</li>
+  <li><strong>监狱/过路格：2 格</strong> — 触发监狱事件</li>
+  <li><strong>免费停车格：1 格</strong> — 无事发生</li>
+</ul>
+
+<p><strong>核心游戏循环</strong></p>
+<ol>
+  <li>玩家回合开始 → 掷骰子 → 移动</li>
+  <li>落地判定：空地/已有地/机会/命运/特殊格</li>
+  <li>玩家决策：买地/竞拍/跳过</li>
+  <li>AI Bot 行动（各自回合）</li>
+  <li>回合结束 → 下一玩家</li>
+</ol>
+
+<p><strong>胜利条件</strong></p>
+<p>所有玩家连续破产，或经过约定回合数（默认 20 回合）后，资产最高者胜出。</p>
+</div>
+
+<div class="section">
+<h2>6. AI Bot 设计（核心壁垒）</h2>
+
+<p>AI Bot 是本产品的核心竞争力。好玩的大富翁需要 Bot 有"性格"和"策略"。</p>
+
+<p><strong>Bot 类型</strong></p>
+<div class="principles">
+  <div class="principle">
+    <div class="principle-name">🦅 鹰派Bot</div>
+    <div class="principle-desc">激进买地、高频升级、优先攻击富裕玩家。有钱就盖房，抢占核心地块不惜负债。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">🐢 龟派Bot</div>
+    <div class="principle-desc">保守稳健、低买高卖、避免冲突。专注于积累免费地块，尽量少交易。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">🦊 狐狸Bot</div>
+    <div class="principle-desc">机会主义、擅长讨价还价。买地看对手而不是看价格，博弈谈判能力强。</div>
+  </div>
+</div>
+
+<p><strong>Bot 决策模型</strong></p>
+<ul>
+  <li>每次落地：计算期望收益 vs 当前资金，决定买/竞拍/放弃</li>
+  <li>每个回合结束：评估升级优先级（按地价/对手路过频率加权）</li>
+  <li>对手接近时：优先升级对方必经之路的地块</li>
+  <li>交易请求：根据自身资产/地块组合评估是否接受</li>
+</ul>
+
+<p class="note"><strong>注意：</strong>Bot 难度应可调。Easy Bot 有 30% 概率做出次优决策；Hard Bot 始终做最优决策（模拟蒙特卡洛搜索）。</p>
+</div>
+
+<div class="section">
+<h2>7. Success Metrics</h2>
+
+<p><strong>Phase 1 核心指标</strong></p>
+<ul>
+  <li>单局平均时长：30-60 分钟（玩家愿意花一局时间的证明）</li>
+  <li>AI Bot 胜率：玩家胜率 40-60%（Bot 既要有挑战性又不能太碾压）</li>
+  <li>功能留存：进入游戏 → 完成一局的用户比例 ≥ 70%</li>
+</ul>
+
+<p><strong>未来指标</strong></p>
+<ul>
+  <li>人均游戏局数（复玩率）</li>
+  <li>分享率（分享游戏截图到社交媒体）</li>
+  <li>多人模式转化率（从 AI 模式引导到联机模式）</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>8. User Stories & Requirements</h2>
+
+<p><strong>Epic：大富翁 MVP</strong></p>
+
+<p>作为一个<strong>怀旧玩家</strong>，我想要<strong>打开网页就能和 AI Bot 来一局大富翁</strong>，以便<strong>在碎片时间内重温经典游戏的乐趣</strong>。</p>
+
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">US-01 地图渲染</div>
+    <div class="principle-desc">地图完整渲染 40 格，含中国城市名称，环形排列，支持点击查看地块详情。地块颜色区分不同城市等级。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-02 骰子与移动</div>
+    <div class="principle-desc">点击骰子触发动画，两颗骰子点数显示，移动令牌平滑动画移动至目标格。可掷双骰（连续行动）或进监狱（掷出双骰三次触发）。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-03 地皮买卖</div>
+    <div class="principle-desc">落地空地时弹出购买确认框（价格/预期租金/已拥有者）。拥有地块后支持建造升级（茅屋→房屋→楼房→摩天楼），每次升级费用×1.5，租金×2。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-04 租金结算</div>
+    <div class="principle-desc">玩家落地对手地块时自动触发租金结算弹窗，动画显示金币从付款方转移至收款方。若余额不足则触发破产流程。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-05 机会/命运卡</div>
+    <div class="principle-desc">落地机会/命运格时，卡片从顶部滑入动画，内容随机。卡片类型：获得金币/失去金币/失去收益/免费盖房/移除建筑/交换位置/全额租金减免等。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-06 AI Bot 回合</div>
+    <div class="principle-desc">Bot 回合时，显示 Bot 思考动画（0.5-1.5 秒），决策后自动执行（买地/盖房/掷骰），日志显示 Bot 当前思考内容（"狐狸Bot 决定购买北京地块"）。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-07 玩家资产面板</div>
+    <div class="principle-desc">屏幕右侧或底部显示玩家资产面板：当前金币、地皮数量、建筑等级汇总、对手状态（资产估算）。实时更新。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-08 竞拍机制</div>
+    <div class="principle-desc">玩家放弃购买的地块，其他玩家可竞拍。竞拍时各 Bot 根据策略出价，玩家可选择退出。流拍则地块变为空置。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-09 交易系统</div>
+    <div class="principle-desc">玩家可向 Bot 发起地皮+金币交换提案。Bot 评估后接受/还价/拒绝。交易需双方确认后生效。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">US-10 游戏结束与结算</div>
+    <div class="principle-desc">所有对手破产后显示胜利画面（玩家胜）或资产结算排名（玩家败）。显示详细资产明细：地皮价值+现金+建筑价值。提供"再来一局"按钮。</div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<h2>9. Out of Scope</h2>
+
+<ul>
+  <li>多人联机模式（Phase 2）</li>
+  <li>好友系统/排行榜（Phase 3）</li>
+  <li>地图编辑器/自定义地图</li>
+  <li>游戏录像回放</li>
+  <li>中途退出保存/恢复</li>
+  <li>移动端 App（仅支持桌面端浏览器）</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>10. Technical Approach</h2>
+
+<p><strong>技术栈</strong></p>
+<ul>
+  <li><strong>单文件 HTML</strong> — 所有逻辑内联，无需构建工具，部署极简</li>
+  <li><strong>纯原生 JS</strong> — 无框架依赖，保证加载速度</li>
+  <li><strong>Canvas 2D</strong> — 地图渲染 + 动画</li>
+  <li><strong>CSS Grid</strong> — UI 面板布局</li>
+  <li><strong>localStorage</strong> — 保存游戏进度（可选）</li>
+</ul>
+
+<p><strong>地图数据结构</strong></p>
+<pre>格子 = {
+  type: 'land' | 'chance' | 'fate' | 'start' | 'utility' | 'jail' | 'park',
+  city: string,        // 城市名
+  price: number,       // 购买价格
+  rent: number[],      // [空地租金, 茅屋, 房屋, 楼房, 摩天楼]
+  owner: null | playerId,
+  level: 0-4,          // 0=空地, 1=茅屋, 2=房屋, 3=楼房, 4=摩天楼
+  color: string,       // 地图颜色
+}
+</pre>
+
+<p><strong>性能目标</strong></p>
+<ul>
+  <li>首屏加载 &lt; 500KB</li>
+  <li>60fps 动画（骰子滚动/令牌移动）</li>
+  <li>Bot 决策延迟 ≤ 1.5 秒</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>11. Open Questions</h2>
+
+<ul>
+  <li>地图格子城市选择：哪些城市？按什么逻辑排列？是否需要城市等级差异化定价？</li>
+  <li>初始金币设定：每人 15000 金币是否合适？地价如何与金币匹配？</li>
+  <li>Bot 策略调参：需要多轮内测确定"有趣"而非"变态"的 Bot 难度曲线</li>
+  <li>命运卡池规模：需要多少张卡才能保证不重复太多？</li>
+  <li>移动端适配：Phase 1 是否需要支持触控操作？</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Decisions Made</h2>
+<ul>
+  <li>环形地图 40 格，与经典大富翁一致</li>
+  <li>Phase 1 为单机 AI Bot 模式，联机 Phase 2</li>
+  <li>3 个 Bot 类型：鹰派/龟派/狐狸，各有性格</li>
+  <li>单文件 HTML，Canvas + CSS Grid 技术栈</li>
+  <li>胜利条件：全员破产或 20 回合后资产最高者胜</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Assumptions to Validate</h2>
+<ul>
+  <li>中国城市地图比抽象地图更有吸引力 [需用户验证]</li>
+  <li>AI Bot 足够好玩，复玩率可达 3+ 局 [需内测]</li>
+  <li>30-60 分钟一局的时长玩家可接受 [需数据]</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Recommended Next Step：</strong>确认 PRD 后，开始技术预研（Canvas 地图渲染方案），同步设计地图城市列表和 Bot 策略框架。MVP 目标：2 周内可运行 Demo。
+</div>
+
+<div class="divider" style="margin-top: 48px;"></div>
+</main>
+</body>
+</html>
