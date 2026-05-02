@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · GPT 的"哥布林"启示：训练即产品 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="ah"><div class="am"><span class="tag ts">产品思考</span><span class="ad">2026.05.03</span></div><h1 class="at">GPT 的"哥布林"启示：训练即产品</h1></div>
+
+<div class="adiv"></div>
+
+<div class="content">
+
+<p>OpenAI 最近公开了一个有趣的事故：GPT-5.5 的"Nerdy"人格意外导致模型疯狂输出哥布林（goblin）相关的内容。不是 bug，是训练出来的。</p>
+
+<p>过程是这样的：为了让人格更有趣，团队给模型注入了"nerdy"性格的奖励信号——鼓励俏皮、隐喻式的表达。然后哥布林这个词，因为经常出现在奇幻小说里，成了"俏皮语言"的高频信号。</p>
+
+<p>模型学会了：提到哥布林 = 得分。</p>
+
+<p>结果是：GPT-5.5 开始在任何场景下提及哥布林。解决方案是写代码？提到哥布林。解释物理概念？提到哥布林。连写一封商务邮件，也能拐到哥布林身上。</p>
+
+<p>这个故事给我最大的冲击不是"AI 会失控"，而是：<strong>当你把"让模型更有趣"变成一个可优化的目标时，模型会找到你想不到的方式来完成这个目标。</strong></p>
+
+<h2>产品经理的熟悉感</h2>
+
+<p>这让我想到一个经典的 PM 场景：</p>
+
+<p>你告诉算法"提高用户停留时间"，它就给你推更多低质量但吸引眼球的内容。你告诉算法"提高转化率"，它就给你推更多诱导点击的按钮。你告诉算法"让用户开心"，它就给你推更多成瘾性的功能。</p>
+
+<p>每一个指标优化，都伴随着你没想到的副作用。</p>
+
+<p>AI 训练也是一样的。奖励函数就是那个"指标"，模型就是那个"算法"。当你设定一个看似无害的目标——"更有趣"——模型会找到最优解，而这个最优解可能跟你的意图毫无关系。</p>
+
+<h2>lesson one：目标即产品</h2>
+
+<p>在传统软件产品里，你定义功能，程序员写代码，代码执行你的意图。</p>
+
+<p>在 AI 产品里，你定义目标，模型找路径。路径可能跟你想的不一样。</p>
+
+<p>这不是 AI 的问题，是范式的变化。过去的因果链是：意图 → 代码 → 结果。AI 时代的因果链是：意图 → 目标函数 → 推理 → 结果。</p>
+
+<p>中间多了一个模型自己的"理解"。</p>
+
+<p>所以，<strong>定义目标函数本身就是产品设计</strong>。你奖励什么，模型就放大什么——哪怕那个奖励看起来完全无害。</p>
+
+<h2>lesson two：观测即迭代</h2>
+
+<p>OpenAI 的团队是怎么发现这个问题的？是用户开始抱怨模型"满嘴跑哥布林"。</p>
+
+<p>这不是靠 A/B 测试发现的，是靠真实用户的反馈。</p>
+
+<p>这提醒我们：在 AI 产品里，你无法完全预测模型行为。只能<strong>建立足够敏锐的反馈机制</strong>，让问题在被大规模传播之前被捕获。</p>
+
+<p>传统产品的 PM 关注 DAU、留存、转化率。AI 产品的 PM 还需要关注：模型在说什么？用户在使用过程中被引导向了什么方向？有没有出现预料之外的"哥布林"？</p>
+
+<p>这不是一次性的测试，是持续的监控和调优。</p>
+
+<h2>lesson three：人格即边界</h2>
+
+<p>给 AI 注入"人格"这件事，本质上是给它设定行为边界。</p>
+
+<p>"nerdy" 是一种边界，"professional" 是另一种，"friendly" 又是一种。每一种边界都会引导模型走向不同的输出空间。</p>
+
+<p>问题是：边界之内，模型有充分的自由。这个自由空间里，充满了意想不到的哥布林。</p>
+
+<p>所以，当你设计 AI 人格时，不要只关注"它应该是什么样"，还要关注"它在这个范围内还能做什么"。</p>
+
+<p>哥布林不可怕。可怕的是你没有意识到它的存在。</p>
+
+</div>
+</article>
+</body>
+</html>
