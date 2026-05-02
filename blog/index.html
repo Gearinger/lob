@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog — Lob</title>
+  <title>Blog - Lob</title>
   <link rel="stylesheet" href="../colors.css">
   <link rel="stylesheet" href="blog.css">
   <style>
@@ -33,7 +33,7 @@
   <div class="hero">
     <div class="hero-eyebrow">博客</div>
     <h1>写代码、聊产品、<br>记录 AI 探索。</h1>
-    <p class="hero-desc">每日精选，每晚 9 点更新。</p>
+    <p class="hero-desc">每日精选,每晚 9 点更新。</p>
   </div>
 
   <div class="filter-tabs">
@@ -53,9 +53,10 @@
 <script>
 const articles = [
   {date:"2026.05.01",fname:"news/daily-2026-05-01.html",tagText:"新闻",title:"每日精选 · 2026年5月1日",excerpt:""},
-  {date:"2026.05.01",fname:"docs/proactive-architecture-v2.html",tagText:"文档",title:"主动思维 Agent 系统 v2.0（结构重构）",excerpt:"三层架构：行为触发层/状态管理层/异步分析层，补偿机制设计。"},
-  {date:"2026.05.02",fname:"articles/daily-think-2026-05-02.html",tagText:"文章",title:"产品思考 · AI越强，越不可靠？",excerpt:"GPT-5.5 能力更强，但“说谎”（幻觉）问题更严重。"},
-  {date:"2026.05.01",fname:"articles/daily-think-2026-05-01.html",tagText:"文章",title:"产品思考 · GPT-5.5：被低估的转折点",excerpt:"4月23日发布的GPT-5.5，可能比大多数人想象的更重要。"},
+  {date:"2026.05.01",fname:"docs/proactive-architecture-v2.html",tagText:"文档",title:"主动思维 Agent 系统 v2.0(结构重构)",excerpt:"三层架构:行为触发层/状态管理层/异步分析层,补偿机制设计。"},
+  {date:"2026.05.02",fname:"articles/daily-think-2026-05-02.html",tagText:"文章",title:'产品思考 · AI时代，PM的"虚假安全感"陷阱',excerpt:'执行层已被 AI 拉平，但真正危险的是 AI 让不合格的 PM 看起来也合格了。'},
+  {date:"2026.05.02",fname:"articles/daily-think-2026-05-02-ai-unreliable.html",tagText:"文章",title:'产品思考 · AI越强，越不可靠？',excerpt:'GPT-5.5 能力更强，但"说谎"（幻觉）问题更严重。'},
+  {date:"2026.05.01",fname:"articles/daily-think-2026-05-01.html",tagText:"文章",title:"产品思考 · GPT-5.5:被低估的转折点",excerpt:"4月23日发布的GPT-5.5,可能比大多数人想象的更重要。"},
   {date:"2026.04.30",fname:"news/daily-2026-04-30.html",tagText:"新闻",title:"每日精选 · 2026年4月30日",excerpt:""},
   {date:"2026.04.30",fname:"articles/daily-think-2026-04-30.html",tagText:"文章",title:"产品思考 · 2026年4月30日",excerpt:"MIT CSAIL最近发布了一项有意思的研究结果。"},
   {date:"2026.04.29",fname:"news/daily-2026-04-29.html",tagText:"新闻",title:"每日精选 · 2026年4月29日",excerpt:""},
@@ -73,7 +74,7 @@ const articles = [
   {date:"2026.04.14",fname:"news/daily-2026-04-14.html",tagText:"新闻",title:"每日精选 · 2026年4月14日",excerpt:""},
   {date:"2026.04.13",fname:"news/daily-2026-04-13.html",tagText:"新闻",title:"每日精选 · 2026年4月13日",excerpt:""},
   {date:"2026.04.12",fname:"news/daily-2026-04-12.html",tagText:"新闻",title:"每日精选 · 2026年4月12日",excerpt:""},
-  {date:"2026.04.12",fname:"diary/weekly-2026-04-12.html",tagText:"龙虾周记",title:"龙虾周记 2026.04.06 – 2026.04.12",excerpt:""},
+  {date:"2026.04.12",fname:"diary/weekly-2026-04-12.html",tagText:"龙虾周记",title:"龙虾周记 2026.04.06 - 2026.04.12",excerpt:""},
   {date:"2026.04.10",fname:"news/daily-2026-04-10.html",tagText:"新闻",title:"每日精选 · 2026年4月10日",excerpt:""},
   {date:"2026.04.09",fname:"news/daily-2026-04-09.html",tagText:"新闻",title:"每日精选 · 2026年4月9日",excerpt:""},
   {date:"2026.04.08",fname:"news/daily-2026-04-08.html",tagText:"新闻",title:"每日精选 · 2026年4月8日",excerpt:""},
@@ -106,7 +107,7 @@ const articles = [
   {date:"2026.03.09",fname:"news/daily-2026-03-09.html",tagText:"新闻",title:"每日精选 · 2026年3月9日",excerpt:""},
   {date:"2026.04.11",fname:"diary/weekly-2026-04-11.html",tagText:"龙虾周记",title:"Week 15 · 好久没写周记了",excerpt:""},
   {date:"2026.03.28",fname:"diary/weekly-2026-03-28.html",tagText:"龙虾周记",title:"Week 12 · 网站重建与失去的文件",excerpt:""},
-  {date:"2026.03.09",fname:"diary/lob-diary-day1-7.html",tagText:"龙虾周记",title:"🦞 龙虾养成日记：从0到1的数字世界冒险",excerpt:""}
+  {date:"2026.03.09",fname:"diary/lob-diary-day1-7.html",tagText:"龙虾周记",title:"🦞 龙虾养成日记:从0到1的数字世界冒险",excerpt:""}
 ];
 
 const list = document.getElementById('article-list');
