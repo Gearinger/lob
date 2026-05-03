@@ -296,6 +296,126 @@ games/
 <strong>Recommended Next Step：</strong>从 P0 开始，先做 4 格测试版验证核心循环正确，再逐步扩展到完整 40 格。
 </div>
 
+<div class="section">
+<h2>11. 交互规格（UI/UX 详细流程）</h2>
+
+<h3>11.1 玩家操作流程</h3>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.8;color:#E8E8F0;">
+玩家回合开始
+    ↓
+点击【掷骰子】按钮 → 骰子动画(800ms) → 显示点数
+    ↓
+令牌移动动画(每格300ms) → 到达目标格
+    ↓
+┌── 落地判定 ──────────────────┐
+│ land + 无主 → 弹出买地弹窗       │
+│ land + 有主 → 弹出租金弹窗     │
+│ chance    → 弹出机会卡弹窗      │
+│ fate      → 弹出命运卡弹窗     │
+│ station   → 弹出租金弹窗       │
+│ airport   → 弹出传送弹窗       │
+│ jail      → 显示状态（路过/在狱）│
+│ start     → 获得¥2,000动画      │
+│ park      → 无事，直接结束回合   │
+└─────────────────────────────────┘
+    ↓
+【结束回合】→ 切换到下一个Bot/玩家
+</pre>
+
+<h3>11.2 弹窗详细规格</h3>
+
+<h4>买地弹窗（落地空地时）</h4>
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">元素</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">内容</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">标题</td><td style="padding:8px 14px;color:#E8E8F0">"购买 {城市名}？"</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">显示</td><td style="padding:8px 14px;color:#E8E8F0">地价 ¥XX,000 | 租金 ¥XXX/次 | 盖房费 ¥X,XXX/栋</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">玩家金币</td><td style="padding:8px 14px;color:#E8E8F0">当前持有 ¥X,XXX</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">按钮A</td><td style="padding:8px 14px;color:#E8E8F0">[购买] — 金币足够时启用，不够时置灰</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">按钮B</td><td style="padding:8px 14px;color:#E8E8F0">[跳过] — 始终可用，点击放弃购买，触发竞拍流程</td></tr>
+  </tbody>
+</table>
+
+<h4>租金弹窗（落地对手地皮时）</h4>
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">元素</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">内容</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">标题</td><td style="padding:8px 14px;color:#E8E8F0">"租金结算"</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">显示</td><td style="padding:8px 14px;color:#E8E8F0">地块：{城市名} | 等级：{茅屋/房屋/...} | 应付租金：¥X,XXX</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">动画</td><td style="padding:8px 14px;color:#E8E8F0">金币从玩家飞向地块所有者（600ms）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">余额不足</td><td style="padding:8px 14px;color:#f87171">若金币不足，弹窗显示"余额不足，触发破产流程"，玩家资产清零退出游戏。</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">按钮</td><td style="padding:8px 14px;color:#E8E8F0">[确认] — 点击后关闭弹窗，进入回合结束流程</td></tr>
+  </tbody>
+</table>
+
+<h4>机会/命运卡弹窗</h4>
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">元素</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">内容</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">卡片样式</td><td style="padding:8px 14px;color:#E8E8F0">机会卡（橙色/红色背景）| 命运卡（紫色/深蓝背景）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">标题</td><td style="padding:8px 14px;color:#E8E8F0">"🎲 机会" 或 "🃏 命运"</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">卡片名</td><td style="padding:8px 14px;color:#E8E8F0">大号字体显示卡片名称（如"一路顺风"）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">效果描述</td><td style="padding:8px 14px;color:#E8E8F0">小号字体显示效果说明</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">动画</td><td style="padding:8px 14px;color:#E8E8F0">卡片从顶部滑入（400ms），停留3秒，显示效果动画（金币增减动画/地块变化），然后消失</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">按钮</td><td style="padding:8px 14px;color:#E8E8F0">[确认] — 若需要玩家选择（如F-02指定颜色），按钮文字变为"[选择颜色]"</td></tr>
+  </tbody>
+</table>
+
+<h4>机场传送弹窗</h4>
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">元素</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">内容</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">标题</td><td style="padding:8px 14px;color:#E8E8F0">"机场传送 — 本局还剩 {n} 次"</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">可传送范围</td><td style="padding:8px 14px;color:#E8E8F0">所有城市格（地皮/机会/命运/起点/停车）。不能传送到火车站、机场、监狱。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">操作</td><td style="padding:8px 14px;color:#E8E8F0">点击任意目标格 → 令牌直接移动到目标（无动画/立即到达）→ 本回合结束</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">按钮A</td><td style="padding:8px 14px;color:#E8E8F0">[使用传送] — 可用时启用</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">按钮B</td><td style="padding:8px 14px;color:#E8E8F0">[不使用] — 跳过传送，本回合结束</td></tr>
+  </tbody>
+</table>
+
+<h3>11.3 升级交互</h3>
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.8;color:#E8E8F0;">
+玩家回合任何时间可点击棋盘上自有地皮：
+  → 弹出升级弹窗：
+    标题："升级 {城市名}？"
+    当前等级：茅屋(level 1)
+    升级到：房屋(level 2)
+    费用：¥X,XXX
+    升级后租金：¥X,XXX/次（+¥X,XXX）
+    [升级] [取消]
+  → 点击升级：金币扣除，地块等级+1，格子视觉更新（变高变大）
+  → 可连续升级（每次升级后弹窗刷新）
+</pre>
+
+<h3>11.4 竞拍流程</h3>
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.8;color:#E8E8F0;">
+玩家放弃购买时触发竞拍：
+  → 显示"竞拍开始：{城市名}，起价 ¥X,XXX"
+  → 所有玩家依次出价（Bot自动出价，玩家手动输入）
+  → 每轮出价必须 > 当前最高价，否则退出
+  → 玩家可随时点击[退出竞拍]
+  → 最高出价者获得地块；若全部退出，地块空置
+  → 竞拍最多10轮，超时则流拍
+</pre>
+
+<div class="note">
+<strong>UI 状态规范：</strong>
+<ul>
+  <li>按钮 disabled 时置灰，hover 显示 tooltip（如"金币不足"）</li>
+  <li>所有弹窗按 ESC 或点击遮罩层可关闭（部分弹窗如租金/卡牌不允许关闭，需确认）</li>
+  <li>Bot 行动中，玩家所有按钮禁用（防止误操作）</li>
+</ul>
+</div>
+
 <div class="divider" style="margin-top: 48px;"></div>
 </main>
 </body>
