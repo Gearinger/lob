@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大富翁 Online — 技术架构文档 v0.1 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="../design-lang.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<main>
+<div class="article-header">
+  <div class="eyebrow">技术架构文档 · Architecture</div>
+  <h1 class="article-title">大富翁 Online — 技术架构</h1>
+  <div class="article-meta">版本 v0.1 · 状态：草稿 · 关联 PRD：monopoly-prd.html</div>
+  <p class="article-desc"><strong>定义游戏的技术架构：组件结构、状态管理、数据模型、渲染方案、Bot 决策状态机。</strong></p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+<h2>1. 技术栈</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">层</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">技术</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">说明</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">渲染</td><td style="padding:10px 14px;color:#E8E8F0">Canvas 2D</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">环形棋盘渲染、玩家令牌移动动画、骰子动画、卡片动画</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">UI布局</td><td style="padding:10px 14px;color:#E8E8F0">HTML + CSS Grid/Flex</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">玩家面板、弹窗（买地/租金/机会卡）、按钮操作区</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">逻辑</td><td style="padding:10px 14px;color:#E8E8F0">原生 JS（ES6+）</td><td style="padding:10px 14px;color:rgba(232,240,0.6)">无框架依赖，单文件约 1500-2000 行</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">存储</td><td style="padding:10px 14px;color:#E8E8F0">localStorage</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">可选保存游戏进度（中场退出恢复）</td></tr>
+    <tr><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">部署</td><td style="padding:10px 14px;color:#E8E8F0">单文件 HTML</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">无构建步骤，直接丢到 GitHub Pages</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>2. 核心数据结构</h2>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+// === 棋盘格子 ===
+const CELL = {
+  type: 'land'|'chance'|'fate'|'start'|'station'|'airport'|'jail'|'park',
+  city: string,         // 城市名，空格为特殊格
+  price: number,        // 地价（仅land）
+  rent: number[5],      // [空地,茅屋,房屋,楼房,摩天楼] 租金
+  buildCost: number,    // 每栋盖房费（仅land）
+  owner: null|playerId, // null=无主
+  level: 0-4,           // 建筑等级
+  color: string,        // 颜色分组（red/blue/green等）
+  colorSet: boolean,    // 是否集齐同色全套
+}
+
+// === 玩家 ===
+const PLAYER = {
+  id: string,
+  name: string,          // '玩家'|'🦅鹰Bot'|'🐢龟Bot'|'🦊狐Bot'
+  gold: number,          // 当前现金
+  position: 0-39,       // 所在格子索引
+  assets: number,        // 资产总计（现金+地皮+建筑）
+  inJail: boolean,       // 是否在监狱
+  jailTurns: 0-3,        // 剩余禁足回合
+  doubleCount: 0,       // 连续双骰次数（达到3次进监狱）
+  colorBonus: boolean,   // 是否有同色全套加成
+  airportUses: 0-1,      // 本局剩余机场次数
+}
+
+// === 游戏状态 ===
+const GAME = {
+  phase: 'setup'|'playing'|'ended',
+  currentPlayer: 0-3,
+  turn: 1-20,
+  dice: [a, b],          // 当前骰子点数
+  isDouble: boolean,
+  phase2Active: boolean, // 双骰连续行动中
+  winner: null|playerId,
+  log: string[],         // 游戏日志
+}
+</pre>
+</div>
+
+<div class="section">
+<h2>3. 组件结构</h2>
+
+<p>整体采用 MVC 模式，所有代码内联于单个 HTML 文件。</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">模块</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">职责</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">关键函数</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">🎲 DiceEngine</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">骰子投掷、双骰判定、随机数生成</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">roll(), checkDouble()</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">🗺️ BoardRenderer</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">Canvas 绘制环形棋盘、玩家令牌、格子高亮、动画</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">drawBoard(), animateMove(), drawDice()</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">📊 UIPanel</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">玩家资产面板、回合指示、按钮操作区</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">updatePanel(), showModal(), hideModal()</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">🤖 BotAI</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">Bot 决策执行、思考动画、策略参数</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">decide(), executeAction(), showThinking()</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">🃏 CardDeck</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">机会/命运卡牌堆、抽卡、效果执行</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">draw(), shuffle(), execute(card)</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">💰 EconomyEngine</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">买地、租金结算、建造升级、破产判定、资产统计</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">buyLand(), payRent(), upgrade(), bankrupt()</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">🔄 GameLoop</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">游戏主循环、回合切换、回合数计时、胜利判定</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">startTurn(), endTurn(), checkWin(), endGame()</td></tr>
+    <tr><td style="padding:10px 14px;color:#E8E8F0;font-weight:600;">💾 SaveManager</td><td style="padding:10px 14px;color:rgba(232,232,240,0.7)">localStorage 存档/读档（可选功能）</td><td style="padding:10px 14px;color:rgba(232,232,240,0.5)">save(), load(), hasSave()</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>4. 游戏主流程</h2>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.8;color:#E8E8F0;">
+游戏启动 → setup() [初始化棋盘、玩家、金币、卡牌]
+    ↓
+startTurn(player) [玩家回合开始]
+    ↓
+roll() → 显示骰子动画 → 获得点数
+    ↓
+检查 isDouble → true: 可继续掷 | false: 结束回合
+    ↓
+移动令牌 → animateMove() → 到达目标格
+    ↓
+触发格子的效果（switch cell.type）:
+  land:     有主? → payRent() : buyPrompt()
+  chance:   CardDeck.draw('chance') → 执行效果
+  fate:     CardDeck.draw('fate') → 执行效果
+  station:  payStationRent()
+  airport:  teleportPrompt() [玩家选择目标]
+  jail:     检查 inJail ? → 保释/掷双骰 : 正常路过
+  start:    awardStartMoney()
+  park:     无事发生
+    ↓
+endTurn() [切换到下一玩家]
+    ↓
+检查胜利条件 → 所有对手破产? 或 回合=20? → endGame()
+    ↓
+若无胜利 → startTurn(下一玩家)
+</pre>
+</div>
+
+<div class="section">
+<h2>5. Bot 决策状态机</h2>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.8;color:#E8E8F0;">
+Bot 回合开始
+    ↓
+状态: IDLE
+    ├─ 等待 0.5-1.5 秒（思考动画）
+    ↓
+状态: DECIDING
+    │
+    ├─ 阶段A：是否买地?
+    │   计算: 资金 > 地价 × 买地意愿阈值?
+    │   鹰: 0.6 | 龟: 1.2 | 狐: 0.9
+    │   → 买 → BIDDING
+    │   → 不买 → 阶段B
+    │
+    ├─ 阶段B：是否升级?
+    │   计算: 资金 > 盖房费 × 升级意愿阈值?
+    │   鹰: 0.8 | 龟: 1.5 | 狐: 1.0
+    │   → 升级 → UPGRADING
+    │   → 不升级 → 阶段C
+    │
+    └─ 阶段C：是否交易?
+        狐Bot 专属（交易接受度高）
+        评估当前提案，接受/还价/拒绝
+    
+状态: EXECUTING
+    ├─ 执行决策（买地/升级/交易）
+    ├─ 显示 Bot 思考日志（"狐狸Bot 购买了上海地块"）
+    └─ 更新 UI
+    
+状态: WAITING
+    └─ Bot 回合结束，切换下一玩家
+
+注意: Easy 模式下，阶段A/B 各有 30-40% 概率故意做出次优决策
+</pre>
+</div>
+
+<div class="section">
+<h2>6. Canvas 环形棋盘布局</h2>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+布局: 环形（矩形路径），4 边各 10 格
+     ┌──────────────────┐
+     │ 10   11  12  ...  18   19│ ← 北边（顶部）
+     │  9                    20│ ← 西边 / 东边
+     │  8                    21│
+     │  7                    22│
+     │  6                    23│
+     │  5                    24│
+     │  4                    25│
+     │  3                    26│
+     │  2                    27│
+     └──────────────────┘
+     ← 南边（底部）1 = 起点
+
+格子宽度: 60px，字体12px
+令牌大小: 20px 圆形，4个玩家不同颜色
+环形角度: 每格 9°（360/40）
+起点（1号）: 左下角，顺时针编号
+</pre>
+
+<p style="font-size:0.82rem;color:rgba(232,232,240,0.6);margin-top:16px;">
+Canvas 尺寸建议: <strong>900×700px</strong>（适合 1080p 屏幕）。棋盘居中，左右两侧预留 200px 给 UI 面板。
+</p>
+</div>
+
+<div class="section">
+<h2>7. 动画时序</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">事件</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">动画时长</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">说明</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">骰子滚动</td><td style="padding:10px 14px;color:#E8E8F0">800ms</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">随机抖动动画，最终显示点数</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">令牌移动</td><td style="padding:10px 14px;color:#E8E8F0">300ms/格</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">平滑直线移动，逐格动画</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">卡片滑入</td><td style="padding:10px 14px;color:#E8E8F0">400ms</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">从顶部滑入，显示 3 秒后消失</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">Bot 思考</td><td style="padding:10px 14px;color:#E8E8F0">500-1500ms</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">显示"🤔" + 随机思考文案</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">租金弹窗</td><td style="padding:10px 14px;color:#E8E8F0">600ms</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">金币从付款方飞向收款方动画</td></tr>
+    <tr><td style="padding:10px 14px;color:#E8E8F0">地皮建造</td><td style="padding:10px 14px;color:#E8E8F0">400ms</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">格子上建筑图标放大弹出效果</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>8. 文件结构</h2>
+
+<pre style="background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;font-size:0.78rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+games/
+└── monopoly/
+    └── index.html    ← 单文件游戏（约 1500-2000 行 JS 内联）
+                     含: HTML结构 + CSS样式 + JS逻辑
+                     无需任何外部依赖
+</pre>
+
+<p style="font-size:0.82rem;color:rgba(232,232,240,0.6);margin-top:8px;">
+所有代码内联在单个 <code>index.html</code> 中，不拆分文件。包含: 棋盘数据(40格城市)、Bot参数、卡牌数据、完整游戏逻辑。
+</p>
+</div>
+
+<div class="section">
+<h2>9. 性能目标</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:16px 0;">
+  <thead>
+    <tr><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">指标</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">目标</th><th style="padding:10px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">实现方式</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">文件大小</td><td style="padding:10px 14px;color:#E8E8F0">≤ 200KB</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">无外部库，代码压缩，SVG内联</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">首屏加载</td><td style="padding:10px 14px;color:#E8E8F0">< 1 秒</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">单文件，无网络请求</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">动画帧率</td><td style="padding:10px 14px;color:#E8E8F0">60fps</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">requestAnimationFrame + Canvas 2D</td></tr>
+    <tr><td style="padding:10px 14px;color:#E8E8F0">Bot 决策延迟</td><td style="padding:10px 14px;color:#E8E8F0">≤ 1.5 秒</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">纯计算，无网络，纯 JS 逻辑</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>10. 实现优先级（Phase 1 MVP）</h2>
+
+<div class="principles" style="grid-template-columns: 1fr 1fr;">
+  <div class="principle">
+    <div class="principle-name">P0 — 核心循环</div>
+    <div class="principle-desc">骰子 → 移动 → 落地判定 → 买地/付租 → 结束回合。2个Bot（鹰+龟），4格环形地图测试版。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">P1 — 完整棋盘</div>
+    <div class="principle-desc">40格完整城市地图，Canvas 渲染环形棋盘，3个Bot（鹰+龟+狐），全部卡牌。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">P2 — UI 打磨</div>
+    <div class="principle-desc">玩家面板、弹窗系统、所有动画（骰子/移动/卡片/租金）、Bot 思考日志。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">P3 — 特殊格</div>
+    <div class="principle-desc">机场传送、监狱禁足、起点奖励、竞拍机制、交易系统。</div>
+  </div>
+</div>
+</div>
+
+<div class="note">
+<strong>Recommended Next Step：</strong>从 P0 开始，先做 4 格测试版验证核心循环正确，再逐步扩展到完整 40 格。
+</div>
+
+<div class="divider" style="margin-top: 48px;"></div>
+</main>
+</body>
+</html>
