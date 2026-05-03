@@ -81,7 +81,7 @@
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">28</td><td style="padding:8px 14px;color:#E8E8F0">昆明</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,500</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">29</td><td style="padding:8px 14px;color:#E8E8F0">🎲 机会格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">30</td><td style="padding:8px 14px;color:#E8E8F0">太原</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,200</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">31</td><td style="padding:8px 14px;color:#E8E8F0">🏠 火车站（上海）</td><td style="padding:8px 14px">交通</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px">—</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">31</td><td style="padding:8px 14px;color:#E8E8F0">⛓️ 监狱（路过/探访）</td><td style="padding:8px 14px">特殊</td><td style="padding:8px 14px;color:#E8E8F0">—</td><td style="padding:8px 14px">—</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">32</td><td style="padding:8px 14px;color:#E8E8F0">🏢 机场（成都）</td><td style="padding:8px 14px">交通</td><td style="padding:8px 14px;color:#E8E8F0">¥2,000</td><td style="padding:8px 14px">—</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">33</td><td style="padding:8px 14px;color:#E8E8F0">南宁</td><td style="padding:8px 14px;color:#f472b6">F级</td><td style="padding:8px 14px;color:#E8E8F0">¥1,000</td><td style="padding:8px 14px;background:#db2777;border-radius:3px;"></td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0;font-weight:600;">34</td><td style="padding:8px 14px;color:#E8E8F0">🃏 命运格</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td><td style="padding:8px 14px">—</td></tr>
@@ -95,7 +95,7 @@
 </table>
 
 <p style="font-size:0.78rem;color:rgba(232,232,240,0.4);margin-top:8px;">
-  注：共 28 块地皮（S×2 / A×3 / B×2 / C×2 / D×3 / E×5 / F×11）。机会格 5 处，命运格 5 处，起点1处/停车1处/火车站2处/机场1处/监狱1处。
+  注：共 28 块地皮（S×2 / A×3 / B×2 / C×2 / D×3 / E×5 / F×11）。机会格 5 处，命运格 5 处，起点1处/停车1处/火车站1处/机场1处/监狱1处。
 </p>
 </div>
 
@@ -206,8 +206,8 @@
     <div class="principle-desc">玩家经过/到达起点格，获得 ¥2,000。起点同时也是地图起点，任何玩家必须从此处开始移动。</div>
   </div>
   <div class="principle">
-    <div class="principle-name">🏠 火车站（2处，7号/31号）</div>
-    <div class="principle-desc">拥有者每次被路过时收取费用：¥200 × 骰子总点数。拥有 2 个车站费用翻倍。车站无建造升级。<br><strong>注：31号格现为监狱格，正常支付过路费。</strong></div>
+    <div class="principle-name">🏠 火车站（1处，7号北京）</div>
+    <div class="principle-desc">拥有者每次被路过时收取费用：¥200 × 骰子总点数。无建造升级。<br><strong>注：31号格为监狱格（路过/探访），无火车站功能。</strong></div>
   </div>
   <div class="principle">
     <div class="principle-name">🏢 机场（32号位）</div>
@@ -333,24 +333,88 @@
 </div>
 
 <div class="section">
-<h2>9. 地图更新说明（v0.2）</h2>
+<h2>9. 边界情况与特殊规则</h2>
+
+<h3>9.1 三次双骰进监狱逻辑</h3>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">触发时机</div>
+    <div class="principle-desc">每次掷出双骰时 <code>doubleCount++</code>。若 <code>doubleCount == 3</code>：① 本次移动被取消（不移动）② <code>player.position → 31号（监狱格）</code>③ <code>player.inJail = true, player.jailTurns = 3</code>④ <code>doubleCount → 0</code>⑤ 回合强制结束（不触发"再次掷骰"）</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">Bot 的双骰限制</div>
+    <div class="principle-desc">Bot 与玩家共享同一套双骰规则。Bot 掷出双骰三次也会进监狱。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">监狱内行为</div>
+    <div class="principle-desc">在狱期间（<code>jailTurns > 0</code>）：回合开始时可选择付 ¥1,000 保释或掷骰子尝试双骰脱狱。掷出双骰 → 出狱正常行动；未掷出 → 本回合跳过，<code>jailTurns--</code>。<code>jailTurns == 0</code> 时自动出狱。</div>
+  </div>
+</div>
+
+<h3>9.2 颜色同色加成失效条件</h3>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">激活条件</div>
+    <div class="principle-desc">玩家持有某颜色全部地块时，该颜色全部地块租金 +10%。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">失效条件</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+① 通过交易/强制出售失去该颜色任意一块地 → 立即失效
+② 该颜色任意地块被降级至 level=0（空地） → 立即失效
+③ 游戏进入 Phase 2（联机模式）→ 所有颜色加成重置
+失效后重新集齐同色全套时，可重新激活。</pre>
+    </div>
+  </div>
+</div>
+
+<h3>9.3 破产时机与资产处理</h3>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">触发条件</div>
+    <div class="principle-desc">玩家应付租金/费用 > 当前现金时，触发破产流程。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">执行顺序</div>
+    <div class="principle-desc">① 显示破产弹窗 ② 所有现金 → 0 ③ 所有地皮+建筑 → 进入竞拍池（Bot参与竞拍） ④ 玩家出局，不再参与回合 ⑤ 若破产者是被路过方：租金仍需支付（竞拍后买家继承债权）</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">地皮归属</div>
+    <div class="principle-desc">破产后的地皮通过竞拍重新分配，竞拍收益归系统（不分配给其他玩家）。</div>
+  </div>
+</div>
+
+<h3>9.4 机场传送详细规则</h3>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">传送限制</div>
+    <div class="principle-desc">拥有机场后，每局限用 1 次。可传送至任意城市格（地皮/机会/命运/起点/停车）。<strong>不能</strong>传送到：火车站、机场本身、监狱。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">传送后触发</div>
+    <div class="principle-desc">传送到目标格后，正常触发该格效果（买地/付租/卡牌等）。传送不触发起点奖励。</div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<h2>10. 地图更新说明（v0.3）</h2>
 
 <p><strong>修正内容：</strong></p>
 <ul>
-  <li>原 31 号格"机场（上海）"改为"⛓️ 监狱（路过/探访）"——监狱终于有对应格子了</li>
-  <li>新增 32 号格"🏢 机场（成都）"——机场从 1 处增为 1 处（位置调整）</li>
-  <li>31 号监狱格：正常路过支付过路费，但并非"进入监狱"</li>
-  <li>真正"进入监狱"：连续掷三次双骰后强制传送至 31 号，并进入 3 回合禁足状态</li>
-  <li>两处火车站：7号（北京）、31号（上海）。31号火车站因监狱格存在，实际功能待后续讨论。</li>
+  <li>31 号格：确认为<span style="color:#f87171">监狱格</span>（非火车站），地图行数据 + 特殊格描述均已统一。</li>
+  <li>火车站：从 2 处缩减为 1 处（7号北京）。31号不再是火车站。</li>
+  <li>新增边界情况规则：三次双骰进监狱逻辑、颜色加成失效条件、破产处理、机场传送限制。</li>
 </ul>
 </div>
 
 <div class="section">
 <h2>Open Questions</h2>
 <ul>
-  <li>Bot 是否需要"记牌"能力（即追踪已出现的卡牌，调整后续概率）？</li>
-  <li>E/F 级地皮是否需要设计更多建造升级（因为价格低，升级太快失去张力）？</li>
-  <li>31号火车站（上海）若与监狱格重叠，是否需要移除或改为其他功能？</li>
+  <li>Bot 是否需要"记牌"能力（追踪已出现卡牌）？</li>
+  <li>E/F 级地皮是否需要更多建造升级空间？</li>
+  <li>游戏是否需要"投降"按钮？</li>
 </ul>
 </div>
 
