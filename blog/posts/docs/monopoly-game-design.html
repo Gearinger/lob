@@ -301,7 +301,7 @@
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">攻击目标</td><td style="padding:8px 14px;color:#E8E8F0">优先升级玩家必经地</td><td style="padding:8px 14px;color:#E8E8F0">优先升级自己已有地</td><td style="padding:8px 14px;color:#E8E8F0">看对手资金，低买高卖</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">交易接受度</td><td style="padding:8px 14px;color:#E8E8F0">低（不主动交易）</td><td style="padding:8px 14px;color:#E8E8F0">中（等价交换可谈）</td><td style="padding:8px 14px;color:#E8E8F0">高（爱讨价还价）</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">负债容忍度</td><td style="padding:8px 14px;color:#E8E8F0">高（¥-8,000）</td><td style="padding:8px 14px;color:#E8E8F0">低（¥-1,000）</td><td style="padding:8px 14px;color:#E8E8F0">中（¥-3,000）</td></tr>
-    <tr><td style="padding:8px 14px;color:#E8E8F0">Easy Bot 随机因子</td><td style="padding:8px 14px;color:#E8E8F0">35% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">30% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">40% 概率做出次优决策</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">Bot Easy 随机因子</td><td style="padding:8px 14px;color:#E8E8F0">30% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">30% 概率做出次优决策</td><td style="padding:8px 14px;color:#E8E8F0">40% 概率做出次优决策</td></tr>
   </tbody>
 </table>
 </div>
@@ -384,29 +384,32 @@
     <div class="principle-name">地皮归属</div>
     <div class="principle-desc">破产后的地皮通过竞拍重新分配，竞拍收益归系统（不分配给其他玩家）。</div>
   </div>
-</div>
 
-<h3>9.4 机场传送详细规则</h3>
+<h3>9.5 额外边界情况</h3>
 <div class="principles" style="grid-template-columns: 1fr;">
   <div class="principle">
-    <div class="principle-name">传送限制</div>
-    <div class="principle-desc">拥有机场后，每局限用 1 次。可传送至任意城市格（地皮/机会/命运/起点/停车）。<strong>不能</strong>传送到：火车站、机场本身、监狱。</div>
+    <div class="principle-name">落地自己的地皮</div>
+    <div class="principle-desc">落地时若地皮已属于自己，<span style="color:#67e8f9">无事发生，直接结束回合</span>。不触发任何弹窗，不扣任何费用。</div>
   </div>
   <div class="principle">
-    <div class="principle-name">传送后触发</div>
-    <div class="principle-desc">传送到目标格后，正常触发该格效果（买地/付租/卡牌等）。传送不触发起点奖励。</div>
+    <div class="principle-name">Bot 双骰与最优决策矛盾</div>
+    <div class="principle-desc">Bot Hard 模式下<span style="color:#fbbf24">不会故意避免连续双骰</span>。双骰是随机事件，Bot 接受随机结果，若因此进监狱则正常处理。Bot 的"最优决策"指的是买地/升级策略，不包括操控骰子。</div>
   </div>
-</div>
+  <div class="principle">
+    <div class="principle-name">起点奖励触发时机</div>
+    <div class="principle-desc">经过起点（跨 0 位）触发，不含开局在 1 号的情况。每次绕圈最多一次。</div>
+  </div>
 </div>
 
 <div class="section">
-<h2>10. 地图更新说明（v0.3）</h2>
+<h2>11. 地图更新说明（v0.4）</h2>
 
 <p><strong>修正内容：</strong></p>
 <ul>
-  <li>31 号格：确认为<span style="color:#f87171">监狱格</span>（非火车站），地图行数据 + 特殊格描述均已统一。</li>
-  <li>火车站：从 2 处缩减为 1 处（7号北京）。31号不再是火车站。</li>
-  <li>新增边界情况规则：三次双骰进监狱逻辑、颜色加成失效条件、破产处理、机场传送限制。</li>
+  <li>地图重新平衡：25地皮 + 5机会 + 5命运 + 5特殊 = 40格（之前声称28地皮无法实现，5+5+5+28=43>40）</li>
+  <li>机会格位置：3/18/24/29/36（5处）</li>
+  <li>命运格位置：19/20/33/34/39（5处）</li>
+  <li>新增边界情况：落地自己地皮无操作/Bot双骰不规避/起点奖励精确触发</li>
 </ul>
 </div>
 

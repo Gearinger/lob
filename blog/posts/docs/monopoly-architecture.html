@@ -41,9 +41,12 @@
   </tbody>
 </table>
 
-<p style="font-size:0.82rem;color:rgba(232,232,240,0.5);margin-top:12px;">
-<strong>为什么不用 Canvas？</strong>棋盘是静态的（40 格位置固定），令牌是"跳格"的（不是沿曲线连续移动），用 DOM 可以天然获得格子点击事件，无需手动计算 hit-testing。CSS transition 已经足够处理回合制跳格动画。只有在做令牌沿环形轨道平滑滑动时才考虑 Canvas，必要性不高。
+<p style="font-size:0.8rem;color:rgba(232,232,240,0.6);margin-top:12px;">
+<strong>为什么不用 Canvas？</strong>棋盘是静态的（40 格位置固定），令牌是"跳格"的（不是沿曲线连续移动），用 DOM 可以天然获得格子点击事件，无需手动计算 hit-testing。CSS transition 已经足够处理回合制跳格动画。
 </p>
+
+<h3>F-05 城市升级（就近规则）</h3>
+<p style="font-size:0.82rem;color:rgba(232,232,240,0.6);">"就近"定义：选择当前格子顺时针方向最近的非起点普通城市格（排除特殊格：机会/命运/起点/停车/火车站/机场/监狱）。若顺时针方向没有普通城市格，则取逆时针方向最近的城市格。</p>
 </div>
 
 <div class="section">
@@ -263,7 +266,7 @@ games/
   <tbody>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">文件大小</td><td style="padding:10px 14px;color:#E8E8F0">≤ 200KB</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">无外部库，代码压缩，SVG内联</td></tr>
     <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">首屏加载</td><td style="padding:10px 14px;color:#E8E8F0">< 1 秒</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">单文件，无网络请求</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">动画帧率</td><td style="padding:10px 14px;color:#E8E8F0">60fps</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">requestAnimationFrame + Canvas 2D</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:10px 14px;color:#E8E8F0">动画帧率</td><td style="padding:10px 14px;color:#E8E8F0">60fps</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">CSS transition + @keyframes，硬件加速</td></tr>
     <tr><td style="padding:10px 14px;color:#E8E8F0">Bot 决策延迟</td><td style="padding:10px 14px;color:#E8E8F0">≤ 1.5 秒</td><td style="padding:10px 14px;color:rgba(232,232,240,0.6)">纯计算，无网络，纯 JS 逻辑</td></tr>
   </tbody>
 </table>
@@ -279,7 +282,7 @@ games/
   </div>
   <div class="principle">
     <div class="principle-name">P1 — 完整棋盘</div>
-    <div class="principle-desc">40格完整城市地图，Canvas 渲染环形棋盘，3个Bot（鹰+龟+狐），全部卡牌。</div>
+    <div class="principle-desc">40格完整城市地图，DOM + CSS 绝对定位环形棋盘，3个Bot（鹰+龟+狐），全部卡牌。</div>
   </div>
   <div class="principle">
     <div class="principle-name">P2 — UI 打磨</div>
