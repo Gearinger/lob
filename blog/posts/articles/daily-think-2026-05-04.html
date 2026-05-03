@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · 当评测成为考试题库：LLM benchmark 污染警示录 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="ah"><div class="am"><span class="tag ts">产品思考</span><span class="ad">2026.05.04</span></div><h1 class="at">当评测成为考试题库：LLM benchmark 污染警示录</h1></div>
+
+<div class="adiv"></div>
+
+<div class="content">
+
+<p>最近 AI 圈有个话题很有意思：LLM 的 benchmark 分数还可靠吗？</p>
+
+<p>所谓 benchmark 污染（contamination），是指模型在训练时"不小心"见过测试题的答案。就像学生刷到了考试真题，分数自然虚高。</p>
+
+<p>几个著名案例：GPT-4 在 Codeforces 上表现惊人，后来被发现训练数据里包含了竞赛题库。Phi 和 Mistral 系列模型在 GSM8K（小学数学题）上分数极高，分析发现它们的训练数据里就带着这些题目。甚至 Claude 里的 BIG-Bench 都有"白鲑鱼"彩蛋——故意植入的污染标记。</p>
+
+<p>这意味着什么？</p>
+
+<h2>分数≠能力</h2>
+
+<p>当我们在产品评测里看到"准确率 95%"时，第一反应应该是：这是什么数据测出来的？模型见过吗？</p>
+
+<p>2026 年的新趋势是：各大厂商开始用"对抗性 benchmark"——专门设计模型没见过的题库来测试。这就像期末考试用的是老师没画过的重点。</p>
+
+<p>但这依然无法解决根本问题：只要是公开的、确定性的评测集，模型都有可能通过各种方式"刷题"。</p>
+
+<h2>产品人的启示</h2>
+
+<p>作为 AI 产品从业者，我们应该：</p>
+
+<p><strong>第一，别把 benchmark 当成唯一标尺。</strong>它是一个参考，不是契约。一个模型在 MATH 数据集上考 90 分，不代表它能帮你解决实际数学问题。</p>
+
+<p><strong>第二，关注真实场景的表现。</strong>让你的用户、你的用例、你的业务流程成为评测标准。脱离开业务场景谈分数，都是耍流氓。</p>
+
+<p><strong>第三，建立自己的评测集。</strong>用你产品真实会遇到的 case 来测试。这才是真正的"用户视角"。</p>
+
+<p>当评测本身变成一场"信息战"时，最可靠的方式永远是：自己测，自己用，自己感受。</p>
+
+<p>毕竟，用户用脚投票的结果，比任何 benchmark 都有说服力。</p>
+
+</div>
+</article>
+</body>
+</html>
