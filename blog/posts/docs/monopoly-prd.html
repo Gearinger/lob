@@ -147,7 +147,272 @@
 </div>
 
 <div class="section">
-<h2>7. Success Metrics</h2>
+<h2>6.2 Bot 行为决策树（详细规则）</h2>
+
+<p>每个 Bot 有完整的 IF→THEN 决策树，分为 Easy（随机扰动）和 Hard（最优决策）两个模式。</p>
+
+<h3>🦅 鹰派 Bot — 激进进攻型</h3>
+
+<h4>Easy 模式（30% 次优概率）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 0.6 THEN 购买  (30%概率: 放弃购买)
+IF 对手已有同色地块 AND 地价 < ¥8,000 THEN 立即购买（不惜抬价）
+IF 资金 < 地价 AND 资金 > 地价 × 0.8 THEN 竞拍（出价 = 地价 × 0.8~1.0）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">升级决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 盖房费 × 0.8 THEN 升级（30%概率: 跳过升级）
+IF 有对手必经之路的空地 THEN 优先升级该地
+IF 自身已有地皮位置 > 5格未升级 THEN 升级该地</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">交易决策</div>
+    <div class="principle-desc">不接受任何主动交易（认为交易会削弱进攻优势）。对方提出交易 → 直接拒绝。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">负债容忍</div>
+    <div class="principle-desc">允许负债至 ¥-8,000。超过则停止买地，只升级已有地块。</div>
+  </div>
+</div>
+
+<h4>Hard 模式（最优决策）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 0.6 THEN 购买
+IF 计算期望收益(EV) = (租金收入/回合) × 剩余回合数 > 地价 THEN 购买
+IF 买地后资金 < ¥2,000 THEN 跳过（保留应急资金）
+IF 对手现金 > ¥10,000 AND 地价为S/A级 THEN 购买（瞄准对手经过概率）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">升级决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 盖房费 × 0.8 AND 买地后资金 > ¥3,000 THEN 升级
+IF 该地位置在任意对手5格以内 THEN 立即升级（战略封锁）
+IF 自身资金 > ¥15,000 THEN 激进升级（不在乎负债）</pre>
+    </div>
+  </div>
+</div>
+
+<h3>🐢 龟派 Bot — 保守稳健型</h3>
+
+<h4>Easy 模式（30% 次优概率）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 1.2 THEN 购买（更保守的买地门槛）(30%概率: 提高到1.5倍)
+IF 地价为F级 AND 资金 > 地价 × 0.8 THEN 购买（只买便宜地）
+IF 其他玩家正在争抢某地块 THEN 放弃（让给他们）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">升级决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 盖房费 × 1.5 THEN 升级（30%概率: 跳过）
+IF 有2块以上同色地块 THEN 升级该颜色（激活颜色加成）
+IF 资金 < ¥5,000 THEN 停止升级（保留现金）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">交易决策</div>
+    <div class="principle-desc">等价交换可谈（±20%以内接受）。非等价交易 → 拒绝。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">负债容忍</div>
+    <div class="principle-desc">不允许负债。资金 < 地价 × 1.2 时停止买地。</div>
+  </div>
+</div>
+
+<h4>Hard 模式（最优决策）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 1.0 THEN 购买（购买前预留¥3,000应急）
+IF 地价为F级 THEN 购买（低成本积累地块）
+IF 某颜色地皮已集齐2块以上 THEN 优先购买该颜色剩余地皮（追求颜色加成）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">升级决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 盖房费 × 1.2 THEN 升级
+IF 集齐同色全套 THEN 立即升级（颜色加成激活后收益翻倍）
+IF 剩余游戏回合 < 10 AND 自身地块 > 5 THEN 激进升级（收割期）</pre>
+    </div>
+  </div>
+</div>
+
+<h3>🦊 狐狸 Bot — 机会主义型</h3>
+
+<h4>Easy 模式（40% 次优概率）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 0.9 THEN 购买（40%概率: 放弃便宜地块）
+IF 对手资金 < ¥5,000 THEN 购买任何地（趁对手虚弱）
+IF 对手刚被租金收割过（损失>¥1,000） THEN 购买其附近地块（落井下石）
+IF 某地块被多个对手争夺 THEN 等待竞拍后期入场（渔翁得利）</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">交易决策（核心能力）</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+收到交易提案:
+  IF 自身净赚 > ¥500 THEN 接受
+  IF 自身净赚 ±¥500 以内 THEN 还价（要求加价10~20%）
+  IF 交易包含对手核心地块 THEN 拒绝（不让对手凑齐颜色）
+  IF 自身资金 < ¥3,000 THEN 拒绝（现金流紧张）
+(40%概率: 即使划算也拒绝，增加不可预测性)</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">负债容忍</div>
+    <div class="principle-desc">允许负债至 ¥-3,000。负债时优先通过交易套现而非卖地。</div>
+  </div>
+</div>
+
+<h4>Hard 模式（最优决策）</h4>
+<div class="principles" style="grid-template-columns: 1fr;">
+  <div class="principle">
+    <div class="principle-name">买地决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 资金 > 地价 × 0.9 THEN 购买
+IF 计算对手购买意愿（基于资金和已有地块）> 0.7 THEN 等待竞拍后期入场
+IF 对手资金 > ¥12,000 AND 地价 < ¥10,000 THEN 购买（针对富裕对手）
+IF 游戏进入后半段（>10回合）AND 自身资产排名 >= 2 THEN 保守操作</pre>
+    </div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">交易决策</div>
+    <div class="principle-desc">
+<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;line-height:1.6;color:#E8E8F0;">
+IF 交易EV > 0 THEN 接受
+IF 交易EV ∈ [-500, 0] THEN 还价（加价15%）
+IF 交易让自身集齐颜色全套 THEN 接受（甚至主动让价）
+IF 交易让对手集齐颜色全套 THEN 拒绝</pre>
+    </div>
+  </div>
+</div>
+
+<h3>Bot 决策优先级总览</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:16px 0;">
+  <thead>
+    <tr>
+      <th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">决策类型</th>
+      <th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🦅 鹰</th>
+      <th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🐢 龟</th>
+      <th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">🦊 狐</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">买地优先级</td><td style="padding:8px 14px;color:#E8E8F0">对手必经地 > S/A级 > 任意</td><td style="padding:8px 14px;color:#E8E8F0">F级 > 凑颜色 > 低价S/A</td><td style="padding:8px 14px;color:#E8E8F0">对手虚弱时 > S/A > 任意</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">升级优先级</td><td style="padding:8px 14px;color:#E8E8F0">封锁对手 > 已有地 > 任意</td><td style="padding:8px 14px;color:#E8E8F0">凑颜色 > 已有地 > 任意</td><td style="padding:8px 14px;color:#E8E8F0">收割期激进 > 任意</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">交易态度</td><td style="padding:8px 14px;color:#E8E8F0">拒绝一切</td><td style="padding:8px 14px;color:#E8E8F0">等价交换可谈</td><td style="padding:8px 14px;color:#E8E8F0">主动讨价还价</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>5.2 机会/命运卡效果精确定义</h2>
+
+<h3>通用规则</h3>
+<ul>
+  <li>所有卡片效果立即执行（除非另有说明）</li>
+  <li>金币变化显示弹窗动画（金币飞入/飞出动效）</li>
+  <li>若无有效目标（如降级但已是最底层），卡片效果跳过</li>
+</ul>
+
+<h3>机会卡（C-01 ~ C-16）精确效果</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">#</th><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">卡片</th><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">精确效果</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">C-03</td><td style="padding:6px 10px;color:#E8E8F0">出售房产</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">选择最贵地块出售，获得<span style="color:#67e8f9">该地块盖房费×80%</span>。若无任何地块，无效。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">C-08</td><td style="padding:6px 10px;color:#E8E8F0">免费盖房</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">选择任意已有地块盖1栋（最高到摩天楼level=4）。<span style="color:#f87171">若无地块，无效不触发。</span></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">C-11</td><td style="padding:6px 10px;color:#E8E8F0">慈善捐款</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">支付¥300，获得"慷慨"标记。本局下次收取租金时，<span style="color:#67e8f9">租金收入+10%（四舍五入）</span>。标记仅生效1次后清除。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">C-14</td><td style="padding:6px 10px;color:#E8E8F0">加速发展</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)"><span style="color:#fbbf24">本回合立即获得额外掷骰机会。</span>双骰也适用（可连续触发）。</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.75rem;color:rgba(232,232,240,0.4);">其余机会卡（C-01/02/04/05/06/07/09/10/12/13/15/16）为直接金币增减，无特殊规则。</p>
+
+<h3>命运卡（F-01 ~ F-16）精确效果</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">#</th><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">卡片</th><th style="padding:6px 10px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">精确效果</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-01</td><td style="padding:6px 10px;color:#E8E8F0">经济过热</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">所有玩家所有地块租金×0.5（持续<span style="color:#67e8f9">1回合</span>）。回合结束后恢复。影响自身。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-02</td><td style="padding:6px 10px;color:#E8E8F0">政策利好</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">指定一种颜色（如红/蓝/绿），该颜色所有地块租金<span style="color:#67e8f9">+50%</span>（持续2回合）。若已有颜色加成，先叠加再计算。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-03</td><td style="padding:6px 10px;color:#E8E8F0">房产泡沫</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">所有玩家的<span style="color:#f87171">摩天楼(level=4)降为房屋(level=2)</span>。原本不是摩天楼的跳过。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-07</td><td style="padding:6px 10px;color:#E8E8F0">汇率波动</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">所有玩家随机获得/损失¥500~¥1,500（由系统随机决定每个人）。<span style="color:#fbbf24">正负各50%概率。</span></td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-10</td><td style="padding:6px 10px;color:#E8E8F0">台风灾害</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">随机选择该玩家1块有建筑的地块（level>0），<span style="color:#f87171">降1级</span>。若无任何建筑，该卡无效跳过。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-11</td><td style="padding:6px 10px;color:#E8E8F0">IPO上市</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">所有玩家按<span style="color:#67e8f9">当前总资产（含地皮+建筑+现金）× 5%</span>缴税。不足¥500按¥500收取。</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><td style="padding:6px 10px;color:#E8E8F0">F-12</td><td style="padding:6px 10px;color:#E8E8F0">市场调研</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">本回合可见所有Bot手头现金（显示在玩家面板上），<span style="color:#67e8f9">下回合恢复正常</span>。不影响Bot决策。</td></tr>
+    <tr><td style="padding:6px 10px;color:#E8E8F0">F-13</td><td style="padding:6px 10px;color:#E8E8F0">租金管制</td><td style="padding:6px 10px;color:rgba(232,232,240,0.6)">本回合<span style="color:#f87171">所有租金收入减半</span>（自己付别人的租金也减半）。双面效果。</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>5.3 经济平衡验证</h2>
+
+<h3>初始资源</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin:12px 0;">
+  <thead>
+    <tr><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">项目</th><th style="padding:8px 14px;background:rgba(103,232,249,0.08);color:#67e8f9;font-weight:600;">数值</th></tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">初始金币/玩家</td><td style="padding:8px 14px;color:#E8E8F0">¥15,000</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">总玩家数</td><td style="padding:8px 14px;color:#E8E8F0">4人（1玩家+3Bot）</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">游戏开始金币总量</td><td style="padding:8px 14px;color:#E8E8F0">¥60,000</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.08)"><td style="padding:8px 14px;color:#E8E8F0">总地价（28块）</td><td style="padding:8px 14px;color:#E8E8F0">约 ¥170,000（全部售出后）</td></tr>
+    <tr><td style="padding:8px 14px;color:#E8E8F0">金币注入速度（每圈起点）</td><td style="padding:8px 14px;color:#E8E8F0">¥8,000/圈（4人×¥2,000）</td></tr>
+  </tbody>
+</table>
+
+<h3>经济健康指标</h3>
+<div class="principles" style="grid-template-columns: 1fr 1fr;">
+  <div class="principle">
+    <div class="principle-name">通缩风险评估</div>
+    <div class="principle-desc">每圈注入¥8,000，每次租金流出约¥300~¥1,500（取决于地皮等级）。<strong>结论：通缩风险低。</strong>每圈注入量覆盖约5~26次基础租金，足够支撑游戏进行。</div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">破产速度评估</div>
+    <div class="principle-desc">持有S级地+摩天楼（¥15,000租金）：对手每次路过损失¥15,000。持有¥15,000现金可承受1次。Bot会在3~5回合内积累足够资金触发破产。<strong>结论：破产速度合理，20回合足够决出胜负。</strong></div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">Bot会不会过于强势？</div>
+    <div class="principle-desc">玩家有¥15,000初始资金，可购买2块A级地（S/A/B）后资金剩余¥3,000~¥5,000，仍够支付1~2次租金。新手保护规则：前10回合若Bot连续买走3块S/A级地，剩余S/A价格临时-20%。<strong>结论：玩家有喘息空间，不会被碾压。</strong></div>
+  </div>
+  <div class="principle">
+    <div class="principle-name">游戏时长验证</div>
+    <div class="principle-desc">4玩家×20回合×平均2~4分钟/回合（玩家操作慢，Bot快）= 约32~64分钟，取中位约45分钟。符合"30-60分钟"目标。</div>
+  </div>
+</div>
+</div>
 
 <p><strong>Phase 1 核心指标</strong></p>
 <ul>
