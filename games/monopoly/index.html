@@ -141,6 +141,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
+<!-- Card Modal -->
+<div class="modal-overlay" id="card-modal">
+  <div class="modal">
+    <h2 id="card-title">🎲 机会卡</h2>
+    <div id="card-content"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeCardModal()">确定</button>
+    </div>
+  </div>
+</div>
+
 <!-- Start Modal -->
 <div class="modal-overlay" id="start-modal">
   <div class="modal">
@@ -228,6 +239,127 @@ const CELL_DATA = [
 
 // Build rank price lookup
 CELL_DATA.forEach(c => { if(c.rank) { if(!RANK_PRICE[c.rank]) RANK_PRICE[c.rank]=c.price; }});
+
+// ============================================================
+// CARD DATA
+// ============================================================
+
+const chanceCards = [
+  {id:'C-01',name:'一路顺风',effect:'获得 ¥500 奖金',action:(p)=>{p.gold+=500;return '一路顺风，获得 ¥500！';}},
+  {id:'C-02',name:'政府补贴',effect:'获得创新企业补贴 ¥2,000',action:(p)=>{p.gold+=2000;return '政府补贴，获得 ¥2,000！';}},
+  {id:'C-03',name:'出售房产',effect:'出售一处房产，收入为该房产盖房费的 80%',action:(p)=>{const owned=cells.filter(s=>s.owner===p.id&&s.type==='property');if(owned.length===0)return'无房产，无效！';const best=owned.sort((a,b)=>(b.price+b.buildCost*b.level)-(a.price+a.buildCost*a.level))[0];const val=Math.floor(best.price+best.buildCost*best.level*0.8);p.gold+=val;best.level=0;best.owner=null;return`出售房产，获得 ¥${val}！`;}},
+  {id:'C-04',name:'银行利息',effect:'存款利息到账，获得 ¥1,000',action:(p)=>{p.gold+=1000;return '银行利息，获得 ¥1,000！';}},
+  {id:'C-05',name:'交通事故',effect:'交通罚款！支付 ¥800',action:(p)=>{p.gold=Math.max(0,p.gold-800);return '交通事故，支付 ¥800！';}},
+  {id:'C-06',name:'意外税单',effect:'补缴税款，支付 ¥1,200',action:(p)=>{p.gold=Math.max(0,p.gold-1200);return '意外税单，支付 ¥1,200！';}},
+  {id:'C-07',name:'朋友还款',effect:'朋友归还欠款，获得 ¥600',action:(p)=>{p.gold+=600;return '朋友还款，获得 ¥600！';}},
+  {id:'C-08',name:'免费盖房',effect:'免费为任意一处已有地皮盖 1 栋（最多到摩天楼 level 3）',action:(p)=>{const owned=cells.filter(s=>s.owner===p.id&&s.type==='land'&&s.level<3);if(owned.length===0)return'无地皮可盖，无效！';owned[0].level++;return`免费盖房成功！`;}},
+  {id:'C-09',name:'股市收益',effect:'投资获利，获得 ¥2,500',action:(p)=>{p.gold+=2500;return '股市收益，获得 ¥2,500！';}},
+  {id:'C-10',name:'股市亏损',effect:'投资失败，损失 ¥1,500',action:(p)=>{p.gold=Math.max(0,p.gold-1500);return '股市亏损，损失 ¥1,500！';}},
+  {id:'C-11',name:'慈善捐款',effect:'捐款 ¥300，获得"慷慨"标记：下次租金+10%',action:(p)=>{p.gold=Math.max(0,p.gold-300);p.bonus=true;return '慈善捐款，下次租金+10%！';}},
+  {id:'C-12',name:'收到礼金',effect:'生日派对收到礼金，获得 ¥800',action:(p)=>{p.gold+=800;return '收到礼金，获得 ¥800！';}},
+  {id:'C-13',name:'盗窃损失',effect:'遭遇小偷，损失 ¥500',action:(p)=>{p.gold=Math.max(0,p.gold-500);return '盗窃损失，损失 ¥500！';}},
+  {id:'C-14',name:'加速发展',effect:'本回合再次掷骰',action:(p)=>{p.extraRoll=true;return '加速发展，本回合可再掷骰！';}},
+  {id:'C-15',name:'罚款通知',effect:'违规经营，支付 ¥700',action:(p)=>{p.gold=Math.max(0,p.gold-700);return '罚款通知，支付 ¥700！';}},
+  {id:'C-16',name:'年末分红',effect:'年终分红，获得 ¥1,000',action:(p)=>{p.gold+=1000;return '年末分红，获得 ¥1,000！';}},
+];
+
+const fateCards = [
+  {id:'F-01',name:'经济过热',effect:'所有地皮本回合租金减半（标记 globalRentHalved）',action:(p)=>{gameState.globalRentHalved=3;return '经济过热，所有租金减半 3 回合！';}},
+  {id:'F-02',name:'政策利好',effect:'指定颜色地皮租金 2 回合内+50%',action:(p)=>{gameState.bonusColor=true;return '政策利好，指定颜色地皮租金+50% 2回合！';}},
+  {id:'F-03',name:'房产泡沫',effect:'所有摩天楼(level 3)降为房屋(level 2)',action:(p)=>{cells.forEach(s=>{if(s.type==='land'&&s.level>=3){s.level=2;}});return '房产泡沫！所有摩天楼降为房屋！';}},
+  {id:'F-04',name:'银行加息',effect:'负债玩家额外支付负债额的 10%',action:(p)=>{if(p.gold<0){p.gold-=Math.ceil(Math.abs(p.gold)*0.1);}return '银行加息，负债玩家额外支付 10%！';}},
+  {id:'F-05',name:'城市升级',effect:'指定城市地皮价格+15%，持续 3 回合',action:(p)=>{gameState.cityBoost=3;return '城市升级，地皮价格+15% 3回合！';}},
+  {id:'F-06',name:'贸易制裁',effect:'出口受限，损失 ¥1,000',action:(p)=>{p.gold=Math.max(0,p.gold-1000);return '贸易制裁，损失 ¥1,000！';}},
+  {id:'F-07',name:'汇率波动',effect:'随机 ¥500~¥1,500 变动',action:(p)=>{const amt=Math.floor(Math.random()*1001)+500;p.gold+=p.gold>=0?amt:-amt;return `汇率波动，${p.gold>=0?'获得':'损失'} ¥${amt}！`;}},
+  {id:'F-08',name:'项目获奖',effect:'创新项目获奖，获得 ¥2,000',action:(p)=>{p.gold+=2000;return '项目获奖，获得 ¥2,000！';}},
+  {id:'F-09',name:'竞对打压',effect:'竞争对手恶意压价，损失 ¥800',action:(p)=>{p.gold=Math.max(0,p.gold-800);return '竞对打压，损失 ¥800！';}},
+  {id:'F-10',name:'台风灾害',effect:'随机一处自有地皮降 1 级',action:(p)=>{const owned=cells.filter(s=>s.owner===p.id&&s.type==='land'&&s.level>0);if(owned.length===0)return'无房产，无效！';const hit=owned[Math.floor(Math.random()*owned.length)];hit.level--;return`台风灾害，${hit.city}降级！`;}},
+  {id:'F-11',name:'IPO上市',effect:'所有玩家按资产 5% 缴税',action:(p)=>{const tax=Math.floor(p.gold*0.05);if(tax>0){p.gold-=tax;gameState.bank+=tax;}return `IPO上市，缴税 ¥${tax}！`;}},
+  {id:'F-12',name:'市场调研',effect:'本回合知道所有 Bot 手上金币',action:(p)=>{const info=players.filter(pl=>pl.id!==p.id).map(pl=>`${pl.name}:¥${pl.gold}`).join('；');gameState.lastResearch=info;return`市场调研：${info}`;}},
+  {id:'F-13',name:'租金管制',effect:'本回合所有租金收入减半',action:(p)=>{gameState.globalRentHalved=1;return '租金管制，本回合租金减半！';}},
+  {id:'F-14',name:'偷税处罚',effect:'税务稽查，支付 ¥2,000 罚款',action:(p)=>{p.gold=Math.max(0,p.gold-2000);return '偷税处罚，支付 ¥2,000！';}},
+  {id:'F-15',name:'并购扩张',effect:'获得 ¥1,000 扩张资金',action:(p)=>{p.gold+=1000;return '并购扩张，获得 ¥1,000！';}},
+  {id:'F-16',name:'人才招聘',effect:'花费 ¥500，下一回合租金收入+20%',action:(p)=>{p.gold=Math.max(0,p.gold-500);p.nextRentBoost=0.2;return '人才招聘，租金+20% 下回合！';}},
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+
+let gameState = {
+  chanceDeck: [],
+  fateDeck: [],
+  globalRentHalved: 0,
+  bonusColor: 0,
+  cityBoost: 0,
+  lastResearch: '',
+  bank: 0,
+};
+
+// ============================================================
+// CARD HELPERS
+// ============================================================
+
+function shuffleDeck(deck) {
+  const d = [...deck];
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+
+let cardModalResolve = null;
+
+function drawCard(player, type) {
+  const deck = type === 'chance' ? gameState.chanceDeck : gameState.fateDeck;
+  const allCards = type === 'chance' ? chanceCards : fateCards;
+
+  if (deck.length === 0) {
+    gameState[type + 'Deck'] = shuffleDeck([...allCards]);
+  }
+
+  const card = gameState[type + 'Deck'].shift();
+  gameState[type + 'Deck'].push(card);
+
+  const result = card.action(player);
+
+  const icon = type === 'chance' ? '🎲' : '🃏';
+  const color = type === 'chance' ? '#67e8f9' : '#f97316';
+  const cardModal = document.getElementById('card-modal');
+  const cardTitle = document.getElementById('card-title');
+  const cardContent = document.getElementById('card-content');
+  cardTitle.textContent = type === 'chance' ? '🎲 机会卡' : '🃏 命运卡';
+  cardTitle.style.color = color;
+  cardContent.innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:12px">${icon}</div>
+      <div style="color:${color};font-weight:700;font-size:1.1rem;margin-bottom:8px">${card.id} ${card.name}</div>
+      <div style="color:var(--dim);font-size:0.85rem;margin-bottom:16px">${card.effect}</div>
+      <div style="color:var(--text);background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;font-size:0.85rem;min-height:40px">${result}</div>
+    </div>
+  `;
+  cardModal.classList.add('show');
+
+  log(`${player.name} 抽取${type==='chance'?'【机会】':'【命运】'}：${card.name} → ${result}`);
+  updatePlayerCards();
+
+  // Decay global effects
+  if (gameState.globalRentHalved > 0) {
+    gameState.globalRentHalved--;
+    if (gameState.globalRentHalved === 0) log('📢 租金管制/经济过热效果结束');
+  }
+  if (gameState.bonusColor > 0) { gameState.bonusColor--; }
+  if (gameState.cityBoost > 0) { gameState.cityBoost--; }
+}
+
+function closeCardModal() {
+  document.getElementById('card-modal').classList.remove('show');
+  // Resume turn flow after card is shown
+  setTimeout(() => {
+    endTurnCheckDouble();
+  }, 100);
+}
 
 // ============================================================
 // GAME STATE
@@ -526,8 +658,7 @@ function handleCell(player, cellIdx) {
   }
 
   if(cell.type === 'chance' || cell.type === 'fate') {
-    log(`🎴 ${player.name} 落在${cell.type==='chance'?'机会':'命运'}格（本版本暂跳过）`);
-    endTurnCheckDouble();
+    drawCard(player, cell.type);
     return;
   }
 
@@ -754,6 +885,16 @@ function resetGame() {
   });
   initCells();
   initPlayers();
+  // Re-init card decks
+  gameState = {
+    chanceDeck: shuffleDeck([...chanceCards]),
+    fateDeck: shuffleDeck([...fateCards]),
+    globalRentHalved: 0,
+    bonusColor: 0,
+    cityBoost: 0,
+    lastResearch: '',
+    bank: 0,
+  };
   currentPlayerIdx = 0;
   phase = 'start';
   doubleCount = 0;
@@ -839,6 +980,11 @@ function onCellClick(idx) {
 // ============================================================
 
 function startGame() {
+  // Init card decks on first start
+  if (gameState.chanceDeck.length === 0) {
+    gameState.chanceDeck = shuffleDeck([...chanceCards]);
+    gameState.fateDeck = shuffleDeck([...fateCards]);
+  }
   document.getElementById('start-modal').classList.remove('show');
   phase = 'dice';
   diceBtn.disabled = false;
