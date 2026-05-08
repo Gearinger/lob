@@ -45,6 +45,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .die.rolling{animation:shake 0.15s infinite;}
 @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
 
+/* Bot thinking indicator */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.bot-thinking{animation:pulse 1s infinite;color:#ffe66d;font-size:0.75rem;margin-top:4px}
+.bot-indicator{position:absolute;top:4px;left:50%;transform:translateX(-50%);background:#ffe66d;color:#000;font-size:0.55rem;padding:1px 4px;border-radius:4px;font-weight:700;opacity:0;transition:opacity 0.3s}
+.bot-indicator.active{opacity:1;animation:pulse 0.8s infinite}
+
 /* Player Tokens on Board */
 .token{position:absolute;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:20;transition:left 0.4s ease,top 0.4s ease;border:2px solid rgba(255,255,255,0.6);box-shadow:0 2px 6px rgba(0,0,0,0.5);}
 .token.p0{background:#67e8f9;color:#000;}
@@ -102,6 +108,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <!-- Cells injected by JS -->
     </div>
     <div id="dice-center">
+      <div id="bot-indicator" class="bot-indicator">BOT</div>
       <div id="dice-display">
         <div class="die" id="die1">?</div>
         <div class="die" id="die2">?</div>
@@ -517,6 +524,19 @@ function initUI() {
 // LOG
 // ============================================================
 
+function showBotIndicator(name) {
+  const el = document.getElementById('bot-indicator');
+  if(el) {
+    el.textContent = name;
+    el.classList.add('active');
+  }
+}
+
+function hideBotIndicator() {
+  const el = document.getElementById('bot-indicator');
+  if(el) el.classList.remove('active');
+}
+
 function log(msg) {
   const panel = document.getElementById('log-panel');
   const entry = document.createElement('div');
@@ -532,6 +552,7 @@ function log(msg) {
 // ============================================================
 
 function nextTurn() {
+  hideBotIndicator();
   // Check if game over
   const alive = players.filter(p => p.alive);
   if(alive.length <= 1) {
@@ -567,6 +588,7 @@ function nextTurn() {
     setTimeout(() => {
       const thinkTime = 600 + Math.random() * 900;
       log(`🤔 ${p.name} 思考中...`);
+      showBotIndicator(p.name);
       updateTurnIndicator();
       setTimeout(() => botRollDice(p), thinkTime);
     }, 300);
@@ -615,6 +637,7 @@ function rollDice() {
     die2.classList.remove('rolling');
     die1.textContent = diceValues[0];
     die2.textContent = diceValues[1];
+    hideBotIndicator();
     const total = diceValues[0] + diceValues[1];
     log(`🎲 ${p.name} 掷出 ${diceValues[0]} + ${diceValues[1]} = ${total}`);
     phase = 'moving';
@@ -863,7 +886,6 @@ function confirmBuy() {
     cell.owner = p.id;
     p.properties.push(cellIdx);
     log(`🏠 ${p.name} 购买 ${cell.city}，花费 ¥${cell.price.toLocaleString()}（余额 ¥${p.gold.toLocaleString()}）`);
-    updateCellDot(cell.id);
     updateCellDot(cellIdx);
     updatePlayerCards();
     endTurnCheckDouble();
@@ -970,11 +992,16 @@ function updatePlayerCards() {
   players.forEach((p, i) => {
     const card = document.createElement('div');
     card.className = 'player-card' + (i === currentPlayerIdx && phase !== 'gameover' ? ' active' : '');
-    const props = p.properties.map(pi => cells[pi].city).slice(0,3).join(', ');
+    const icons = ['', '🏠', '🏢', '🏙️'];
+    const props = p.properties.slice(0,5).map(pi => {
+      const c = cells[pi];
+      return c.level > 0 ? c.city+icons[c.level] : c.city;
+    }).join(', ');
+    const extra = p.properties.length > 5 ? ` +${p.properties.length-5}块` : '';
     card.innerHTML = `
       <div class="pname">${p.id===0?'🎮':'🤖'} ${p.name}</div>
       <div class="pgold">¥${p.gold.toLocaleString()}</div>
-      <div class="pstat">地皮: ${p.properties.length}块${props ? ' · '+props : ''}</div>
+      <div class="pstat">地皮: ${p.properties.length}块${props ? ' · '+props+extra : ''}</div>
       ${p.inJail ? '<div class="pstat" style="color:#f87171">⛓️ 监狱中</div>' : ''}
     `;
     panel.appendChild(card);
