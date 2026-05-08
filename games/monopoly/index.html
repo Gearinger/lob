@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Board */
 #board-wrap{position:relative;flex-shrink:0;}
-#board{position:relative;width:680px;height:560px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
+#board{position:relative;width:640px;height:560px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
 
 /* Cells */
 .cell{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6rem;cursor:pointer;transition:all 0.2s;border-radius:4px;overflow:hidden;padding:2px;}
@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .cell.highlight.owned{border-color:#ffe66d!important;box-shadow:0 0 12px rgba(255,230,109,0.5)!important;}
 
 /* Dice Area */
-#dice-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
+#dice-center{position:absolute;left:288px;top:252px;display:flex;flex-direction:column;align-items:center;gap:8px;}
 #dice-btn{width:96px;height:96px;background:var(--card);border:2px solid var(--accent);border-radius:16px;cursor:pointer;font-size:1rem;font-weight:700;color:var(--accent);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;user-select:none;}
 #dice-btn:hover{background:rgba(103,232,249,0.1);transform:scale(1.05);}
 #dice-btn:active{transform:scale(0.97);}
@@ -393,22 +393,19 @@ let buyTargetCell = null;
 // Left side (cells 30-39): x=0, y: 88..448 (step 56, going DOWN)
 
 const SIDE_CELL_W = 64, SIDE_CELL_H = 56;
-const CORNER_W = 64, CORNER_H = 56;
 
-const BOTTOM_START_X = 48;
+// Board is 640x560, cells are 64x56
+// Bottom row (left→right, idx 0-9): y=504, x=0 to 576
 const BOTTOM_Y = 504;
 const BOTTOM_STEP = 64;
-
-const RIGHT_X = 600;
-const RIGHT_START_Y = 448;
+// Right column (bottom→top, idx 10-19): x=576, y=448 to 0
+const RIGHT_X = 576;
 const RIGHT_STEP = 56;
-
-const TOP_Y = 40;
-const TOP_START_X = 568;
+// Top row (right→left, idx 20-29): y=0, x=576 to 0
+const TOP_Y = 0;
 const TOP_STEP = 64;
-
+// Left column (top→bottom, idx 30-39): x=0, y=56 to 504
 const LEFT_X = 0;
-const LEFT_START_Y = 88;
 const LEFT_STEP = 56;
 
 const board = document.getElementById('board');
@@ -416,10 +413,10 @@ const diceBtn = document.getElementById('dice-btn');
 
 function getCellPos(idx) {
   if(idx < 0 || idx > 39) return {x:0,y:0};
-  if(idx <= 9) return {x: BOTTOM_START_X + idx*BOTTOM_STEP, y: BOTTOM_Y}; // bottom
-  if(idx <= 19) return {x: RIGHT_X, y: RIGHT_START_Y - (idx-10)*RIGHT_STEP}; // right
-  if(idx <= 29) return {x: TOP_START_X - (idx-20)*TOP_STEP, y: TOP_Y}; // top
-  return {x: LEFT_X, y: LEFT_START_Y + (idx-30)*LEFT_STEP}; // left
+  if(idx <= 9) return {x: idx*BOTTOM_STEP, y: BOTTOM_Y}; // bottom: x=0..576, y=504
+  if(idx <= 19) return {x: RIGHT_X, y: 504 - (idx-10)*RIGHT_STEP}; // right: x=576, y=448..0
+  if(idx <= 29) return {x: 576 - (idx-20)*TOP_STEP, y: TOP_Y}; // top: x=576..0, y=0
+  return {x: LEFT_X, y: 56 + (idx-30)*LEFT_STEP}; // left: x=0, y=56..504
 }
 
 // ============================================================
