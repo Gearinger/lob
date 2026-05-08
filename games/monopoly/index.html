@@ -80,6 +80,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Game Log */
 #log-panel{width:100%;max-width:960px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:12px;max-height:160px;overflow-y:auto;font-size:0.75rem;color:var(--dim);}
 #log-panel .log-entry{margin-bottom:3px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+/* Tooltip */
+#tooltip{position:fixed;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.75rem;color:var(--text);pointer-events:none;z-index:50;display:none;min-width:120px;}
+#tooltip .t-city{font-weight:700;color:var(--accent);}
+#tooltip .t-rank{color:var(--dim);margin-top:2px;}
+#tooltip .t-rent{color:#4ade80;margin-top:1px;}
+#tooltip .t-owner{color:#ffe66d;margin-top:1px;}
 
 /* Modals */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:100;}
@@ -104,6 +110,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 #gameover h2{font-size:1.5rem;color:var(--accent);}
 #gameover .winner{font-size:1.1rem;margin:12px 0;color:#ffe66d;}
 #gameover .stats{margin:16px 0;font-size:0.85rem;color:var(--dim);}
+
+/* Responsive */
+@media (max-width: 960px) {
+  #main{flex-direction:column;align-items:center;}
+  #panel{width:100%;max-width:640px;}
+}
+@media (max-width: 680px) {
+  #board{transform:scale(0.85);transform-origin:top left;}
+  #board-wrap{width:544px;overflow-x:auto;}
+}
 </style>
 </head>
 <body>
@@ -154,9 +170,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
-<div id="log-panel">
-  <div class="log-entry">🎮 游戏初始化中...</div>
-</div>
+<div id="tooltip"></div>
+
+<div id="log-panel"></div>
 
 <!-- Buy Modal -->
 <div class="modal-overlay" id="buy-modal">
@@ -241,7 +257,11 @@ const RANK_RENTS = {
 
 const RANK_PRICE = { S: 0, A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
 const RANK_BUILD = { S: 7000, A: 5500, B: 4000, C: 3000, D: 2000, E: 1200, F: 750 };
-const RANK_MAP = {}; // filled below
+const RANK_MAP = {};
+const SIDE_CELL_W = 64;
+const SIDE_CELL_H = 64;
+const CONFIG = { BOARD_W: 640, BOARD_H: 576, CELL_SIZE: 64, TOKEN_SIZE: 22 };
+const COLORS = { players: ['#67e8f9','#ff6b6b','#ffe66d','#a78bfa'] };
 
 const CELL_DATA = [
   {id:0,type:'start',city:'起点',rank:null,price:0,color:''},
@@ -476,7 +496,7 @@ function getCellPos(idx) {
   if(idx <= 19) return {x: 576, y: 512 - (idx-10)*64}; // right column: x=576, y=512..0
   if(idx <= 29) return {x: 576 - (idx-20)*64, y: 0}; // top row: y=0, x=576..0
   // left column (30-39): x=0, 9 cells from y=56 to y=504 (step=56)
-  return {x: 0, y: 56 + (idx-30)*56}; // left column
+  return {x: 0, y: (idx-30)*64}; // left column
 }
 
 // ============================================================
@@ -534,6 +554,9 @@ function initCells() {
     div.appendChild(ownerDot);
 
     div.addEventListener('click', () => onCellClick(idx));
+    div.addEventListener('mouseenter', (e) => showTooltip(e, cell));
+    div.addEventListener('mouseleave', hideTooltip);
+    div.addEventListener('mousemove', (e) => moveTooltip(e));
     board.appendChild(div);
   });
 }
@@ -598,6 +621,10 @@ function log(msg) {
   entry.textContent = time + ' ' + msg;
   panel.appendChild(entry);
   panel.scrollTop = panel.scrollHeight;
+  // Trim to 50 entries
+  while(panel.children.length > 50) {
+    panel.removeChild(panel.firstChild);
+  }
 }
 
 // ============================================================
@@ -978,7 +1005,6 @@ function botBuyProperty(bot, cell) {
     bot.properties.push(cell.index);
     log(`🏠 ${bot.name} 购买 ${cell.city}`);
     updateCellDot(cell.index);
-    updateCellDot(cell.index);
     updatePlayerCards();
   } else {
     log(`🤷 ${bot.name} 放弃购买 ${cell.city}（现金不足）`);
@@ -1137,6 +1163,37 @@ function updateCellBuilding(cellIdx) {
     indicator.textContent = icons[cell.level] || '';
     el.appendChild(indicator);
   }
+}
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+function showTooltip(e, cell) {
+  const tooltip = document.getElementById('tooltip');
+  if(cell.type !== 'land') return;
+  const rank = cell.rank || '';
+  const rent = getRent(cell);
+  const ownerName = cell.owner !== null ? players[cell.owner].name : null;
+  tooltip.innerHTML = `
+    <div class="t-city">${cell.city}</div>
+    <div class="t-rank">${rank ? '等级 ' + rank : '特殊格'}</div>
+    ${cell.owner !== null ? `<div class="t-owner">持有: ${ownerName}</div>` : `<div class="t-rent">租金: ¥${rent.toLocaleString()}</div>`}
+    <div class="t-rank" style="margin-top:3px">价格: ¥${cell.price.toLocaleString()}</div>
+  `;
+  tooltip.style.display = 'block';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const tooltip = document.getElementById('tooltip');
+  const x = e.clientX + 12;
+  const y = e.clientY + 12;
+  tooltip.style.left = Math.min(x, window.innerWidth - 160) + 'px';
+  tooltip.style.top = Math.min(y, window.innerHeight - 80) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
 }
 
 // ============================================================
