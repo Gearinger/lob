@@ -32,6 +32,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .cell .color-bar{position:absolute;bottom:0;left:0;right:0;height:4px;}
 .cell .cell-num{position:absolute;top:2px;left:3px;font-size:0.45rem;color:rgba(255,255,255,0.3);}
 .cell .owner-dot{position:absolute;top:2px;right:3px;width:10px;height:10px;border-radius:50%;}
+.cell.highlight{border:2px solid var(--accent)!important;box-shadow:0 0 12px rgba(103,232,249,0.5),0 0 24px rgba(103,232,249,0.2)!important;z-index:10;}
+.cell.highlight.owned{border-color:#ffe66d!important;box-shadow:0 0 12px rgba(255,230,109,0.5)!important;}
 
 /* Dice Area */
 #dice-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
@@ -632,24 +634,62 @@ function botRollDice(bot) {
 // ============================================================
 
 function movePlayer(player, steps) {
-  // Handle passing start
   const oldPos = player.position;
-  const newPos = (oldPos + steps) % 40;
-  player.position = newPos;
-
-  const passedStart = (oldPos + steps) >= 40;
-  if(passedStart && player.id === 0) {
-    player.gold += 2000;
-    log(`🤑 经过起点，获得 ¥2,000（余额 ¥${player.gold.toLocaleString()}）`);
-  } else if(passedStart) {
-    player.gold += 2000;
+  let currentPos = oldPos;
+  let passedStart = false;
+  let step = 0;
+  const STEP_DELAY = 250; // ms per cell
+  
+  function animateStep() {
+    step++;
+    currentPos = (currentPos + 1) % 40;
+    
+    // Check if passed start
+    if(currentPos === 0 && step > 1) passedStart = true;
+    
+    // Update player position
+    player.position = currentPos;
+    
+    // Clear previous highlight
+    document.querySelectorAll('.cell.highlight').forEach(el => el.classList.remove('highlight'));
+    
+    // Highlight current cell
+    const cellEl = document.getElementById('cell-' + currentPos);
+    if(cellEl) {
+      cellEl.classList.add('highlight');
+      if(cellEl.style.border && cellEl.style.border.includes('owned')) {
+        cellEl.classList.add('owned');
+      }
+    }
+    
+    updateTokenPositions();
+    
+    // Check start bonus (only on pass-through, not starting at 0)
+    if(passedStart && player.id === 0) {
+      player.gold += 2000;
+      log(`🤑 经过起点，获得 ¥2,000（余额 ¥${player.gold.toLocaleString()}）`);
+    } else if(passedStart) {
+      player.gold += 2000;
+    }
+    
+    if(step < steps) {
+      setTimeout(animateStep, STEP_DELAY);
+    } else {
+      // Done moving - remove highlight and handle cell
+      setTimeout(() => {
+        document.querySelectorAll('.cell.highlight').forEach(el => el.classList.remove('highlight'));
+        updatePlayerCards();
+        handleCell(player, currentPos);
+      }, STEP_DELAY);
+    }
   }
-
-  updateTokenPositions();
-  updatePlayerCards();
-
-  // Delay to show animation
-  setTimeout(() => handleCell(player, newPos), 400);
+  
+  if(steps <= 0) {
+    handleCell(player, oldPos);
+    return;
+  }
+  
+  animateStep();
 }
 
 // ============================================================
