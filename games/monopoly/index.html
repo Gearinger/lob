@@ -19,14 +19,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Board */
 #board-wrap{position:relative;flex-shrink:0;}
-#board{position:relative;width:640px;height:576px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
+#board{position:relative;width:640px;height:576px;background:var(--card);border:1px solid var(--border);border-radius:12px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px);}
 
 /* Cells */
 .cell{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6rem;cursor:pointer;transition:all 0.2s;border-radius:4px;overflow:hidden;padding:2px;}
 .cell:hover{filter:brightness(1.2);}
 .cell.side-cell{width:64px;height:64px;}
 /* Corner cells */
-.cell.corner{width:64px;height:64px;background:rgba(103,232,249,0.05);border:1px solid rgba(103,232,249,0.15);}
+.cell.corner{width:64px;height:64px;background:rgba(103,232,249,0.08);border:1px solid rgba(103,232,249,0.2);}
 .cell .city{font-weight:600;font-size:0.58rem;text-align:center;line-height:1.2;letter-spacing:-0.01em;}
 .cell .price{font-size:0.52rem;color:var(--dim);margin-top:1px;}
 .cell .color-bar{position:absolute;bottom:0;left:0;right:0;height:4px;}
@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .cell.purchased{animation:purchaseFlash 0.8s ease-out}
 
 /* Dice Area */
-#dice-center{position:absolute;left:288px;top:256px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+#dice-center{position:absolute;left:288px;top:256px;background:radial-gradient(ellipse at center,rgba(103,232,249,0.03) 0%,transparent 70%);border-radius:8px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:8px;}
 #dice-btn{width:96px;height:96px;background:var(--card);border:2px solid var(--accent);border-radius:16px;cursor:pointer;font-size:1rem;font-weight:700;color:var(--accent);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;user-select:none;}
 #dice-btn:hover{background:rgba(103,232,249,0.1);transform:scale(1.05);}
 #dice-btn:active{transform:scale(0.97);}
@@ -119,6 +119,26 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <!-- Cells injected by JS -->
     </div>
     <div id="dice-center">
+      <!-- Decorative compass rose -->
+      <div id="board-deco" style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;">
+        <svg width="288" height="256" viewBox="0 0 288 256" style="position:absolute;left:0;top:0">
+          <circle cx="144" cy="128" r="100" fill="none" stroke="rgba(103,232,249,0.06)" stroke-width="1"/>
+          <circle cx="144" cy="128" r="70" fill="none" stroke="rgba(103,232,249,0.04)" stroke-width="1"/>
+          <circle cx="144" cy="128" r="40" fill="rgba(103,232,249,0.02)" stroke="rgba(103,232,249,0.08)" stroke-width="1"/>
+          <!-- Compass lines -->
+          <line x1="144" y1="28" x2="144" y2="228" stroke="rgba(103,232,249,0.06)" stroke-width="1"/>
+          <line x1="44" y1="128" x2="244" y2="128" stroke="rgba(103,232,249,0.06)" stroke-width="1"/>
+          <line x1="74" y1="58" x2="214" y2="198" stroke="rgba(103,232,249,0.03)" stroke-width="1"/>
+          <line x1="214" y1="58" x2="74" y2="198" stroke="rgba(103,232,249,0.03)" stroke-width="1"/>
+          <!-- N marker -->
+          <text x="144" y="18" text-anchor="middle" fill="rgba(103,232,249,0.3)" font-size="10" font-family="sans-serif">N</text>
+          <text x="144" y="245" text-anchor="middle" fill="rgba(103,232,249,0.15)" font-size="8" font-family="sans-serif">S</text>
+          <text x="26" y="132" text-anchor="middle" fill="rgba(103,232,249,0.15)" font-size="8" font-family="sans-serif">W</text>
+          <text x="262" y="132" text-anchor="middle" fill="rgba(103,232,249,0.15)" font-size="8" font-family="sans-serif">E</text>
+          <!-- Center dot -->
+          <circle cx="144" cy="128" r="4" fill="rgba(103,232,249,0.2)"/>
+        </svg>
+      </div>
       <div id="bot-indicator" class="bot-indicator">BOT</div>
       <div id="dice-display">
         <div class="die" id="die1">?</div>
