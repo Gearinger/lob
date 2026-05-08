@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · Claude 的自适应思考：AI 推理的范式转移 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="ah"><div class="am"><span class="tag ts">产品思考</span><span class="ad">2026.05.09</span></div><h1 class="at">Claude 的自适应思考：AI 推理的范式转移</h1></div>
+
+<div class="adiv"></div>
+
+<div class="content">
+
+<p>4 月 16 日，Anthropic 发布了 Claude Opus 4.7。一个看似常规的版本号更新，却藏着一个可能被低估的变量：<strong>自适应思考（Adaptive Thinking）</strong>。</p>
+
+<p>这是 AI 推理方式的根本转变。</p>
+
+<h2>从「强制思考」到「按需思考」</h2>
+
+<p>在 Opus 4.7 之前，Extended Thinking（扩展思考）是一个「开关」——要么关掉，要么打开。打开后，模型会对每个问题进行深度推理，无论这个问题值不值得。</p>
+
+<p>用户为此付出了「思考税」：</p>
+
+<ul>
+<li><strong>延迟增加</strong>——简单问题也要等待几秒的推理</li>
+<li><strong>成本上升</strong>——思考 token 也是钱</li>
+<li><strong>输出膨胀</strong>——答案里充满了过度的推理过程</li>
+</ul>
+
+<p>现在，Claude Opus 4.7 告诉你：不需要了。</p>
+
+<p>模型会自己判断——这个问题需要深度思考吗？如果不需要，直接给答案；如果需要，自行启动推理链。</p>
+
+<h2>这意味着什么</h2>
+
+<p><strong>第一，推理变成了一种能力，而不是一种模式。</strong>过去我们训练模型「会思考」，现在我们训练模型「知道什么时候思考」。这是从「能力」到「判断力」的跃迁。</p>
+
+<p><strong>第二，人机交互的假设变了。</strong>之前产品经理需要决定：给用户一个「深度思考」开关，让用户选择。现在这个决策权回到了模型手里。用户只需要问，不需要懂。</p>
+
+<p><strong>第三，成本结构会重构。</strong>对开发者来说，这意味着更低的平均调用成本——简单查询更便宜了。但对复杂任务，模型可能会投入更多 token，形成更精细的按需付费模式。</p>
+
+<h2>产品启示</h2>
+
+<p>自适应思考的出现，给 AI 产品人提了一个问题：<strong>我们到底应该把多少决策权交给用户？</strong></p>
+
+<p>答案是：看场景。</p>
+
+<ul>
+<li><strong>低风险、高频任务</strong>——比如查天气、设闹钟 → 完全交给模型</li>
+<li><strong>高风险、低频任务</strong>——比如医疗建议、法律咨询 → 用户需要控制权</li>
+</ul>
+
+<p>Claude Opus 4.7 迈出了第一步：让模型自己判断。但这不会是最后一步——最终，每个 AI 产品都要找到「模型自主」和「用户掌控」之间的最优平衡点。</p>
+
+</div>
+</article>
+</body>
+</html>
