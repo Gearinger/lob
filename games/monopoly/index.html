@@ -152,6 +152,15 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
+<!-- Build Modal -->
+<div class="modal-overlay" id="build-modal">
+  <div class="modal">
+    <h2 id="build-title">🏗️ 建造升级</h2>
+    <div class="modal-info" id="build-info"></div>
+    <div class="modal-btns" id="build-btns"></div>
+  </div>
+</div>
+
 <!-- Start Modal -->
 <div class="modal-overlay" id="start-modal">
   <div class="modal">
@@ -723,6 +732,14 @@ function handleCell(player, cellIdx) {
   }
 }
 
+function hasColorSet(player, rank) {
+  const colors = {S:['#dc2626'], A:['#ea580c'], B:['#ca8a04'], C:['#16a34a'], D:['#2563eb'], E:['#7c3aed'], F:['#db2777']};
+  const c = colors[rank];
+  if(!c) return false;
+  const owned = cells.filter(cell => cell.rank === rank && cell.owner === player.id);
+  return owned.length === c.length;
+}
+
 function getRent(cell) {
   if(!cell.rank) return 0;
   const rents = RANK_RENTS[cell.rank];
@@ -809,6 +826,7 @@ function confirmBuy() {
     cell.owner = p.id;
     p.properties.push(cellIdx);
     log(`🏠 ${p.name} 购买 ${cell.city}，花费 ¥${cell.price.toLocaleString()}（余额 ¥${p.gold.toLocaleString()}）`);
+    updateCellDot(cell.id);
     updateCellDot(cellIdx);
     updatePlayerCards();
     endTurnCheckDouble();
@@ -829,6 +847,7 @@ function botBuyProperty(bot, cell) {
     cell.owner = bot.id;
     bot.properties.push(cell.index);
     log(`🏠 ${bot.name} 购买 ${cell.city}`);
+    updateCellDot(cell.index);
     updateCellDot(cell.index);
     updatePlayerCards();
   } else {
@@ -963,6 +982,26 @@ function updateCellDot(cellIdx) {
   } else {
     dot.style.background = '';
   }
+  updateCellBuilding(cellIdx);
+}
+
+function updateCellBuilding(cellIdx) {
+  const cell = cells[cellIdx];
+  const el = document.getElementById('cell-' + cellIdx);
+  if(!el) return;
+  
+  // Remove existing building indicator
+  const existing = el.querySelector('.build-indicator');
+  if(existing) existing.remove();
+  
+  if(cell.owner !== null && cell.level > 0) {
+    const icons = ['', '🏠', '🏢', '🏙️'];
+    const indicator = document.createElement('div');
+    indicator.className = 'build-indicator';
+    indicator.style.cssText = 'position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:0.7rem;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,0.8)';
+    indicator.textContent = icons[cell.level] || '';
+    el.appendChild(indicator);
+  }
 }
 
 // ============================================================
@@ -970,9 +1009,97 @@ function updateCellDot(cellIdx) {
 // ============================================================
 
 function onCellClick(idx) {
-  // Show info about the cell
   const cell = cells[idx];
-  // Could expand to show details - MVP just shows log
+  const player = players[currentPlayerIdx];
+  
+  if(cell.type !== 'land' || cell.rank === null) {
+    const typeLabels = {chance:'🎲机会',fate:'🃏命运',start:'起点',jail:'监狱',park:'免费停车',station:'火车站',airport:'机场'};
+    log(`${cell.city} | ${typeLabels[cell.type] || '特殊格'}`);
+    return;
+  }
+  
+  if(cell.owner === player.id) {
+    showBuildModal(cell, player);
+    return;
+  }
+  
+  log(`${cell.city} | 地皮`);
+}
+
+function showBuildModal(cell, player) {
+  const levelNames = ['空地', '🏠 房屋', '🏢 楼房', '🏙️ 摩天楼'];
+  const costs = RANK_BUILD;
+  const buildCost = costs[cell.rank];
+  const canBuild = hasColorSet(player, cell.rank);
+  const currentLevel = cell.level;
+  const currentRent = getRent(cell);
+  
+  let info = `<div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:1.5rem;font-weight:700;color:var(--accent)">${cell.city}</div>
+    <div style="color:${cell.color};font-size:0.8rem;margin-top:4px">${cell.rank}级地段</div>
+    <div style="margin-top:8px;font-size:1.1rem">${levelNames[currentLevel]}</div>
+    <div style="color:var(--dim);font-size:0.8rem;margin-top:4px">当前租金：¥${currentRent.toLocaleString()}</div>
+  </div>`;
+  
+  if(currentLevel >= 3) {
+    info += `<div style="text-align:center;color:var(--dim);font-size:0.85rem">已达最高等级（摩天楼）</div>`;
+    document.getElementById('build-info').innerHTML = info;
+    document.getElementById('build-btns').innerHTML = '<button class="btn" onclick="closeBuildModal()">关闭</button>';
+  } else if(!canBuild) {
+    const needed = cells.filter(c => c.rank === cell.rank && c.owner !== player.id);
+    info += `<div style="text-align:center;color:#fbbf24;font-size:0.85rem">⚠️ 还需拥有该颜色全部地皮才能建造<br>（还差 ${needed.length} 块：${needed.map(c=>c.city).join('、')}）</div>`;
+    document.getElementById('build-info').innerHTML = info;
+    document.getElementById('build-btns').innerHTML = '<button class="btn" onclick="closeBuildModal()">关闭</button>';
+  } else {
+    const nextLevel = currentLevel + 1;
+    const nextCost = buildCost;
+    const nextRent = RANK_RENTS[cell.rank][nextLevel];
+    const canAfford = player.gold >= nextCost;
+    info += `<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span>▶ ${levelNames[nextLevel]}</span>
+        <span>租金：¥${nextRent.toLocaleString()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span>建造费用</span>
+        <span style="color:${canAfford ? 'var(--accent)' : '#ff6b6b'}">¥${nextCost.toLocaleString()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span>当前余额</span>
+        <span>¥${player.gold.toLocaleString()}</span>
+      </div>
+    </div>`;
+    document.getElementById('build-info').innerHTML = info;
+    if(canAfford) {
+      document.getElementById('build-btns').innerHTML = `<button class="btn" onclick="buildProperty(${cell.id})" style="margin-right:8px">建造 ${levelNames[nextLevel]}</button><button class="btn" onclick="closeBuildModal()" style="background:rgba(255,255,255,0.1)">取消</button>`;
+    } else {
+      document.getElementById('build-btns').innerHTML = `<button class="btn" disabled style="opacity:0.5">余额不足（需 ¥${nextCost.toLocaleString()}）</button><button class="btn" onclick="closeBuildModal()" style="background:rgba(255,255,255,0.1);margin-left:8px">关闭</button>`;
+    }
+  }
+  
+  document.getElementById('build-modal').classList.add('show');
+}
+
+function buildProperty(cellId) {
+  const cell = cells.find(c => c.id === cellId);
+  const player = players[currentPlayerIdx];
+  const cost = RANK_BUILD[cell.rank];
+  
+  if(player.gold < cost || cell.level >= 3) return;
+  
+  player.gold -= cost;
+  cell.level++;
+  
+  const levelNames = ['空地', '🏠 房屋', '🏢 楼房', '🏙️ 摩天楼'];
+  log(`🏗️ ${player.name} 在 ${cell.city} 建造了 ${levelNames[cell.level]}（花费 ¥${cost.toLocaleString()}，余额 ¥${player.gold.toLocaleString()}）`);
+  
+  updateCellBuilding(cell.id);
+  updatePlayerCards();
+  closeBuildModal();
+}
+
+function closeBuildModal() {
+  document.getElementById('build-modal').classList.remove('show');
 }
 
 // ============================================================
