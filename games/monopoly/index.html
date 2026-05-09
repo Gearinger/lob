@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Board */
 #board-wrap{position:relative;flex-shrink:0;}
-#board{position:relative;width:640px;height:640px;background:var(--card);border:1px solid var(--border);border-radius:12px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px);}
+#board{position:relative;width:704px;height:704px;background:var(--card);border:1px solid var(--border);border-radius:12px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px);}
 
 /* Cells */
 .cell{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6rem;cursor:pointer;transition:all 0.2s;border-radius:4px;overflow:hidden;padding:2px;}
@@ -114,7 +114,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Responsive */
 @media (max-width: 960px) {
   #main{flex-direction:column;align-items:center;}
-  #panel{width:100%;max-width:640px;}
+  #panel{width:100%;max-width:704px;}
 }
 @media (max-width: 680px) {
   #board{transform:scale(0.85);transform-origin:top left;}
@@ -261,7 +261,7 @@ const LEVEL_NAMES = ['空地', '🏠 房屋', '🏢 楼房', '🏙️ 摩天楼'
 const RANK_MAP = {};
 const SIDE_CELL_W = 64;
 const SIDE_CELL_H = 64;
-const CONFIG = { BOARD_W: 640, BOARD_H: 576, CELL_SIZE: 64, TOKEN_SIZE: 22 };
+const CONFIG = { BOARD_W: 704, BOARD_H: 704, CELL_SIZE: 64, TOKEN_SIZE: 22 };
 const COLORS = { players: ['#67e8f9','#ff6b6b','#ffe66d','#a78bfa'] };
 
 const CELL_DATA = [
@@ -451,56 +451,25 @@ let buyTargetCell = null;
 // Top side (cells 20-29): x: 568..48, y=40 (step 64, going LEFT)
 // Left side (cells 30-39): x=0, y: 88..448 (step 56, going DOWN)
 
-// Board: 640x576, all cells 64x64
-// 9 non-corner cells per side + 4 corners = 40 cells
-// Bottom row: idx 0-8 (9 cells), right corner = idx 9
-// Right column: right corner = idx 9, cells idx 10-17 (8 cells), top corner = idx 18
-// Top row: top corner = idx 19, cells idx 20-28 (9 cells), left corner = idx 29
-// Left column: left corner = idx 29, cells idx 30-38 (9 cells), right corner = idx 39 (same as idx 9)
-// BUT: current code uses idx 0-9 bottom, 10-19 right, 20-29 top, 30-39 left (all 10)
-// To keep 40 cells in 4x10 layout:
-// Bottom (0-9): y=512, x=0..9*64=576
-// Right (10-19): x=576, y=512..0 (10 values)
-// Top (20-29): y=0, x=576..0 (10 values)
-// Left (30-39): x=0, y=64..576 (9 values + needs adjustment)
-// FIX: Left should be y=64..640 for 10 values, but 640 is board bottom edge
-// SOLUTION: Board is 640 tall, y=0 at top. Bottom row cells span y=512..576.
-// Left column starts at y=64, goes to y=576 (9 values). For 10 values: y=0..640.
-// This means left column cells extend ABOVE top row (y=0) and BELOW bottom row (y=576).
-// ACCEPTABLE visual trade-off for uniform step=64: corners overlap slightly.
-
-const BOTTOM_Y = 512;   // bottom row y (cell spans 512..576, board ends at 640)
-const BOTTOM_STEP = 64;
-const RIGHT_X = 576;   // right column x (cell spans 576..640, board ends at 640)
-const RIGHT_STEP = 64; // going from y=512 down to y=0: 8 cells in between
-const TOP_Y = 0;       // top row y
-const TOP_STEP = 64;
-const LEFT_X = 0;      // left column x
-// LEFT: y=64..640 for 10 cells. Step 64: 64,128,192,256,320,384,448,512,576,640
-// y=640 is the bottom of board, y=0 is top. This means some cells overlap corners.
-// Better: use y=0..576 for left column: 9 cells (indices 1-9 in that range)
-// To get 10: use y=0..640 (step 64): 10 values but cell at y=640 would be half-visible
-// BEST COMPROMISE: left column from y=64 to y=640, step = 640/9 ≈ 71.1... no that breaks symmetry
-// 
-// ACTUAL FIX: Make left column use same step as others
-// Left column: y=0,64,128,192,256,320,384,448,512,576 (10 values, step=64)
-// y=0: cell spans 0..64 (top of board) - OK
-// y=576: cell spans 576..640 (bottom of board) - OK
-const LEFT_STEP = 64;
+// Board: 704×704, cell size 64×64
+// 40 unique positions: 11 bottom + 10 right + 10 top + 9 left
 
 const board = document.getElementById('board');
 const diceBtn = document.getElementById('dice-btn');
 
 function getCellPos(idx) {
-  if(idx < 0 || idx > 39) return {x:0,y:0};
-  // Bottom row (0-9): 10 cells, y=576
-  if(idx <= 9) return {x: idx*64, y: 576};
-  // Right column (10-19): 10 cells, x=576
-  if(idx <= 19) return {x: 576, y: 576 - (idx-10)*64};
-  // Top row (20-29): 10 cells, y=0
-  if(idx <= 29) return {x: 576 - (idx-20)*64, y: 0};
-  // Left column (30-39): 10 cells, x=0
-  return {x: 0, y: (idx-30)*64};
+  // 704×704 board: 40 cells with unique positions (no overlap)
+  // Distribution: 11 bottom + 10 right + 10 top + 9 left = 40
+  const CELL = 64;
+  const BOARD = 704;
+  // Bottom (0-10): y = 640, x = 0..640
+  if(idx <= 10) return {x: idx * CELL, y: BOARD - CELL};
+  // Right (11-20): x = 640, y = 640..64
+  if(idx <= 20) return {x: BOARD - CELL, y: BOARD - CELL - (idx - 11 + 1) * CELL};
+  // Top (21-30): y = 0, x = 640..64
+  if(idx <= 30) return {x: BOARD - CELL - (idx - 21 + 1) * CELL, y: 0};
+  // Left (31-39): x = 0, y = 64..640
+  return {x: 0, y: (idx - 31 + 1) * CELL};
 }
 
 // ============================================================
