@@ -255,7 +255,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <div class="modal">
     <h2>🎮 大富翁 Online</h2>
     <div class="modal-info">你 vs 🦅鹰Bot 🐢龟Bot 🦊狐Bot<br>每人初始 ¥20,000，环形地图 40 格。<br>策略性买地、收租，最终破产者输！</div>
-    <div class="modal-btns">
+    <div class="modal-btns" id="start-btns">
       <button class="btn" onclick="startGame()">开始游戏</button>
     </div>
   </div>
@@ -649,6 +649,9 @@ function log(msg) {
 
 function nextTurn() {
   hideBotIndicator();
+  // Auto-save on turn change
+  if(phase !== 'start') saveGame();
+  
   // Check if game over
   const alive = players.filter(p => p.alive);
   if(alive.length <= 1) {
@@ -895,9 +898,12 @@ function handleCell(player, cellIdx) {
       } else {
         botBuyProperty(player, cell);
       }
+    } else if(cell.owner !== player.id) {
+      // Airport rent: fixed 500
+      const fare = 500;
+      payRent(player, cell.owner, fare, '机场过路费');
     } else {
-      // Airport has no rent
-      log(`🏢 ${player.name} 到达机场（无过路费）`);
+      log(`🏢 ${player.name} 到达自己的机场`);
       endTurnCheckDouble();
     }
     return;
@@ -1153,6 +1159,47 @@ function endGame(winner) {
   ).join('<br>');
   log('🏆 游戏结束，获胜者：' + winner.name);
   updateTurnIndicator();
+}
+
+// ============================================================
+// SAVE/LOAD
+// ============================================================
+
+function saveGame() {
+  const data = {
+    players: players.map(p => ({...p})),
+    cells: cells.map(c => ({...c, owner: c.owner})),
+    currentPlayerIdx,
+    phase,
+    doubleCount,
+    gameState: {...gameState},
+    savedAt: Date.now()
+  };
+  localStorage.setItem('monopoly_save', JSON.stringify(data));
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('monopoly_save');
+  if(!saved) return false;
+  try {
+    const data = JSON.parse(saved);
+    // Restore basic state
+    players = data.players;
+    cells = data.cells;
+    currentPlayerIdx = data.currentPlayerIdx;
+    phase = data.phase;
+    doubleCount = data.doubleCount;
+    gameState = data.gameState;
+    // Re-render
+    initCells();
+    initPlayers();
+    updateUI();
+    log('📂 游戏已读取存档');
+    return true;
+  } catch(e) {
+    console.error('Load failed:', e);
+    return false;
+  }
 }
 
 function resetGame() {
@@ -1436,6 +1483,15 @@ function rollJailDice() {
 // START
 // ============================================================
 
+function continueGame() {
+  if(loadGame()) {
+    document.getElementById('start-modal').classList.remove('show');
+    phase = 'dice';
+    diceBtn.disabled = false;
+    updateTurnIndicator();
+  }
+}
+
 function startGame() {
   // Init card decks on first start
   if (gameState.chanceDeck.length === 0) {
@@ -1456,6 +1512,16 @@ function startGame() {
 document.addEventListener('DOMContentLoaded', () => {
   initCells();
   initPlayers();
+  
+  // Check for saved game
+  const hasSave = localStorage.getItem('monopoly_save');
+  const btns = document.getElementById('start-btns');
+  if(hasSave) {
+    btns.innerHTML = `
+      <button class="btn" onclick="startGame()" style="margin-right:8px">新游戏</button>
+      <button class="btn secondary" onclick="continueGame()">📂 继续</button>
+    `;
+  }
   document.getElementById('start-modal').classList.add('show');
   updateUI();
   log('🎮 初始化完成，等待开始...');
