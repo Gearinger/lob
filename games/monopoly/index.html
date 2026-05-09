@@ -257,6 +257,7 @@ const RANK_RENTS = {
 
 const RANK_PRICE = { S: 0, A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
 const RANK_BUILD = { S: 7000, A: 5500, B: 4000, C: 3000, D: 2000, E: 1200, F: 750 };
+const LEVEL_NAMES = ['空地', '🏠 房屋', '🏢 楼房', '🏙️ 摩天楼'];
 const RANK_MAP = {};
 const SIDE_CELL_W = 64;
 const SIDE_CELL_H = 64;
@@ -568,6 +569,7 @@ function initPlayers() {
     id: i,
     name,
     token: tokens[i],
+    type: i===0?'human':i===1?'eagle':i===2?'turtle':'fox',
     gold: 20000,
     position: 0,
     properties: [],
@@ -993,16 +995,72 @@ function closeBuy() {
   document.getElementById('buy-modal').classList.remove('show');
 }
 
+// Bot personalities: build willingness (0-3), buy threshold multiplier, risk appetite
+const BOT_PROFILES = {
+  eagle:  { name:'🦅鹰Bot', emoji:'🦅', buildWilling: 3, buyThreshold: 1.2, riskAppetite: 3, color:'#fbbf24', textColor:'#000' },
+  turtle: { name:'🐢龟Bot', emoji:'🐢', buildWilling: 1, buyThreshold: 1.0, riskAppetite: 1, color:'#34d399', textColor:'#000' },
+  fox:    { name:'🦊狐Bot', emoji:'🦊', buildWilling: 2, buyThreshold: 1.0, riskAppetite: 2, color:'#f97316', textColor:'#000' },
+};
+
+function botThinkAndAct(bot) {
+  // Phase 1: buy properties (already called via handleCell)
+  // Phase 2: consider building upgrades
+  botBuildUpgrades(bot);
+}
+
+function botBuildUpgrades(bot) {
+  const profile = BOT_PROFILES[bot.type];
+  if (!profile) return;
+
+  // Find all properties this bot owns
+  const owned = cells.filter(c => c.owner === bot.id && c.type === 'property' && c.level < 3);
+  if (owned.length === 0) return;
+
+  // Try to build on each property the bot can afford
+  // Sort by rank value (higher rank = more valuable = build first)
+  owned.sort((a, b) => b.rank - a.rank);
+
+  for (const cell of owned) {
+    const buildCost = RANK_BUILD[cell.rank];
+    if (bot.gold < buildCost) break;
+
+    // Check if can build (need all same-color properties)
+    const rankCells = cells.filter(c => c.rank === cell.rank);
+    const allOwned = rankCells.every(c => c.owner === bot.id);
+    if (!allOwned) continue;
+
+    // Risk appetite: how many levels to build
+    const maxLevel = Math.min(cell.level + profile.buildWilling, 3);
+    let targetLevel = cell.level + 1;
+    while (targetLevel <= maxLevel) {
+      const cost = buildCost; // flat cost per level
+      if (bot.gold < cost) break;
+      bot.gold -= cost;
+      cell.level = targetLevel;
+      log(`🏗️ ${bot.name} 在 ${cell.city} 建造了 ${LEVEL_NAMES[cell.level]}（花费 ¥${cost.toLocaleString()}）`);
+      updateCellBuilding(cell.id);
+      targetLevel++;
+    }
+  }
+
+  if (bot.gold < 0) bot.gold = 0;
+  updatePlayerCards();
+}
+
 function botBuyProperty(bot, cell) {
-  if(bot.gold >= cell.price * 1.2) {
+  const profile = BOT_PROFILES[bot.type];
+  const threshold = profile ? cell.price * profile.buyThreshold : cell.price;
+
+  if (bot.gold >= threshold) {
     bot.gold -= cell.price;
     cell.owner = bot.id;
     bot.properties.push(cell.index);
     log(`🏠 ${bot.name} 购买 ${cell.city}`);
     updateCellDot(cell.index);
-    updatePlayerCards();
+    // Bot immediately considers building on this new property
+    botBuildUpgrades(bot);
   } else {
-    log(`🤷 ${bot.name} 放弃购买 ${cell.city}（现金不足）`);
+    log(`🤷 ${bot.name} 放弃购买 ${cell.city}（现金不足 ¥${cell.price.toLocaleString()}，余额 ¥${bot.gold.toLocaleString()}）`);
   }
   endTurnCheckDouble();
 }
