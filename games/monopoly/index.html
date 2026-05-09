@@ -1538,11 +1538,16 @@ function rollJailDice() {
 // ============================================================
 
 function continueGame() {
-  if(loadGame()) {
+  console.log('continueGame clicked');
+  const result = loadGame();
+  console.log('loadGame result:', result);
+  if(result) {
     document.getElementById('start-modal').classList.remove('show');
     phase = 'dice';
     diceBtn.disabled = false;
     updateTurnIndicator();
+  } else {
+    alert('没有找到存档或加载失败');
   }
 }
 
