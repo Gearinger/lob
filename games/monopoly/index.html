@@ -1190,9 +1190,63 @@ function loadGame() {
     phase = data.phase;
     doubleCount = data.doubleCount;
     gameState = data.gameState;
-    // Re-render
-    initCells();
-    initPlayers();
+    
+    // Re-create DOM for cells (but keep loaded data)
+    board.innerHTML = '';
+    cells.forEach((cell, idx) => {
+      const pos = getCellPos(idx);
+      const div = document.createElement('div');
+      div.className = 'cell side-cell';
+      div.style.left = pos.x + 'px';
+      div.style.top = pos.y + 'px';
+      div.id = 'cell-' + idx;
+
+      const numSpan = document.createElement('span');
+      numSpan.className = 'cell-num';
+      numSpan.textContent = idx+1;
+      div.appendChild(numSpan);
+
+      if(cell.type === 'land') {
+        const citySpan = document.createElement('span');
+        citySpan.className = 'city';
+        citySpan.textContent = cell.city;
+        div.appendChild(citySpan);
+
+        const priceSpan = document.createElement('span');
+        priceSpan.className = 'price';
+        priceSpan.textContent = '¥' + cell.price;
+        div.appendChild(priceSpan);
+      } else {
+        const citySpan = document.createElement('span');
+        citySpan.className = 'city';
+        citySpan.textContent = cell.city;
+        div.appendChild(citySpan);
+      }
+
+      if(cell.color) {
+        const bar = document.createElement('div');
+        bar.className = 'color-bar';
+        bar.style.background = cell.color;
+        div.appendChild(bar);
+      }
+
+      div.onclick = () => onCellClick(idx);
+      board.appendChild(div);
+    });
+
+    // Create tokens for loaded players
+    const boardWrap = document.getElementById('board-wrap');
+    players.forEach((p, i) => {
+      const existing = document.getElementById('token-'+i);
+      if(existing) existing.remove();
+      const token = document.createElement('div');
+      token.className = 'token ' + p.token;
+      token.id = 'token-' + i;
+      token.textContent = i === 0 ? '🎮' : (i===1?'🦅':i===2?'🐢':'🦊');
+      boardWrap.appendChild(token);
+    });
+
+    updateTokenPositions();
     updateUI();
     log('📂 游戏已读取存档');
     return true;
