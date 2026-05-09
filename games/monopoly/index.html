@@ -753,18 +753,7 @@ function movePlayer(player, steps) {
     // Update player position
     player.position = currentPos;
     
-    // Clear previous highlight
-    document.querySelectorAll('.cell.highlight').forEach(el => el.classList.remove('highlight'));
-    
-    // Highlight current cell
-    const cellEl = document.getElementById('cell-' + currentPos);
-    if(cellEl) {
-      cellEl.classList.add('highlight');
-      if(cellEl.style.border && cellEl.style.border.includes('owned')) {
-        cellEl.classList.add('owned');
-      }
-    }
-    
+    // During animation: only update token position, no highlight changes
     updateTokenPositions();
     
     // Check start bonus (only on pass-through, not starting at 0)
@@ -778,9 +767,15 @@ function movePlayer(player, steps) {
     if(step < steps) {
       setTimeout(animateStep, STEP_DELAY);
     } else {
-      // Done moving - remove highlight and handle cell
+      // Done moving — NOW highlight the landing cell
       setTimeout(() => {
-        document.querySelectorAll('.cell.highlight').forEach(el => el.classList.remove('highlight'));
+        const cellEl = document.getElementById('cell-' + currentPos);
+        if(cellEl) {
+          cellEl.classList.add('highlight');
+          if(cellEl.style.border && cellEl.style.border.includes('owned')) {
+            cellEl.classList.add('owned');
+          }
+        }
         // Token landing bounce
         const token = document.getElementById('token-' + player.id);
         if(token) { token.classList.remove('landing'); void token.offsetWidth; token.classList.add('landing'); setTimeout(() => token.classList.remove('landing'), 900); }
