@@ -34,6 +34,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .cell .owner-dot{position:absolute;top:2px;right:3px;width:10px;height:10px;border-radius:50%;}
 .cell.highlight{border:2px solid var(--accent)!important;box-shadow:0 0 12px rgba(103,232,249,0.5),0 0 24px rgba(103,232,249,0.2)!important;z-index:10;animation:cellPulse 1.5s infinite}
 .cell.highlight.owned{border-color:#ffe66d!important;box-shadow:0 0 12px rgba(255,230,109,0.5)!important;}
+#cell-tooltip{position:absolute;display:none;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:0.75rem;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.4);min-width:140px;pointer-events:none;}
 .cell.purchased{animation:purchaseFlash 0.8s ease-out}
 
 /* Dice Area */
@@ -153,6 +154,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     <div id="board">
       <!-- Cells injected by JS -->
     </div>
+    <div id="cell-tooltip"></div>
     <div id="dice-center">
       <!-- Decorative compass rose -->
       <div id="board-deco" style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;">
@@ -1345,6 +1347,8 @@ function loadGame() {
       }
 
       div.onclick = () => onCellClick(idx);
+      div.onmouseenter = (e) => showCellTooltip(idx, e);
+      div.onmouseleave = hideCellTooltip;
       board.appendChild(div);
     });
 
@@ -1522,6 +1526,59 @@ function hideTooltip() {
 // ============================================================
 // CELL CLICK
 // ============================================================
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+
+function showCellTooltip(idx, e) {
+  const cell = cells[idx];
+  const tooltip = document.getElementById('cell-tooltip');
+  if(!cell || !tooltip) return;
+  
+  if(cell.type !== 'land') {
+    tooltip.style.display = 'none';
+    return;
+  }
+  
+  const owner = cell.owner !== null ? players[cell.owner] : null;
+  const rent = getRent(cell);
+  const isColorSet = cell.owner !== null && hasColorSet(owner, cell.rank);
+  const levelNames = ['', '🏠 房屋', '🏢 楼房', '🏙️ 摩天楼'];
+  
+  let html = `<strong>${cell.city}</strong><br>`;
+  html += `等级: ${levelNames[cell.level]}<br>`;
+  html += `租金: ¥${rent.toLocaleString()}`;
+  if(isColorSet) html += ' <span style="color:#ffe66d">(×2)</span>';
+  html += '<br>';
+  if(owner) {
+    html += `所属: ${owner.name}<br>`;
+  } else {
+    html += `价格: ¥${cell.price.toLocaleString()}<br>`;
+    html += `建造: ¥${RANK_BUILD[cell.rank].toLocaleString()}`;
+  }
+  
+  tooltip.innerHTML = html;
+  tooltip.style.display = 'block';
+  
+  // Position tooltip
+  const rect = e.target.getBoundingClientRect();
+  const boardRect = document.getElementById('board-wrap').getBoundingClientRect();
+  let left = rect.right - boardRect.left + 10;
+  let top = rect.top - boardRect.top;
+  
+  // Keep in bounds
+  if(left + 150 > 704) left = rect.left - boardRect.left - 150;
+  if(top + 120 > 704) top = 704 - 120;
+  
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+}
+
+function hideCellTooltip() {
+  const tooltip = document.getElementById('cell-tooltip');
+  if(tooltip) tooltip.style.display = 'none';
+}
 
 function onCellClick(idx) {
   const cell = cells[idx];
