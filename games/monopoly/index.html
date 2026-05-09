@@ -178,6 +178,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <circle cx="144" cy="128" r="4" fill="rgba(103,232,249,0.2)"/>
         </svg>
       </div>
+      <div id="turn-badge" style="font-size:0.75rem;color:var(--dim);margin-bottom:4px;"></div>
       <div id="bot-indicator" class="bot-indicator">BOT</div>
       <div id="dice-display">
         <div class="die" id="die1">?</div>
@@ -674,16 +675,22 @@ function nextTurn() {
 
 function updateTurnIndicator() {
   const el = document.getElementById('turn-indicator');
+  const badge = document.getElementById('turn-badge');
   if(phase === 'gameover') {
     el.textContent = '游戏结束';
+    if(badge) badge.textContent = '';
     return;
   }
   const p = players[currentPlayerIdx];
   if(!p) return;
   if(p.id === 0) {
     el.textContent = '🎮 你的回合';
+    if(badge) badge.textContent = '🎮 你的回合';
+    if(badge) badge.style.color = 'var(--accent)';
   } else {
     el.textContent = `${p.name} 回合...`;
+    if(badge) badge.textContent = `${p.name} 回合`;
+    if(badge) badge.style.color = 'var(--dim)';
   }
 }
 
