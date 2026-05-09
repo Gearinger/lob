@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Board */
 #board-wrap{position:relative;flex-shrink:0;}
-#board{position:relative;width:640px;height:576px;background:var(--card);border:1px solid var(--border);border-radius:12px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px);}
+#board{position:relative;width:640px;height:640px;background:var(--card);border:1px solid var(--border);border-radius:12px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px),repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 64px);}
 
 /* Cells */
 .cell{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6rem;cursor:pointer;transition:all 0.2s;border-radius:4px;overflow:hidden;padding:2px;}
@@ -493,11 +493,14 @@ const diceBtn = document.getElementById('dice-btn');
 
 function getCellPos(idx) {
   if(idx < 0 || idx > 39) return {x:0,y:0};
-  if(idx <= 9) return {x: idx*64, y: 512}; // bottom row: y=512, x=0..576
-  if(idx <= 19) return {x: 576, y: 512 - (idx-10)*64}; // right column: x=576, y=512..0
-  if(idx <= 29) return {x: 576 - (idx-20)*64, y: 0}; // top row: y=0, x=576..0
-  // left column (30-39): x=0, 9 cells from y=56 to y=504 (step=56)
-  return {x: 0, y: (idx-30)*64}; // left column
+  // Bottom row (0-9): 10 cells, y=576
+  if(idx <= 9) return {x: idx*64, y: 576};
+  // Right column (10-19): 10 cells, x=576
+  if(idx <= 19) return {x: 576, y: 576 - (idx-10)*64};
+  // Top row (20-29): 10 cells, y=0
+  if(idx <= 29) return {x: 576 - (idx-20)*64, y: 0};
+  // Left column (30-39): 10 cells, x=0
+  return {x: 0, y: (idx-30)*64};
 }
 
 // ============================================================
