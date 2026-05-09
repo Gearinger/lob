@@ -317,7 +317,7 @@ CELL_DATA.forEach(c => { if(c.rank) { if(!RANK_PRICE[c.rank]) RANK_PRICE[c.rank]
 const chanceCards = [
   {id:'C-01',name:'一路顺风',effect:'获得 ¥500 奖金',action:(p)=>{p.gold+=500;return '一路顺风，获得 ¥500！';}},
   {id:'C-02',name:'政府补贴',effect:'获得创新企业补贴 ¥2,000',action:(p)=>{p.gold+=2000;return '政府补贴，获得 ¥2,000！';}},
-  {id:'C-03',name:'出售房产',effect:'出售一处房产，收入为该房产盖房费的 80%',action:(p)=>{const owned=cells.filter(s=>s.owner===p.id&&s.type==='property');if(owned.length===0)return'无房产，无效！';const best=owned.sort((a,b)=>(b.price+b.buildCost*b.level)-(a.price+a.buildCost*a.level))[0];const val=Math.floor(best.price+best.buildCost*best.level*0.8);p.gold+=val;best.level=0;best.owner=null;return`出售房产，获得 ¥${val}！`;}},
+  {id:'C-03',name:'出售房产',effect:'出售一处房产，收入为该房产盖房费的 80%',action:(p)=>{const owned=cells.filter(s=>s.owner===p.id&&s.type==='land');if(owned.length===0)return'无房产，无效！';const best=owned.sort((a,b)=>(b.price+RANK_BUILD[b.rank]*b.level)-(a.price+RANK_BUILD[a.rank]*a.level))[0];const val=Math.floor(best.price+RANK_BUILD[best.rank]*best.level*0.8);p.gold+=val;best.level=0;best.owner=null;return`出售房产，获得 ¥${val}！`;}},
   {id:'C-04',name:'银行利息',effect:'存款利息到账，获得 ¥1,000',action:(p)=>{p.gold+=1000;return '银行利息，获得 ¥1,000！';}},
   {id:'C-05',name:'交通事故',effect:'交通罚款！支付 ¥800',action:(p)=>{p.gold=Math.max(0,p.gold-800);return '交通事故，支付 ¥800！';}},
   {id:'C-06',name:'意外税单',effect:'补缴税款，支付 ¥1,200',action:(p)=>{p.gold=Math.max(0,p.gold-1200);return '意外税单，支付 ¥1,200！';}},
@@ -887,7 +887,12 @@ function getRent(cell) {
   if(!cell.rank) return 0;
   const rents = RANK_RENTS[cell.rank];
   const lvl = Math.min(cell.level, 4);
-  return rents[lvl];
+  let rent = rents[lvl];
+  // Color set bonus: 2x rent if owner has all same-color properties
+  if(hasColorSet(players[cell.owner], cell.rank)) {
+    rent *= 2;
+  }
+  return rent;
 }
 
 function payRent(player, ownerIdx, amount, reason) {
