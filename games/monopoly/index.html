@@ -420,23 +420,32 @@ function drawCard(player, type) {
 
   const icon = type === 'chance' ? '🎲' : '🃏';
   const color = type === 'chance' ? '#67e8f9' : '#f97316';
-  const cardModal = document.getElementById('card-modal');
-  const cardTitle = document.getElementById('card-title');
-  const cardContent = document.getElementById('card-content');
-  cardTitle.textContent = type === 'chance' ? '🎲 机会卡' : '🃏 命运卡';
-  cardTitle.style.color = color;
-  cardContent.innerHTML = `
-    <div style="text-align:center">
-      <div style="font-size:2rem;margin-bottom:12px">${icon}</div>
-      <div style="color:${color};font-weight:700;font-size:1.1rem;margin-bottom:8px">${card.id} ${card.name}</div>
-      <div style="color:var(--dim);font-size:0.85rem;margin-bottom:16px">${card.effect}</div>
-      <div style="color:var(--text);background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;font-size:0.85rem;min-height:40px">${result}</div>
-    </div>
-  `;
-  cardModal.classList.add('show');
+  
+  // Only show modal for human player
+  if (player.id === 0) {
+    const cardModal = document.getElementById('card-modal');
+    const cardTitle = document.getElementById('card-title');
+    const cardContent = document.getElementById('card-content');
+    cardTitle.textContent = type === 'chance' ? '🎲 机会卡' : '🃏 命运卡';
+    cardTitle.style.color = color;
+    cardContent.innerHTML = `
+      <div style="text-align:center">
+        <div style="font-size:2rem;margin-bottom:12px">${icon}</div>
+        <div style="color:${color};font-weight:700;font-size:1.1rem;margin-bottom:8px">${card.id} ${card.name}</div>
+        <div style="color:var(--dim);font-size:0.85rem;margin-bottom:16px">${card.effect}</div>
+        <div style="color:var(--text);background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;font-size:0.85rem;min-height:40px">${result}</div>
+      </div>
+    `;
+    cardModal.classList.add('show');
+  }
 
   log(`${player.name} 抽取${type==='chance'?'【机会】':'【命运】'}：${card.name} → ${result}`);
   updatePlayerCards();
+
+  // For bots, end turn immediately; for human, modal will trigger endTurn on close
+  if (player.id !== 0) {
+    endTurnCheckDouble();
+  }
 
   // Decay global effects
   if (gameState.globalRentHalved > 0) {
