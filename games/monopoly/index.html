@@ -217,6 +217,15 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
+<!-- Trade Modal -->
+<div class="modal-overlay" id="trade-modal">
+  <div class="modal">
+    <h2>🔄 交易</h2>
+    <div class="modal-info" id="trade-info"></div>
+    <div class="modal-btns" id="trade-btns"></div>
+  </div>
+</div>
+
 <!-- Card Modal -->
 <div class="modal-overlay" id="card-modal">
   <div class="modal">
@@ -1142,6 +1151,115 @@ function closeRent() {
 }
 
 // ============================================================
+// TRADE
+// ============================================================
+
+let tradeTargetIdx = 0;
+let tradeGive = [];  // cell indices player gives
+let tradeReceive = [];  // cell indices player receives
+
+function openTrade() {
+  if(phase !== 'dice' || players[0].id !== 0) return;
+  
+  // Find a bot to trade with (who has properties)
+  const bots = players.filter((p, i) => i > 0 && p.properties.length > 0);
+  if(bots.length === 0) {
+    alert('没有可交易的对手（Bot没有地皮）');
+    return;
+  }
+  
+  tradeTargetIdx = bots[0].id;
+  tradeGive = [];
+  tradeReceive = [];
+  
+  showTradeModal();
+}
+
+function showTradeModal() {
+  const player = players[0];
+  const target = players[tradeTargetIdx];
+  
+  const playerCells = player.properties.map(i => cells[i]);
+  const targetCells = target.properties.map(i => cells[i]);
+  
+  const info = document.getElementById('trade-info');
+  const btns = document.getElementById('trade-btns');
+  
+  let playerHtml = playerCells.length ? '' : '无地皮';
+  playerCells.forEach(c => {
+    const checked = tradeGive.includes(c.index) ? 'checked' : '';
+    playerHtml += '<label style="display:inline-block;margin:2px;padding:2px 6px;background:' + (tradeGive.includes(c.index) ? 'var(--accent)' : 'rgba(255,255,255,0.1)') + ';border-radius:4px;cursor:pointer">' +
+      '<input type="checkbox" ' + checked + ' onchange="toggleTradeGive(' + c.index + ')"> ' + c.city + '</label>';
+  });
+  
+  let targetHtml = targetCells.length ? '' : '无地皮';
+  targetCells.forEach(c => {
+    const checked = tradeReceive.includes(c.index) ? 'checked' : '';
+    targetHtml += '<label style="display:inline-block;margin:2px;padding:2px 6px;background:' + (tradeReceive.includes(c.index) ? 'var(--accent)' : 'rgba(255,255,255,0.1)') + ';border-radius:4px;cursor:pointer">' +
+      '<input type="checkbox" ' + checked + ' onchange="toggleTradeReceive(' + c.index + ')"> ' + c.city + '</label>';
+  });
+  
+  info.innerHTML = '<div style="margin-bottom:12px"><strong>你</strong> (¥' + player.gold.toLocaleString() + ')<br><div style="color:var(--dim);font-size:0.75rem;margin-top:4px">' + playerHtml + '</div></div>' +
+    '<div><strong>' + target.name + '</strong> (¥' + target.gold.toLocaleString() + ')<br><div style="color:var(--dim);font-size:0.75rem;margin-top:4px">' + targetHtml + '</div></div>';
+  
+  btns.innerHTML = '<button class="btn" onclick="executeTrade()" style="margin-right:8px">确认交易</button><button class="btn secondary" onclick="closeTrade()">取消</button>';
+  
+  document.getElementById('trade-modal').classList.add('show');
+}
+
+function toggleTradeGive(cellIdx) {
+  const idx = tradeGive.indexOf(cellIdx);
+  if(idx >= 0) tradeGive.splice(idx, 1);
+  else tradeGive.push(cellIdx);
+  showTradeModal();
+}
+
+function toggleTradeReceive(cellIdx) {
+  const idx = tradeReceive.indexOf(cellIdx);
+  if(idx >= 0) tradeReceive.splice(idx, 1);
+  else tradeReceive.push(cellIdx);
+  showTradeModal();
+}
+
+function executeTrade() {
+  if(tradeGive.length === 0 && tradeReceive.length === 0) {
+    alert('请选择要交换的地皮');
+    return;
+  }
+  
+  const player = players[0];
+  const target = players[tradeTargetIdx];
+  
+  // Transfer properties
+  tradeGive.forEach(cellIdx => {
+    const cell = cells[cellIdx];
+    cell.owner = tradeTargetIdx;
+    target.properties.push(cellIdx);
+    player.properties = player.properties.filter(i => i !== cellIdx);
+  });
+  
+  tradeReceive.forEach(cellIdx => {
+    const cell = cells[cellIdx];
+    cell.owner = 0;
+    player.properties.push(cellIdx);
+    target.properties = target.properties.filter(i => i !== cellIdx);
+  });
+  
+  log(`🔄 你与 ${target.name} 交易完成！`);
+  closeTrade();
+  player.properties.forEach(i => updateCellDot(i));
+  target.properties.forEach(i => updateCellDot(i));
+  updatePlayerCards();
+  saveGame();
+}
+
+function closeTrade() {
+  document.getElementById('trade-modal').classList.remove('show');
+  tradeGive = [];
+  tradeReceive = [];
+}
+
+// ============================================================
 // GAME OVER
 // ============================================================
 
@@ -1297,11 +1415,14 @@ function updatePlayerCards() {
       return c.level > 0 ? c.city+icons[c.level] : c.city;
     }).join(', ');
     const extra = p.properties.length > 5 ? ` +${p.properties.length-5}块` : '';
+    // Show trade button only for human player and during dice phase
+    const tradeBtn = (i === 0 && phase === 'dice') ? `<button class="btn" style="margin-top:8px;padding:4px 12px;font-size:0.7rem" onclick="openTrade()">🔄 交易</button>` : '';
     card.innerHTML = `
       <div class="pname">${p.id===0?'🎮':'🤖'} ${p.name}</div>
       <div class="pgold">¥${p.gold.toLocaleString()}</div>
       <div class="pstat">地皮: ${p.properties.length}块${props ? ' · '+props+extra : ''}</div>
       ${p.inJail ? '<div class="pstat" style="color:#f87171">⛓️ 监狱中</div>' : ''}
+      ${tradeBtn}
     `;
     panel.appendChild(card);
   });
