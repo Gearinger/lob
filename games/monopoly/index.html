@@ -1537,8 +1537,9 @@ function rollJailDice() {
 function continueGame() {
   if(loadGame()) {
     document.getElementById('start-modal').classList.remove('show');
-    phase = 'dice';
-    diceBtn.disabled = false;
+    // Don't overwrite phase - use loaded value
+    // Enable dice button only if it's player's turn
+    diceBtn.disabled = (phase !== 'dice' || players[currentPlayerIdx].id !== 0);
     updateTurnIndicator();
   } else {
     alert('没有找到存档或加载失败');
