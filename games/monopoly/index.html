@@ -933,11 +933,11 @@ function handleCell(player, cellIdx) {
 }
 
 function hasColorSet(player, rank) {
-  const colors = {S:['#dc2626'], A:['#ea580c'], B:['#ca8a04'], C:['#16a34a'], D:['#2563eb'], E:['#7c3aed'], F:['#db2777']};
-  const c = colors[rank];
-  if(!c) return false;
-  const owned = cells.filter(cell => cell.rank === rank && cell.owner === player.id);
-  return owned.length === c.length;
+  // Count total cells of this rank in the game
+  const rankCells = cells.filter(c => c.rank === rank);
+  const owned = rankCells.filter(c => c.owner === player.id);
+  // Need to own ALL cells of this rank to get color set bonus
+  return owned.length === rankCells.length;
 }
 
 function getRent(cell) {
