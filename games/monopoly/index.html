@@ -1320,12 +1320,12 @@ function updateTokenPositions() {
     const tokenSize = 22;
     const cellW = SIDE_CELL_W;
     const cellH = SIDE_CELL_H;
-    // Offset by player index to avoid overlap
+    // Offset by player index to avoid overlap - stay within cell bounds
     const offsets = [
-      {x: cellW/2 - tokenSize/2 - 12, y: cellH/2 - tokenSize/2},
-      {x: cellW/2 - tokenSize/2 + 12, y: cellH/2 - tokenSize/2},
-      {x: cellW/2 - tokenSize/2 - 12, y: cellH/2 - tokenSize/2 + 18},
-      {x: cellW/2 - tokenSize/2 + 12, y: cellH/2 - tokenSize/2 + 18},
+      {x: 8, y: 8},
+      {x: 34, y: 8},
+      {x: 8, y: 34},
+      {x: 34, y: 34},
     ];
     const off = offsets[i] || offsets[0];
     const cellEl = document.getElementById('cell-' + p.position);
