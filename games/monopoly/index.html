@@ -241,6 +241,15 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
+<!-- Jail Modal -->
+<div class="modal-overlay" id="jail-modal">
+  <div class="modal">
+    <h2 style="color:#f87171">⛓️ 监狱</h2>
+    <div class="modal-info" id="jail-info"></div>
+    <div class="modal-btns" id="jail-btns"></div>
+  </div>
+</div>
+
 <!-- Start Modal -->
 <div class="modal-overlay" id="start-modal">
   <div class="modal">
@@ -658,7 +667,12 @@ function nextTurn() {
     if(p.jailTurns <= 0) {
       p.inJail = false;
       log(`⛓️ ${p.name} 走出监狱！`);
+    } else if(p.id === 0) {
+      // Human player in jail - show options
+      showJailModal();
+      return;
     } else {
+      // Bot tries to roll doubles to get out
       log(`⛓️ ${p.name} 还在监狱，还剩${p.jailTurns}回合`);
       setTimeout(nextTurn, 500);
       return;
@@ -735,7 +749,26 @@ function rollDice() {
     setTimeout(() => { die1.style.transform = ''; die2.style.transform = ''; }, 300);
     hideBotIndicator();
     const total = diceValues[0] + diceValues[1];
+    const isDouble = diceValues[0] === diceValues[1];
     log(`🎲 ${p.name} 掷出 ${diceValues[0]} + ${diceValues[1]} = ${total}`);
+    
+    // Handle jail - if in jail and not doubles, go back to jail
+    if(p.inJail) {
+      if(isDouble) {
+        p.inJail = false;
+        p.jailTurns = 0;
+        log(`🎊 ${p.name} 掷出双骰，释放出狱！`);
+        phase = 'moving';
+        movePlayer(p, total);
+      } else {
+        log(`⛓️ ${p.name} 未掷出双骰，继续在监狱等待`);
+        phase = 'dice';
+        updateTurnIndicator();
+        setTimeout(nextTurn, 800);
+      }
+      return;
+    }
+    
     phase = 'moving';
     movePlayer(p, total);
   }, 600);
@@ -845,8 +878,10 @@ function handleCell(player, cellIdx) {
         botBuyProperty(player, cell);
       }
     } else if(cell.owner !== player.id) {
-      const fare = 200 * (diceValues[0] + diceValues[1]);
-      payRent(player, cell.owner, fare, '火车站过路费');
+      // Station rent scales with number of stations owned: 200×dic × stations owned
+      const stationCount = cells.filter(c => c.type === 'station' && c.owner === cell.owner).length;
+      const fare = 200 * (diceValues[0] + diceValues[1]) * stationCount;
+      payRent(player, cell.owner, fare, `火车站过路费（×${stationCount}）`);
     } else {
       endTurnCheckDouble();
     }
@@ -1361,6 +1396,40 @@ function buildProperty(cellId) {
 
 function closeBuildModal() {
   document.getElementById('build-modal').classList.remove('show');
+}
+
+function showJailModal() {
+  const p = players[currentPlayerIdx];
+  const info = document.getElementById('jail-info');
+  const btns = document.getElementById('jail-btns');
+  info.innerHTML = `你在监狱！还剩 <strong>${p.jailTurns}</strong> 回合<br><br>
+    选项1: 掷骰子尝试出狱（掷出双骰立刻释放）<br>
+    选项2: 支付 <strong>¥500</strong> 立刻出狱`;
+  btns.innerHTML = `
+    <button class="btn" onclick="payJailFine()" style="margin-right:8px">💰 付 ¥500 出狱</button>
+    <button class="btn secondary" onclick="rollJailDice()">🎲 掷骰子</button>
+  `;
+  document.getElementById('jail-modal').classList.add('show');
+}
+
+function payJailFine() {
+  const p = players[currentPlayerIdx];
+  p.gold -= 500;
+  p.inJail = false;
+  p.jailTurns = 0;
+  log(`💰 ${p.name} 支付 ¥500 走出监狱！`);
+  document.getElementById('jail-modal').classList.remove('show');
+  updatePlayerCards();
+  // Continue with normal turn
+  phase = 'dice';
+  updateTurnIndicator();
+  diceBtn.disabled = false;
+}
+
+function rollJailDice() {
+  document.getElementById('jail-modal').classList.remove('show');
+  // Bot will handle the dice roll
+  rollDice();
 }
 
 // ============================================================
