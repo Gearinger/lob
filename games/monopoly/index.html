@@ -1247,7 +1247,8 @@ function loadGame() {
     });
 
     updateTokenPositions();
-    updateUI();
+    updatePlayerCards();
+    updateTurnIndicator();
     log('📂 游戏已读取存档');
     return true;
   } catch(e) {
@@ -1281,7 +1282,7 @@ function resetGame() {
   document.getElementById('log-panel').innerHTML = '';
   log('🎮 新游戏开始！');
   document.getElementById('start-modal').classList.add('show');
-  updateUI();
+  updatePlayerCards();
 }
 
 // ============================================================
@@ -1538,10 +1539,7 @@ function rollJailDice() {
 // ============================================================
 
 function continueGame() {
-  console.log('continueGame clicked');
-  const result = loadGame();
-  console.log('loadGame result:', result);
-  if(result) {
+  if(loadGame()) {
     document.getElementById('start-modal').classList.remove('show');
     phase = 'dice';
     diceBtn.disabled = false;
@@ -1582,7 +1580,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
   document.getElementById('start-modal').classList.add('show');
-  updateUI();
+  updatePlayerCards();
+  updateTurnIndicator();
   log('🎮 初始化完成，等待开始...');
   
   // Mobile: scale board to fit screen
