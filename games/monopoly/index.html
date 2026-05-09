@@ -126,16 +126,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   #main{flex-direction:column;align-items:center;overflow-x:auto;}
   #panel{width:100%;max-width:704px;}
 }
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   body{padding:8px;}
   #header{flex-direction:column;gap:8px;text-align:center;}
   #header h1{font-size:1.3rem;margin:0;}
   #turn-indicator{font-size:0.9rem;}
   #main{gap:12px;}
-}
-@media (max-width: 704px) {
-  #board-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  #board{transform-origin:top left;}
   #panel{font-size:0.85rem;}
   .player-card{padding:8px;}
   .cell{font-size:0.5rem;}
