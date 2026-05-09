@@ -123,7 +123,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Responsive */
 @media (max-width: 960px) {
-  #main{flex-direction:column;align-items:center;overflow-x:auto;}
+  #main{flex-direction:column;align-items:center;}
   #panel{width:100%;max-width:704px;}
 }
 @media (max-width: 480px) {
@@ -1580,35 +1580,32 @@ document.addEventListener('DOMContentLoaded', () => {
   updateTurnIndicator();
   log('🎮 初始化完成，等待开始...');
   
-  // Mobile: scale board to fit screen
+  // Mobile: scale board to fit screen - only on small screens
   function resizeBoard() {
     const board = document.getElementById('board');
     const wrap = document.getElementById('board-wrap');
-    const main = document.getElementById('main');
     if(!board || !wrap) return;
     const boardW = 704;
     const boardH = 704;
-    const availableW = window.innerWidth - 32; // padding
-    const availableH = window.innerHeight - 200; // account for header + panel
-    if(availableW < boardW || availableH < boardH) {
-      const scaleX = availableW / boardW;
-      const scaleY = availableH / boardH;
-      const scale = Math.min(scaleX, scaleY, 1);
-      board.style.transform = `scale(${scale})`;
-      board.style.transformOrigin = 'top left';
-      wrap.style.width = (boardW * scale) + 'px';
-      wrap.style.height = (boardH * scale) + 'px';
-      if(main) main.style.overflowX = 'auto';
-    } else {
-      board.style.transform = '';
-      wrap.style.width = boardW + 'px';
-      wrap.style.height = boardH + 'px';
-      if(main) main.style.overflowX = '';
+    const screenW = window.innerWidth;
+    
+    // Only scale on screens smaller than 800px
+    if(screenW < 800) {
+      const availableW = screenW - 32;
+      const scale = availableW / boardW;
+      if(scale < 1) {
+        board.style.transform = `scale(${scale})`;
+        board.style.transformOrigin = 'top left';
+        wrap.style.width = (boardW * scale) + 'px';
+        return;
+      }
     }
+    // Desktop: no scaling
+    board.style.transform = '';
+    wrap.style.width = boardW + 'px';
   }
   resizeBoard();
   window.addEventListener('resize', resizeBoard);
-  window.addEventListener('orientationchange', () => setTimeout(resizeBoard, 100));
 });
 </script>
 </body>
