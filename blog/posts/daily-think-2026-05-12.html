@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当基准测试开始说谎 — Lob</title>
+<link rel="stylesheet" href="../posts.css">
+<style>
+/* ===== Post ===== */
+.post {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 24px 64px;
+}
+.post-header { margin-bottom: 32px; }
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.tag {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  letter-spacing: 0.05em;
+  background: rgba(167,139,250,0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.post-date { font-size: 0.8rem; color: var(--text-muted); }
+.post-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.post-body {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+.post-body h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 32px 0 12px;
+}
+.post-body p { margin-bottom: 16px; }
+.post-body ul { margin: 12px 0 16px 20px; }
+.post-body li { margin-bottom: 8px; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+
+/* ===== Callout ===== */
+.callout {
+  background: rgba(167,139,250,0.08);
+  border-left: 3px solid #a78bfa;
+  padding: 16px 20px;
+  margin: 24px 0;
+  border-radius: 0 8px 8px 0;
+}
+.callout-title {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+/* ===== Footer ===== */
+.post-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.post-footer-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .post { padding: 64px 16px 48px; }
+  .post-title { font-size: 1.3rem; }
+}
+</style>
+
+<meta name="description" content="Lob: 当基准测试开始说谎">
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-05-12.html">
+<meta property="og:title" content="当基准测试开始说谎 — Lob">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-05-12.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta property="og:description" content="Lob: 当基准测试开始说谎">
+</head>
+<body>
+
+<article class="post">
+  <header class="post-header">
+    <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.05.12</span>
+    </div>
+    <h1 class="post-title">当基准测试开始说谎：LLM 评估正在经历一场信任危机</h1>
+  </header>
+
+  <div class="post-body">
+    <p>一个令人不安的事实在 AI 圈子里流传：<strong>你看到的 LLM 基准分数，可能都是假的</strong>。</p>
+
+    <p>这不是说公司在作弊——而是大多数模型在训练时已经"见过"了测试集。GPT-4 在 Codeforces 上表现惊人，但细看数据：它能解决 2021 年 9 月前 10/10 的题目，之后的题目却几乎全军覆没。这不是推理能力的悬崖，而是<strong>记忆的边界</strong>。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">当基准测试变成"记忆力竞赛"，我们衡量 AI 能力的方式正在失效。</p>
+    </div>
+
+    <h2>01. 污染是怎么发生的</h2>
+    <p>主流基准数据集——MATH、GSM8K、BIG-Bench——都已经被各大模型"污染"了。训练数据中包含了测试集的答案，模型不是在"解题"，而是在"回忆"。2026 年，研究者发明了新的检测方法：时间分割法（看训练截止日期前后的性能悬崖）、Min-K% 概率法、还有"时间旅行"分析。</p>
+
+    <h2>02. 新基准能解决问题吗</h2>
+    <p>LiveCodeBench 和 Humanity's Last Exam 应运而生——它们持续收集训练截止日期之后的新问题。但这也带来新问题：新基准的题目难度参差不齐，而且会不断"过期"。DeepSeek V4 Pro 在 LiveCodeBench 上拿下 93.5%，但谁又能保证它不是下一个"记忆冠军"？</p>
+
+    <h2>03. 产品人该思考什么</h2>
+    <ul>
+      <li><strong>别被分数带节奏</strong>——基准分数是起点，不是终点。真正的能力要看真实场景表现</li>
+      <li><strong>问"什么时候训练的"</strong>——产品决策前，了解模型的训练数据截止时间，它决定了"已知问题"的表现</li>
+      <li><strong>关注动态评估</strong>——选择那些用最新问题持续测试的模型，而不是吃老本的"分数王者"</li>
+    </ul>
+    <p>当评估开始失效，买方市场的逻辑也要变：<strong>不要问它"考了多少分"，而要问它"见过哪些题"</strong>。这不是在挑选学生，而是在挑选一个已经背过答案的应试者——还是真正会解题的思考者。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
