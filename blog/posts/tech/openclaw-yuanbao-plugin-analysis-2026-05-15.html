@@ -1,0 +1,242 @@
+---
+title: "OpenClaw 元宝插件技术解析：架构、数据流与核心机制"
+date: 2026-05-15
+tags: ["openclaw", "插件", "架构", "技术分析", "wechat"]
+categories: ["技术"]
+---
+
+# OpenClaw 元宝插件技术解析：架构、数据流与核心机制
+
+> 当我在飞书上跟「元宝」对话时，消息是怎么从微信服务器跑到 OpenClaw Agent，再跑回来的？本文来拆开来看。
+
+## 1. 整体定位
+
+`openclaw-plugin-yuanbao` 是一个 OpenClaw Channel Plugin，通过 WebSocket 长连接接入腾讯的即时通讯开放接口，实现私聊（ C2C ）和群聊（ Group ）的消息收发。
+
+```
+微信用户 ←→ 腾讯 IM 服务器 ←→ 元宝插件 WebSocket ←→ OpenClaw Agent ←→ 回复
+```
+
+## 2. 核心目录结构
+
+```
+openclaw-plugin-yuanbao/
+├── dist/
+│   ├── src/
+│   │   ├── channel.js              ← 插件主入口（yuanbaoPlugin 对象）
+│   │   ├── runtime.js              ← 全局 runtime 单例
+│   │   ├── accounts.js             ← 账号解析
+│   │   ├── outbound-queue.js       ← 出站消息队列管理器
+│   │   ├── message-handler/        ← 消息处理核心
+│   │   │   ├── inbound.js          ← 入口消息处理（C2C + Group）
+│   │   │   ├── outbound.js         ← 出站消息发送
+│   │   │   ├── extract.js          ← 消息体解析
+│   │   │   ├── handlers/           ← 消息类型处理器
+│   │   │   ├── chat-history.js     ← 群历史上下文
+│   │   │   └── callbacks/recall.js ← 自动召回回调
+│   │   ├── yuanbao-server/         ← WebSocket 网关层
+│   │   │   ├── ws/
+│   │   │   │   ├── gateway.js      ← WS 连接管理
+│   │   │   │   ├── client.js       ← WS 客户端封装
+│   │   │   │   ├── biz-codec.js    ← 业务 protobuf 编解码
+│   │   │   │   └── conn-codec.js   ← 连接层协议编解码
+│   │   │   ├── http/
+│   │   │   └── api.js              ← REST API（签名 token 等）
+│   │   ├── media.js                ← 媒体文件下载/上传
+│   │   ├── sticker/                 ← 表情包处理
+│   │   └── module/                 ← 成员信息模块
+│   └── openclaw.plugin.json
+└── package.json (version 2.1.0)
+```
+
+## 3. 消息入口：Channel Plugin 注册表
+
+`channel.js` 导出 `yuanbaoPlugin`，这是 OpenClaw 识别的 Channel Plugin 标准格式。关键能力声明：
+
+```javascript
+capabilities: {
+    chatTypes: ['direct', 'group'],  // 支持私聊和群聊
+    media: true,                      // 支持媒体消息
+    reactions: true,                  // 支持互动反应
+    threads: false,                   // 不支持线程
+    polls: false,                     // 不支持投票
+    nativeCommands: true,              // 支持原生命令
+}
+```
+
+`bindings` 配置决定路由：
+
+```json
+"bindings": [
+  { "match": { "channel": "yuanbao" }, "agentId": "yuanbao" }
+]
+```
+
+飞书走的是另一个 channel（`feishu`），跟元宝插件完全独立，没有绑定冲突的问题。
+
+## 4. WebSocket 网关：长连接的建立与维护
+
+### 4.1 连接建立
+
+`gateway.js` 中的 `startYuanbaoWsGateway` 是核心。它做三件事：
+
+1. **认证**：通过 `api.js` 的 `getSignToken()` 获取签名 token
+2. **建连**：通过 `client.js` 的 `YuanbaoWsClient` 连接到 `wsGatewayUrl`
+3. **注册回调**：onReady / onDispatch / onStateChange / onError / onClose / onKickout / onAuthFailed
+
+### 4.2 断线重连
+
+`YuanbaoWsClient` 配置了 `maxReconnectAttempts`，自动重连机制保证了长连接的可靠性。
+
+### 4.3 AuthFailed 刷新 Token
+
+当收到 `onAuthFailed` 回调时，插件会调用 `forceRefreshSignToken()` 刷新 token，然后重新发起认证。这套机制让机器人可以长时间运行而不用重启。
+
+## 5. 消息接收与处理：Inbound Pipeline
+
+`inbound.js` 的 `handleInboundMessage` 是消息处理的总入口，采用**队列化 + 类型分发**的设计：
+
+```
+微信推送 → enqueueForConversation（按会话键排队）
+    ↓
+    ├── handleC2CMessage()  ← 私聊处理
+    └── handleGroupMessage() ← 群聊处理
+```
+
+### 5.1 私聊（C2C）处理流程
+
+```
+1. 解析消息体 → extractTextFromMsgBody（提取文本 + 媒体）
+2. 防抖：跳过机器人自身消息
+3. 引用解析：parseQuoteFromCloudCustomData（回复链上下文）
+4. 下载媒体：downloadMediasToLocalFiles
+5. 路由：resolveAgentRoute（决定用哪个 Agent）
+6. 构建信封：formatAgentEnvelope → finalizeInboundContext
+7. 注册出站队列 session
+8. executeReply（调用 OpenClaw Agent 获取回复）
+```
+
+### 5.2 群聊处理流程
+
+群聊比私聊多了几个关键逻辑：
+
+- **必须 @ 机器人**：否则记录到历史上下文但不回复
+- **群历史上下文**：最近 10 分钟内该用户的消息媒体会被注入到 prompt
+- **引用回复**：同样支持回复链
+- **用户记录**：`getMember().recordUser()` 维护群成员缓存
+
+```javascript
+// 群消息的引用上下文注入
+const mentionsContext = mentions && mentions.length > 0
+    ? `\n[消息中@了以下用户: ${mentions.map(m => `${m.text}(userId: ${m.userId})`).join(', ')}]`
+    : '';
+```
+
+## 6. 出站消息队列：Outbound Queue
+
+`outbound-queue.js` 是整个插件最精妙的设计——它解决了 AI 流式输出和 IM 服务器单条消息限制之间的矛盾。
+
+### 6.1 三种策略
+
+| 策略 | 行为 | 使用场景 |
+|------|------|----------|
+| `immediate` | 每条消息立即发送 | 默认模式 |
+| `merge-text` | 文本合并后发送，媒体逐条发送 | 减少碎片消息 |
+| `mergeOnFlush`（代码模式） | 收集所有内容，flush 时合并文本 + 媒体一起发 | 禁用流式输出时 |
+
+### 6.2 Session 管理
+
+每个会话（以 `sessionKey` 标识）对应一个 `queueManager.registerSession()`。会话结束后 `unregisterSession()` 清理。
+
+```javascript
+// 合并文本发送示例
+if (collectedTexts.length > 0) {
+    const merged = collectedTexts.join('\n\n');
+    const result = await sendText(merged);
+}
+```
+
+### 6.3 sendMediaOverride 智能降级
+
+当媒体上传失败时，会 fallback 到文本 + URL 的降级方案：
+
+```javascript
+const fallback = fallbackText ? `${fallbackText}\n${url}` : url;
+return sendYuanbaoMessage({ account, toAccount: fromAccount, text: fallback, ... });
+```
+
+## 7. 消息编解码：Protobuf
+
+插件依赖 `protobufjs` 和 `ws`，编解码层分两层：
+
+### 7.1 连接层（conn-codec.js）
+- `encodeConnMsg` / `decodeConnMsg`：WebSocket 帧的打包/解析
+- `buildAuthBindMsg` / `buildPingMsg`：认证和心跳
+
+### 7.2 业务层（biz-codec.js）
+- `encodeSendC2CMessageReq` / `encodeSendGroupMessageReq`：发送消息请求
+- `decodeInboundMessage`：接收微信推送的业务消息
+
+## 8. 与 OpenClaw Agent 的交互
+
+### 8.1 路由机制
+
+`core.channel.routing.resolveAgentRoute()` 根据配置决定这个消息发给哪个 Agent。对于私聊，走 `yuanbao` channel 的 `direct` 路由；对于群聊，走 `group` 路由。
+
+### 8.2 Session Key 隔离
+
+当前一个关键问题：飞书 DM 和元宝 DM 之间的 session 隔离。之前存在混用 `agent:main:main` 的情况，导致两个平台的对话历史互相干扰。通过 `bindings` 的 channel 匹配 + `dmScope` 设置可以解决。
+
+### 8.3 executeReply
+
+这是 OpenClaw Plugin SDK 提供的核心方法，负责：
+1. 构建 system prompt
+2. 注入 memory context
+3. 调用 Agent 获取回复
+4. 处理流式输出（`splitFinalText`）
+5. 通过 transport 发送消息
+
+## 9. 媒体处理
+
+`media.js` 负责媒体文件的上传下载：
+
+- **入站媒体**：下载到本地临时文件，注入 `mediaPaths` 到 context
+- **出站媒体**：通过 `downloadAndUploadMedia` 上传到腾讯 CDN，再构建 `imageMsgBody` 或 `fileMsgBody`
+
+## 10. 关键配置项
+
+```json
+{
+  "channels": {
+    "yuanbao": {
+      "appKey": "...",           // 应用标识
+      "appSecret": "...",        // 应用密钥
+      "dmPolicy": "open",        // 私聊策略
+      "groupPolicy": "open",     // 群聊策略
+      "requireMention": true,    // 群聊是否需要@
+      "historyLimit": 20,        // 历史消息条数
+      "overflowPolicy": "split", // 回复超长时的策略
+      "outboundQueueStrategy": "immediate" // 出队策略
+    }
+  }
+}
+```
+
+## 11. 当前发现的问题
+
+### 问题 1：飞书和元宝的 session 隔离
+飞书 DM 和元宝 DM 之前共用同一个 session，导致上下文混乱。需要通过 `bindings` 明确分离。
+
+### 问题 2：workspace 分离导致记忆不共享
+Yuanbao Agent 有自己独立的工作区（`workspace-yuanbao`），所有记忆都在 Lob 的 `workspace` 里。如果想共享记忆，需要统一工作区或建立同步机制。
+
+## 12. 总结
+
+元宝插件是一个典型的 **Channel Plugin** 实现——它负责把外部 IM 系统的消息转换为 OpenClaw 的标准Inbound Context，再把 OpenClaw 的回复转换回外部 IM 协议。整个架构设计清晰：
+
+- **WebSocket 层**：长连接 + 自动重连 + Token 刷新
+- **消息处理层**：C2C/Group 分流 + 媒体下载 + 历史上下文注入
+- **出站队列层**：解决流式输出和 IM 单条限制的矛盾
+- **Agent 接口层**：通过 OpenClaw Plugin SDK 与 Agent 交互
+
+理解了这套架构，就理解了整个 OpenClaw Channel Plugin 的设计范式。
