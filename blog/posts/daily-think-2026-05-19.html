@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 治理塌方：为什么 80% 的企业在用 AI，却管不好它 — Lob</title>
+<link rel="stylesheet" href="../posts.css">
+<style>
+/* ===== Post ===== */
+.post {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 24px 64px;
+}
+.post-header { margin-bottom: 32px; }
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.tag {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  letter-spacing: 0.05em;
+  background: rgba(167,139,250,0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.post-date { font-size: 0.8rem; color: var(--text-muted); }
+.post-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.post-body {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+.post-body h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 32px 0 12px;
+}
+.post-body p { margin-bottom: 16px; }
+.post-body ul { margin: 12px 0 16px 20px; }
+.post-body li { margin-bottom: 8px; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+
+/* ===== Callout ===== */
+.callout {
+  background: rgba(167,139,250,0.08);
+  border-left: 3px solid #a78bfa;
+  padding: 16px 20px;
+  margin: 24px 0;
+  border-radius: 0 8px 8px 0;
+}
+.callout-title {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+/* ===== Footer ===== */
+.post-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.post-footer-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .post { padding: 64px 16px 48px; }
+  .post-title { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<article class="post">
+  <header class="post-header">
+    <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.05.19</span>
+    </div>
+    <h1 class="post-title">AI 治理塌方：为什么 80% 的企业在用 AI，却管不好它</h1>
+  </header>
+
+  <div class="post-body">
+    <p>一个有意思的数据矛盾正在发生：<strong>Gartner 和 IDC 的调研显示，企业级 Agentic AI 的采用率已经超过 80%</strong>——听起来 AI 落地已经大功告成。但与此同时，AINext 大会刚刚发出的声音却是：<strong>扩展 Agentic AI 的最大障碍，不是技术，是治理</strong>。</p>
+
+    <p>这两个数字放在一起，像极了一出荒诞剧：我们造了火箭，却发现机场还没修好跑道。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心矛盾</div>
+      <p style="margin:0;color:var(--text-primary)">技术跑得太快，治理跟不上——这不是新问题，但今年格外突出。</p>
+    </div>
+
+    <h2>01. 单体 Agent 已死，多 Agent 协作成为新现实</h2>
+    <p>Forrester 和 Gartner 的判断一致：<strong>2026 年是多功能 Agent 协作系统的突破年</strong>。那些"一个 AI 助手做所有事"的设想，正在被拆解为专业 Agent 协同——一个负责检索，一个负责执行，一个负责审核，各司其职。</p>
+    <p>这对产品设计的影响是深远的：你要设计的不再是一个"更好的聊天机器人"，而是一套<strong>能协作、能为彼此负责、有明确边界的 Agent 系统</strong>。</p>
+
+    <h2>02. 治理的坑，比技术大得多</h2>
+    <p>Symphony Solutions 在总结早期部署经验时给出了一个朴素但准确的结论：<strong>自主能力最好逐步引入，而不是一步到位</strong>。</p>
+    <p>但现实是，大多数企业恰恰相反——先上大模型，再想治理。结果是：</p>
+    <ul>
+      <li>Agent 行动了，但没有审计轨迹</li>
+      <li>多个 Agent 协作，决策责任归属模糊</li>
+      <li>AI 产生的业务决策，没人能解释原因</li>
+    </ul>
+    <p>这些问题不是代码 bug，是<strong>组织流程设计的缺失</strong>。技术可以快速迭代，但治理框架的建立需要业务、法务、安全多方协同——这才是真正的瓶颈。</p>
+
+    <h2>03. 产品人的机会在这里</h2>
+    <p>对于做 toB 产品的我们来说，这反而是一个巨大的机会窗口：</p>
+    <ul>
+      <li><strong>治理基础设施</strong>——审计、权限、决策可解释性，这类工具的需求正在爆发</li>
+      <li><strong>Agent 协作协议</strong>——如何让多个 Agent 有序协作，谁负责什么，出了问题谁担责</li>
+      <li><strong>人机边界设计</strong>——在什么节点需要人类介入，如何设计合理的审批流</li>
+    </ul>
+    <p>Raconteur 的报道说，到 2026 年底，Agentic AI 将触达各种规模的企业。这个预测大概率会应验——但问题是，<strong>届时有多少公司真正准备好了</strong>？</p>
+    <p>技术的列车已经高速行驶，治理的轨道还在慢慢铺。这是今年 AI 领域最被低估的结构性机会。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
