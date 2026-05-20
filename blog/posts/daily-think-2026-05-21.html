@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上下文窗口战争升级：2026 年 AI 产品的第一次基础设施分裂 — Lob</title>
+<link rel="stylesheet" href="../posts.css">
+<style>
+/* ===== Post ===== */
+.post {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 24px 64px;
+}
+.post-header { margin-bottom: 32px; }
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.tag {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  letter-spacing: 0.05em;
+  background: rgba(167,139,250,0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.post-date { font-size: 0.8rem; color: var(--text-muted); }
+.post-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.post-body {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+.post-body h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 32px 0 12px;
+}
+.post-body p { margin-bottom: 16px; }
+.post-body ul { margin: 12px 0 16px 20px; }
+.post-body li { margin-bottom: 8px; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+
+/* ===== Callout ===== */
+.callout {
+  background: rgba(167,139,250,0.08);
+  border-left: 3px solid #a78bfa;
+  padding: 16px 20px;
+  margin: 24px 0;
+  border-radius: 0 8px 8px 0;
+}
+.callout-title {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+/* ===== Footer ===== */
+.post-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.post-footer-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .post { padding: 64px 16px 48px; }
+  .post-title { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<article class="post">
+  <header class="post-header">
+    <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.05.21</span>
+    </div>
+    <h1 class="post-title">上下文窗口战争升级：2026 年 AI 产品的第一次基础设施分裂</h1>
+  </header>
+
+  <div class="post-body">
+    <p>最近 OpenAI 推出了 GPT-5.5 Ultra，推理和编码能力大幅超越前代。与此同时，一个被大多数报道忽视的产品设计信号正在浮现：<strong>主流大模型厂商对"知识应该多新鲜"这个问题，正在给出完全不同的答案</strong>。</p>
+
+    <p>这不是技术参数的竞争，而是产品哲学的分裂——这将直接影响我们做 AI 产品的架构选择。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心分歧</div>
+      <p style="margin:0;color:var(--text-primary)">路线A：持续扩大上下文窗口，让模型"装下更多"；路线B：保持窗口稳定，靠 RAG 实时检索补新鲜度。两条路线的产品体验截然不同。</p>
+    </div>
+
+    <h2>01. 两个流派正在形成</h2>
+    <p><strong>流派一：窗口派。</strong>以扩大上下文为主攻方向，思路是"让模型自己记住一切"。好处是用户无需额外配置，prompt 写完直接用；坏处是模型知识有截止日期，且上下文越长、推理成本越高、延迟越大。</p>
+    <p><strong>流派二：检索派。</strong>保持固定大小的上下文，通过向量数据库和实时检索补充最新信息。好处是知识可以无限新鲜，成本可控；坏处是需要额外的基础设施，检索质量直接影响输出效果。</p>
+    <p>有意思的是，两条路线都在各自演进——窗口在变大，RAG 在变准。这让"应该用哪个"变成了一个没有标准答案的产品决策。</p>
+
+    <h2>02. 这个分裂对产品设计的含义</h2>
+    <p>过去我们谈 AI 产品设计，更多关注 prompt 技巧、模型选择。现在，<strong>基础设施路线选择本身就成了产品决策的一部分</strong>。</p>
+    <p>举几个例子：</p>
+    <ul>
+      <li><strong>新闻/金融类应用</strong>——必须选检索派，上下文窗口再大也追不上实时数据</li>
+      <li><strong>代码助手/创意写作</strong>——窗口派更合适，用户更在意单次交互的完整性而非实时性</li>
+      <li><strong>企业知识库</strong>——混合架构最稳，但维护成本高</li>
+    </ul>
+
+    <h2>03. 我的判断：2026 年是"双轨制"成为默认的一年</h2>
+    <p>短期内，两条路线不会分出胜负。<strong>上下文窗口的扩大是有限度的</strong>——物理显存有天花板，推理成本随窗口大小非线性增长。而 RAG 的精度问题也在被持续优化。</p>
+    <p>对于产品人，我的建议是：<strong>不要把"选模型"当作技术决策，它本质上是产品体验决策</strong>。你的用户在乎的是延迟还是新鲜度？是单次交互的完整性还是结果的准确性？这两个问题的答案，决定了你应该站在哪个流派。</p>
+    <p>AI 产品基础设施的第一次大分裂已经开始。这不是"哪个模型更强"的问题，而是"你想给用户什么样的认知体验"。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
