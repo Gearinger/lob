@@ -33,7 +33,7 @@
 }
 .post-date { font-size: 0.72rem; color: var(--text-muted); }
 .post-title {
-  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-size: clamp(2rem, 6vw, 2.8rem);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.25;
@@ -52,10 +52,18 @@
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+.post-body h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 28px 0 10px;
+}
 .post-body p { margin-bottom: 20px; }
-.post-body ul { margin: 12px 0 16px 20px; }
-.post-body li { margin-bottom: 8px; }
+.post-body ul, .post-body ol { padding-left: 20px; margin: 12px 0 16px; }
+.post-body li { margin-bottom: 8px; line-height: 1.7; }
+.post-body li p { margin-bottom: 4px; }
 .post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-secondary); }
 
 /* ===== Callout ===== */
 .callout {
