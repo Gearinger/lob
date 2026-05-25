@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 计算撞上能量墙：光子算力的崛起意味着什么 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-05-26.html">
+<meta property="og:title" content="AI 计算撞上能量墙：光子算力的崛起意味着什么">
+<meta property="og:description" content="Dell 刚说 Token 消耗暴涨 320 倍，Penn 的光计算突破就来了。这两件事不是巧合，是同一条故事线的两端。">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-05-26.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.05.26</span>
+    </div>
+  <h1 class="post-title">AI 计算撞上能量墙：光子算力的崛起意味着什么</h1>
+
+  <div class="post-body">
+    <p>两条新闻，同一天出现，像是某种默契：</p>
+    <p><strong>第一条</strong>：Dell Technologies World 上，CTO Jeff Clarke 警告企业数据中心需要从零重构——AI Agent 的 Token 消耗是传统 LLM 调用的 320 倍，当前的 GPU 架构撑不住了。</p>
+    <p><strong>第二条</strong>：宾夕法尼亚大学的研究团队制造出了一种光物质混合粒子，能用光来实现 AI 计算——同样任务，能耗比电子方案低一个数量级，速度还更快。</p>
+    <p>这两件事放在一起，才是完整的故事。<strong>我们正在撞上 AI 算力的能量墙。</strong></p>
+
+    <div class="callout">
+      <div class="callout-title">能量墙是什么</div>
+      <p style="margin:0;color:var(--text-primary)">摩尔定律的终点是功耗墙——芯片上塞进更多晶体管的同时，散热问题会让性能提升失去意义。AI 的 GPU/TPU 扩展正在加速这个过程。Dell 的数字背后不只是软件问题，是物理极限。</p>
+    </div>
+
+    <h2>01. 为什么这件事不是「又一篇科研新闻」</h2>
+    <p>过去几年，「算力突破」类新闻我们已经麻木了——晶体管缩小、GPU 升级、HBM 带宽增加。这些进步是真实的，但底层逻辑没变：<strong>用更多电，搬更多电子，处理更多数据</strong>。</p>
+    <p>光子计算的本质区别是：<strong>用光子取代电子</strong>。光子在通过材料时的能耗极低，而且天然支持并行传输——光本身可以交叉而不互相干扰，这在电子世界是噩梦，在光子世界是天然优势。</p>
+    <p>Penn 团队做的不只是「用光算」，而是创造了一种<strong>光物质混合粒子</strong>（hybrid light-matter particle），能让光子之间产生强相互作用，从而执行传统逻辑运算。这解决了光子计算最核心的难题：光子之间不交互，所以很难做计算。</p>
+    <p>这个突破如果量产，意味着：<strong>同样的 AI 任务，可以用十分之一的电来完成</strong>。</p>
+
+    <h2>02. 320 倍 Token 消耗遇上光子经济学</h2>
+    <p>把 Dell 的警告和 Penn 的突破连起来看，逻辑很清晰：</p>
+    <ul>
+      <li>AI Agent 时代，Token 消耗暴增 → 需要更多算力 → 需要更多电力</li>
+      <li>当前 GPU/TPU 架构的能耗曲线已经不可持续 → 数据中心电力密度正在逼近物理极限</li>
+      <li>光子计算提供了一条新的能耗曲线 → 同样的智能，消耗十分之一的能量</li>
+    </ul>
+    <p><strong>这是 AI 基础设施的拐点时刻。</strong></p>
+    <p>如果光子计算进入商用，数据中心的单位智能成本会下降——这和 Dell 警告的「320 倍成本危机」恰好形成对冲。但问题是：光子计算从实验室到量产需要多久？三年？五年？</p>
+    <p>在这个窗口期，AI 产品必须解决的还是老问题：<strong>如何用更少的 Token 做更多的事</strong>。</p>
+
+    <h2>03. 对产品人的三个实际影响</h2>
+    <p><strong>第一，芯片层的竞争格局正在重写。</strong></p>
+    <p>NVIDIA 的护城河是 CUDA 生态和 HBM，但光子计算芯片的制造工艺完全不同。AMD、Intel 以及一堆初创公司都在这个方向上。如果你是 AI 基础设施的采购者，三年后你的 GPU 选择清单可能会有显著变化。</p>
+    <p><strong>第二，端侧推理的价值被放大，而不是削弱。</strong></p>
+    <p>光子计算解决的是云端数据中心的能耗问题，但端侧推理（手机、Mac、NPU）解决的不仅是能耗，还有延迟和隐私。两个方向不矛盾，会并行发展。Dell 的 CTO 说 Mac Mini 突然变香，本质上是同一个逻辑的不同切面。</p>
+    <p><strong>第三，AI 产品的「能耗比」会成为新的竞争维度。</strong></p>
+    <p>以前我们比较 AI 产品看的是准确率、速度、成本（Token 价格）。接下来，「单位能耗下的智能输出」会成为一个显性指标——尤其在企业市场，数据中心的电费是 CFO 关心的数字。</p>
+
+    <h2>04. 写在最后</h2>
+    <p>两条新闻，一个是坏消息（Token 消耗爆炸），一个是好消息（光子在计算上有突破）。把它们放在一起，传递的信号很明确：</p>
+    <p><strong>AI 的算力扩张不会停止，但旧的物理路径正在触顶。</strong></p>
+    <p>光子计算不会一夜之间取代 GPU，但它的出现说明了一件事：<strong>当一个问题大到足够重要，人类总会找到新的物理路径</strong>。电子时代的天花板，或许正是光子时代的起点。</p>
+    <p>对于产品人，现在能做的事很朴素：<strong>在你的 AI 产品设计里，「省 Token」和「省电」是一件事</strong>。这个认知不会因为光子计算的进展而改变。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
