@@ -9,89 +9,26 @@
 <link rel="stylesheet" href="/lob/blog/posts/posts.css">
 <link rel="stylesheet" href="think.css">
 <style>
-/* ===== Post ===== */
+/* ===== Post — Design Language v1.6 (Apple-inspired) ===== */
 .post { padding: 96px 24px 64px; }
-.post-header { margin-bottom: 40px; }
-.post-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.tag {
-  font-size: 0.68rem;
-  color: #a78bfa;
-  letter-spacing: 0.05em;
-  background: rgba(167,139,250,0.12);
-  padding: 4px 10px;
-  border-radius: 4px;
-}
+.post-header { margin-bottom: 48px; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.tag { font-size: 0.72rem; letter-spacing: 0.04em; background: rgba(167,139,250,0.1); padding: 5px 12px; border-radius: 6px; color: #a78bfa; font-weight: 500; }
 .post-date { font-size: 0.72rem; color: var(--text-muted); }
-.post-title {
-  font-size: clamp(2rem, 6vw, 2.8rem);
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-}
-.post-body {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.8;
-}
-.post-body h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 40px 0 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-.post-body h3 {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 28px 0 10px;
-}
+.post-title { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; color: var(--text-primary); }
+.post-body { font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); }
 .post-body p { margin-bottom: 20px; }
-.post-body ul, .post-body ol { padding-left: 20px; margin: 12px 0 16px; }
-.post-body li { margin-bottom: 8px; line-height: 1.7; }
-.post-body li p { margin-bottom: 4px; }
+.post-body h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 56px 0 16px; letter-spacing: 0.01em; }
+.post-body h3 { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin: 32px 0 12px; }
+.post-body ul, .post-body ol { padding-left: 20px; margin: 16px 0; }
+.post-body li { margin-bottom: 8px; line-height: 1.6; }
 .post-body strong { color: var(--text-primary); font-weight: 600; }
-.post-body em { font-style: italic; color: var(--text-secondary); }
-
-/* ===== Callout ===== */
-.callout {
-  background: rgba(167,139,250,0.08);
-  border-left: 3px solid #a78bfa;
-  padding: 16px 20px;
-  margin: 24px 0;
-  border-radius: 0 8px 8px 0;
-}
-.callout-title {
-  font-size: 0.75rem;
-  color: #a78bfa;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  margin-bottom: 6px;
-}
-
-/* ===== Footer ===== */
-.post-footer {
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-}
-.post-footer-text {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-@media (max-width: 640px) {
-  .post { padding: 80px 16px 48px; }
-  .post-title { font-size: 1.5rem; }
-}
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.06); border-radius: 12px; padding: 20px 24px; margin: 32px 0; }
+.callout-title { font-size: 0.72rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 10px; }
+.post-footer { margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { .post { padding: 80px 16px 48px; } .post-title { font-size: 1.6rem; } }
 </style>
 
 <meta name="description" content="Lob: 当基准测试开始说谎">
