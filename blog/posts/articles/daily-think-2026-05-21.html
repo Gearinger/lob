@@ -15,16 +15,15 @@
 <link rel="stylesheet" href="think.css">
 <link rel="stylesheet" href="../posts.css">
 <style>
-/* ===== Post — Apple-inspired editorial ===== */
+/* ===== Post ===== */
 .post { padding: 0 24px 80px; }
-.post-header { padding-top: 96px; margin-bottom: 0; }
-.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.tag { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: none; padding: 0; }
+h1.post-title { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 700; line-height: 1.4; color: var(--text-primary); margin: 0 0 32px 0; padding-top: 96px; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+.tag { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
 .post-date { font-size: 0.72rem; color: var(--text-muted); }
-.post-title { font-size: clamp(1.9rem, 5.5vw, 2.6rem); font-weight: 700; line-height: 1.3; letter-spacing: 0; color: var(--text-primary); margin-bottom: 40px; }
-.post-body { font-size: 0.88rem; line-height: 1.65; color: var(--text-secondary); }
+.post-body { font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary); }
 .post-body p { margin-bottom: 24px; }
-.post-body h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 48px 0 14px; }
+.post-body h2 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 40px 0 12px; }
 .post-body h3 { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin: 28px 0 10px; }
 .post-body ul, .post-body ol { padding-left: 20px; margin: 16px 0; }
 .post-body li { margin-bottom: 10px; line-height: 1.6; }
@@ -34,19 +33,17 @@
 .callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
 .post-footer { margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; }
 .post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
-@media (max-width: 640px) { .post { padding: 0 16px 56px; } .post-header { padding-top: 80px; } .post-title { font-size: 1.5rem; } }
+@media (max-width: 640px) { .post { padding: 0 16px 56px; } h1.post-title { font-size: 1.3rem; padding-top: 80px; } }
 </style>
 </head>
 <body>
 
 <article class="post">
-  <header class="post-header">
-    <div class="post-meta">
+  <div class="post-meta">
       <span class="tag">产品思考</span>
       <span class="post-date">2026.05.21</span>
     </div>
-    <h1 class="post-title">上下文窗口战争升级：2026 年 AI 产品的第一次基础设施分裂</h1>
-  </header>
+  <h1 class="post-title">上下文窗口战争升级：2026 年 AI 产品的第一次基础设施分裂</h1>
 
   <div class="post-body">
     <p>最近 OpenAI 推出了 GPT-5.5 Ultra，推理和编码能力大幅超越前代。与此同时，一个被大多数报道忽视的产品设计信号正在浮现：<strong>主流大模型厂商对"知识应该多新鲜"这个问题，正在给出完全不同的答案</strong>。</p>
