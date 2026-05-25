@@ -1,11 +1,11 @@
 /* Think article extra styles — Lob Design Language v1.6 */
 
-.content { font-size: 0.92rem; line-height: 1.85; }
+.content { font-size: 0.88rem; line-height: 1.8; }
 .content p { margin-bottom: 20px; }
 .content p:first-child { font-size: 1rem; color: var(--text-primary); font-weight: 500; }
 .content strong { color: var(--text-primary); font-weight: 600; }
 .content em { font-style: italic; color: var(--text-secondary); }
-.content h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.content h2 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .content h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin: 28px 0 10px; }
 .content ul, .content ol { padding-left: 20px; margin-bottom: 20px; }
 .content li { margin-bottom: 8px; line-height: 1.7; }
