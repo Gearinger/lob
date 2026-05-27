@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>产品思考 · AI 安全的范式转移：Anthropic 不发布最强模型意味着什么 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-05-28.html">
+<meta property="og:title" content="AI 安全的范式转移：Anthropic 不发布最强模型意味着什么">
+<meta property="og:description" content="当顶级白帽黑客说「AI 可能让我失业」，这不只是网络安全行业的危机——这是 AI 发展史上第一次，一家公司主动把「最强模型」藏起来，而不是卖出去。">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-05-28.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.05.28</span>
+    </div>
+  <h1 class="post-title">AI 安全的范式转移：Anthropic 不发布最强模型意味着什么</h1>
+
+  <div class="post-body">
+    <p>当一家 AI 公司训练出了世界上最强的黑客工具，它面临的不是技术问题，而是<strong>商业模型的根本矛盾</strong>。</p>
+    <p>Anthropic 的选择是：<strong>不发布它</strong>。</p>
+    <p>Claude Mythos Preview——能够自主完成 32 步企业网络渗透、在 10 分钟内破解安全专家需要 12 小时才能完成的逆向工程题——它被定向释放给政府机构，而不是公开上市。这个决定值得我们产品人认真思考。</p>
+
+    <div class="callout">
+      <div class="callout-title">这不是保守，这是战略</div>
+      <p style="margin:0;color:var(--text-primary)">Pwn2Own 冠军 Chompie 的原话是：AI 工具可能让她失业。更准确地说，Mythos 级别的模型正在关闭「AI 放大人而非替代人」的那扇窗口。这是一个行业转折点——顶级安全研究员第一次认真地在考虑：他们的专业护城河，正在被模型能力赶超。</p>
+    </div>
+
+    <h2>01. AI 公司第一次「主动放弃」市场</h2>
+    <p>过去六年，每次 AI 模型发布会的潜台词都是「更强、更快、更开放」。更强的模型 = 更多的用户 = 更高的估值。这是行业的基本逻辑。</p>
+    <p>Anthropic 这次做了一个反常识的动作：<strong>用「不发布」来定义自己</strong>。这不是因为模型不够好，恰恰相反——正是因为模型太好了，好到他们认为公开可获取的社会风险超过了商业价值。</p>
+    <p>这种决策框架，对于产品人来说意味着什么？意味着 AI 产品的「发布决策」不只是在「用户需要」和「技术成熟度」之间权衡，<strong>「恶意使用的容易程度」</strong>正式成为产品发布的必要考量维度。</p>
+
+    <h2>02. 安全产品的新问题：防御者没有同等工具</h2>
+    <p>POLITICO 的报道里有一个细节值得注意：研究人员测试后说 Mythos 的黑客能力是「game-changer」。但这个改变不只是单向的——<strong>它在同时改变攻击侧和防御侧的能力对比</strong>。</p>
+    <p>问题在于：防御者能拿到同等的工具吗？</p>
+    <p>Anthropic 把 Mythos 给了政府机构和安全研究人员，这个选择本质上是在尝试「让防御方先拥有这个能力」。但这个逻辑本身有一个漏洞——政府机构 ≠ 每一个需要防御的人。中小企业的安全团队，可能比他们面对的攻击者更晚获得同等工具。</p>
+
+    <h2>03. 「AI 安全」正在变成一种产品类别</h2>
+    <p>这个事件最容易被忽视的影响，是对 AI 安全赛道的产品化。</p>
+    <p>当模型能力强到可以被用于高伤害性网络攻击，「模型本身是否安全」就不再只是一个研究课题，而是一个<strong>可以被定价和出售的产品属性</strong>。未来，用户选择哪个 AI 服务，除了「它有多强」，还会多一个维度：「它的安全壁垒有多高」。</p>
+    <p>这对于 AI 产品设计的影响是深远的：</p>
+    <ul>
+      <li>模型的「安全档案」会成为差异化卖点</li>
+      <li>API 提供商会分化成「高性能/高风险」和「受限/可审计」两个类别</li>
+      <li>企业 AI 采购的合规清单会增加新的条目</li>
+    </ul>
+
+    <h2>04. 写在最后</h2>
+    <p>Anthropic 的选择不一定是正确的——可能过度保守，可能有更好的平衡方式。但重要的是，<strong>这是第一次有一家顶级 AI 实验室公开承认：有些能力，不应该用钱就能买到</strong>。</p>
+    <p>这个决策的文化意义超过了商业意义。它把 AI 安全从「研究员的黑板报」拉到了「产品发布决策」的台面上。对于所有正在做 AI 产品的人，这都是一个信号：</p>
+    <p><strong>下一个 AI 产品的竞争力，不只来自「能做什么」，还取决于它「选择不做什么」。</strong></p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
