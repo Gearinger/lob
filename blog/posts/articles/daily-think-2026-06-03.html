@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · 当 AI 输出速度超过人类阅读速度 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-03.html">
+<meta property="og:title" content="产品思考 · 当 AI 输出速度超过人类阅读速度">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-03.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="post-meta"><span class="tag">产品思考</span><span class="post-date">2026.06.03</span></div>
+<h1 class="post-title">当 AI 输出速度超过人类阅读速度</h1>
+
+<div class="post-body">
+
+<p>Gemini 3.5 Flash 发布时，有一个数字被反复提起：<strong>接近 300 token/秒的输出速度</strong>。这意味着什么？</p>
+
+<p>普通人类阅读中文的速度大约是 300-500 字/分钟，也就是 5-8 字/秒。按 token 计，大约也是每秒 5-8 个 token。Gemini 3.5 Flash 跑出了 300 token/秒——<strong>AI 的输出速度，第一次大规模地追上了人类阅读速度</strong>。</p>
+
+<p>这不是一个普通的性能提升。这是一道分水岭。</p>
+
+<h2>为什么速度是产品问题</h2>
+
+<p>过去几年，我们讨论 AI 能力的时候，注意力都放在"质量"上——模型能不能写对代码，能不能推理复杂问题，能不能保持上下文一致性。这些当然重要。</p>
+
+<p>但速度，一直被当成一个"迟早会解决"的工程问题。当速度慢的时候，AI 产品的使用方式是被动的：用户发一条消息，等 30 秒，拿结果，再发下一条。这种交互模式本质上还是<strong>人配合机器的节奏</strong>。</p>
+
+<p>当速度足够快的时候，交互模式变了。</p>
+
+<p>300 token/秒意味着：AI 可以在几秒内输出一篇完整的文章初稿，可以在十几秒内生成一段代码并在终端里验证，可以在几十秒内完成过去需要几分钟的多轮对话才能达到的思考深度。</p>
+
+<p>这不是"更快地回答问题"，而是<strong>AI 开始能跟上人的思维节奏</strong>。</p>
+
+<h2>Agent 的真实含义</h2>
+
+<p>Google 在发布 Gemini 3.5 Flash 的时候，反复强调它是一个"agent 优化"的模型。这听起来像是行话，但它的实际含义是：当输出速度足够快，AI agent 在执行多步骤任务时的等待成本就变得可以接受了。</p>
+
+<p>想象一个场景：让 AI agent 去完成一个 coding 任务——它需要理解需求、写代码、跑测试、看结果、再修复。过去每一步的输出等待都会打断 agent 的工作流，让它的"思维连贯性"被打散。当输出速度是 30 token/秒，完成一个复杂任务需要好几分钟的等待，agent 就很难保持工作连贯性。当速度是 300 token/秒，这些等待被压缩到秒级，agent 的执行体验就完全不一样了。</p>
+
+<p>这也是为什么 Google 说<strong>大规模切换到 Gemini 3.5 Flash 可以为某些公司每年节省十亿美元</strong>——不只是速度快，是速度让 agent 从不可行变成了可行。</p>
+
+<h2>实时推理的第一个真实基础</h2>
+
+<p>过去我们说"实时 AI 助手"，但大多数 AI 助手在响应速度上其实是有限制的——不是技术实现不了，而是成本和延迟的权衡。当一个模型可以在保持高质量输出的同时，跑出接近实时阅读速度的时候，"实时"才第一次有了真正可用的产品形态。</p>
+
+<p>这个变化的影响会慢慢扩散开：</p>
+
+<ul>
+<li>AI 编程助手不再需要等 30 秒才能给你一个初步的代码框架。</li>
+<li>多步骤的 AI 搜索和推理可以压缩到用户感知不到的长度。</li>
+<li>语音 AI 助手的对话延迟问题，在输出端第一次被真正解决。</li>
+</ul>
+
+<p>输入端的延迟（语音识别）还在，模型推理的其他阶段也还有开销，但这 300 token/秒，解决的是过去最被低估的那个瓶颈——<strong>生成速度</strong>。</p>
+
+<h2>值得注意的反面</h2>
+
+<p>速度解决了很多问题，但不是所有问题。</p>
+
+<p>AI agent 的可靠性瓶颈不只是速度，还有规划能力、错误恢复、长程记忆。Gemini 3.5 Flash 在这些维度上有进步，但这些问题不是靠一个更快的模型就能彻底解决的。</p>
+
+<p>速度提升是必要条件，不是充分条件。它让很多以前不可行的产品变成了可行的起点，但能不能做好，还是取决于产品设计本身。</p>
+
+<p>不过，这是很久以来，我第一次看到一个大模型的发布，让我觉得<strong>这里有一个真实的产品机会窗口正在打开</strong>。</p>
+
+</div>
+</article>
+</body>
+</html>
