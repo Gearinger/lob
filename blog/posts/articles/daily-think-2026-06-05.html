@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · NASA 把火星导航交给 AI：信任的第一个真实分水岭 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-05.html">
+<meta property="og:title" content="产品思考 · NASA 把火星导航交给 AI：信任的第一个真实分水岭">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-05.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="post-meta"><span class="tag">产品思考</span><span class="post-date">2026.06.05</span></div>
+<h1 class="post-title">NASA 把火星导航交给 AI：信任的第一个真实分水岭</h1>
+
+<div class="post-body">
+
+<p>昨天看 Stanford HAI 的 2026 AI Index Report，有个数字很有冲击力：<strong>88% 的组织已经在用生成式 AI</strong>，五分之四的大学生用 AI 写作业。这个数字当然说明 AI 普及了，但它也让人隐隐觉得 AI 已经变成了一个"平常东西"。</p>
+
+<p>然后我看到了 NASA 毅力号的消息——<strong>第一次完全由 AI 自主规划火星表面行驶路径</strong>。用的还是 Anthropic 的 Claude 视觉语言模型，分析轨道图像和地形数据，生成安全导航点。</p>
+
+<p>这两件事放在一起来看，有意思的地方就出来了。</p>
+
+<h2>从"用 AI"到"信 AI"：不一样的距离</h2>
+
+<p>88% 的采纳率，是"用 AI"的终点。但 NASA 这一步，跨的是"信 AI"的起点。</p>
+
+<p>大多数企业的 AI 采纳，止步于辅助层：AI 写文案，AI 做数据分析，AI 帮你生成代码草稿。这些场景里，AI 的输出是一个中间产物，最终由人来做判断。AI 错了，最多是个尴尬；AI 对了，是效率提升。这是安全的赌法。</p>
+
+<p>NASA 的场景完全不同。火星表面行驶路径规划，错误代价是物理性的——地形误判可能是探测器毁损，可能是任务失败。在地球上，人可以远程操控；火星信号延迟单程最多 20 多分钟，等你看到图像再发指令，地面情况早就变了。唯一的选项是让 AI 做决定，而且要做对。</p>
+
+<p>这不是"AI 帮你做"——是"AI 替你做，且你必须信任它的判断"。</p>
+
+<h2>Claude 在火星上意味着什么</h2>
+
+<p>毅力号用的 Claude 视觉语言模型，不是专门为火星场景训练的模型——它是一个通用的视觉-语言模型，被 NASA 集成进了自己的导航 pipeline。这意味着：</p>
+
+<p><strong>通用模型的能力迁移，第一次在 mission-critical 场景里被验证。</strong></p>
+
+<p>这和过去 AI 在工业领域的应用逻辑完全不同。传统工业 AI，是用特定领域的数据训练特定模型——专门为工厂、医院、车辆训练的感知系统。它们在特定场景里精度很高，但迁移能力几乎为零，换个工厂、换辆车就得重新训练。</p>
+
+<p>Claude 在火星上的应用，说明视觉-语言模型的通用能力，已经可以被信任到足以完成行星级别任务的自主决策。不是因为它"懂得火星地形"，而是因为它的通用推理能力，让它能在从未见过的火星图像上做出安全的判断。</p>
+
+<p>这是通用 AI 在现实世界里的第一个真正的"成人礼"。</p>
+
+<h2>采纳率和可靠性之间的张力</h2>
+
+<p>Stanford 的 88% 采纳率和 NASA 的自主导航，放在一块看，其实暴露了一个被掩盖的事实：<strong>AI 的采纳率和 AI 的可靠性之间，还有巨大的鸿沟</strong>。</p>
+
+<p>今天的 AI 产品，大多数被用在一个"错了也无妨"的上下文里。你的 AI 写作助手写错了字，不会有人受伤。你的 AI 编程助手给了错误代码，跑一下测试就知道了。但当我们想把 AI 推向需要真正信任的场景——医疗诊断、自动驾驶、关键基础设施控制——这个鸿沟就成了天花板。</p>
+
+<p>NASA 证明了这道鸿沟不是不可逾越的，但它的成功让我们更清楚地看到：大多数领域的 AI 采纳，还停在"无责区"里。一旦 AI 的决策开始影响物理世界、开始需要承担后果，采纳的逻辑就完全不一样了。</p>
+
+<h2>产品人的机会在哪里</h2>
+
+<p>这个分水岭对产品人的意义，不只是"未来 AI 会更重要"这种宏观判断。</p>
+
+<p>真正的机会在于：<strong>当 AI 的可靠性进入 mission-critical 门槛，它解锁的场景和商业模式，是"辅助层 AI"完全无法触及的</strong>。</p>
+
+<p>NASA 的案例还告诉我们另一个产品洞察：视觉-语言模型的通用能力，在特定领域里做专业化集成，比从零训练领域模型的效率高得多。这对产品架构的启示是：当你的场景需要 AI 对物理世界有真实的感知和判断能力，通用视觉模型加领域逻辑，可能比垂直模型更经济。</p>
+
+<p>火星很远，但它告诉我们的产品真相很近。</p>
+
+</div>
+</article>
+</body>
+</html>
