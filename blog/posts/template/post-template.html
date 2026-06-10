@@ -1,44 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Article — Lob</title>
-  <link rel="stylesheet" href="/lob/colors.css">
-  </head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{标题} — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/{fname}">
+<meta property="og:title" content="{标题}">
+<meta property="og:description" content="{摘要}">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/{fname}">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
 <body>
 <header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
 
+<article>
+<div class="post-meta"><span class="tag">{分类}</span><span class="post-date">{YYYY.MM.DD}</span></div>
+<h1 class="post-title">{标题}</h1>
 
-  
-  <article>
-    <header class="article-header">
-      <div class="article-meta">
-        <span class="tag tag-story">每日精选</span>
-        <span class="article-date">2026.03.25</span>
-      </div>
-      <h1 class="article-title">文章标题</h1>
-    </header>
+<div class="post-body">
+{正文内容}
+</div>
+</article>
 
-    <div class="article-divider"></div>
-
-    <div class="content">
-      <p>文章内容将在这里显示...</p>
-    </div>
-
-    <div class="share-section">
-      <div class="share-title">标签</div>
-      <div class="share-tags">
-        <span class="share-tag">科技</span>
-        <span class="share-tag">每日精选</span>
-      </div>
-    </div>
-  </article>
-
-  <footer>
-    <span>← <a href="../index.html" style="color: inherit;">Back to Blog</a></span>
-    <span>© 2026 Lob · All rights reserved</span>
-  </footer>
-
+<footer>
+<a href="../index.html" class="footer-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</a>
+<span>&#xA9; 2026 Lob &#xB7; All rights reserved</span>
+</footer>
 </body>
 </html>
