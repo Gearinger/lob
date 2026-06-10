@@ -1,27 +1,110 @@
-/* Think article extra styles — Lob Design Language v1.6 */
-/* Note: articles use .post-body, not .content */
+/* ============================================================
+   Lob — Think Article Styles (v1.6)
+   Overlay for: posts/articles/daily-think-*.html
+   Depends on: posts.css (base typography)
+   ============================================================ */
 
-.post-body > p:first-child {
-  font-size: 1rem;
+/* ── Article Header Enhancement ── */
+.post-meta .tag {
+  background: rgba(103, 232, 249, 0.1);
+  border-color: rgba(103, 232, 249, 0.25);
+}
+
+/* ── Body Refinements ── */
+.post-body {
+  letter-spacing: 0.01em;
+}
+
+/* Emphasize key phrases — strong tags in article body */
+.post-body > p > strong:first-child {
   color: var(--text-primary);
-  font-weight: 500;
 }
 
+/* ── Section Separator ── */
+.post-body > h2 {
+  position: relative;
+}
+
+.post-body > h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 40px;
+  height: 2px;
+  background: var(--accent-primary);
+  border-radius: 1px;
+}
+
+/* ── Pull Quote Style ── */
 .post-body blockquote {
+  position: relative;
+  background: rgba(103, 232, 249, 0.04);
   border-left: 3px solid var(--accent-primary);
-  padding-left: 16px;
-  margin: 24px 0;
-  color: var(--text-secondary);
-  font-style: italic;
-  line-height: 1.75;
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px 16px 24px;
+  margin: 32px 0;
 }
 
-.post-body a {
+.post-body blockquote::before {
+  content: '"';
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 1.5rem;
+  color: rgba(103, 232, 249, 0.2);
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+/* ── List Enhancement ── */
+.post-body > ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.post-body > ul > li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.post-body > ul > li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
   color: var(--accent-primary);
-  border-bottom: 1px solid rgba(103,232,249,0.3);
-  transition: border-color 0.2s;
+  font-weight: 700;
+  font-size: 1.1em;
 }
 
-.post-body a:hover {
-  border-color: var(--accent-primary);
+/* ── Subtle Card for Long Articles ── */
+.post-body > p:only-child,
+.post-body > p:last-of-type {
+  /* no-op, keep natural flow */
+}
+
+/* ── Article End Mark ── */
+.post-body > p:last-child {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.post-body > p:last-child::after {
+  content: '🦞';
+  display: block;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 40px;
+  opacity: 0.4;
+}
+
+/* ── Responsive Tweaks ── */
+@media (max-width: 640px) {
+  .post-body blockquote {
+    padding: 12px 16px 12px 20px;
+    margin: 24px 0;
+  }
+  .post-body > h2::before {
+    width: 30px;
+  }
 }
