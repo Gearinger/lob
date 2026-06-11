@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品思考 · Apple 把 Siri 交给了 Gemini，又把门打开了 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-12.html">
+<meta property="og:title" content="产品思考 · Apple 把 Siri 交给了 Gemini，又把门打开了">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-12.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="post-meta"><span class="tag">产品思考</span><span class="post-date">2026.06.12</span></div>
+<h1 class="post-title">Apple 把 Siri 交给了 Gemini，又把门打开了</h1>
+
+<div class="post-body">
+
+<p>WWDC 2026 最大的新闻不是 iOS 27，也不是 Liquid Glass 的设计语言迭代。真正重要的是两件事：Apple 花了 10 亿美元把 Siri 的底座换成了 Google Gemini 的技术，然后转身把第三方 AI 接入的门打开了。</p>
+
+<p>先说第一件事。Apple 在 WWDC 上发布了第三代 Apple Foundation Models（AFM），Siri 被完全重写为"Siri AI"。关键细节：这五个新模型的底层技术来自 Google Gemini——MacRumors 和 Apple Insider 都确认了这一点。但 Apple 同时强调，最终产品是"纯 Apple 技术和代码"，用户接触不到任何 Google 的代码或 Gemini 的代理。这是一个精心设计的说法：承认合作，但守住品牌。Apple 不能让 Siri 变成"Google 的语音助手"。</p>
+
+<p>再说第二件事，这才是真正改变格局的部分。Apple 推出了一个新的 Extensions 框架，允许用户把 Claude、ChatGPT、Gemini 或 Grok 设置为系统默认 AI——不再局限于 Siri AI 本身。</p>
+
+<h2>这等于 Apple 承认了一件事</h2>
+
+<p>这两件事放在一起，传递的信号很清晰：<strong>Apple 承认自己做不好基础模型。</strong></p>
+
+<p>2024 年 WWDC 上，Apple 高调宣布 Apple Intelligence，承诺 Siri 会变得"更智能、更懂你"。结果呢？两年里 Siri 的实际体验几乎没有质变，那些"个人上下文理解"和"屏幕感知"的承诺一直停留在 demo 阶段。到了 2026 年，Apple 选择了一条务实的路：用 Google 的技术补短板，同时开放生态让第三方 AI 来竞争。</p>
+
+<p>对一个以"垂直整合"为哲学的公司来说，这是一个罕见的妥协。Apple 以前从不把核心能力的底座交给别人——芯片是自研的，操作系统是自研的，甚至地图也要自己做。但 AI 基础模型太难了。Google 有十年的搜索数据和 TPU 集群，OpenAI 有先发优势和人才密度，Anthropic 有安全对齐的方法论。Apple 在这个赛道上，已经不是"慢半拍"的问题，而是"需要借力"的问题。</p>
+
+<h2>开放框架是 Apple 的真正赌注</h2>
+
+<p>但 Apple 的聪明之处在于：它没有把所有赌注押在自己的模型上。Extensions 框架的开放，本质上是在说：我不确定自己能做最好的 AI，但我可以做最好的 AI 分发平台。</p>
+
+<p>这很 Apple。回想 iOS 的历史——App Store 不是因为 Apple 自己做了最好的应用才成功的，而是因为它让最好的应用都能出现在一个统一的入口。现在 Apple 把同样的逻辑搬到了 AI 领域：不管你用 Claude 还是 ChatGPT，iOS 27 都能成为你的入口。</p>
+
+<p>对用户来说，这是一个巨大的利好。过去两年，AI 产品体验的碎片化越来越严重——你可能在手机上用 Siri，电脑上用 ChatGPT，浏览器里用 Gemini，每个都有自己的上下文和记忆，但它们之间完全割裂。Apple 的 Extensions 框架，第一次有机会把这些 AI 体验统一到操作系统层面。如果做得好，用户可以在系统级别选择"我的 AI"，而不是在每个 App 里分别设置。</p>
+
+<h2>对开发者的连锁反应</h2>
+
+<p>但对 AI 开发者来说，这件事需要冷静评估。</p>
+
+<p>一方面，被 Apple 集成是一个巨大的分发优势。如果 Claude 或 Gemini 能成为 iOS 的默认 AI 选项，用户量会有质的飞跃。但另一方面，<strong>被操作系统"标准化"也意味着被平台化</strong>。App Store 的历史告诉我们，一旦你的产品被 Apple 的框架收编，你就必须遵守 Apple 的规则——审核标准、分成比例、功能限制，一个都不能少。</p>
+
+<p>更关键的是：当 Apple 把多个 AI 模型放在同一个选择器里时，用户的决策逻辑会从"我选哪个 AI 产品"变成"我选哪个 AI 后端"。品牌差异化会被削弱。Claude 和 ChatGPT 在 iOS 上可能只是两个选项名称，而不是两个有鲜明个性的产品。这对 Anthropic 和 OpenAI 来说，都是需要认真应对的挑战。</p>
+
+<h2>产品视角的终极问题</h2>
+
+<p>WWDC 2026 暴露了 AI 行业的一个结构性矛盾：<strong>硬件平台和 AI 模型之间的权力关系正在倒转。</strong></p>
+
+<p>过去十年，硬件是入口，软件是服务。Apple 靠硬件+操作系统掌控了价值链的顶端。但 AI 的崛起改变了这个格局——当 AI 成为用户交互的主要界面时，模型的优劣变成了体验的决定性因素。Apple 可以控制硬件和操作系统，但它控制不了模型的质量。这就是为什么它需要和 Google 合作，也是为什么它不得不开放 Extensions 框架。</p>
+
+<p>对产品人来说，这个信号很明确：<strong>未来的产品竞争，不再是谁拥有入口，而是谁的 AI 能力足够强。</strong>Apple 的开放是一个无奈的选择，但它也可能是一个正确的选择。在 AI 时代，封闭不一定等于安全，开放也不一定等于失控。最终决定胜负的，是产品能在多大程度上解决用户的真实问题。</p>
+
+<p>Siri 从 2011 年诞生到现在，已经 15 年了。它花了两年承诺"变得更好"，最后还是需要 Google 的帮助。但这恰恰是 AI 时代最真实的姿态——承认短板，借力补强，然后在分发和体验上竞争。Apple 的故事还没结束，但它终于在对的方向上迈出了一步。</p>
+
+</div>
+</article>
+</body>
+</html>
