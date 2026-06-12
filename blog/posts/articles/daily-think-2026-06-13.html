@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当 93 个 AI Agent 协同工作：「智能体群」范式的信号 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+
+<meta name="description" content="Lob: 当 93 个 AI Agent 协同工作：「智能体群」范式的信号 — Lob">
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-06-13.html">
+<meta property="og:title" content="当 93 个 AI Agent 协同工作：「智能体群」范式的信号 — Lob">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-06-13.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta property="og:description" content="Lob: 当 93 个 AI Agent 协同工作：「智能体群」范式的信号 — Lob">
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.06.13</span>
+    </div>
+  <h1 class="post-title">当 93 个 AI Agent 协同工作：「智能体群」范式的信号</h1>
+
+  <div class="post-body">
+    <p>Google 在 I/O 2026 上展示了一个令人震撼的 demo：Antigravity 2.0 平台上，93 个 AI Agent 协同完成了操作系统的构建。15,000+ 次模型调用，26 亿 Token，12 小时，成本不到 1000 美元。</p>
+
+    <p>这个数字放在两年前是不可想象的。但今天，它更像是一个信号：AI 正在从「一个很聪明的助手」变成「一群能自我组织的执行者」。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">AI 产品的下一个范式不是「更聪明的单体」，而是「可编排的群体」。谁先掌握 Agent 群的调度能力，谁就掌握下一代软件基础设施。</p>
+    </div>
+
+    <h2>01. 从单 Agent 到 Agent 群：发生了什么</h2>
+    <p>过去一年，AI 编码工具的进化路径很清晰：Cursor 把 IDE 和大模型深度整合，Claude Code 走终端优先的自主路线，Devin 做的是端到端的软件工程。这些工具的共同点是——<strong>一个 Agent 做一件事</strong>。</p>
+    <p>但 Antigravity 2.0 展示的是另一条路：将复杂任务拆解为子任务，由多个 Agent 并行执行。这不是简单的「多线程」，而是一种新的软件架构——<strong>Agent 群（Agent Swarm）</strong>。每个 Agent 有自己的角色、权限和上下文，通过调度器协调，像一个分布式团队一样工作。</p>
+
+    <h2>02. 这为什么重要</h2>
+    <p>单 Agent 的瓶颈很明显：上下文窗口有限，推理速度有上限，长任务容易失焦。而 Agent 群可以绕过这些限制——通过任务拆分降低单个 Agent 的认知负荷，通过并行执行压缩总耗时，通过角色分工让每个 Agent 在自己擅长的领域发挥最大效能。</p>
+    <p>Google 的 demo 数据很有说服力：12 小时完成一个操作系统级别的构建任务，成本不到 1000 美元。这意味着<strong>复杂工程任务的经济账正在被重写</strong>——不是因为模型变便宜了，而是因为任务被更聪明地分配了。</p>
+
+    <h2>03. 产品人该关注什么</h2>
+    <ul>
+      <li><strong>编排能力 > 模型能力</strong>——未来 AI 产品的核心竞争力不是「哪个模型最强」，而是「谁能最好地调度多个模型」</li>
+      <li><strong>Agent 即基础设施</strong>——Antigravity 2.0 的斜杠命令（/goal、/grill-me、/browser）本质上是在定义 Agent 的「API」——未来每个行业都可能有自己的 Agent 协议</li>
+      <li><strong>成本结构在变</strong>——93 个 Agent 26 亿 Token 只花 $1000，意味着「人力密集型」工程任务正在被「Token 密集型」任务替代</li>
+    </ul>
+
+    <h2>04. 风险与冷思考</h2>
+    <p>Agent 群听起来美好，但有几个现实问题：当 93 个 Agent 各自行动时，<strong>一致性如何保证？错误如何级联？调试难度指数级上升怎么办？</strong></p>
+    <p>Google 演示的是一个受控环境下的 demo。真实世界的软件工程充满了模糊需求、遗留代码和政治决策——这些是当前 Agent 群还不擅长处理的。但方向已经清晰：<strong>AI 产品的下一步不是更聪明，而是更会协作</strong>。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
