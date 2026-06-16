@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>西游弹球 — Lob</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a0a0a;font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif}
+canvas{display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+#ui{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:10}
+#score-display{text-align:center;padding:12px 0;font-size:clamp(20px,4vw,36px);font-weight:700;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,0.6),0 2px 4px rgba(0,0,0,0.8);letter-spacing:2px}
+#lives-display{text-align:center;padding:4px 0;font-size:clamp(14px,2.5vw,22px);color:#ff6b6b}
+#combo-display{position:absolute;top:60px;left:50%;transform:translateX(-50%);font-size:clamp(16px,3vw,28px);color:#ff9f43;font-weight:700;text-shadow:0 0 8px rgba(255,159,67,0.6);opacity:0;transition:opacity 0.3s}
+#message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:auto;z-index:20;display:none}
+#message h1{font-size:clamp(28px,6vw,52px);color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.8),0 4px 8px rgba(0,0,0,0.6);margin-bottom:16px}
+#message p{font-size:clamp(16px,3vw,24px);color:#eee;margin-bottom:24px}
+#message button{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a0a0a;border:none;padding:14px 40px;font-size:clamp(16px,3vw,22px);font-weight:700;border-radius:30px;cursor:pointer;pointer-events:auto;font-family:inherit;box-shadow:0 4px 15px rgba(255,215,0,0.4);transition:transform 0.15s}
+#message button:hover{transform:scale(1.05)}
+#message button:active{transform:scale(0.95)}
+#touch-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,0.3);pointer-events:none;z-index:10}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+  <div id="score-display">0</div>
+  <div id="lives-display"></div>
+  <div id="combo-display"></div>
+</div>
+<div id="message"><h1 id="msg-title"></h1><p id="msg-sub"></p><button id="msg-btn" onclick="startGame()">再来一局</button></div>
+<div id="touch-hint">← 左侧点击翻板 | 右侧点击翻板 → | 上滑发射</div>
+<script>
+// ============================================================
+//  西游弹球 - Journey to the West Pinball
+// ============================================================
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// ---- Audio Context ----
+let audioCtx = null;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function playTone(freq,dur,vol=0.15,type='sine'){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+  g.gain.setValueAtTime(vol,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+  o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);
+}
+function sndBumper(){playTone(880,0.12,0.2,'square');playTone(1100,0.08,0.1,'sine')}
+function sndFlipper(){playTone(220,0.06,0.15,'triangle')}
+function sndWall(){playTone(300,0.05,0.08,'sine')}
+function sndLaunch(){playTone(150,0.3,0.2,'sawtooth')}
+function sndDrain(){playTone(100,0.5,0.15,'sine');playTone(80,0.5,0.1,'sine')}
+function sndBonus(){playTone(523,0.1,0.2,'sine');setTimeout(()=>playTone(659,0.1,0.2,'sine'),100);setTimeout(()=>playTone(784,0.15,0.2,'sine'),200)}
+
+// ---- Sizing ----
+const W=400, H=720; // logical table size
+let scale=1, offsetX=0, offsetY=0;
+
+function resize(){
+  const vw=window.innerWidth,vh=window.innerHeight;
+  const aspect=W/H;
+  let cw,ch;
+  if(vw/vh>aspect){ch=vh;cw=ch*aspect}else{cw=vw;ch=cw/aspect}
+  canvas.width=cw;canvas.height=ch;
+  scale=cw/W;
+  offsetX=(vw-cw)/2;offsetY=(vh-ch)/2;
+  canvas.style.left=(vw/2)+'px';canvas.style.top=(vh/2)+'px';
+}
+window.addEventListener('resize',resize);
+resize();
+
+// ---- Game State ----
+let score=0,lives=3,gameState='idle'; // idle, playing, launching, gameover
+let combo=0,comboTimer=0,comboMultiplier=1;
+let hitChars=new Set(); // track which character bumpers hit this ball
+let ballX,ballY,ballVX,ballVY,ballRadius=8;
+let launchPower=0,launching=false;
+let particles=[];
+let floatingTexts=[];
+let glowTrail=[];
+
+// ---- Bumper definitions ----
+// {x,y,r,type,score,color,label,hitTimer}
+const bumpers=[
+  {x:200,y:160,r:38,type:'wukong',score:500,color:'#ffd700',label:'悟空',hitTimer:0,emoji:'🐵'},
+  {x:110,y:260,r:28,type:'bajie',score:300,color:'#ff9eb5',label:'八戒',hitTimer:0,emoji:'🐷'},
+  {x:290,y:260,r:28,type:'shaseng',score:300,color:'#6b8cae',label:'沙僧',hitTimer:0,emoji:'🧔'},
+  {x:200,y:100,r:22,type:'tangseng',score:400,color:'#e74c3c',label:'唐僧',hitTimer:0,emoji:'🧘'},
+];
+
+// Moving bumper (白龙马)
+const movingBumper={x:200,y:380,r:20,type:'bailongma',score:350,color:'#c0c0c0',label:'白龙马',hitTimer:0,emoji:'🐴',dir:1,speed:1.2};
+
+// Static obstacles
+const posts=[
+  {x:200,y:480,r:6,type:'jinGuBang',color:'#ffd700',label:'金箍棒'}, // vertical post
+  {x:80,y:140,r:5,type:'fire',color:'#ff4500'},  // flame mountain area
+  {x:70,y:170,r:5,type:'fire',color:'#ff6347'},
+  {x:90,y:155,r:5,type:'fire',color:'#ff4500'},
+  {x:60,y:155,r:5,type:'fire',color:'#ff6347'},
+  {x:80,y:125,r:5,type:'fire',color:'#ff4500'},
+];
+
+// 盘丝洞 (slot target)
+const panSiDong={x:330,y:130,w:30,h:50,type:'pansidong',score:600,color:'#8b008b',label:'盘丝洞',hitTimer:0};
+
+// Side lane scores
+const sideLanes=[
+  {x:40,y:300,w:15,h:80,score:100,color:'#b8860b'},
+  {x:345,y:300,w:15,h:80,score:100,color:'#b8860b'},
+];
+
+// Flippers
+const flippers={
+  left:{x:135,y:630,len:60,angle:0.4,targetAngle:0.4,restAngle:0.4,activeAngle:-0.6,pivotX:135,pivotY:630,width:10},
+  right:{x:265,y:630,len:60,angle:Math.PI-0.4,targetAngle:Math.PI-0.4,restAngle:Math.PI-0.4,activeAngle:Math.PI+0.6,pivotX:265,pivotY:630,width:10}
+};
+
+// Launcher
+const launcher={x:375,y:580,w:20,h:120,channelX:385,channelTop:460,channelBottom:680};
+
+// Walls (line segments)
+const walls=[
+  // outer walls
+  {x1:20,y1:60,x2:20,y2:700},   // left
+  {x1:360,y1:60,x2:360,y2:520}, // right (above launcher)
+  {x1:20,y1:60,x2:160,y2:30},   // top-left
+  {x1:240,y1:30,x2:360,y2:60},  // top-right
+  {x1:160,y1:30,x2:240,y2:30},  // top center
+  // launcher channel
+  {x1:360,y1:520,x2:360,y2:700},// right wall below launcher entry
+  {x1:340,y1:520,x2:360,y2:520},// launcher entry lip
+  // drain guides
+  {x1:20,y1:700,x2:120,y2:680}, // left drain guide
+  {x1:280,y1:680,x2:360,y2:700},// right drain guide
+  // inner guides
+  {x1:50,y1:100,x2:50,y2:500},  // left inner
+  {x1:330,y1:100,x2:330,y2:460},// right inner
+  // ramp-like guides
+  {x1:50,y1:500,x2:100,y2:560}, // left ramp down
+  {x1:300,y1:460,x2:330,y2:400},// right ramp up
+];
+
+// ---- Input ----
+const keys={};
+let touchLeft=false,touchRight=false,touchLaunch=false;
+
+document.addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(e.code==='Space'||e.code==='ArrowDown')e.preventDefault();
+  initAudio();
+});
+document.addEventListener('keyup',e=>{keys[e.code]=false});
+
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();initAudio();
+  for(const t of e.changedTouches){
+    const rect=canvas.getBoundingClientRect();
+    const tx=(t.clientX-rect.left)/rect.width;
+    if(tx<0.35)touchLeft=true;
+    else if(tx>0.65)touchRight=true;
+    else touchLaunch=true;
+  }
+},{passive:false});
+canvas.addEventListener('touchend',e=>{
+  e.preventDefault();
+  for(const t of e.changedTouches){
+    const rect=canvas.getBoundingClientRect();
+    const tx=(t.clientX-rect.left)/rect.width;
+    if(tx<0.35)touchLeft=false;
+    else if(tx>0.65)touchRight=false;
+    else touchLaunch=false;
+  }
+},{passive:false});
+
+canvas.addEventListener('mousedown',e=>{
+  initAudio();
+  const rect=canvas.getBoundingClientRect();
+  const tx=(e.clientX-rect.left)/rect.width;
+  if(tx<0.35)touchLeft=true;
+  else if(tx>0.65)touchRight=true;
+  else touchLaunch=true;
+});
+canvas.addEventListener('mouseup',()=>{
+  touchLeft=false;touchRight=false;touchLaunch=false;
+});
+
+// ---- Particles ----
+function spawnParticles(x,y,color,count=10){
+  for(let i=0;i<count;i++){
+    const angle=Math.random()*Math.PI*2;
+    const speed=1+Math.random()*4;
+    particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:1,color,size:2+Math.random()*3});
+  }
+}
+function spawnFloatingText(x,y,text,color='#ffd700'){
+  floatingTexts.push({x,y,vy:-2,life:1,text,color,size:18});
+}
+
+// ---- Physics helpers ----
+function dist(x1,y1,x2,y2){return Math.sqrt((x2-x1)**2+(y2-y1)**2)}
+
+function clamp(v,min,max){return v<min?v:v>max?max:v}
+
+function reflect(vx,vy,nx,ny,rest=0.7){
+  const dot=vx*nx+vy*ny;
+  return {vx:(vx-2*dot*nx)*rest,vy:(vy-2*dot*ny)*rest};
+}
+
+// ---- Collision: ball vs circle bumper ----
+function collideBumper(bx,by,br,bumper,isScoring=true){
+  const d=dist(bx,by,bumper.x,bumper.y);
+  if(d<br+bumper.r){
+    // push ball out
+    const nx=(bx-bumper.x)/d, ny=(by-bumper.y)/d;
+    const overlap=br+bumper.r-d;
+    ballX+=nx*overlap;ballY+=ny*overlap;
+    // reflect
+    const ref=reflect(ballVX,ballVY,nx,ny,0.7);
+    // add bumper kick
+    const kick=5;
+    ballVX=ref.vx+nx*kick;
+    ballVY=ref.vy+ny*kick;
+    // cap speed
+    capSpeed();
+    if(isScoring){
+      bumper.hitTimer=1;
+      addScore(bumper.score,bumper.x,bumper.y);
+      spawnParticles(bx,by,bumper.color,15);
+      hitChars.add(bumper.type);
+      sndBumper();
+    }else{
+      sndWall();
+      spawnParticles(bx,by,bumper.color||'#ffd700',5);
+    }
+    return true;
+  }
+  return false;
+}
+
+function capSpeed(){
+  const spd=Math.sqrt(ballVX**2+ballVY**2);
+  if(spd>18){ballVX*=18/spd;ballVY*=18/spd;}
+}
+
+function addScore(pts,x,y){
+  combo++;
+  comboTimer=60;
+  if(combo>=3)comboMultiplier=1+Math.floor((combo-2)/2)*0.5;
+  const total=Math.floor(pts*comboMultiplier);
+  score+=total;
+  let text='+'+total;
+  if(comboMultiplier>1)text+=' x'+comboMultiplier.toFixed(1);
+  spawnFloatingText(x,y-20,text);
+  updateUI();
+}
+
+function updateUI(){
+  document.getElementById('score-display').textContent=score.toLocaleString();
+  let livesHtml='';
+  for(let i=0;i<lives;i++)livesHtml+='🔴 ';
+  document.getElementById('lives-display').textContent=livesHtml;
+  const cd=document.getElementById('combo-display');
+  if(combo>=3&&comboTimer>0){cd.textContent=combo+'连击! x'+comboMultiplier.toFixed(1);cd.style.opacity='1'}
+  else{cd.style.opacity='0'}
+}
+
+// ---- Ball launch ----
+function resetBall(){
+  ballX=launcher.channelX;
+  ballY=launcher.channelBottom-20;
+  ballVX=0;ballVY=0;
+  hitChars.clear();
+}
+
+// ---- Flipper physics ----
+function updateFlippers(){
+  const leftActive=keys['ArrowLeft']||touchLeft;
+  const rightActive=keys['ArrowRight']||touchRight;
+  
+  const fL=flippers.left, fR=flippers.right;
+  const speed=0.25;
+  
+  if(leftActive){
+    fL.targetAngle=fL.activeAngle;
+    if(Math.abs(fL.angle-fL.activeAngle)<0.1)sndFlipper();
+  }else{
+    fL.targetAngle=fL.restAngle;
+  }
+  if(rightActive){
+    fR.targetAngle=fR.activeAngle;
+    if(Math.abs(fR.angle-fR.activeAngle)<0.1)sndFlipper();
+  }else{
+    fR.targetAngle=fR.restAngle;
+  }
+  
+  fL.angle+=(fL.targetAngle-fL.angle)*speed*3;
+  fR.angle+=(fR.targetAngle-fR.angle)*speed*3;
+}
+
+function collideFlipper(flipper,isLeft){
+  // Flipper as a line segment from pivot to tip
+  const tipX=flipper.pivotX+Math.cos(flipper.angle)*flipper.len;
+  const tipY=flipper.pivotY+Math.sin(flipper.angle)*flipper.len;
+  
+  // Point-to-line-segment distance
+  const dx=tipX-flipper.pivotX, dy=tipY-flipper.pivotY;
+  const len2=dx*dx+dy*dy;
+  let t=((ballX-flipper.pivotX)*dx+(ballY-flipper.pivotY)*dy)/len2;
+  t=clamp(t,0,1);
+  const closestX=flipper.pivotX+t*dx;
+  const closestY=flipper.pivotY+t*dy;
+  const d=dist(ballX,ballY,closestX,closestY);
+  
+  if(d<ballRadius+flipper.width/2){
+    // Push out
+    const nx=(ballX-closestX)/d, ny=(ballY-closestY)/d;
+    const overlap=ballRadius+flipper.width/2-d;
+    ballX+=nx*overlap;ballY+=ny*overlap;
+    
+    // Flipper angular velocity contribution
+    const angVel=(flipper.targetAngle-flipper.angle)*3;
+    const armLen=t*flipper.len;
+    const tangentVX=-Math.sin(flipper.angle)*angVel*armLen;
+    const tangentVY=Math.cos(flipper.angle)*angVel*armLen;
+    
+    const ref=reflect(ballVX,ballVY,nx,ny,0.6);
+    ballVX=ref.vx+tangentVX*2;
+    ballVY=ref.vy+tangentVY*2;
+    
+    // Extra kick when flipper is moving
+    if(Math.abs(angVel)>0.05){
+      ballVY-=8;
+      ballVX+=isLeft?2:-2;
+    }
+    capSpeed();
+    sndFlipper();
+    spawnParticles(closestX,closestY,'#ffd700',5);
+    return true;
+  }
+  return false;
+}
+
+// ---- Wall collision ----
+function collideWall(x1,y1,x2,y2){
+  const dx=x2-x1,dy=y2-y1,len2=dx*dx+dy*dy;
+  let t=((ballX-x1)*dx+(ballY-y1)*dy)/len2;
+  t=clamp(t,0,1);
+  const closestX=x1+t*dx,closestY=y1+t*dy;
+  const d=dist(ballX,ballY,closestX,closestY);
+  if(d<ballRadius){
+    const nx=(ballX-closestX)/d,ny=(ballY-closestY)/d;
+    const overlap=ballRadius-d;
+    ballX+=nx*overlap;ballY+=ny*overlap;
+    const ref=reflect(ballVX,ballVY,nx,ny,0.6);
+    ballVX=ref.vx;ballVY=ref.vy;
+    capSpeed();
+    sndWall();
+    return true;
+  }
+  return false;
+}
+
+// ---- 盘丝洞 (slot target) collision ----
+function collidePanSiDong(){
+  const ps=panSiDong;
+  const cx=ps.x+ps.w/2, cy=ps.y+ps.h/2;
+  if(ballX>ps.x&&ballX<ps.x+ps.w&&ballY>ps.y&&ballY<ps.y+ps.h){
+    ps.hitTimer=1;
+    addScore(ps.score,cx,cy);
+    spawnParticles(cx,cy,'#8b008b',20);
+    sndBonus();
+    // Slight random bounce out
+    ballVX+=(Math.random()-0.5)*4;
+    ballVY=-Math.abs(ballVY)*0.5-3;
+    return true;
+  }
+  return false;
+}
+
+// ---- Side lane collision ----
+function collideSideLanes(){
+  for(const lane of sideLanes){
+    if(ballX>lane.x&&ballX<lane.x+lane.w&&ballY>lane.y&&ballY<lane.y+lane.h){
+      addScore(lane.score,ballX,ballY);
+      spawnParticles(ballX,ballY,lane.color,8);
+      // Push ball away
+      if(ballX<W/2)ballVX-=3;else ballVX+=3;
+      ballVY*=0.8;
+    }
+  }
+}
+
+// ---- Main update ----
+function update(){
+  if(gameState!=='playing'&&gameState!=='launching')return;
+  
+  updateFlippers();
+  
+  // Launcher
+  const wantLaunch=keys['Space']||keys['ArrowDown']||touchLaunch;
+  if(gameState==='launching'){
+    if(wantLaunch){
+      launchPower=Math.min(launchPower+0.02,1);
+      return;
+    }else if(launchPower>0){
+      ballVY=-(6+launchPower*14);
+      ballVX=(Math.random()-0.5)*0.5;
+      gameState='playing';
+      sndLaunch();
+      launchPower=0;
+      return;
+    }
+    return;
+  }
+  
+  // Gravity
+  ballVY+=0.25;
+  
+  // Move ball
+  ballX+=ballVX;
+  ballY+=ballVY;
+  
+  // Slight friction
+  ballVX*=0.999;
+  ballVY*=0.999;
+  
+  // Trail
+  glowTrail.push({x:ballX,y:ballY,life:1});
+  if(glowTrail.length>20)glowTrail.shift();
+  
+  // Wall collisions
+  for(const w of walls)collideWall(w.x1,w.y1,w.x2,w.y2);
+  
+  // Bumper collisions
+  for(const b of bumpers)collideBumper(ballX,ballY,ballRadius,b);
+  
+  // Moving bumper
+  collideBumper(ballX,ballY,ballRadius,movingBumper);
+  
+  // Posts
+  for(const p of posts){
+    const d=dist(ballX,ballY,p.x,p.y);
+    if(d<ballRadius+p.r){
+      const nx=(ballX-p.x)/d,ny=(ballY-p.y)/d;
+      const overlap=ballRadius+p.r-d;
+      ballX+=nx*overlap;ballY+=ny*overlap;
+      const ref=reflect(ballVX,ballVY,nx,ny,0.7);
+      ballVX=ref.vx;ballVY=ref.vy;
+      capSpeed();
+      spawnParticles(ballX,ballY,p.color,4);
+      sndWall();
+    }
+  }
+  
+  // 盘丝洞
+  collidePanSiDong();
+  
+  // Side lanes
+  collideSideLanes();
+  
+  // Flippers
+  collideFlipper(flippers.left,true);
+  collideFlipper(flippers.right,false);
+  
+  // Simple boundary checks
+  if(ballX<20+ballRadius){ballX=20+ballRadius;ballVX=Math.abs(ballVX)*0.6;sndWall()}
+  if(ballX>360-ballRadius&&ballY<520){ballX=360-ballRadius;ballVX=-Math.abs(ballVX)*0.6;sndWall()}
+  // Launcher channel walls
+  if(ballX>340&&ballX<360&&ballY>520){
+    // in launcher channel area
+    if(ballX<340+ballRadius){ballX=340+ballRadius;ballVX=Math.abs(ballVX)*0.5}
+    if(ballX>360-ballRadius){ballX=360-ballRadius;ballVX=-Math.abs(ballVX)*0.5}
+  }
+  if(ballY<30+ballRadius){ballY=30+ballRadius;ballVY=Math.abs(ballVY)*0.6;sndWall()}
+  
+  // Drain check
+  if(ballY>H+20){
+    sndDrain();
+    lives--;
+    updateUI();
+    if(lives<=0){
+      gameState='gameover';
+      showMessage('游戏结束','最终得分: '+score.toLocaleString(),'再来一局');
+    }else{
+      gameState='launching';
+      resetBall();
+      launchPower=0;
+    }
+  }
+  
+  // Update moving bumper
+  movingBumper.x+=movingBumper.speed*movingBumper.dir;
+  if(movingBumper.x<120||movingBumper.x>280)movingBumper.dir*=-1;
+  
+  // Update bumper hit timers
+  for(const b of bumpers)b.hitTimer=Math.max(0,b.hitTimer-0.03);
+  movingBumper.hitTimer=Math.max(0,movingBumper.hitTimer-0.03);
+  panSiDong.hitTimer=Math.max(0,panSiDong.hitTimer-0.03);
+  
+  // Update particles
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=0.025;
+    if(p.life<=0)particles.splice(i,1);
+  }
+  
+  // Update floating texts
+  for(let i=floatingTexts.length-1;i>=0;i--){
+    const ft=floatingTexts[i];
+    ft.y+=ft.vy;ft.life-=0.02;
+    if(ft.life<=0)floatingTexts.splice(i,1);
+  }
+  
+  // Update glow trail
+  for(let i=glowTrail.length-1;i>=0;i--){
+    glowTrail[i].life-=0.05;
+    if(glowTrail[i].life<=0)glowTrail.splice(i,1);
+  }
+  
+  // Combo timer
+  if(comboTimer>0){comboTimer--;if(comboTimer<=0){combo=0;comboMultiplier=1}}
+  if(comboTimer%10===0)updateUI();
+  
+  // Check 通关 bonus
+  if(hitChars.size>=4){
+    hitChars.clear();
+    score+=2000;
+    spawnFloatingText(200,200,'通关! +2000');
+    sndBonus();
+    updateUI();
+  }
+}
+
+// ---- Draw ----
+function drawTable(){
+  // Background
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#2d0a0a');
+  grad.addColorStop(0.5,'#1a0808');
+  grad.addColorStop(1,'#0d0404');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,W,H);
+  
+  // Table pattern (subtle)
+  ctx.globalAlpha=0.03;
+  for(let i=0;i<W;i+=20){
+    for(let j=0;j<H;j+=20){
+      if((i+j)%40===0){ctx.fillStyle='#ffd700';ctx.fillRect(i,j,10,10)}
+    }
+  }
+  ctx.globalAlpha=1;
+  
+  // Golden border
+  ctx.strokeStyle='#b8860b';
+  ctx.lineWidth=3;
+  ctx.strokeRect(15,25,W-30,H-25);
+  ctx.strokeStyle='#ffd700';
+  ctx.lineWidth=1;
+  ctx.strokeRect(18,28,W-36,H-31);
+  
+  // 花果山 area (top)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(60,90);ctx.lineTo(160,40);ctx.lineTo(240,40);ctx.lineTo(340,90);
+  ctx.lineTo(310,120);ctx.quadraticCurveTo(200,140,90,120);
+  ctx.closePath();
+  const mtGrad=ctx.createLinearGradient(60,40,60,130);
+  mtGrad.addColorStop(0,'#2d5016');mtGrad.addColorStop(1,'#1a3a0a');
+  ctx.fillStyle=mtGrad;ctx.fill();
+  ctx.strokeStyle='#4a8a2a';ctx.lineWidth=1.5;ctx.stroke();
+  // Mountain text
+  ctx.fillStyle='#ffd700';ctx.font='bold 16px "PingFang SC",sans-serif';ctx.textAlign='center';
+  ctx.fillText('花果山',200,95);
+  ctx.restore();
+  
+  // 火焰山 area (top-left)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(40,110);ctx.lineTo(80,80);ctx.lineTo(120,110);ctx.lineTo(100,180);ctx.lineTo(60,180);
+  ctx.closePath();
+  const fireGrad=ctx.createLinearGradient(60,80,60,180);
+  fireGrad.addColorStop(0,'#ff4500');fireGrad.addColorStop(0.5,'#ff6347');fireGrad.addColorStop(1,'#8b0000');
+  ctx.fillStyle=fireGrad;ctx.fill();
+  ctx.strokeStyle='#ff8c00';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#ff0';ctx.font='bold 11px "PingFang SC",sans-serif';ctx.textAlign='center';
+  ctx.fillText('火焰山',80,155);
+  // Flame particles
+  for(let i=0;i<3;i++){
+    const fx=60+Math.random()*40,fy=100+Math.random()*30;
+    ctx.fillStyle='rgba(255,200,0,'+Math.random()*0.5+')';
+    ctx.beginPath();ctx.arc(fx,fy,2+Math.random()*3,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+  
+  // 盘丝洞 area (top-right)
+  ctx.save();
+  const ps=panSiDong;
+  const psGrad=ctx.createRadialGradient(ps.x+ps.w/2,ps.y+ps.h/2,5,ps.x+ps.w/2,ps.y+ps.h/2,ps.w);
+  psGrad.addColorStop(0,'#2a0030');psGrad.addColorStop(0.7,'#4a0060');psGrad.addColorStop(1,'#1a0020');
+  ctx.fillStyle=psGrad;
+  ctx.beginPath();
+  ctx.ellipse(ps.x+ps.w/2,ps.y+ps.h/2,ps.w/2,ps.h/2,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle='#9b59b6';ctx.lineWidth=2;ctx.stroke();
+  // Web strands
+  ctx.strokeStyle='rgba(155,89,182,0.3)';ctx.lineWidth=0.5;
+  for(let a=0;a<6;a++){
+    const angle=a*Math.PI/3;
+    ctx.beginPath();
+    ctx.moveTo(ps.x+ps.w/2,ps.y+ps.h/2);
+    ctx.lineTo(ps.x+ps.w/2+Math.cos(angle)*ps.w,ps.y+ps.h/2+Math.sin(angle)*ps.h);
+    ctx.stroke();
+  }
+  ctx.fillStyle='#9b59b6';ctx.font='bold 10px "PingFang SC",sans-serif';ctx.textAlign='center';
+  ctx.fillText('盘丝洞',ps.x+ps.w/2,ps.y+ps.h/2+4);
+  if(ps.hitTimer>0){
+    ctx.fillStyle='rgba(155,89,182,'+ps.hitTimer*0.5+')';
+    ctx.beginPath();ctx.ellipse(ps.x+ps.w/2,ps.y+ps.h/2,ps.w/2+10*ps.hitTimer,ps.h/2+10*ps.hitTimer,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+  
+  // Side lanes
+  for(const lane of sideLanes){
+    ctx.fillStyle=lane.color;
+    ctx.fillRect(lane.x,lane.y,lane.w,lane.h);
+    ctx.strokeStyle='#ffd700';ctx.lineWidth=1;ctx.strokeRect(lane.x,lane.y,lane.w,lane.h);
+  }
+  
+  // Launcher channel
+  ctx.fillStyle='#1a1a1a';
+  ctx.fillRect(340,520,20,200);
+  ctx.strokeStyle='#b8860b';ctx.lineWidth=2;
+  ctx.strokeRect(340,520,20,200);
+  // Spring
+  if(gameState==='launching'){
+    const springY=640+launchPower*30;
+    ctx.strokeStyle='#ffd700';ctx.lineWidth=2;
+    for(let sy=640;sy>springY;sy-=8){
+      ctx.beginPath();ctx.moveTo(345,sy);ctx.lineTo(355,sy-4);ctx.stroke();
+    }
+  }
+}
+
+function drawBumper(b){
+  const r=b.r;
+  const glow=b.hitTimer>0;
+  
+  ctx.save();
+  ctx.translate(b.x,b.y);
+  
+  // Glow
+  if(glow){
+    ctx.shadowColor=b.color;ctx.shadowBlur=20*b.hitTimer;
+    ctx.beginPath();ctx.arc(0,0,r+5*b.hitTimer,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+b.hitTimer*0.3+')';ctx.fill();
+    ctx.shadowBlur=0;
+  }
+  
+  // Body
+  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);
+  const bGrad=ctx.createRadialGradient(-r*0.3,-r*0.3,0,0,0,r);
+  bGrad.addColorStop(0,'#fff');bGrad.addColorStop(0.3,b.color);bGrad.addColorStop(1,shadeColor(b.color,-40));
+  ctx.fillStyle=bGrad;ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1.5;ctx.stroke();
+  
+  // Face
+  ctx.font=Math.floor(r*0.7)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(b.emoji,0,1);
+  
+  // Label
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.floor(r*0.35)+'px "PingFang SC",sans-serif';
+  ctx.fillText(b.label,0,r+12);
+  
+  ctx.restore();
+}
+
+function drawMovingBumper(){
+  const b=movingBumper;
+  drawBumper(b);
+  // Trail
+  ctx.save();
+  ctx.globalAlpha=0.2;
+  ctx.beginPath();ctx.arc(b.x-b.dir*15,b.y,b.r*0.7,0,Math.PI*2);
+  ctx.fillStyle=b.color;ctx.fill();
+  ctx.globalAlpha=0.1;
+  ctx.beginPath();ctx.arc(b.x-b.dir*30,b.y,b.r*0.5,0,Math.PI*2);
+  ctx.fillStyle=b.color;ctx.fill();
+  ctx.restore();
+}
+
+function drawPosts(){
+  for(const p of posts){
+    ctx.save();
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    const pGrad=ctx.createRadialGradient(p.x-2,p.y-2,0,p.x,p.y,p.r);
+    pGrad.addColorStop(0,'#fff');pGrad.addColorStop(0.5,p.color);pGrad.addColorStop(1,'#333');
+    ctx.fillStyle=pGrad;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=0.5;ctx.stroke();
+    ctx.restore();
+  }
+  
+  // 金箍棒 vertical post (special)
+  ctx.save();
+  ctx.fillStyle='#ffd700';
+  ctx.shadowColor='#ffd700';ctx.shadowBlur=8;
+  ctx.fillRect(197,460,6,40);
+  ctx.strokeStyle='#b8860b';ctx.lineWidth=1;ctx.strokeRect(197,460,6,40);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#ffd700';ctx.font='bold 9px "PingFang SC",sans-serif';ctx.textAlign='center';
+  ctx.fillText('金箍棒',200,510);
+  ctx.restore();
+}
+
+function drawFlipper(f,isLeft){
+  ctx.save();
+  ctx.translate(f.pivotX,f.pivotY);
+  ctx.rotate(f.angle);
+  
+  // Golden cudgel style
+  const fGrad=ctx.createLinearGradient(0,-f.width/2,f.len,-f.width/2);
+  fGrad.addColorStop(0,'#ffd700');fGrad.addColorStop(0.5,'#ffec80');fGrad.addColorStop(1,'#b8860b');
+  
+  ctx.beginPath();
+  ctx.moveTo(0,-f.width/2);
+  ctx.lineTo(f.len,-f.width/2+2);
+  ctx.lineTo(f.len,f.width/2-2);
+  ctx.lineTo(0,f.width/2);
+  ctx.closePath();
+  ctx.fillStyle=fGrad;ctx.fill();
+  ctx.strokeStyle='#b8860b';ctx.lineWidth=1;ctx.stroke();
+  
+  // Pivot decoration
+  ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);
+  ctx.fillStyle='#ffd700';ctx.fill();
+  ctx.strokeStyle='#b8860b';ctx.lineWidth=1;ctx.stroke();
+  
+  ctx.restore();
+}
+
+function drawBall(){
+  if(gameState!=='playing'&&gameState!=='launching')return;
+  
+  // Trail
+  ctx.save();
+  for(const t of glowTrail){
+    ctx.globalAlpha=t.life*0.3;
+    ctx.beginPath();ctx.arc(t.x,t.y,ballRadius*t.life,0,Math.PI*2);
+    ctx.fillStyle='#ffd700';ctx.fill();
+  }
+  ctx.restore();
+  
+  // Ball glow
+  ctx.save();
+  ctx.shadowColor='#ffd700';ctx.shadowBlur=15;
+  
+  // Ball body
+  ctx.beginPath();ctx.arc(ballX,ballY,ballRadius,0,Math.PI*2);
+  const ballGrad=ctx.createRadialGradient(ballX-2,ballY-2,0,ballX,ballY,ballRadius);
+  ballGrad.addColorStop(0,'#fff');ballGrad.addColorStop(0.4,'#ffd700');ballGrad.addColorStop(1,'#b8860b');
+  ctx.fillStyle=ballGrad;ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1;ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.restore();
+}
+
+function drawParticles(){
+  ctx.save();
+  for(const p of particles){
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawFloatingTexts(){
+  ctx.save();
+  for(const ft of floatingTexts){
+    ctx.globalAlpha=ft.life;
+    ctx.fillStyle=ft.color;
+    ctx.font='bold '+ft.size+'px "PingFang SC",sans-serif';
+    ctx.textAlign='center';
+    ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=4;
+    ctx.fillText(ft.text,ft.x,ft.y);
+    ctx.shadowBlur=0;
+  }
+  ctx.restore();
+}
+
+function drawLaunchPower(){
+  if(gameState!=='launching'||launchPower<=0)return;
+  ctx.save();
+  // Power bar
+  const barX=362,barY=680,barW=12,barH=-120;
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.fillRect(barX-1,barY+barH-1,barW+2,-barH+2);
+  const pGrad=ctx.createLinearGradient(0,barY,0,barY+barH);
+  pGrad.addColorStop(0,'#00ff00');pGrad.addColorStop(0.5,'#ffff00');pGrad.addColorStop(1,'#ff0000');
+  ctx.fillStyle=pGrad;
+  ctx.fillRect(barX,barY,barW,barH*launchPower);
+  ctx.strokeStyle='#ffd700';ctx.lineWidth=1;ctx.strokeRect(barX,barY+barH,barW,-barH);
+  ctx.restore();
+}
+
+function shadeColor(color,percent){
+  let num=parseInt(color.replace('#',''),16);
+  let r=Math.min(255,Math.max(0,(num>>16)+percent));
+  let g=Math.min(255,Math.max(0,((num>>8)&0x00FF)+percent));
+  let b=Math.min(255,Math.max(0,(num&0x0000FF)+percent));
+  return '#'+(0x1000000+r*0x10000+g*0x100+b).toString(16).slice(1);
+}
+
+function draw(){
+  ctx.save();
+  ctx.scale(scale,scale);
+  
+  drawTable();
+  
+  // Draw walls (debug-visible subtle lines)
+  ctx.save();
+  ctx.strokeStyle='rgba(184,134,11,0.3)';ctx.lineWidth=2;
+  for(const w of walls){
+    ctx.beginPath();ctx.moveTo(w.x1,w.y1);ctx.lineTo(w.x2,w.y2);ctx.stroke();
+  }
+  ctx.restore();
+  
+  drawPosts();
+  
+  // Draw bumpers
+  for(const b of bumpers)drawBumper(b);
+  drawMovingBumper();
+  
+  // Draw flippers
+  drawFlipper(flippers.left,true);
+  drawFlipper(flippers.right,false);
+  
+  // Draw ball
+  drawBall();
+  
+  // Draw particles & text
+  drawParticles();
+  drawFloatingTexts();
+  drawLaunchPower();
+  
+  ctx.restore();
+}
+
+// ---- Message overlay ----
+function showMessage(title,sub,btnText){
+  const msg=document.getElementById('message');
+  document.getElementById('msg-title').textContent=title;
+  document.getElementById('msg-sub').textContent=sub;
+  document.getElementById('msg-btn').textContent=btnText;
+  msg.style.display='block';
+}
+
+function hideMessage(){
+  document.getElementById('message').style.display='none';
+}
+
+// ---- Game lifecycle ----
+function startGame(){
+  initAudio();
+  hideMessage();
+  score=0;lives=3;combo=0;comboMultiplier=1;comboTimer=0;
+  particles=[];floatingTexts=[];glowTrail=[];
+  hitChars.clear();
+  for(const b of bumpers)b.hitTimer=0;
+  movingBumper.hitTimer=0;
+  panSiDong.hitTimer=0;
+  resetBall();
+  gameState='launching';
+  launchPower=0;
+  updateUI();
+}
+
+// ---- Game loop ----
+function gameLoop(){
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// ---- Init ----
+updateUI();
+showMessage('西游弹球','按空格键发射弹球','开始游戏');
+gameLoop();
+</script>
+</body>
+</html>

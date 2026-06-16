@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互联网的主人正在换班：当 Bot 流量首次超过人类 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-17.html">
+<meta property="og:title" content="互联网的主人正在换班：当 Bot 流量首次超过人类 — Lob">
+<meta property="og:description" content="Cloudflare 数据显示，57.4% 的网站请求来自 AI 代理和机器人。互联网的使用主体正在从人切换到机器，这对产品设计意味着什么？">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-17.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.06.17</span>
+    </div>
+  <h1 class="post-title">互联网的主人正在换班：当 Bot 流量首次超过人类</h1>
+
+  <div class="post-body">
+    <p>Cloudflare 最新数据揭示了一个里程碑式的转折：<strong>57.4% 的互联网流量来自机器人和 AI 代理</strong>，人类只占 42.6%。AI Agent 的流量在一年内增长了 7,851%。互联网第一次不再是人类的专属领地。</p>
+
+    <p>这个数字本身并不意外——爬虫、搜索引擎、自动化脚本一直在消耗大量带宽。但这次不同的是增长引擎：<strong>新增流量的主体不是传统爬虫，而是 AI Agent</strong>。它们不是在抓取网页做索引，而是在替人类完成真实任务——浏览商品、填写表单、比价下单。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">互联网正从「人类阅读界面」转变为「Agent 执行通道」。这不是渐进式变化，而是使用主体的根本性切换。为人类设计的产品，正在被机器重新消费。</p>
+    </div>
+
+    <h2>01. 数据背后的真实变化</h2>
+    <p>Cloudflare 的 57.4% 涵盖了所有自动化流量，但真正的新闻藏在细分数据里。传统爬虫的增长是线性的，而 AI Agent 流量的增长是指数级的。2025 年 6 月到 2026 年 6 月，Agent 流量翻了近 80 倍。</p>
+    <p>这些 Agent 在做什么？不是简单的 API 调用。它们在模拟人类浏览行为——打开网页、滚动、点击按钮、等待加载、填写表单。这说明一个关键转变：<strong>越来越多的 AI 交互不是通过 API，而是通过浏览器界面</strong>。API 是为程序设计的接口，浏览器是为人类设计的界面。当 Agent 开始大量使用浏览器，意味着它们正在「像人一样」访问互联网。</p>
+
+    <h2>02. Chrome Auto-Browse：平台方的站队</h2>
+    <p>Google 在这个趋势中下了一个大注。5 月宣布的 Chrome Auto-Browse 功能将于 6 月下旬在 Android 上线——这是 Chrome 内置的 Agent 浏览能力，可以自动执行多步骤任务：预约、询价、预订。</p>
+    <p>Google 还悄悄通过 Chrome 静默下载了一个 4GB 的 Gemini Nano 模型。这意味着浏览器本身正在变成 AI 的运行环境。当你打开 Chrome，你的设备里已经住着一个可以替你浏览互联网的 Agent。</p>
+    <p>这个策略的逻辑很清晰：如果 Agent 流量会超过人类流量，那么<strong>控制 Agent 运行环境的人，就控制了互联网的入口</strong>。Google 正在把浏览器从「人类的窗口」升级为「Agent 的操作系统」。</p>
+
+    <h2>03. 对产品设计的三重冲击</h2>
+    <p>当互联网的主要用户不再是人，产品设计的底层假设需要被重写。</p>
+    <ul>
+      <li><strong>UX 不再只是给人看的</strong>——产品页面需要同时为人类审美和 Agent 解析优化。结构化数据、语义化 HTML、标准化的表单流程，这些「技术性」的东西会变得和视觉设计一样重要</li>
+      <li><strong>反机器人机制面临身份危机</strong>——CAPTCHA 和反爬虫系统过去是为了区分人和机器。但如果 Agent 代表人类行事，阻拦 Agent 就等于阻拦用户自己。产品需要新的「身份验证」逻辑：不是区分人和机器，而是区分「被授权的 Agent」和「未授权的 Agent」</li>
+      <li><strong>转化率的定义需要扩展</strong>——传统转化率衡量的是「人类用户是否完成目标行为」。当 Agent 替用户下单，转化率的计算需要考虑：Agent 是否真的代表了用户的意图？还是只是完成了技术上的点击？</li>
+    </ul>
+
+    <h2>04. 更大的图景</h2>
+    <p>57.4% 这个数字只是开始。Chrome Auto-Browse 上线后，Agent 流量会再上一个台阶。当每个手机用户的浏览器里都住着一个 AI Agent，当每个企业都在用 Agent 自动化业务流程，互联网流量的「人机比」会继续向机器倾斜。</p>
+    <p>这引出一个更根本的问题：<strong>互联网是为谁建的？</strong> 最初它是学术网络，后来它变成人类的信息高速公路。现在它正在变成 Agent 的执行通道。基础设施没有变——TCP/IP、HTTP、HTML 都在——但使用者变了。</p>
+    <p>对于产品团队来说，最务实的行动是：检查你的产品是否能被 Agent 有效访问。那些依赖复杂 JavaScript 渲染、反爬虫验证码、动态表单的产品，可能会在 Agent 时代失去一大块用户——因为「用户」的定义正在扩展，而你的产品可能还没有为新用户做好准备。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
