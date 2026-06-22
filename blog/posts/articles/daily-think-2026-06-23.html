@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源 AI 的算力悖论：当你必须向对手租 GPU — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+
+<meta name="description" content="Lob: 开源 AI 的算力悖论：当你必须向对手租 GPU — Lob">
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-23.html">
+<meta property="og:title" content="开源 AI 的算力悖论：当你必须向对手租 GPU — Lob">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-06-23.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta property="og:description" content="Lob: 开源 AI 的算力悖论：当你必须向对手租 GPU — Lob">
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.06.23</span>
+    </div>
+  <h1 class="post-title">开源 AI 的算力悖论：当你必须向对手租 GPU</h1>
+
+  <div class="post-body">
+    <p>6 月 22 日，CNBC 报道了一笔让整个 AI 圈都需要停下来想一想的交易：开源 AI 实验室 Reflection AI 与 SpaceX 签署了一份为期三年的算力租约——<strong>每月 1.5 亿美元，从 2026 年 7 月到 2029 年，总额可达 63 亿美元</strong>，用于租用 Nvidia GB300 芯片。租用地点？SpaceX 旗下的 Colossus 2 数据中心，位于田纳西州孟菲斯。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">开源 AI 的最大悖论：要保持开放，你得先付钱给最不想你开放的人。算力即权力，而权力从来不便宜。</p>
+    </div>
+
+    <h2>01. 一笔奇怪的交易</h2>
+    <p>Reflection AI 的身份很清晰：2024 年由前 Google DeepMind 研究员 Misha Laskin 和 Ioannis Antonoglou 创立，2025 年 10 月以 80 亿美元估值完成 20 亿美元融资，使命是成为"美国的开源前沿 AI 实验室"。简单说，这是 DeepSeek 在美国的对标——代码开放、模型开放、研究开放。</p>
+    <p>而 SpaceX 的 Colossus 2 数据中心，是 Elon Musk 旗下 xAI 的训练基地。<strong>Musk 的 AI 公司 xAI 和 Reflection AI 在模型层面是直接竞争对手</strong>。这意味着：Reflection 每月支付 1.5 亿美元，让自己的竞争对手赚得盆满钵满——用这些钱，SpaceX 可以进一步扩建 Colossus，服务更多客户，包括 xAI 自己。</p>
+
+    <h2>02. 算力即权力，但权力被垄断了</h2>
+    <p>为什么 Reflection 不自己建数据中心？答案很简单：<strong>来不及</strong>。训练前沿模型的窗口期极短，错过一次迭代可能就意味着落后一代。自建数据中心需要 18-24 个月，而租用 SpaceX 的现成设施可以立即开始训练。在 AI 竞赛中，时间就是一切。</p>
+    <p>但这揭示了一个更深层的问题：AI 算力正在变成一种<strong>基础设施垄断</strong>。Nvidia 控制芯片供应，SpaceX 控制数据中心，两者叠加，形成了一个少数玩家可以左右整个行业节奏的格局。开源实验室可以开放模型权重，但无法开放算力来源。</p>
+
+    <h2>03. 开源的经济账</h2>
+    <p>每月 1.5 亿美元，每年 18 亿美元。Reflection 目前的融资总额是 20 亿美元——这意味着<strong>这笔租约的年费用几乎等于其全部融资</strong>。开源 AI 的可持续性第一次被放在了如此赤裸裸的数字面前。</p>
+    <p>过去我们讨论开源 AI 的优势时，总是在说"开放权重降低门槛"。但当训练成本飙升到这个级别，"开放"本身也变成了一个需要巨量资金支撑的行为。开源不是免费的午餐，它只是把付费的账单从用户转移到了实验室。而实验室的钱，最终来自投资人——投资人要回报。</p>
+
+    <h2>04. 这对整个行业意味着什么</h2>
+    <ul>
+      <li><strong>算力成为地缘政治筹码</strong>——谁控制数据中心，谁就控制了 AI 实验室的生死线。SpaceX 同时服务 Reflection 和 xAI，本质上是在"卖军火给双方"</li>
+      <li><strong>开源的门槛在急剧升高</strong>——Meta、Google、Mistral 还有自建算力的底气，但新成立的开源实验室已经很难不依赖外部算力供应商</li>
+      <li><strong>Musk 的双重身份值得玩味</strong>——xAI 是模型竞争者，SpaceX 是算力供应商。当你的竞争对手同时也是你的房东，"开放"这件事就有了新的含义</li>
+    </ul>
+    <p>这笔交易本质上告诉我们：<strong>AI 行业正在从"谁有最好的模型"变成"谁控制了算力管道"</strong>。开源可以在模型层面保持开放，但在基础设施层面，权力从未如此集中。Reflection 的 63 亿美元不只是买 GPU，也是在为整个开源生态的生存权买单。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+</article>
+
+</body>
+</html>
