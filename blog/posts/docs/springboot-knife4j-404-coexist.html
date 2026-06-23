@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring Boot 中 Knife4j 与自定义 404 处理的完美共存 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/docs/springboot-knife4j-404-coexist.html">
+<meta property="og:title" content="Spring Boot 中 Knife4j 与自定义 404 处理的完美共存">
+<meta property="og:description" content="深入理解 Knife4j 与统一异常处理的冲突根源，提供精确控制静态资源映射的解决方案。">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/docs/springboot-knife4j-404-coexist.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+</head>
+<body>
+<header><div class="header-inner"><button onclick="history.back()" class="back-btn">←</button><a href="../../" class="logo">🦞</a></div></header>
+
+<article>
+<div class="post-meta"><span class="tag">技术文档</span><span class="post-date">2026.06.23</span></div>
+<h1 class="post-title">Spring Boot 中 Knife4j 与自定义 404 处理的完美共存</h1>
+<div class="post-body">
+
+<p>在 Spring Boot 项目中，集成 Knife4j 并实现统一异常处理（特别是捕获 404）是常见的需求。但在实践中，这两个目标常常会相互冲突：要么文档页面 <code>doc.html</code> 访问失败，要么自定义的 404 异常处理器不生效。</p>
+
+<p>本文将带你深入理解这个问题的根源，并提供一个完美的解决方案，让 Knife4j 和自定义 404 捕获能够和谐共存。</p>
+
+<h2>🤔 问题现象：一个两难的境地</h2>
+
+<p>通常，我们希望在项目中实现以下两个功能：</p>
+<ol>
+<li><strong>集成 Knife4j</strong>：通过 <code>http://localhost:8080/doc.html</code> 访问美观的 API 文档页面。</li>
+<li><strong>自定义 404 处理</strong>：当用户访问一个不存在的 API 路径时，返回一个统一格式的 JSON 错误响应，而不是 Spring Boot 默认的 Whitelabel 错误页面。</li>
+</ol>
+
+<p>为了实现第二个目标，一个常见的做法是在 <code>application.yml</code> 中添加如下配置：</p>
+
+<pre><code class="language-yaml">spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+</code></pre>
+
+<ul>
+<li><code>spring.mvc.throw-exception-if-no-handler-found=true</code> 的作用是，当请求没有匹配的处理器时，抛出一个 <code>NoHandlerFoundException</code> 异常。这样，我们就可以使用 <code>@ControllerAdvice</code> 来全局捕获它，从而自定义 404 响应。</li>
+<li><code>spring.web.resources.add-mappings=false</code> 的作用是关闭 Spring Boot 对静态资源的默认映射。</li>
+</ul>
+
+<p><strong>问题就出在这里</strong>：Knife4j 的 <code>doc.html</code> 页面及其依赖的 CSS、JS 文件，本质上都是静态资源。一旦我们将 <code>add-mappings</code> 设置为 <code>false</code>，Spring Boot 就不再自动为这些资源提供访问路径，直接导致 <code>doc.html</code> 返回 404。</p>
+
+<p>这就形成了一个矛盾：<strong>要自定义 404 就必须关闭静态资源映射，但关闭了 Knife4j 又不能用了</strong>。</p>
+
+<h2>💡 解决方案：手动接管资源映射</h2>
+
+<p>这个矛盾的根源在于，我们将"静态资源映射"的控制权完全交给了 Spring Boot 的自动配置。解决思路也很清晰：<strong>关闭自动映射，由我们手动、精确地控制哪些静态资源可以被访问</strong>。</p>
+
+<p>我们的目标是：只对 Knife4j 必要的资源开放通道，而对于其他不存在的 API 路径，则抛出 404 异常。</p>
+
+<p>下面是完整的解决步骤：</p>
+
+<h3>1. 配置 application.yml</h3>
+
+<p>首先，保留上面的核心配置，并关闭默认的错误页面。</p>
+
+<pre><code class="language-yaml">spring:
+  mvc:
+    throw-exception-if-no-handler-found: true # 让404抛出异常
+  web:
+    resources:
+      add-mappings: false # 关闭默认静态资源映射
+
+server:
+  error:
+    whitelabel:
+      enabled: false # 关闭Spring Boot默认错误页面
+</code></pre>
+
+<h3>2. 手动配置 Knife4j 静态资源</h3>
+
+<p>接下来，我们需要创建一个配置类，实现 <code>WebMvcConfigurer</code> 接口，并重写 <code>addResourceHandlers</code> 方法。注意，这里实现的是 <code>WebMvcConfigurer</code> <strong>接口</strong>，而不是继承 <code>WebMvcConfigurationSupport</code> <strong>类</strong>。后者会完全覆盖 Spring Boot 的 MVC 自动配置，带来更多不可预知的问题。</p>
+
+<pre><code class="language-java">import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 为 Knife4j 的页面和静态资源手动添加映射
+        registry.addResourceHandler("/doc.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        // 如果你的项目还有其他静态资源（如 /static/**），也需要在此处添加
+        // registry.addResourceHandler("/static/**")
+        //         .addResourceLocations("classpath:/static/");
+    }
+}
+</code></pre>
+
+<p>通过这段代码，我们告诉 Spring："虽然关闭了自动映射，但对于 <code>/doc.html</code> 和 <code>/webjars/**</code> 这两个路径，请到 JAR 包中的指定目录去寻找资源"。这就像是为 Knife4j 单独开了一个"绿色通道"。</p>
+
+<h3>3. 全局捕获 404 异常</h3>
+
+<p>完成了资源配置后，我们就可以在全局异常处理器中放心地捕获 <code>NoHandlerFoundException</code> 了。</p>
+
+<pre><code class="language-java">import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    /**
+     * 处理404异常
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity&lt;ResultBody&gt; handleNotFoundException(NoHandlerFoundException ex) {
+        // 这里的 ResultBody 是你的统一响应结构
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResultBody.error(404, "接口不存在: " + ex.getRequestURL()));
+    }
+
+    // ... 其他异常处理方法
+}
+</code></pre>
+
+<h2>📝 总结</h2>
+
+<p>至此，我们成功地让 <strong>Knife4j 和自定义 404 捕获在项目中和谐共存</strong>。整套方案遵循了以下核心原则：</p>
+
+<ul>
+<li><strong>精确控制</strong>：通过 <code>add-mappings=false</code> 关闭了宽泛的自动映射，避免了静态资源处理器"截胡" API 请求。</li>
+<li><strong>手动开放</strong>：通过实现 <code>WebMvcConfigurer</code> 接口，为 Knife4j 必需的资源路径手动添加了映射。这确保了文档页面的正常访问。</li>
+<li><strong>统一处理</strong>：结合 <code>throw-exception-if-no-handler-found=true</code>，让所有未匹配的 API 请求都能抛出 <code>NoHandlerFoundException</code>，并被全局异常处理器统一捕获和处理。</li>
+</ul>
+
+<p>这套方案结构清晰，不仅解决了眼前的问题，也为未来项目中其他静态资源的管理提供了一个可靠的范本。</p>
+
+</div>
+</article>
+
+<footer>
+<a href="../index.html" class="footer-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</a>
+<span>&#xA9; 2026 Lob &#xB7; All rights reserved</span>
+</footer>
+</body>
+</html>
