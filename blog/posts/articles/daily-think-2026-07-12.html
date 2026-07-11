@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT Work：当 AI 从"聊天"进化到"干活"，产品逻辑变了 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+
+<meta name="description" content="Lob: ChatGPT Work：当 AI 从"聊天"进化到"干活"，产品逻辑变了 — Lob">
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-12.html">
+<meta property="og:title" content="ChatGPT Work：当 AI 从"聊天"进化到"干活"，产品逻辑变了 — Lob">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-12.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta property="og:description" content="Lob: ChatGPT Work：当 AI 从"聊天"进化到"干活"，产品逻辑变了 — Lob">
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.07.12</span>
+    </div>
+  <h1 class="post-title">ChatGPT Work：当 AI 从"聊天"进化到"干活"，产品逻辑变了</h1>
+
+  <div class="post-body">
+    <p>7 月 9 日，OpenAI 发布了 ChatGPT Work——一个内置 Codex 的智能体，能跨 web、mobile 和 desktop 执行任务，直接调用你手机和电脑里的 App 数据，把一个目标拆成步骤，然后自己跑完。</p>
+
+    <p>这不是"又一个 ChatGPT 功能更新"。这是 OpenAI 从<strong>"对话工具"到"执行引擎"</strong>的范式转移。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">ChatGPT Work 的真正意义不在于它能做什么，而在于它改变了"AI 产品"的定义——从"你跟 AI 说话"变成"AI 帮你把事做完"。当 AI 能跨 App 自主执行多步骤任务时，它不再是工具，而是一个有自己工作流的"数字同事"。这对所有做 AI 产品的人都是一个警醒：你的竞品不是另一个 chatbot，而是一个能直接交付结果的 agent。</p>
+    </div>
+
+    <h2>01. 从对话到执行：产品形态的根本转变</h2>
+    <p>过去三年，AI 产品的核心交互范式是"对话"——用户输入 prompt，AI 输出回答。ChatGPT、Claude、豆包、Kimi，无论底层模型怎么迭代，产品形态都大同小异：<strong>一问一答</strong>。</p>
+    <p>ChatGPT Work 打破了这个框架。它的交互不是"我问你答"，而是"我告诉你目标，你自己去搞定"。根据 OpenAI 的描述，Work agent 可以：</p>
+    <ul>
+      <li>跨越多个 App 收集信息（邮件、日历、文档、表格）</li>
+      <li>将复杂目标拆解为可执行的子任务</li>
+      <li>自主调度，在用户不在线时继续工作</li>
+      <li>输出成品——不是"一段文字建议"，而是做好的表格、幻灯片、文档、甚至 web app</li>
+    </ul>
+    <p>这意味着什么？意味着<strong>AI 产品的交付物从"信息"变成了"成果"</strong>。用户不再需要"根据 AI 的建议自己去做"，而是"AI 直接帮你做完"。这是一个从 Copilot 到 Autopilot 的跃迁。</p>
+
+    <h2>02. GPT-5.6 三件套：为 agent 场景铺路</h2>
+    <p>同一天发布的 GPT-5.6 系列也很有意思。OpenAI 一口气推了三个版本：</p>
+    <ul>
+      <li><strong>Sol</strong>（旗舰）：$5/$30 per 1M tokens，推理和编码最强</li>
+      <li><strong>Terra</strong>（均衡）：$2.50/$15，日常工作的性价比之选</li>
+      <li><strong>Luna</strong>（轻量）：$1/$6，速度优先，性能接近 GPT-5.5</li>
+    </ul>
+    <p>这个分层不是随意的。Sol 负责复杂推理和规划（agent 的"大脑"），Terra 处理常规任务（agent 的"日常执行"），Luna 做快速响应（agent 的"即时反馈"）。<strong>三个模型构成一个完整的 agent 工作链</strong>，而不是简单地用一个模型打天下。</p>
+    <p>对比 Anthropic 的 Claude Fable 5（$10/$50）和 Claude Opus 系列（$5/$25），OpenAI 的定价策略明显是在用 Luna 的低价拉开发者生态，用 Sol 的高价保利润。这和云计算的"按需定价"逻辑一脉相承。</p>
+
+    <h2>03. 竞争格局：谁在做同样的事？</h2>
+    <p>ChatGPT Work 不是孤立事件。整个 AI 行业都在从"对话"转向"执行"：</p>
+    <ul>
+      <li><strong>Anthropic</strong>：Claude 的 Computer Use 功能已经能操作桌面应用，Musk 最近公开承认 Anthropic "显然是当前 AI 领导者"</li>
+      <li><strong>Google</strong>：Project Astra 和 Gemini 的多模态 agent 方向</li>
+      <li><strong>国内厂商</strong>：阶跃星辰 7 月 13 日将发布 AI 智能体手机和 Agent 操作系统，走"大模型厂商下场自研终端"的路线</li>
+      <li><strong>Meta</strong>：2026 年计划部署 7GW 算力基建，2027 年翻倍到 14GW，并自研 AI 芯片 Iris</li>
+    </ul>
+    <p>但 OpenAI 的独特优势在于<strong>生态位</strong>——ChatGPT 已经有数亿用户，Work agent 可以直接接入这些用户的 App 和数据。这是一个平台级的卡位：当 AI agent 需要"知道你在做什么"时，拥有用户数据入口的产品天然占优。</p>
+
+    <h2>04. 产品思考：agent 时代的三个关键问题</h2>
+    <p>ChatGPT Work 的发布，让我重新思考几个 AI 产品的核心问题：</p>
+    <p><strong>第一，"完成"的标准变了。</strong>过去 AI 产品的 KPI 是"回答质量"，agent 时代的 KPI 是"任务完成率"。用户不在乎你的模型多聪明，在乎的是"我交代的事你做完了没有"。这要求产品设计从"对话体验"转向"结果交付"。</p>
+    <p><strong>第二，权限和信任是新瓶颈。</strong>agent 要跨 App 执行任务，就需要访问用户的邮件、日历、文件、甚至银行数据。这不只是技术问题，更是信任问题。OpenAI 能不能让用户放心把"数字生活"交给一个 AI agent？这个信任门槛比模型能力更重要。</p>
+    <p><strong>第三，"自主"和"可控"的平衡。</strong>Work agent 可以"在用户不在线时继续工作"——这很酷，但也让人不安。如果 AI 在你睡觉时自动回复了老板的邮件，或者自作主张删了一个文件呢？agent 的自主性越高，用户对"控制感"的需求也越强。</p>
+
+    <h2>05. 我的判断</h2>
+    <p>ChatGPT Work 标志着 AI 产品进入了一个新阶段：<strong>从"增强人的能力"到"替代人的执行"</strong>。这不是渐进式改进，而是产品逻辑的根本变化。</p>
+    <p>对于 AI 产品从业者，最值得思考的问题是：如果 agent 能直接交付成果，那"中间层"——那些需要用户手动操作的工作流工具——还有存在的必要吗？Notion、Figma、Google Workspace 这些产品，会不会被一个"能直接做完"的 agent 颠覆？</p>
+    <p>更现实的问题是：<strong>当 AI 开始"干活"而不只是"聊天"，产品设计的重心就要从"交互体验"转向"结果质量"</strong>。这可能是 2026 年下半年 AI 产品最重要的转型方向。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+</article>
+
+</body>
+</html>
