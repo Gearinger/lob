@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT-5.6 的三层定价：OpenAI 终于不只卖「最聪明」了 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+    <span class="tag">产品思考</span>
+    <span class="post-date">2026.07.14</span>
+  </div>
+  <h1 class="post-title">GPT-5.6 的三层定价：OpenAI 终于不只卖「最聪明」了</h1>
+
+  <div class="post-body">
+    <p>7 月 9 日，OpenAI 正式发布 GPT-5.6 家族——<strong>Sol、Terra、Luna</strong> 三个层级同时上线。这是 OpenAI 第一次在同一代模型上做清晰的分层定价，也是 AI 行业从「谁最聪明」到「谁最划算」转变的一个标志性事件。</p>
+
+    <div class="callout">
+      <div class="callout-title">三个模型</div>
+      <p style="margin:0;color:var(--text-primary)"><strong>Sol</strong>（旗舰）：最强推理与长链任务，比 Claude Fable 5 高 13.1 分<br><strong>Terra</strong>（中间层）：约等于 GPT-5.5 水平，略高于 Fable 5<br><strong>Luna</strong>（轻量级）：成本仅 Sol 的 1/5，但超过 Claude Opus 4.8</p>
+    </div>
+
+    <h2>01. 命名本身就是产品策略</h2>
+    <p>从 GPT-3/4/5 到 Sol/Terra/Luna，<strong>OpenAI 终于放弃了纯数字版本号的产品化思路</strong>。数字版本号暗示「下一代一定比上一代好」，但分层命名传达的是「不同场景用不同工具」。这是一个微妙但重要的定位转变——从「一个模型打天下」到「一套产品组合满足不同预算」。</p>
+    <p>更巧妙的是天体命名的隐喻：Sol（太阳）= 最亮最强，Luna（月亮）= 最轻最柔和。用户不需要理解技术参数就能直觉理解层级关系。</p>
+
+    <h2>02. Luna 的性价比才是真正炸弹</h2>
+    <p>看数据：Luna 的 DeepSWE 基准表现约 24 分/美元，而 Claude Opus 4.8 是 4.5 分/美元，Fable 5 是 3.2 分/美元。换句话说，<strong>Luna 的单位成本性能是 Anthropic 旗舰的 5-7.5 倍</strong>。</p>
+    <p>这意味着什么？大量之前「用不起 GPT-5 级别能力」的中小企业和个人开发者，现在可以用 1/5 的成本获得超过去年顶级模型的表现。<strong>AI 能力的普及不再取决于模型上限，而是取决于模型下限的经济性。</strong></p>
+
+    <h2>03. 这次发布背后的行业逻辑</h2>
+    <p>GPT-5.6 的分层策略不是 OpenAI 的灵光一现，而是竞争压力的必然产物：</p>
+    <ul>
+      <li><strong>Anthropic 的 Claude 已经在用价格抢市场。</strong>Claude Haiku 系列在开发者群体中快速渗透，核心原因就是便宜够用</li>
+      <li><strong>开源模型在蚕食中间地带。</strong>Llama、Qwen 等开源模型让「够用」的门槛越来越低，闭源模型必须给出更强的性价比理由</li>
+      <li><strong>企业采购需要阶梯定价。</strong>没有企业会把所有工作负载都跑在最贵的模型上，分层是 B2B 销售的基本功</li>
+    </ul>
+
+    <h2>04. 产品思考：模型分层 = 用户分层</h2>
+    <p>这次发布最值得关注的不是 Sol 有多强（它确实很强），而是 <strong>OpenAI 开始用产品矩阵的思维来管理模型家族</strong>。这是从「研究机构」到「产品公司」的关键一步。</p>
+    <p>过去 OpenAI 的产品逻辑是：每次发新模型，旧模型就退役。现在变成了：同一代模型内部分层，用户按需选择。这和苹果 iPhone 的 Pro/标准版/SE 策略一脉相承——用同一代芯片的不同配置，覆盖从高端到入门的全部价格段。</p>
+    <p>对 AI 产品团队的启示：<strong>模型能力的上限已经不是核心竞争力，成本效率的下限才是。</strong>接下来的市场会奖励那些能用最便宜的模型做到 80 分的团队，而不是死磕 95 分但烧不起钱的团队。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
