@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当模型不再「单线思考」：GPT-5.6 Ultra Mode 揭示的下一代 AI 架构 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-16.html">
+<meta property="og:title" content="当模型不再「单线思考」：GPT-5.6 Ultra Mode 揭示的下一代 AI 架构">
+<meta property="og:description" content="GPT-5.6 Ultra Mode 不是让模型「想得更久」，而是让它同时派出多个子 agent 并行协作。这标志着 AI 从「更强的大脑」转向「更聪明的组织」。">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-16.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.07.16</span>
+    </div>
+  <h1 class="post-title">当模型不再「单线思考」：GPT-5.6 Ultra Mode 揭示的下一代 AI 架构</h1>
+
+  <div class="post-body">
+    <p>GPT-5.6 发布一周以来，行业讨论集中在三层定价和 token 成本上。但真正值得关注的，是随 Sol 同步上线的 <strong>Ultra Mode</strong>——它不是「让模型想得更久」，而是让模型同时派出多个子 agent，并行处理同一任务的不同部分。</p>
+
+    <div class="callout">
+      <div class="callout-title">一句话</div>
+      <p style="margin:0;color:var(--text-primary)">AI 从「更强的大脑」走向「更聪明的组织」——单线程推理正在被多 agent 协同取代。</p>
+    </div>
+
+    <h2>01. Max 和 Ultra 的本质区别</h2>
+    <p>GPT-5.6 引入了两个新的推理设置：Max 和 Ultra。很多人把它们当成同一个东西的不同档位，但架构上有根本差异。</p>
+    <p><strong>Max</strong> 是单线程的深度思考——给模型更多 token、更长时间，让它在一条推理链上走得更远。本质上是「让一个聪明人想得更久」。</p>
+    <p><strong>Ultra</strong> 则完全不同。当 Ultra 模式激活时，Sol 会<strong>分解任务，生成多个并行子 agent</strong>，每个子 agent 负责任务的一个子集。关键在于，这些子 agent 并非独立运行——它们在一个共享上下文层（shared context layer）上协调，完成后由一个合成 agent 汇总结果。</p>
+    <p>简单说：Max 是「一个人深度思考」，Ultra 是「一个团队并行协作后汇总」。</p>
+
+    <h2>02. Programmatic Tool Calling：模型开始「写代码」来协调工具</h2>
+    <p>与 Ultra 同步上线的另一个关键能力是 <strong>Programmatic Tool Calling</strong>（PTC）。这不是传统的 function calling——模型不再只是输出一个 JSON 调用参数，而是<strong>在内存中编写和执行程序来协调多个工具、处理中间结果</strong>。</p>
+    <p>举个例子：以前模型要搜索、过滤、汇总数据，需要多轮对话，每轮调一个工具。现在，PTC 让模型一次性写出一个程序，串联多个工具调用，中间数据流在内存中处理，只有最终结果返回给用户。</p>
+    <p>更关键的是，PTC 天然兼容 Zero Data Retention（ZDR）——中间数据不落盘，对合规场景意义重大。</p>
+
+    <h2>03. 这对 AI 产品意味着什么？</h2>
+    <p>这两个能力叠加在一起，揭示了一个趋势：<strong>AI 正在从「单次推理」走向「任务编排」</strong>。</p>
+    <p>此前的 AI 产品设计，核心假设是：用户发一条消息，模型返回一个回复。所有交互都是一对一的 request-response 模型。但 Ultra + PTC 打破了这个假设——模型可以在一次调用内部完成分解、并行执行、协调、汇总的完整流程。</p>
+    <p>这意味着面向开发者的 AI 产品，接下来需要解决的问题从「怎么调好一个模型」变成了「怎么设计一个 agent 系统」。而对终端用户而言，感知变化会很直接：<strong>以前需要分 5 步完成的任务，现在可能一句话搞定</strong>——因为模型内部已经在并行处理了。</p>
+
+    <h2>04. 冷静看：瓶颈在哪？</h2>
+    <p>Ultra Mode 的潜在风险也很明显。并行子 agent 意味着 token 消耗成倍增长——执行一个 Ultra 任务的 token 用量可能是普通模式的 5-10 倍。对于已经按 token 计费的 API 用户来说，成本管控会是第一道门槛。</p>
+    <p>此外，共享上下文层的设计是否足够健壮，子 agent 之间的协调是否真的无缝，目前还缺乏大规模生产环境的验证。从 demo 到生产，中间的坑可能比想象中多。</p>
+
+    <h2>05. 我的判断</h2>
+    <p>GPT-5.6 Ultra Mode 最大的意义不在于跑分提升，而在于<strong>它把「多 agent 协同」从开源框架的概念验证，变成了模型厂商的原生能力</strong>。以前要自己编排 LangChain 或 CrewAI 才能实现的模式，现在一个 API 参数就开启了。</p>
+    <p>这会加速一个趋势：AI 产品的竞争维度从「模型能力排行榜」转向「任务编排效率」。谁能用最少的 token 完成最复杂的任务，谁就赢了。分层定价解决的是「谁能用得起」的问题，而 Ultra Mode 解决的是「能用它做多大的事」的问题——后者才是产品护城河。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
