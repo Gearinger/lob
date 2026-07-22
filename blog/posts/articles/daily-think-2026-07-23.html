@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek V4 的峰谷定价：AI 算力开始「像电价一样卖」 — Lob</title>
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-23.html">
+<meta property="og:title" content="DeepSeek V4 的峰谷定价：AI 算力开始「像电价一样卖」">
+<meta property="og:description" content="1.6万亿参数、100万上下文、夜间算力费直降60%——DeepSeek V4 不只是一个新模型，它让AI算力第一次有了「峰谷电价」的概念。">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/articles/daily-think-2026-07-23.html">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+</head>
+
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.07.23</span>
+    </div>
+  <h1 class="post-title">DeepSeek V4 的峰谷定价：AI 算力开始「像电价一样卖」</h1>
+
+  <div class="post-body">
+    <p>7 月 15 日，DeepSeek 将 V4 正式推全量商用——不是灰度测试，不是限量开放，而是 Pro 旗舰版与 Flash 轻量版同时面向所有开发者。1.6 万亿参数、100 万 token 上下文窗口、双版本分层……这些都是大数字，但真正值得关注的，是一个看似不起眼的定价机制：<strong>峰谷定价——夜间算力费直降 60%</strong>。</p>
+
+    <div class="callout">
+      <div class="callout-title">一句话</div>
+      <p style="margin:0;color:var(--text-primary)">AI 算力第一次有了「峰谷电价」的概念——这不只是降价策略，而是模型厂商开始用基础设施思维重新定义 AI 的成本结构。</p>
+    </div>
+
+    <h2>01. 为什么「峰谷定价」这件事很重要</h2>
+    <p>所有云计算从业者都熟悉峰谷电价的概念：电网负荷低的深夜时段，电价便宜；白天高峰时段，电价贵。这背后是一个简单的物理事实——电力不能大规模储存，必须即时生产即时消费，而需求在一天之内剧烈波动。</p>
+    <p>AI 推理的算力资源也面临同样的问题。GPU 集群在白天（用户活跃时段）被推理请求占满，而在深夜大量闲置。对于 DeepSeek 这样的 API 服务商来说，闲置的 GPU 意味着沉没成本——电费照付、折旧照计，但没有收入。峰谷定价的本质是：<strong>把空闲时段的闲置算力以折扣价出售，变沉没成本为增量收入</strong>。</p>
+    <p>这和 Uber 的动态定价、航空公司的收益管理是同一个逻辑——用价格信号调节供需。但 AI 行业直到今天才开始认真做这件事，原因很简单：过去两年，算力一直是瓶颈，供不应求，厂商没有动力降价。现在供给端开始松动，价格战才真正开始。</p>
+
+    <h2>02. V4 的双版本策略：不是「大和小」，是「贵和省」</h2>
+    <p>DeepSeek 这次同时开放了 V4 Pro 和 V4 Flash 两个版本。Pro 是完整版旗舰，Flash 是轻量版。但这个分层不只是参数规模的差异，而是<strong>成本效率的重新设计</strong>。</p>
+    <p>Flash 版本的存在意义不在于「小模型也能用」，而在于给开发者一个明确的成本选项：对于不需要 100 万 token 上下文、不需要极致推理深度的场景（比如客服对话、文档摘要、简单代码生成），Flash 版本可以用更低的成本完成 80% 的任务。Pro 版本则留给真正需要深度推理的场景（复杂分析、长链规划、多模态理解）。</p>
+    <p>再加上峰谷定价，DeepSeek 实际上给了开发者一个三维的成本优化空间：<strong>选版本（Pro vs Flash）× 选时段（高峰 vs 低谷）× 选用量（按 token 计费）</strong>。这在 API 服务领域是前所未有的精细化程度。</p>
+
+    <h2>03. 延期背后：打磨的不是模型，是定价系统？</h2>
+    <p>有一个耐人寻味的细节：DeepSeek V4 原计划 7 月中旬发布，但根据最新爆料，完整版可能要拖到月底。官方邮件中提到的延期原因是「打磨细节」——但什么细节需要额外两周？</p>
+    <p>一种可能的解释是：<strong>峰谷定价机制的实现比预期更复杂</strong>。它不只是简单地「晚上打折」，而是需要实时监控集群负载、动态调整价格、处理跨时区用户的计费逻辑、以及确保折扣时段的服务质量不下降。这本质上是在搭建一个微型的「算力交易所」——技术难度不亚于模型本身。</p>
+    <p>如果这个推测成立，DeepSeek 的战略意图就很清楚了：<strong>它不只想做模型提供商，还想做算力交易的基础设施层</strong>。峰谷定价是第一步，未来可能延伸到按需竞价、预留实例、甚至算力期货。</p>
+
+    <h2>04. 对行业的影响：价格战的终局是什么？</h2>
+    <p>DeepSeek 的峰谷定价一旦跑通，其他 API 服务商将面临两难选择：跟进降价，意味着利润被压缩；不跟进，意味着用户在非高峰时段会流向更便宜的选项。这和网约车市场的价格战如出一辙——最终的赢家不是最便宜的，而是<strong>在价格和服务质量之间找到最佳平衡点的</strong>。</p>
+    <p>但更深的影响在于：峰谷定价会改变开发者使用 AI 的行为模式。当夜间推理便宜 60%，开发者会自然地把批处理任务、离线分析、模型微调等非实时任务挪到深夜执行。这反过来会<strong>削峰填谷，提高整个集群的利用率</strong>，形成正向循环。</p>
+    <p>最终，AI API 的定价可能从「统一费率」演变为类似电力市场的多层次定价体系：基础费率 + 高峰附加 + 低谷折扣 + 预留优惠。谁先建立起这套定价基础设施，谁就在商业化层面占据了先机。</p>
+
+    <h2>05. 我的判断</h2>
+    <p>DeepSeek V4 的峰谷定价，表面上是一个降价策略，本质上是 AI 行业从「技术竞赛」转向「基础设施化」的信号。</p>
+    <p>过去两年，AI 模型的竞争焦点是「谁更强」——更大的参数、更长的上下文、更高的 benchmark 分数。但当模型能力趋同（V4、Kimi K3、Qwen 3.8 差距正在缩小），竞争维度就会转向「谁更便宜、谁更好用」。峰谷定价是这个转向的早期信号。</p>
+    <p>对开发者来说，这意味着 AI 的使用成本将进一步下降，而且下降的方式会越来越精细化——不再是一刀切的降价，而是基于时段、场景、需求弹性的差异化定价。对 AI 公司来说，这意味着商业化的重心从「卖模型」转向「卖算力服务」——后者才是一个真正可持续的商业模式。</p>
+    <p>当 AI 算力开始像电价一样卖，这个行业才算真正进入了基础设施时代。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
