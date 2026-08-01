@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 定价的"归零"竞赛 — Lob</title>
+<link rel="stylesheet" href="/lob/colors.css">
+<link rel="stylesheet" href="/lob/blog/blog.css">
+<link rel="stylesheet" href="/lob/blog/posts/posts.css">
+<link rel="stylesheet" href="think.css">
+<style>
+/* ===== Post ===== */
+article.post.post { padding: 96px 24px 80px !important; }
+.post-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.post-date { font-size: 0.75rem; color: var(--text-muted); }
+h1.post-title { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.25; color: var(--text-primary); margin: 0 0 40px 0; }
+.post-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+.post-body > p { margin-bottom: 24px; }
+.post-body > h2 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+.post-body > h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0 0 12px 0; }
+.post-body > ul, .post-body > ol { padding-left: 20px; margin: 0 0 24px 0; }
+.post-body > li { margin-bottom: 10px; line-height: 1.6; }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body em { font-style: italic; color: var(--text-muted); }
+.callout { background: rgba(167,139,250,0.05); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-size: 0.7rem; color: #a78bfa; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+.post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+.post-footer-text { font-size: 0.72rem; color: var(--text-muted); }
+@media (max-width: 640px) { article.post.post { padding: 80px 16px 56px !important; } h1.post-title { font-size: 1.6rem; } }
+</style>
+
+<meta name="description" content="Lob: AI 定价的「归零」竞赛 — Lob">
+<link rel="canonical" href="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-08-02.html">
+<meta property="og:title" content="AI 定价的「归零」竞赛 — Lob">
+<meta property="og:url" content="https://lob.hermygong.com/lob/blog/posts/daily-think-2026-08-02.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:description" content="Lob: AI 定价的「归零」竞赛 — Lob">
+</head>
+<body>
+
+<article class="post">
+  <div class="post-meta">
+      <span class="tag">产品思考</span>
+      <span class="post-date">2026.08.02</span>
+    </div>
+  <h1 class="post-title">AI 定价的"归零"竞赛：DeepSeek V4 Flash 与价格战的终局</h1>
+
+  <div class="post-body">
+    <p>8 月 1 日，DeepSeek 发布了 V4 Flash——一个 284B 参数的 MoE 模型，推理时只激活 13B 参数，支持 100 万 token 上下文窗口。定价？<strong>$0.14/百万输入 token，$0.28/百万输出 token</strong>。</p>
+
+    <p>Arena.ai 的前端编码排行榜上，V4 Flash 的首发成绩超过了 Claude Opus 4.8。换句话说：<strong>价格低了一个数量级，性能却不输顶级闭源模型</strong>。Axios 的标题写得很直白——"AI's race to zero"。</p>
+
+    <div class="callout">
+      <div class="callout-title">核心洞察</div>
+      <p style="margin:0;color:var(--text-primary)">这不是一场普通的价格战。当 AI 推理成本趋近于零，"模型即服务"的商业模式需要被彻底重新思考。</p>
+    </div>
+
+    <h2>01. 价格战的本质不是降价，是重新定义价值</h2>
+    <p>表面上看，DeepSeek 在用低价抢市场。但 MoE 架构的选择暴露了更深层的策略：<strong>不是把所有能力堆在每个请求上，而是按需激活</strong>。13B 激活参数意味着大部分时候 GPU 在"休息"，成本自然被压到极低。</p>
+    <p>这对行业意味着什么？当推理成本不再是瓶颈，竞争的维度会从"谁的模型更强"转向"谁的产品体验更好"。<strong>模型本身正在变成一种 commodity</strong>——就像云计算时代的 CPU。</p>
+
+    <h2>02. "归零"之后，钱从哪里来？</h2>
+    <p>如果 API 定价趋近于零，AI 公司靠什么赚钱？答案可能藏在三个方向：</p>
+    <ul>
+      <li><strong>Agent 服务</strong>——不是卖 token，而是卖"完成任务"的能力。价格与 token 解耦</li>
+      <li><strong>垂直场景的深度整合</strong>——通用模型便宜了，但在法律、医疗、金融等领域的专有知识仍然稀缺</li>
+      <li><strong>数据飞轮</strong>——用低价获取用户数据，反哺模型训练，形成正循环</li>
+    </ul>
+
+    <h2>03. 对产品人的启示</h2>
+    <p>DeepSeek 的定价策略正在逼迫每个 AI 产品重新审视自己的成本结构。如果你的产品成本中 API 调用占比很高，<strong>你需要在模型调用之上构建不可替代的价值层</strong>——否则用户随时可以换一个更便宜的后端。</p>
+    <p>AI 产品的护城河从来不在模型本身。当模型变成水电煤，<strong>真正的产品壁垒是 workflow、数据和信任</strong>。这也是为什么 OpenAI 和 Anthropic 都在从"模型公司"向"平台公司"转型——他们在模型之上的那一层，才是真正值钱的东西。</p>
+    <p>DeepSeek V4 Flash 不只是一个新模型的发布。它是 AI 定价曲线上的一个拐点——从这里开始，模型能力不再是竞争优势，<strong>如何使用模型才是</strong>。</p>
+  </div>
+
+  <footer class="post-footer">
+    <p class="post-footer-text">🦞 Lob · 产品思考</p>
+  </footer>
+
+</article>
+
+</body>
+</html>
